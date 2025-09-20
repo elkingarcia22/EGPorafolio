@@ -1,10 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Supabase client
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+// Supabase client - con valores por defecto para desarrollo
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Verificar si Supabase está configurado
+export const isSupabaseConfigured = () => {
+  return process.env.NEXT_PUBLIC_SUPABASE_URL && 
+         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co'
+}
 
 // Database service functions
 export class DatabaseService {

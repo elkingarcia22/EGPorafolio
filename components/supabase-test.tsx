@@ -2,8 +2,27 @@
 
 import React, { useState, useEffect } from 'react'
 import { useSupabase } from '@/hooks/useSupabase'
+import { isSupabaseConfigured } from '@/lib/supabase-client'
 
 export const SupabaseTest: React.FC = () => {
+  // Si Supabase no está configurado, no mostrar el componente
+  if (!isSupabaseConfigured()) {
+    return (
+      <div className="neo-card p-6">
+        <div className="text-center">
+          <div className="text-yellow-500 mb-4">⚠️ Supabase no configurado</div>
+          <p className="text-muted-foreground mb-4">
+            Para habilitar la funcionalidad de base de datos, configura las variables de entorno de Supabase.
+          </p>
+          <div className="text-sm text-muted-foreground bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
+            <p><strong>Variables requeridas:</strong></p>
+            <p>NEXT_PUBLIC_SUPABASE_URL</p>
+            <p>NEXT_PUBLIC_SUPABASE_ANON_KEY</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
