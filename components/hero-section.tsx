@@ -13,7 +13,7 @@ export const HeroSection: React.FC = () => {
   ]
 
   return (
-    <div className="relative z-10 min-h-screen flex items-start justify-start px-4 pt-20">
+    <div className="relative z-10 min-h-screen flex items-start justify-start px-4 pt-32">
       <div className="max-w-6xl mx-auto text-left">
         {/* Saludo */}
         <div className="mb-6">
