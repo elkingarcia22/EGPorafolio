@@ -1,0 +1,595 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Font Classes */
+.font-poppins {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+.font-montserrat {
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+/* Text Fill Effect Animations - Left to Right */
+@keyframes textFillLeftToRight {
+  0% {
+    background: linear-gradient(90deg, transparent 0%, transparent 0%, #6b7280 0%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 3px #6b7280;
+    color: transparent;
+    filter: drop-shadow(0 0 2px rgba(107, 114, 128, 0.3));
+  }
+  20% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 20%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 3px #6b7280;
+    color: transparent;
+    filter: drop-shadow(0 0 2px rgba(107, 114, 128, 0.3));
+  }
+  40% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 40%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #6b7280;
+    color: transparent;
+    filter: drop-shadow(0 0 1px rgba(107, 114, 128, 0.2));
+  }
+  60% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 60%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1px #6b7280;
+    color: transparent;
+    filter: drop-shadow(0 0 1px rgba(107, 114, 128, 0.1));
+  }
+  80% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 80%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    color: transparent;
+  }
+  100% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 100%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    color: transparent;
+  }
+}
+
+@keyframes textFillGradient {
+  0% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 100%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  50% {
+    background: linear-gradient(90deg, transparent 0%, #3b82f6 50%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  100% {
+    background: linear-gradient(90deg, transparent 0%, #1e40af 25%, #3b82f6 50%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+
+.text-fill-effect {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-montserrat), sans-serif;
+  font-weight: 800;
+  -webkit-text-stroke: 3px #6b7280;
+  color: transparent;
+  animation: textFillLeftToRight 4s ease-in-out 0.5s infinite,
+             textFillGradient 3s ease-in-out 4.5s infinite;
+}
+
+/* Dark mode text fill effect */
+@keyframes textFillLeftToRightDark {
+  0% {
+    background: linear-gradient(90deg, transparent 0%, transparent 0%, #9ca3af 0%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 3px #9ca3af;
+    color: transparent;
+    filter: drop-shadow(0 0 2px rgba(156, 163, 175, 0.3));
+  }
+  20% {
+    background: linear-gradient(90deg, transparent 0%, #9ca3af 20%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 3px #9ca3af;
+    color: transparent;
+    filter: drop-shadow(0 0 2px rgba(156, 163, 175, 0.3));
+  }
+  40% {
+    background: linear-gradient(90deg, transparent 0%, #9ca3af 40%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #9ca3af;
+    color: transparent;
+    filter: drop-shadow(0 0 1px rgba(156, 163, 175, 0.2));
+  }
+  60% {
+    background: linear-gradient(90deg, transparent 0%, #9ca3af 60%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1px #9ca3af;
+    color: transparent;
+    filter: drop-shadow(0 0 1px rgba(156, 163, 175, 0.1));
+  }
+  80% {
+    background: linear-gradient(90deg, transparent 0%, #9ca3af 80%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    color: transparent;
+  }
+  100% {
+    background: linear-gradient(90deg, transparent 0%, #9ca3af 100%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    color: transparent;
+  }
+}
+
+@keyframes textFillGradientDark {
+  0% {
+    background: linear-gradient(90deg, transparent 0%, #9ca3af 100%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  50% {
+    background: linear-gradient(90deg, transparent 0%, #93c5fd 50%, #bfdbfe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  100% {
+    background: linear-gradient(90deg, transparent 0%, #60a5fa 25%, #93c5fd 50%, #bfdbfe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+}
+
+.dark .text-fill-effect {
+  animation: textFillLeftToRightDark 4s ease-in-out 0.5s infinite,
+             textFillGradientDark 3s ease-in-out 4.5s infinite;
+  -webkit-text-stroke: 3px #9ca3af;
+  color: transparent;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+  
+  body {
+    @apply text-gray-900 font-sans;
+    background: #f0f0f3;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Authentic Neumorphic Navigation */
+  .neumorphic-nav-container {
+    @apply flex items-center justify-between px-8 py-4 w-full;
+    background: #f0f0f3;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 70px;
+  }
+
+  .neumorphic-logo {
+    @apply flex items-center justify-center px-5 py-2 rounded-full;
+    background: #f0f0f3;
+    box-shadow: 
+      4px 4px 8px #d1d9e6,
+      -4px -4px 8px #ffffff;
+    transition: all 0.3s ease;
+    min-width: 70px;
+  }
+
+  .neumorphic-logo:hover {
+    box-shadow: 
+      inset 8px 8px 16px #d1d9e6,
+      inset -8px -8px 16px #ffffff;
+  }
+
+  .neumorphic-nav-item {
+    @apply flex items-center gap-2 px-4 py-2 rounded-full relative;
+    background: #f0f0f3;
+    box-shadow: 
+      4px 4px 8px #d1d9e6,
+      -4px -4px 8px #ffffff;
+    transition: all 0.3s ease;
+    min-width: 90px;
+    justify-content: center;
+  }
+
+  .neumorphic-nav-item:hover {
+    box-shadow: 
+      inset 4px 4px 8px #d1d9e6,
+      inset -4px -4px 8px #ffffff;
+  }
+
+  .neumorphic-nav-item-active {
+    background: #e3f2fd;
+    box-shadow: 
+      inset 4px 4px 8px #d1d9e6,
+      inset -4px -4px 8px #ffffff;
+  }
+
+  .neumorphic-nav-indicator {
+    @apply absolute -bottom-1 left-1/2 transform -translate-x-1/2;
+    width: 20px;
+    height: 2px;
+    background: #3b82f6;
+    border-radius: 1px;
+  }
+
+  .neumorphic-icon {
+    @apply flex items-center justify-center w-8 h-8 rounded-full relative;
+    background: #f0f0f3;
+    box-shadow: 
+      4px 4px 8px #d1d9e6,
+      -4px -4px 8px #ffffff;
+    transition: all 0.3s ease;
+  }
+
+  .neumorphic-icon:hover {
+    box-shadow: 
+      inset 4px 4px 8px #d1d9e6,
+      inset -4px -4px 8px #ffffff;
+  }
+
+  .neumorphic-mobile-menu {
+    background: #f0f0f3;
+    border-radius: 20px;
+    box-shadow: 
+      20px 20px 60px #d1d9e6,
+      -20px -20px 60px #ffffff;
+  }
+
+  .neumorphic-mobile-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl;
+    background: #f0f0f3;
+    box-shadow: 
+      8px 8px 16px #d1d9e6,
+      -8px -8px 16px #ffffff;
+    transition: all 0.3s ease;
+  }
+
+  .neumorphic-mobile-item:hover {
+    box-shadow: 
+      inset 8px 8px 16px #d1d9e6,
+      inset -8px -8px 16px #ffffff;
+  }
+
+  .neumorphic-mobile-item-active {
+    background: linear-gradient(145deg, #e6e9ef, #f0f0f3);
+    box-shadow: 
+      inset 8px 8px 16px #d1d9e6,
+      inset -8px -8px 16px #ffffff;
+  }
+
+  /* General Neumorphic Components */
+  .neo-card {
+    @apply rounded-2xl;
+    background: #f0f0f3;
+    box-shadow: 
+      20px 20px 60px #d1d9e6,
+      -20px -20px 60px #ffffff;
+    transition: all 0.3s ease;
+  }
+  
+  .neo-card:hover {
+    box-shadow: 
+      inset 20px 20px 60px #d1d9e6,
+      inset -20px -20px 60px #ffffff;
+    transform: translateY(-2px);
+  }
+  
+  .neo-button {
+    @apply rounded-xl px-6 py-3 font-medium transition-all duration-300;
+    background: #f0f0f3;
+    box-shadow: 
+      8px 8px 16px #d1d9e6,
+      -8px -8px 16px #ffffff;
+  }
+  
+  .neo-button:hover {
+    box-shadow: 
+      inset 8px 8px 16px #d1d9e6,
+      inset -8px -8px 16px #ffffff;
+  }
+  
+  .neo-button:active {
+    box-shadow: 
+      inset 8px 8px 16px #d1d9e6,
+      inset -8px -8px 16px #ffffff;
+    transform: scale(0.98);
+  }
+  
+  .neo-button-primary {
+    @apply neo-button text-white;
+    background: linear-gradient(145deg, #3b82f6, #2563eb);
+    box-shadow: 
+      8px 8px 16px #d1d9e6,
+      -8px -8px 16px #ffffff;
+  }
+  
+  .neo-input {
+    @apply rounded-xl px-4 py-3 border-0 outline-none transition-all duration-300;
+    background: #f0f0f3;
+    box-shadow: 
+      inset 8px 8px 16px #d1d9e6,
+      inset -8px -8px 16px #ffffff;
+  }
+  
+  .neo-input:focus {
+    box-shadow: 
+      inset 8px 8px 16px #d1d9e6,
+      inset -8px -8px 16px #ffffff,
+      0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .neo-container {
+    @apply rounded-3xl p-8 m-4 transition-all duration-300;
+    background: #f0f0f3;
+    box-shadow: 
+      20px 20px 60px #d1d9e6,
+      -20px -20px 60px #ffffff;
+  }
+  
+  /* Glassmorphism effect */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply bg-black/20 backdrop-blur-md border border-white/10;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-primary-500/30 rounded-full;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-500/50;
+  }
+  
+  /* Gradient backgrounds */
+  .gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .gradient-bg-dark {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+  
+  /* Animation utilities */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Text effects */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent;
+  }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Layout utilities */
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-max {
+    @apply max-w-7xl mx-auto;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Dark Mode Styles */
+@layer base {
+  .dark body {
+    background: #0a0a0a;
+    color: #ffffff;
+  }
+}
+
+@layer components {
+  /* Dark Mode Neumorphic Navigation */
+  .dark .neumorphic-nav-container {
+    background: #0a0a0a;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .dark .neumorphic-logo {
+    background: #0a0a0a;
+    box-shadow: 
+      4px 4px 8px #000000,
+      -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neumorphic-logo:hover {
+    box-shadow: 
+      inset 8px 8px 16px #000000,
+      inset -8px -8px 16px #1a1a1a;
+  }
+
+  .dark .neumorphic-nav-item {
+    background: #0a0a0a;
+    box-shadow: 
+      4px 4px 8px #000000,
+      -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neumorphic-nav-item:hover {
+    box-shadow: 
+      inset 4px 4px 8px #000000,
+      inset -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neumorphic-nav-item-active {
+    background: #0a0a0a;
+    box-shadow: 
+      inset 4px 4px 8px #000000,
+      inset -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neumorphic-nav-item-active .neumorphic-nav-indicator {
+    background: #3b82f6;
+    box-shadow: 
+      2px 2px 4px #000000,
+      -2px -2px 4px #1a1a1a;
+  }
+
+  .dark .neumorphic-icon {
+    background: #0a0a0a;
+    box-shadow: 
+      4px 4px 8px #000000,
+      -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neumorphic-icon:hover {
+    box-shadow: 
+      inset 4px 4px 8px #000000,
+      inset -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neumorphic-mobile-menu {
+    background: #0a0a0a;
+    box-shadow: 
+      8px 8px 16px #000000,
+      -8px -8px 16px #1a1a1a;
+  }
+
+  /* Dark Mode Cards and Components */
+  .dark .neo-card {
+    background: #0a0a0a;
+    box-shadow: 
+      6px 6px 12px #000000,
+      -6px -6px 12px #1a1a1a;
+  }
+
+  .dark .neo-button {
+    background: #0a0a0a;
+    box-shadow: 
+      4px 4px 8px #000000,
+      -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neo-button:hover {
+    box-shadow: 
+      inset 4px 4px 8px #000000,
+      inset -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neo-button-primary {
+    background: #1e40af;
+    box-shadow: 
+      4px 4px 8px #000000,
+      -4px -4px 8px #3b82f6;
+  }
+
+  .dark .neo-button-primary:hover {
+    box-shadow: 
+      inset 4px 4px 8px #000000,
+      inset -4px -4px 8px #3b82f6;
+  }
+
+  .dark .neo-input {
+    background: #0a0a0a;
+    box-shadow: 
+      inset 4px 4px 8px #000000,
+      inset -4px -4px 8px #1a1a1a;
+  }
+
+  .dark .neo-input:focus {
+    box-shadow: 
+      inset 6px 6px 12px #000000,
+      inset -6px -6px 12px #1a1a1a;
+  }
+
+  /* Dark Mode Text Colors */
+  .dark .text-gray-800 {
+    color: #ffffff;
+  }
+
+  .dark .text-gray-700 {
+    color: #e5e5e5;
+  }
+
+  .dark .text-gray-600 {
+    color: #a3a3a3;
+  }
+
+  .dark .text-gray-500 {
+    color: #737373;
+  }
+
+  /* Dark Mode Background Colors */
+  .dark .bg-white {
+    background-color: #0a0a0a;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: #1a1a1a;
+  }
+
+  .dark .bg-gray-100 {
+    background-color: #262626;
+  }
+
+  /* Dark Mode Geometric Background */
+  .dark .geometric-shape {
+    background: #0a0a0a !important;
+    box-shadow: 
+      20px 20px 40px #000000,
+      -20px -20px 40px #1a1a1a !important;
+  }
+
+  .dark .geometric-triangle {
+    border-bottom-color: #0a0a0a !important;
+  }
+}
