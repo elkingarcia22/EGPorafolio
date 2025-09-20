@@ -13,8 +13,8 @@ export const HeroSection: React.FC = () => {
   ]
 
   return (
-    <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-6xl mx-auto text-center">
+    <div className="relative z-10 min-h-screen flex items-center justify-start px-4">
+      <div className="max-w-6xl mx-auto text-left">
         {/* Saludo */}
         <div className="mb-6">
           <h2 className="text-xl md:text-2xl text-gray-400 dark:text-gray-500 font-poppins font-light tracking-wider">
@@ -24,7 +24,7 @@ export const HeroSection: React.FC = () => {
 
         {/* Nombre con efecto de relleno unificado */}
         <div className="mb-8">
-          <h1 className="text-7xl md:text-9xl lg:text-[12rem] xl:text-[14rem] typography-hero-name leading-tight tracking-tight hover-gradient-fill">
+          <h1 className="text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] typography-hero-name leading-tight tracking-tight hover-gradient-fill whitespace-nowrap">
             Elkin Garcia
           </h1>
         </div>
@@ -58,7 +58,7 @@ export const HeroSection: React.FC = () => {
         </div>
 
         {/* Botón de acción */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-start items-start">
           <button className="neo-button-primary px-8 py-4 text-lg font-semibold text-white rounded-2xl hover:scale-105 transition-transform duration-300">
             Ver Proyectos
           </button>
