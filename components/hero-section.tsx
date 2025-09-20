@@ -24,9 +24,9 @@ export const HeroSection: React.FC = () => {
 
         {/* Nombre con efecto de relleno */}
         <div className="mb-8">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-montserrat font-black leading-tight tracking-tight">
-            <span className="text-fill-effect">Elkin</span>{' '}
-            <span className="text-fill-effect" style={{ animationDelay: '1s' }}>
+          <h1 className="text-6xl md:text-8xl lg:text-9xl typography-hero-name leading-tight tracking-tight">
+            <span className="hover-gradient-fill">Elkin</span>{' '}
+            <span className="hover-gradient-fill" style={{ animationDelay: '1.5s' }}>
               Garcia
             </span>
           </h1>
