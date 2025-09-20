@@ -1,6 +1,10 @@
-# Portfolio UX/UI Designer - Estilo Neomorfismo
+# EGPorafolio - Portfolio UX/UI Designer
 
-Un portafolio profesional moderno con estilo neomorfismo, panel de administración completo y funcionalidades avanzadas para diseñadores UX/UI.
+Portfolio profesional de **Elkin Garcia** con estilo neomorfismo, panel de administración completo y funcionalidades avanzadas para diseñadores UX/UI.
+
+🌐 **Demo**: [https://egporafolio.vercel.app](https://egporafolio.vercel.app)  
+📚 **Storybook**: [https://egporafolio-storybook.vercel.app](https://egporafolio-storybook.vercel.app)  
+🔗 **GitHub**: [https://github.com/elkingarcia22/EGPorafolio](https://github.com/elkingarcia22/EGPorafolio)
 
 ## ✨ Características
 
@@ -183,9 +187,33 @@ Accede al panel de administración en `/admin` con las credenciales configuradas
 
 ### Vercel (Recomendado)
 
-1. Conecta tu repositorio a Vercel
-2. Configura las variables de entorno
-3. Despliega automáticamente
+1. **Conectar repositorio**:
+   - Ve a [vercel.com](https://vercel.com)
+   - Conecta tu cuenta de GitHub
+   - Importa el repositorio `elkingarcia22/EGPorafolio`
+
+2. **Configurar variables de entorno**:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=tu_supabase_service_role_key
+   ADMIN_EMAIL=admin@ejemplo.com
+   ADMIN_PASSWORD=tu_contraseña_admin
+   ```
+
+3. **Despliegue automático**:
+   - Vercel detectará automáticamente que es un proyecto Next.js
+   - Se desplegará en cada push a la rama `main`
+   - URL automática: `https://egporafolio.vercel.app`
+
+### Despliegue de Storybook
+
+Para desplegar Storybook en Vercel:
+
+1. Crea un nuevo proyecto en Vercel
+2. Configura el build command: `npm run build-storybook`
+3. Configura el output directory: `storybook-static`
+4. Despliega
 
 ### Netlify
 
