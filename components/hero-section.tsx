@@ -22,13 +22,10 @@ export const HeroSection: React.FC = () => {
           </h2>
         </div>
 
-        {/* Nombre con efecto de relleno */}
+        {/* Nombre con efecto de relleno unificado */}
         <div className="mb-8">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl typography-hero-name leading-tight tracking-tight">
-            <span className="hover-gradient-fill">Elkin</span>{' '}
-            <span className="hover-gradient-fill" style={{ animationDelay: '1.5s' }}>
-              Garcia
-            </span>
+          <h1 className="text-6xl md:text-8xl lg:text-9xl typography-hero-name leading-tight tracking-tight hover-gradient-fill">
+            Elkin Garcia
           </h1>
         </div>
 

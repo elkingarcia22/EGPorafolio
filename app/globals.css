@@ -26,10 +26,10 @@
   text-rendering: optimizeLegibility;
 }
 
-/* Hero Name Animation - Advanced AI Gradient Fill */
+/* Hero Name Animation - Unified AI Gradient Fill */
 @keyframes name-fill-sequence {
-  /* 0-10%: Estado inicial outline */
-  0%, 10% {
+  /* 0-8%: Estado inicial outline */
+  0%, 8% {
     background: transparent;
     -webkit-background-clip: text;
     background-clip: text;
@@ -38,9 +38,9 @@
     color: transparent;
   }
   
-  /* 10-25%: Relleno gris de izquierda a derecha */
-  15% {
-    background: linear-gradient(90deg, transparent 0%, #6b7280 8%, #6b7280 100%);
+  /* 8-20%: Relleno gris progresivo de izquierda a derecha */
+  10% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 5%, #6b7280 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-stroke: 1px #6b7280;
@@ -48,8 +48,17 @@
     color: transparent;
   }
   
+  15% {
+    background: linear-gradient(90deg, transparent 0%, #6b7280 25%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
   20% {
-    background: linear-gradient(90deg, transparent 0%, #6b7280 35%, #6b7280 100%);
+    background: linear-gradient(90deg, transparent 0%, #6b7280 50%, #6b7280 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-stroke: 0px transparent;
@@ -57,17 +66,8 @@
     color: transparent;
   }
   
-  25% {
-    background: linear-gradient(90deg, transparent 0%, #6b7280 70%, #6b7280 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 25-35%: Pausa en gris sólido */
-  30%, 35% {
+  /* 20-30%: Completar relleno gris */
+  25%, 30% {
     background: #6b7280;
     -webkit-background-clip: text;
     background-clip: text;
@@ -76,8 +76,8 @@
     color: transparent;
   }
   
-  /* 35-50%: Transformación a gradiente azul IA */
-  40% {
+  /* 30-45%: Transformación progresiva a gradiente azul IA */
+  35% {
     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 20%, #2563eb 40%, #3b82f6 60%, #60a5fa 80%, #93c5fd 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -86,8 +86,8 @@
     color: transparent;
   }
   
-  /* 50-65%: Pausa larga en gradiente azul IA */
-  50%, 55%, 60%, 65% {
+  /* 45-60%: Pausa larga en gradiente azul IA (momento de mayor impacto) */
+  45%, 50%, 55%, 60% {
     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 20%, #2563eb 40%, #3b82f6 60%, #60a5fa 80%, #93c5fd 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -96,9 +96,18 @@
     color: transparent;
   }
   
-  /* 65-80%: Regreso a gris de izquierda a derecha */
+  /* 60-75%: Regreso progresivo a gris de derecha a izquierda */
+  65% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 75%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
   70% {
-    background: linear-gradient(90deg, #6b7280 0%, #6b7280 70%, transparent 100%);
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 50%, transparent 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-stroke: 0px transparent;
@@ -107,7 +116,7 @@
   }
   
   75% {
-    background: linear-gradient(90deg, #6b7280 0%, #6b7280 35%, transparent 100%);
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 25%, transparent 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-stroke: 0px transparent;
@@ -115,17 +124,8 @@
     color: transparent;
   }
   
-  80% {
-    background: linear-gradient(90deg, #6b7280 0%, #6b7280 8%, transparent 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 80-85%: Pausa breve en gris */
-  85% {
+  /* 75-85%: Pausa breve en gris */
+  80%, 85% {
     background: #6b7280;
     -webkit-background-clip: text;
     background-clip: text;
@@ -134,7 +134,7 @@
     color: transparent;
   }
   
-  /* 85-100%: Despintado a outline */
+  /* 85-100%: Despintado progresivo a outline */
   90% {
     background: transparent;
     -webkit-background-clip: text;
