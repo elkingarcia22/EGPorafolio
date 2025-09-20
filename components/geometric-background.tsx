@@ -11,7 +11,7 @@ const Circle: React.FC<GeometricShapeProps> = ({ className = '', style }) => (
   <div
     className={`absolute rounded-full geometric-shape ${className}`}
     style={{
-      background: '#f0f0f3',
+      background: '#f5f5f0',
       boxShadow: '20px 20px 40px #d1d9e6, -20px -20px 40px #ffffff',
       ...style
     }}
@@ -22,7 +22,7 @@ const Rectangle: React.FC<GeometricShapeProps> = ({ className = '', style }) => 
   <div
     className={`absolute geometric-shape ${className}`}
     style={{
-      background: '#f0f0f3',
+      background: '#f5f5f0',
       boxShadow: '20px 20px 40px #d1d9e6, -20px -20px 40px #ffffff',
       ...style
     }}
@@ -85,7 +85,7 @@ export const GeometricBackground: React.FC = () => {
         style={{
           borderLeft: '100px solid transparent',
           borderRight: '100px solid transparent',
-          borderBottom: '173px solid #f0f0f3',
+          borderBottom: '173px solid #f5f5f0',
           animation: 'float 9s ease-in-out infinite'
         }}
       />

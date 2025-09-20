@@ -22,8 +22,8 @@ export const Navigation: React.FC = () => {
   return (
     <>
       {/* Neumorphic Navigation Bar */}
-      <nav className="w-full z-50">
-        <div className="neumorphic-nav-container">
+      <nav className="w-full z-50 fixed top-0 left-0 right-0">
+        <div className="neumorphic-nav-container bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-white/20 dark:border-gray-800/20">
           {/* Left Section - Logo */}
           <div className="flex items-center">
             <Link href="/" className="neumorphic-logo">
