@@ -24,17 +24,17 @@ export const HeroSection: React.FC = () => {
 
         {/* Nombre con efecto de relleno unificado */}
         <div className="mb-8">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl typography-hero-name leading-tight tracking-tight hover-gradient-fill">
+          <h1 className="text-7xl md:text-9xl lg:text-[12rem] xl:text-[14rem] typography-hero-name leading-tight tracking-tight hover-gradient-fill">
             Elkin Garcia
           </h1>
         </div>
 
         {/* Título con animación de escritura */}
         <div className="mb-8">
-          <h3 className="text-3xl md:text-4xl lg:text-5xl font-montserrat font-bold text-gray-700 dark:text-gray-200 tracking-wide">
+          <h3 className="text-3xl md:text-4xl lg:text-5xl font-montserrat font-bold text-gray-500 dark:text-gray-400 tracking-wide">
             <TypewriterText
               words={typewriterWords}
-              className="text-gray-700 dark:text-gray-200"
+              className="text-gray-500 dark:text-gray-400"
               typingSpeed={150}
               deletingSpeed={75}
               pauseTime={2500}
