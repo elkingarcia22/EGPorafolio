@@ -9,7 +9,7 @@ interface GeometricShapeProps {
 
 const Circle: React.FC<GeometricShapeProps> = ({ className = '', style }) => (
   <div
-    className={`absolute rounded-full geometric-shape ${className}`}
+    className={`absolute rounded-full ${className}`}
     style={{
       background: '#f5f5f0',
       boxShadow: '20px 20px 40px #d1d9e6, -20px -20px 40px #ffffff',
@@ -20,7 +20,7 @@ const Circle: React.FC<GeometricShapeProps> = ({ className = '', style }) => (
 
 const Rectangle: React.FC<GeometricShapeProps> = ({ className = '', style }) => (
   <div
-    className={`absolute geometric-shape ${className}`}
+    className={`absolute ${className}`}
     style={{
       background: '#f5f5f0',
       boxShadow: '20px 20px 40px #d1d9e6, -20px -20px 40px #ffffff',
@@ -31,7 +31,7 @@ const Rectangle: React.FC<GeometricShapeProps> = ({ className = '', style }) => 
 
 const Triangle: React.FC<GeometricShapeProps> = ({ className = '', style }) => (
   <div
-    className={`absolute geometric-triangle ${className}`}
+    className={`absolute ${className}`}
     style={{
       width: 0,
       height: 0,
@@ -45,94 +45,255 @@ const Triangle: React.FC<GeometricShapeProps> = ({ className = '', style }) => (
 export const GeometricBackground: React.FC = () => {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      {/* Círculo grande superior izquierdo */}
-      <Circle
-        className="w-96 h-96 -top-48 -left-48"
+      {/* LADO IZQUIERDO - Elementos del Home más concentrados */}
+      
+      {/* Card grande superior izquierdo */}
+      <div
+        className="w-[280px] h-[180px] -top-28 -left-36 rounded-3xl"
         style={{
-          animation: 'float 6s ease-in-out infinite'
+          background: '#f5f5f0',
+          boxShadow: '18px 18px 50px #d1d1c7, -18px -18px 50px #ffffff',
+          animation: 'floatSlow 15s ease-in-out infinite'
         }}
       />
       
-      {/* Círculo mediano superior derecho */}
-      <Circle
-        className="w-64 h-64 -top-32 right-20"
+      {/* Botón circular pequeño */}
+      <div
+        className="w-[50px] h-[50px] top-16 -left-6 rounded-full"
         style={{
-          animation: 'float 8s ease-in-out infinite reverse'
-        }}
-      />
-      
-      {/* Rectángulo grande inferior izquierdo */}
-      <Rectangle
-        className="w-80 h-80 -bottom-40 -left-40"
-        style={{
-          borderRadius: '30px',
-          animation: 'float 10s ease-in-out infinite'
-        }}
-      />
-      
-      {/* Rectángulo mediano centro derecha */}
-      <Rectangle
-        className="w-48 h-48 top-1/2 right-10"
-        style={{
-          borderRadius: '20px',
-          animation: 'float 7s ease-in-out infinite reverse'
-        }}
-      />
-      
-      {/* Triángulo grande inferior derecha */}
-      <Triangle
-        className="bottom-20 right-20"
-        style={{
-          borderLeft: '100px solid transparent',
-          borderRight: '100px solid transparent',
-          borderBottom: '173px solid #f5f5f0',
-          animation: 'float 9s ease-in-out infinite'
-        }}
-      />
-      
-      {/* Círculo pequeño centro izquierda */}
-      <Circle
-        className="w-32 h-32 top-1/3 left-10"
-        style={{
+          background: '#f5f5f0',
+          boxShadow: '6px 6px 12px #d1d1c7, -6px -6px 12px #ffffff',
           animation: 'float 5s ease-in-out infinite reverse'
         }}
       />
       
-      {/* Rectángulo pequeño superior centro */}
-      <Rectangle
-        className="w-24 h-24 top-20 left-1/2"
+      {/* Card mediana centro izquierdo */}
+      <div
+        className="w-[160px] h-[100px] top-1/2 -left-20 rounded-2xl"
         style={{
-          borderRadius: '15px',
+          background: '#f5f5f0',
+          boxShadow: '10px 10px 20px #d1d1c7, -10px -10px 20px #ffffff',
+          animation: 'floatReverse 9s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Input field pequeño */}
+      <div
+        className="w-[120px] h-[35px] top-2/3 -left-14 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: 'inset 3px 3px 6px #d1d1c7, inset -3px -3px 6px #ffffff',
+          animation: 'floatSlow 7s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Card grande inferior izquierdo */}
+      <div
+        className="w-[220px] h-[140px] -bottom-16 -left-28 rounded-3xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '16px 16px 32px #d1d1c7, -16px -16px 32px #ffffff',
+          animation: 'float 12s ease-in-out infinite'
+        }}
+      />
+      
+      {/* LADO DERECHO - Interfaz Gráfica Neomórfica Completa */}
+      
+      {/* Header/Barra superior */}
+      <div
+        className="w-[400px] h-[60px] -top-16 -right-48 rounded-2xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '20px 20px 40px #d1d1c7, -20px -20px 40px #ffffff',
+          animation: 'floatReverse 18s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Botón de cerrar */}
+      <div
+        className="w-[20px] h-[20px] -top-12 right-8 rounded-full"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '4px 4px 8px #d1d1c7, -4px -4px 8px #ffffff',
           animation: 'float 6s ease-in-out infinite'
         }}
       />
       
-      {/* Círculo mediano inferior centro */}
-      <Circle
-        className="w-40 h-40 bottom-32 left-1/3"
+      {/* Botón minimizar */}
+      <div
+        className="w-[20px] h-[20px] -top-12 right-12 rounded-full"
         style={{
-          animation: 'float 8s ease-in-out infinite reverse'
+          background: '#f5f5f0',
+          boxShadow: '4px 4px 8px #d1d1c7, -4px -4px 8px #ffffff',
+          animation: 'float 6s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Botón maximizar */}
+      <div
+        className="w-[20px] h-[20px] -top-12 right-16 rounded-full"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '4px 4px 8px #d1d1c7, -4px -4px 8px #ffffff',
+          animation: 'float 6s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Panel principal */}
+      <div
+        className="w-[380px] h-[300px] top-8 -right-46 rounded-3xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '25px 25px 50px #d1d1c7, -25px -25px 50px #ffffff',
+          animation: 'floatSlow 16s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Sidebar izquierdo */}
+      <div
+        className="w-[80px] h-[250px] top-16 right-8 rounded-2xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: 'inset 8px 8px 16px #d1d1c7, inset -8px -8px 16px #ffffff',
+          animation: 'floatReverse 12s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Botones de navegación sidebar */}
+      <div
+        className="w-[50px] h-[50px] top-20 right-12 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '6px 6px 12px #d1d1c7, -6px -6px 12px #ffffff',
+          animation: 'float 8s ease-in-out infinite'
+        }}
+      />
+      
+      <div
+        className="w-[50px] h-[50px] top-32 right-12 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '6px 6px 12px #d1d1c7, -6px -6px 12px #ffffff',
+          animation: 'float 8s ease-in-out infinite'
+        }}
+      />
+      
+      <div
+        className="w-[50px] h-[50px] top-44 right-12 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '6px 6px 12px #d1d1c7, -6px -6px 12px #ffffff',
+          animation: 'float 8s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Área de contenido principal */}
+      <div
+        className="w-[280px] h-[200px] top-20 right-16 rounded-2xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: 'inset 10px 10px 20px #d1d1c7, inset -10px -10px 20px #ffffff',
+          animation: 'floatSlow 14s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Input field de búsqueda */}
+      <div
+        className="w-[200px] h-[40px] top-24 right-20 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: 'inset 5px 5px 10px #d1d1c7, inset -5px -5px 10px #ffffff',
+          animation: 'floatReverse 10s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Botón de búsqueda */}
+      <div
+        className="w-[40px] h-[40px] top-24 right-32 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '6px 6px 12px #d1d1c7, -6px -6px 12px #ffffff',
+          animation: 'float 7s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Cards de contenido */}
+      <div
+        className="w-[120px] h-[80px] top-36 right-20 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '8px 8px 16px #d1d1c7, -8px -8px 16px #ffffff',
+          animation: 'float 9s ease-in-out infinite'
+        }}
+      />
+      
+      <div
+        className="w-[120px] h-[80px] top-36 right-48 rounded-xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '8px 8px 16px #d1d1c7, -8px -8px 16px #ffffff',
+          animation: 'float 9s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Barra de herramientas inferior */}
+      <div
+        className="w-[360px] h-[50px] top-80 -right-44 rounded-2xl"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '15px 15px 30px #d1d1c7, -15px -15px 30px #ffffff',
+          animation: 'floatReverse 13s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Botones de la barra de herramientas */}
+      <div
+        className="w-[30px] h-[30px] top-82 right-8 rounded-lg"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '4px 4px 8px #d1d1c7, -4px -4px 8px #ffffff',
+          animation: 'float 6s ease-in-out infinite'
+        }}
+      />
+      
+      <div
+        className="w-[30px] h-[30px] top-82 right-16 rounded-lg"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '4px 4px 8px #d1d1c7, -4px -4px 8px #ffffff',
+          animation: 'float 6s ease-in-out infinite'
+        }}
+      />
+      
+      <div
+        className="w-[30px] h-[30px] top-82 right-24 rounded-lg"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: '4px 4px 8px #d1d1c7, -4px -4px 8px #ffffff',
+          animation: 'float 6s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Slider/Control deslizante */}
+      <div
+        className="w-[100px] h-[20px] top-86 right-40 rounded-full"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: 'inset 3px 3px 6px #d1d1c7, inset -3px -3px 6px #ffffff',
+          animation: 'floatSlow 11s ease-in-out infinite'
+        }}
+      />
+      
+      {/* Switch/Toggle */}
+      <div
+        className="w-[60px] h-[30px] top-88 right-56 rounded-full"
+        style={{
+          background: '#f5f5f0',
+          boxShadow: 'inset 4px 4px 8px #d1d1c7, inset -4px -4px 8px #ffffff',
+          animation: 'float 8s ease-in-out infinite'
         }}
       />
     </div>
   )
 }
 
-// Estilos CSS para las animaciones
-const styles = `
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px) rotate(0deg);
-    }
-    50% {
-      transform: translateY(-20px) rotate(5deg);
-    }
-  }
-`
-
-// Inyectar estilos
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style')
-  styleSheet.textContent = styles
-  document.head.appendChild(styleSheet)
-}

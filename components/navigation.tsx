@@ -38,8 +38,8 @@ export const Navigation: React.FC = () => {
               return (
                 <Link key={item.name} href={item.href}>
                   <div className={`neumorphic-nav-item ${isActive ? 'neumorphic-nav-item-active' : ''}`}>
-                    <item.icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-gray-600'}`} />
-                    <span className={`text-sm font-medium ${isActive ? 'text-blue-600' : 'text-gray-600'}`}>
+                    <item.icon className={`w-4 h-4 ${isActive ? 'blue-gradient-svg' : 'text-gray-600'}`} />
+                    <span className={`text-sm font-medium ${isActive ? 'blue-gradient-static' : 'text-gray-600'}`}>
                       {item.name}
                     </span>
                     {isActive && <div className="neumorphic-nav-indicator" />}
@@ -111,8 +111,8 @@ export const Navigation: React.FC = () => {
                     className="block"
                   >
                     <div className={`neumorphic-mobile-item ${isActive ? 'neumorphic-mobile-item-active' : ''}`}>
-                      <item.icon className={`w-5 h-5 ${isActive ? 'text-blue-500' : 'text-gray-600'}`} />
-                      <span className={`font-medium ${isActive ? 'text-blue-500' : 'text-gray-600'}`}>
+                      <item.icon className={`w-5 h-5 ${isActive ? 'blue-gradient-svg' : 'text-gray-600'}`} />
+                      <span className={`font-medium ${isActive ? 'blue-gradient-static' : 'text-gray-600'}`}>
                         {item.name}
                       </span>
                     </div>

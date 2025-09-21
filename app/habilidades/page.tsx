@@ -67,7 +67,7 @@ const achievements = [
     title: '100% Satisfacción del Cliente',
     description: 'Todos mis clientes han quedado satisfechos',
     icon: Star,
-    color: 'text-blue-500'
+    color: 'blue-gradient-static'
   },
   {
     title: 'Certificaciones Profesionales',
@@ -82,7 +82,7 @@ export default function SkillsPage() {
 
   const getSkillLevel = (level: number) => {
     if (level >= 90) return { label: 'Experto', color: 'bg-green-500' }
-    if (level >= 75) return { label: 'Avanzado', color: 'bg-blue-500' }
+    if (level >= 75) return { label: 'Avanzado', color: 'blue-gradient-bg' }
     if (level >= 60) return { label: 'Intermedio', color: 'bg-yellow-500' }
     return { label: 'Básico', color: 'bg-gray-500' }
   }

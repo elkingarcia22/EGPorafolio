@@ -92,14 +92,14 @@ export default function ContactPage() {
                 <NeoCard>
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Linkedin className="w-6 h-6 text-blue-600" />
+                      <Linkedin className="w-6 h-6 blue-gradient-svg" />
                     </div>
                     <div className="space-y-2">
                       <h3 className="font-semibold text-lg text-foreground">LinkedIn</h3>
                       <p className="text-muted-foreground">Professional network</p>
                       <a 
                         href="#" 
-                        className="text-blue-600 hover:text-blue-700 transition-colors"
+                        className="blue-gradient-static hover:opacity-80 transition-opacity"
                       >
                         Let's Connect
                       </a>

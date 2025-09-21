@@ -26,10 +26,10 @@
   text-rendering: optimizeLegibility;
 }
 
-/* Hero Name Animation - Unified AI Gradient Fill */
-@keyframes name-fill-sequence {
-  /* 0-8%: Estado inicial outline */
-  0%, 8% {
+/* Hero Name Animation - AI Futuristic Cycle */
+@keyframes name-fill-ai-cycle {
+  /* 0-15%: Estado inicial - solo outline */
+  0%, 15% {
     background: transparent;
     -webkit-background-clip: text;
     background-clip: text;
@@ -38,105 +38,9 @@
     color: transparent;
   }
   
-  /* 8-20%: Relleno gris progresivo de izquierda a derecha */
-  10% {
-    background: linear-gradient(90deg, transparent 0%, #6b7280 5%, #6b7280 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 1px #6b7280;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  15% {
-    background: linear-gradient(90deg, transparent 0%, #6b7280 25%, #6b7280 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
+  /* 15-35%: Relleno gris de izquierda a derecha */
   20% {
-    background: linear-gradient(90deg, transparent 0%, #6b7280 50%, #6b7280 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 20-30%: Completar relleno gris */
-  25%, 30% {
-    background: #6b7280;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 30-45%: Transformación progresiva a gradiente azul IA */
-  35% {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 20%, #2563eb 40%, #3b82f6 60%, #60a5fa 80%, #93c5fd 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 45-60%: Pausa larga en gradiente azul IA (momento de mayor impacto) */
-  45%, 50%, 55%, 60% {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 20%, #2563eb 40%, #3b82f6 60%, #60a5fa 80%, #93c5fd 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 60-75%: Regreso progresivo a gris de derecha a izquierda */
-  65% {
-    background: linear-gradient(90deg, #6b7280 0%, #6b7280 75%, transparent 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  70% {
-    background: linear-gradient(90deg, #6b7280 0%, #6b7280 50%, transparent 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  75% {
-    background: linear-gradient(90deg, #6b7280 0%, #6b7280 25%, transparent 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 75-85%: Pausa breve en gris */
-  80%, 85% {
-    background: #6b7280;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-stroke: 0px transparent;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-  
-  /* 85-100%: Despintado progresivo a outline */
-  90% {
-    background: transparent;
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 20%, transparent 20%, transparent 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-stroke: 1px #6b7280;
@@ -144,11 +48,255 @@
     color: transparent;
   }
   
-  95%, 100% {
+  25% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 40%, transparent 40%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1px #6b7280;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  30% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 70%, transparent 70%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  35% {
+    background: #6b7280;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 40-60%: Degradado azul IA de izquierda a derecha */
+  40% {
+    background: linear-gradient(90deg, #0f172a 0%, #0f172a 20%, #6b7280 20%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  45% {
+    background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 40%, #6b7280 40%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  50% {
+    background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 20%, #2563eb 60%, #6b7280 60%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  55% {
+    background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 20%, #2563eb 40%, #3b82f6 80%, #6b7280 80%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  60% {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 15%, #2563eb 30%, #3b82f6 50%, #60a5fa 70%, #93c5fd 85%, #dbeafe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+  }
+  
+  /* 65-75%: Pausa en degradado completo */
+  65%, 70%, 75% {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 15%, #2563eb 30%, #3b82f6 50%, #60a5fa 70%, #93c5fd 85%, #dbeafe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
+  }
+  
+  /* 80-90%: Despintado de derecha a izquierda */
+  80% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 50%, transparent 50%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: none;
+  }
+  
+  85% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 20%, transparent 20%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1px #6b7280;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 90-100%: Regreso a outline */
+  90%, 100% {
     background: transparent;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-stroke: 2px #6b7280;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+/* Animación para modo oscuro - AI Futuristic Cycle */
+@keyframes name-fill-ai-cycle-dark {
+  /* 0-15%: Estado inicial - solo outline */
+  0%, 15% {
+    background: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 15-35%: Relleno gris de izquierda a derecha */
+  20% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 20%, transparent 20%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  25% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 40%, transparent 40%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  30% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 70%, transparent 70%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  35% {
+    background: #9ca3af;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 40-60%: Degradado azul IA de izquierda a derecha */
+  40% {
+    background: linear-gradient(90deg, #1e293b 0%, #1e293b 20%, #9ca3af 20%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  45% {
+    background: linear-gradient(90deg, #1e293b 0%, #1e40af 40%, #9ca3af 40%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  50% {
+    background: linear-gradient(90deg, #1e293b 0%, #1e40af 20%, #3b82f6 60%, #9ca3af 60%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  55% {
+    background: linear-gradient(90deg, #1e293b 0%, #1e40af 20%, #3b82f6 40%, #60a5fa 80%, #9ca3af 80%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  60% {
+    background: linear-gradient(135deg, #1e293b 0%, #1e40af 15%, #3b82f6 30%, #60a5fa 50%, #93c5fd 70%, #bfdbfe 85%, #dbeafe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.5));
+  }
+  
+  /* 65-75%: Pausa en degradado completo */
+  65%, 70%, 75% {
+    background: linear-gradient(135deg, #1e293b 0%, #1e40af 15%, #3b82f6 30%, #60a5fa 50%, #93c5fd 70%, #bfdbfe 85%, #dbeafe 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.5));
+  }
+  
+  /* 80-90%: Despintado de derecha a izquierda */
+  80% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 50%, transparent 50%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: none;
+  }
+  
+  85% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 20%, transparent 20%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 1px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 90-100%: Regreso a outline */
+  90%, 100% {
+    background: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #9ca3af;
     -webkit-text-fill-color: transparent;
     color: transparent;
   }
@@ -172,12 +320,275 @@
   }
 }
 
-/* Hero Name Animation Class */
+/* Hero Name Animation - One Time Fill to Blue */
+@keyframes name-fill-unified-fluid {
+  /* 0-10%: Estado inicial - solo outline */
+  0%, 10% {
+    background: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #6b7280;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 10-30%: Relleno gris de izquierda a derecha */
+  15% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 15%, transparent 15%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #6b7280;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  20% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 35%, transparent 35%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #6b7280;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  25% {
+    background: linear-gradient(90deg, #6b7280 0%, #6b7280 60%, transparent 60%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #6b7280;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  30% {
+    background: #6b7280;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 30-50%: Degradado azul IA de izquierda a derecha */
+  35% {
+    background: linear-gradient(90deg, #0f172a 0%, #0f172a 20%, #6b7280 20%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  40% {
+    background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 40%, #6b7280 40%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  45% {
+    background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 20%, #2563eb 60%, #6b7280 60%, #6b7280 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  50%, 100% {
+    background: linear-gradient(135deg, #3498db 0%, #5dade2 20%, #1abc9c 40%, #2ecc71 60%, #3498db 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+/* Animación para modo oscuro - One Time Fill to Blue */
+@keyframes name-fill-unified-fluid-dark {
+  /* 0-10%: Estado inicial - solo outline */
+  0%, 10% {
+    background: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 10-30%: Relleno gris de izquierda a derecha */
+  15% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 15%, transparent 15%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  20% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 35%, transparent 35%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  25% {
+    background: linear-gradient(90deg, #9ca3af 0%, #9ca3af 60%, transparent 60%, transparent 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 2px #9ca3af;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  30% {
+    background: #9ca3af;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  /* 30-50%: Degradado azul IA de izquierda a derecha */
+  35% {
+    background: linear-gradient(90deg, #1e293b 0%, #1e293b 20%, #9ca3af 20%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  40% {
+    background: linear-gradient(90deg, #1e293b 0%, #1e40af 40%, #9ca3af 40%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  45% {
+    background: linear-gradient(90deg, #1e293b 0%, #1e40af 20%, #3b82f6 60%, #9ca3af 60%, #9ca3af 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  50%, 100% {
+    background: linear-gradient(135deg, #3498db 0%, #5dade2 20%, #1abc9c 40%, #2ecc71 60%, #3498db 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-stroke: 0px transparent;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+/* Hero Name Animation Class - One Time Fill */
+.hover-gradient-fill-unified {
+  position: relative;
+  display: inline-block;
+  /* Estado inicial - solo contorno */
+  background: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 2px #6b7280;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: name-fill-unified-fluid 6s ease-in-out forwards;
+  animation-delay: 2s;
+}
+
+/* Dark mode animation */
+.dark .hover-gradient-fill-unified {
+  /* Estado inicial - solo contorno en modo oscuro */
+  background: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-stroke: 2px #9ca3af;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: name-fill-unified-fluid-dark 6s ease-in-out forwards;
+  animation-delay: 2s;
+}
+
+/* Typewriter Cursor Animation */
+@keyframes cursor-blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Typewriter Text Styles */
+.typewriter-text {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 3.5rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  min-height: 4rem;
+  color: #9ca3af;
+}
+
+.typewriter-cursor {
+  color: #2563eb;
+  font-size: 3.5rem;
+  animation: cursor-blink 0.8s infinite reverse;
+}
+
+/* Dark mode typewriter */
+.dark .typewriter-text {
+  color: #d1d5db; /* Gris más claro para modo oscuro */
+}
+
+.dark .typewriter-cursor {
+  color: #2563eb; /* Mismo azul para consistencia */
+}
+
+/* Degradado azul estático para otros elementos */
+.blue-gradient-static {
+  background: linear-gradient(135deg, #3498db 0%, #5dade2 20%, #1abc9c 40%, #2ecc71 60%, #3498db 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Versión para fondos */
+.blue-gradient-bg {
+  background: linear-gradient(135deg, #3498db 0%, #5dade2 20%, #1abc9c 40%, #2ecc71 60%, #3498db 100%);
+}
+
+/* Degradado para iconos SVG - Solo contorno */
+.blue-gradient-svg {
+  fill: none;
+  stroke: url(#blueGradient);
+  stroke-width: 2;
+}
+
+/* Clase original mantenida para compatibilidad */
 .hover-gradient-fill {
   position: relative;
   display: inline-block;
-  animation: name-fill-sequence 10s ease-in-out infinite;
-  animation-delay: 1s;
+  animation: name-fill-ai-cycle 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.dark .hover-gradient-fill {
+  animation: name-fill-ai-cycle-dark 8s ease-in-out infinite;
+  animation-delay: 2s;
 }
 
 .text-fill-effect {
@@ -691,5 +1102,45 @@
 
   .dark .geometric-triangle {
     border-bottom-color: #1a1a1a !important;
+  }
+}
+
+/* Animaciones para elementos neomórficos del fondo */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-15px) rotate(2deg) scale(1.02);
+  }
+  50% {
+    transform: translateY(-30px) rotate(0deg) scale(1.05);
+  }
+  75% {
+    transform: translateY(-15px) rotate(-2deg) scale(1.02);
+  }
+}
+
+@keyframes floatReverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(20px) rotate(-3deg) scale(0.98);
+  }
+  50% {
+    transform: translateY(35px) rotate(0deg) scale(0.95);
+  }
+  75% {
+    transform: translateY(20px) rotate(3deg) scale(0.98);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-25px) rotate(4deg) scale(1.03);
   }
 }

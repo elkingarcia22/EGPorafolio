@@ -49,9 +49,28 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
   }, [currentText, isDeleting, currentWordIndex, words, typingSpeed, deletingSpeed, pauseTime])
 
   return (
-    <span className={className}>
+    <span 
+      className={`${className} typewriter-text`}
+      style={{
+        fontFamily: "'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontSize: '3.5rem',
+        fontWeight: 500,
+        letterSpacing: '0.02em',
+        minHeight: '4rem',
+        color: '#9ca3af'
+      }}
+    >
       {currentText}
-      <span className="animate-pulse">|</span>
+      <span 
+        className="typewriter-cursor"
+        style={{
+          color: '#2563eb',
+          fontSize: '3.5rem',
+          animation: 'cursor-blink 0.8s infinite reverse'
+        }}
+      >
+        |
+      </span>
     </span>
   )
 }
