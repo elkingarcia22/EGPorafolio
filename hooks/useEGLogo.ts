@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase-client'
 
 interface EGLogoImage {
   id: string
@@ -20,14 +20,20 @@ export const useEGLogo = (position: string = 'left') => {
   const [image, setImage] = useState<EGLogoImage | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
-  const supabase = createClientComponentClient()
 
   useEffect(() => {
     const fetchEGLogo = async () => {
       try {
         setLoading(true)
         setError(null)
+
+        // Si Supabase no está configurado, usar fallback
+        if (!isSupabaseConfigured()) {
+          console.warn('Supabase no está configurado, usando fallback')
+          setImage(null)
+          setLoading(false)
+          return
+        }
 
         const { data, error: fetchError } = await supabase
           .from('eg_logo_images')
@@ -46,13 +52,14 @@ export const useEGLogo = (position: string = 'left') => {
       } catch (err) {
         console.error('Error fetching EG logo:', err)
         setError(err instanceof Error ? err.message : 'Error desconocido')
+        setImage(null) // Usar fallback en caso de error
       } finally {
         setLoading(false)
       }
     }
 
     fetchEGLogo()
-  }, [position, supabase])
+  }, [position])
 
   return { image, loading, error }
 }
