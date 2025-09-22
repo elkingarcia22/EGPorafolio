@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase-client'
+import { supabase } from '@/lib/supabase-client'
 
 interface AdminData {
   typewriterTexts: Array<{ id: string; text_content: string; order_index: number }>
@@ -30,7 +30,7 @@ export default function AdminPage() {
   const [editingItem, setEditingItem] = useState<any>(null)
   const [isEditing, setIsEditing] = useState(false)
 
-  const supabase = createClient()
+  // supabase ya está importado
 
   useEffect(() => {
     // Verificar si ya está autenticado
