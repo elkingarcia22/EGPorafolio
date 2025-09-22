@@ -4,10 +4,12 @@ import { TypewriterText } from './typewriter-text'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useAdmin } from '@/contexts/admin-context'
+import { useLanguage } from '@/contexts/language-context'
 
 export const NeuromorphicEG = () => {
   const { theme } = useTheme()
   const { content } = useAdmin()
+  const { t } = useLanguage()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -92,7 +94,7 @@ export const NeuromorphicEG = () => {
           {/* "Mi trabajo" más a la derecha y más arriba */}
           <div className="absolute right-1/4 -top-8" style={{right: '22%'}}>
             <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
-              Mi trabajo
+              {t('home.myWork')}
             </span>
             {/* Línea degradada al lado derecho del texto "Mi trabajo" */}
             <div className="absolute w-1 h-96" style={{right: '-13px', top: '8px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
