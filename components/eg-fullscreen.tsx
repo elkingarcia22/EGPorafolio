@@ -7,7 +7,7 @@ export const EGFullScreen: React.FC = () => {
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       {/* Letra E - Pantalla completa */}
       <div
-        className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '35rem',
           fontWeight: '900',
@@ -31,7 +31,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Letra G - Pantalla completa */}
       <div
-        className="absolute top-1/2 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/3 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '35rem',
           fontWeight: '900',
@@ -55,7 +55,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Efectos de profundidad para la E */}
       <div
-        className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '35rem',
           fontWeight: '900',
@@ -78,7 +78,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Efectos de profundidad para la G */}
       <div
-        className="absolute top-1/2 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/3 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '35rem',
           fontWeight: '900',
@@ -101,7 +101,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Sombras de fondo para mayor profundidad */}
       <div
-        className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '35rem',
           fontWeight: '900',
@@ -119,7 +119,7 @@ export const EGFullScreen: React.FC = () => {
       </div>
       
       <div
-        className="absolute top-1/2 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-1/3 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '35rem',
           fontWeight: '900',
