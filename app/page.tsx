@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Navbar } from '@/components/navbar'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import AdminModal from '@/components/admin-modal'
 import AdminPanel from '@/components/admin-panel'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
+import { useLanguage } from '@/contexts/language-context'
 
 function HomePageContent() {
   const { content, refreshContent } = useAdmin()
+  const { t } = useLanguage()
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -24,6 +26,12 @@ function HomePageContent() {
   const handleAdminLogout = () => {
     setIsAdmin(false)
   }
+
+  // Asegurar que la página cargue en el home
+  useEffect(() => {
+    // Scroll al inicio cuando se monta el componente
+    window.scrollTo(0, 0)
+  }, [])
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
@@ -52,7 +60,7 @@ function HomePageContent() {
             <div className="relative">
               <div className="absolute -left-20">
                 <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
-                  Acerca de mí
+                  {t('about.title')}
                 </span>
                 {/* Línea degradada que baja hacia la sección */}
                 <div className="absolute w-1 h-96" style={{right: '-13px', top: '8px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
@@ -186,7 +194,7 @@ function HomePageContent() {
             <div className="relative">
               <div className="absolute right-0">
                 <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
-                  Contacto
+                  {t('contact.title')}
                 </span>
                   {/* Línea degradada que baja hacia la sección */}
                   <div className="absolute w-1 h-40" style={{left: '-13px', top: '2px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>

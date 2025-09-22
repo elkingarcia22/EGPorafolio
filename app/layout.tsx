@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, Poppins, Montserrat } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
+import { LanguageProvider } from '@/contexts/language-context'
 
 const inter = Inter({ subsets: ['latin'] })
 const poppins = Poppins({
@@ -52,7 +53,9 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              {children}
+              <LanguageProvider>
+                {children}
+              </LanguageProvider>
             </ThemeProvider>
           </body>
         </html>

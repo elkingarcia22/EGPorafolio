@@ -4,6 +4,7 @@ import { MinimalMenu } from './minimal-menu'
 import { LanguageToggle } from './language-toggle'
 import { AccessibilityToolbar } from './accessibility-toolbar'
 import { useTheme } from 'next-themes'
+import { useLanguage } from '@/contexts/language-context'
 import { useEffect, useState } from 'react'
 
 interface NavbarProps {
@@ -12,6 +13,7 @@ interface NavbarProps {
 
 export const Navbar = ({ onAdminClick }: NavbarProps) => {
   const { theme, setTheme } = useTheme()
+  const { t } = useLanguage()
   const [mounted, setMounted] = useState(false)
 
   console.log('Navbar rendered with onAdminClick:', typeof onAdminClick)
@@ -36,7 +38,7 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
           <button 
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
             className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200"
-            title={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+            title={isDark ? t('nav.lightTheme') : t('nav.darkTheme')}
           >
             {isDark ? (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

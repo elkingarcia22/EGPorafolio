@@ -2,19 +2,22 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useLanguage } from '@/contexts/language-context'
 
 interface MinimalMenuProps {
   onAdminClick: () => void
 }
 
 export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
+  const { t } = useLanguage()
+  
   const menuItems = [
-    { name: 'Home', href: '/#home' },
-    { name: 'Mi trabajo', href: '/#proyectos' },
-    { name: 'Acerca de mí', href: '/#acerca' },
-    { name: 'Contacto', href: '/#contacto' },
-    { name: 'Hoja de vida', href: '/cv' },
-    { name: 'Administrador', href: '/admin', isAdmin: true }
+    { name: t('nav.home'), href: '/#home' },
+    { name: t('home.myWork'), href: '/#proyectos' },
+    { name: t('nav.about'), href: '/#acerca' },
+    { name: t('nav.contact'), href: '/#contacto' },
+    { name: 'CV', href: '/cv' },
+    { name: t('nav.admin'), href: '/admin', isAdmin: true }
   ]
 
   console.log('MinimalMenu rendered with items:', menuItems)
