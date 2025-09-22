@@ -7,6 +7,7 @@ export const LanguageToggle = () => {
 
   const toggleLanguage = () => {
     const newLanguage = language === 'es' ? 'en' : 'es'
+    console.log('🔄 Cambiando idioma de', language, 'a', newLanguage)
     setLanguage(newLanguage)
   }
 

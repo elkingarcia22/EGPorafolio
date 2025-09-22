@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useLanguage } from '@/contexts/language-context'
 
 interface MinimalMenuProps {
@@ -9,16 +9,16 @@ interface MinimalMenuProps {
 }
 
 export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   
-  const menuItems = [
+  const menuItems = useMemo(() => [
     { name: t('nav.home'), href: '/#home' },
     { name: t('home.myWork'), href: '/#proyectos' },
     { name: t('nav.about'), href: '/#acerca' },
     { name: t('nav.contact'), href: '/#contacto' },
     { name: 'CV', href: '/cv' },
     { name: t('nav.admin'), href: '/admin', isAdmin: true }
-  ]
+  ], [t, language])
 
   return (
     <div className="flex items-center group">
@@ -33,7 +33,6 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
       <div className="overflow-hidden transition-all duration-500 ease-in-out group-hover:max-w-[600px] group-hover:opacity-100 max-w-0 opacity-0">
         <div className="flex items-center space-x-4 pl-4">
           {menuItems.map((item, index) => {
-            console.log(`Rendering item ${index}:`, item.name, 'isAdmin:', item.isAdmin)
             return item.isAdmin ? (
               <Link
                 key={index}
