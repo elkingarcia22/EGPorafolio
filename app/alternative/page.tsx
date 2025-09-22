@@ -1,21 +1,20 @@
-import { Navigation } from '@/components/navigation'
+import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-[#f0f0f3] dark:bg-[#0a0a0a] transition-colors duration-300 relative">
-      {/* Navegación */}
-      <Navigation />
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300 relative overflow-hidden">
+      {/* Menú minimalista de 3 líneas */}
+      <div className="absolute top-8 left-8 z-50">
+        <button className="flex flex-col gap-1 p-2">
+          <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400"></div>
+          <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400"></div>
+          <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400"></div>
+        </button>
+      </div>
       
-      {/* Contenido de la página */}
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-6xl font-bold text-gray-800 dark:text-white mb-8">
-            Página Alternative
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
-            Contenido limpio sin fondos especiales
-          </p>
-        </div>
+      {/* EG neuromórfico como elementos reales - subido */}
+      <div className="pt-8">
+        <NeuromorphicEG />
       </div>
     </div>
   );

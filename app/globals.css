@@ -932,6 +932,47 @@
   .container-max {
     @apply max-w-7xl mx-auto;
   }
+
+  /* E Neuromorphic Text */
+  .neo-e-text {
+    @apply font-black select-none;
+    font-size: clamp(25rem, 60vw, 50rem);
+    line-height: 0.8;
+    font-family: system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 25%, #059669 50%, #10b981 75%, #34d399 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 
+      inset 60px 60px 120px rgba(0, 0, 0, 0.8),
+      inset -60px -60px 120px rgba(255, 255, 255, 0.99),
+      inset 35px 35px 70px rgba(0, 0, 0, 0.6),
+      inset -35px -35px 70px rgba(255, 255, 255, 0.95),
+      inset 15px 15px 30px rgba(0, 0, 0, 0.5),
+      inset -15px -15px 30px rgba(255, 255, 255, 0.9),
+      inset 5px 5px 10px rgba(0, 0, 0, 0.4),
+      inset -5px -5px 10px rgba(255, 255, 255, 0.85);
+    opacity: 0.8;
+  }
+
+  /* EG Neuromorphic Text - Single Element */
+  .neo-eg-text {
+    @apply font-black select-none;
+    font-size: clamp(25rem, 60vw, 50rem);
+    line-height: 0.8;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #f5f5f5;
+    text-shadow: 
+      12px 12px 24px rgba(0, 0, 0, 0.15),
+      -12px -12px 24px rgba(255, 255, 255, 0.9),
+      6px 6px 12px rgba(0, 0, 0, 0.1),
+      -6px -6px 12px rgba(255, 255, 255, 0.7),
+      3px 3px 6px rgba(0, 0, 0, 0.05),
+      -3px -3px 6px rgba(255, 255, 255, 0.5);
+    opacity: 0.7;
+    letter-spacing: -0.05em;
+  }
 }
 
 @layer utilities {
@@ -1102,6 +1143,44 @@
 
   .dark .geometric-triangle {
     border-bottom-color: #1a1a1a !important;
+  }
+
+  /* Dark Mode E Background */
+  .dark .bg-\[#f0f0f3\] {
+    background: #1a1a1a !important;
+    box-shadow: 
+      inset 20px 20px 40px #000000,
+      inset -20px -20px 40px #2a2a2a !important;
+  }
+
+  /* Dark Mode E Neuromorphic */
+  .dark .neo-e-text {
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 25%, #047857 50%, #059669 75%, #10b981 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    text-shadow: 
+      inset 60px 60px 120px rgba(0, 0, 0, 0.95),
+      inset -60px -60px 120px rgba(42, 42, 42, 0.98),
+      inset 35px 35px 70px rgba(0, 0, 0, 0.8),
+      inset -35px -35px 70px rgba(42, 42, 42, 0.9),
+      inset 15px 15px 30px rgba(0, 0, 0, 0.7),
+      inset -15px -15px 30px rgba(42, 42, 42, 0.8),
+      inset 5px 5px 10px rgba(0, 0, 0, 0.6),
+      inset -5px -5px 10px rgba(42, 42, 42, 0.75) !important;
+  }
+
+  /* Dark Mode EG Neuromorphic */
+  .dark .neo-eg-text {
+    color: #1a1a1a !important;
+    text-shadow: 
+      12px 12px 24px rgba(0, 0, 0, 0.8),
+      -12px -12px 24px rgba(42, 42, 42, 0.3),
+      6px 6px 12px rgba(0, 0, 0, 0.6),
+      -6px -6px 12px rgba(42, 42, 42, 0.2),
+      3px 3px 6px rgba(0, 0, 0, 0.4),
+      -3px -3px 6px rgba(42, 42, 42, 0.1) !important;
   }
 }
 

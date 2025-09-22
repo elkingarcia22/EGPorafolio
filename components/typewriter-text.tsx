@@ -50,14 +50,10 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
 
   return (
     <span 
-      className={`${className} typewriter-text`}
+      className={className}
       style={{
-        fontFamily: "'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-        fontSize: '3.5rem',
-        fontWeight: 500,
         letterSpacing: '0.02em',
-        minHeight: '4rem',
-        color: '#9ca3af'
+        minHeight: '4rem'
       }}
     >
       {currentText}
@@ -65,7 +61,6 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
         className="typewriter-cursor"
         style={{
           color: '#2563eb',
-          fontSize: '3.5rem',
           animation: 'cursor-blink 0.8s infinite reverse'
         }}
       >
