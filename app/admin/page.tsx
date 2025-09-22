@@ -1,500 +1,563 @@
 'use client'
 
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Settings, User, Briefcase, GraduationCap, Code, Mail, FileText, Save, Eye, LogOut } from 'lucide-react'
-import { NeoCard } from '@/components/ui/neo-card'
-import { NeoButton } from '@/components/ui/neo-button'
-import { NeoInput } from '@/components/ui/neo-input'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
-import toast from 'react-hot-toast'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase-client'
 
-const adminSections = [
-  { id: 'profile', name: 'Perfil', icon: User },
-  { id: 'projects', name: 'Proyectos', icon: Briefcase },
-  { id: 'experience', name: 'Experiencia', icon: GraduationCap },
-  { id: 'skills', name: 'Habilidades', icon: Code },
-  { id: 'contact', name: 'Contacto', icon: Mail },
-  { id: 'cv', name: 'CV', icon: FileText },
-  { id: 'settings', name: 'Configuración', icon: Settings }
-]
+interface AdminData {
+  typewriterTexts: Array<{ id: string; text_content: string; order_index: number }>
+  projects: Array<{ id: string; title: string; description: string; cover_image_url?: string; order_index: number }>
+  aboutInfo: Array<{ id: string; title: string; description: string; profile_image_url?: string }>
+  contactInfo: Array<{ id: string; contact_type: string; label: string; value: string; icon_name: string; order_index: number }>
+  siteImages: Array<{ id: string; image_name: string; image_url: string; section: string; usage_context: string }>
+}
 
 export default function AdminPage() {
-  const [activeSection, setActiveSection] = useState('profile')
+  const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [activeTab, setActiveTab] = useState<'typewriter' | 'projects' | 'about' | 'contact' | 'images'>('typewriter')
+  const [data, setData] = useState<AdminData>({
+    typewriterTexts: [],
+    projects: [],
+    aboutInfo: [],
+    contactInfo: [],
+    siteImages: []
+  })
+  const [editingItem, setEditingItem] = useState<any>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
-  // Mock authentication - en producción esto vendrá de Supabase Auth
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Verificar si ya está autenticado
+    const authStatus = localStorage.getItem('admin_authenticated')
+    if (authStatus === 'true') {
+      setIsAuthenticated(true)
+      loadData()
+    }
+  }, [])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    // Simulate login
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setIsAuthenticated(true)
-    setIsLoading(false)
-    toast.success('Inicio de sesión exitoso')
+    setError('')
+
+    try {
+      // Simular validación de contraseña
+      if (password === 'Lineadesangre22') {
+        setIsAuthenticated(true)
+        localStorage.setItem('admin_authenticated', 'true')
+        await loadData()
+      } else {
+        setError('Contraseña incorrecta')
+      }
+    } catch (err) {
+      setError('Error de conexión')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleSave = () => {
-    toast.success('Cambios guardados exitosamente')
+  const loadData = async () => {
+    try {
+      // Cargar textos del typewriter
+      const { data: typewriterData } = await supabase
+        .from('typewriter_texts')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index')
+
+      // Cargar proyectos
+      const { data: projectsData } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index')
+
+      // Cargar información personal
+      const { data: aboutData } = await supabase
+        .from('about_info')
+        .select('*')
+        .eq('is_active', true)
+
+      // Cargar información de contacto
+      const { data: contactData } = await supabase
+        .from('contact_info')
+        .select('*')
+        .eq('is_active', true)
+        .order('order_index')
+
+      // Cargar imágenes
+      const { data: imagesData } = await supabase
+        .from('site_images')
+        .select('*')
+        .eq('is_active', true)
+
+      setData({
+        typewriterTexts: typewriterData || [],
+        projects: projectsData || [],
+        aboutInfo: aboutData || [],
+        contactInfo: contactData || [],
+        siteImages: imagesData || []
+      })
+    } catch (error) {
+      console.error('Error loading data:', error)
+    }
   }
 
   const handleLogout = () => {
     setIsAuthenticated(false)
-    toast.success('Sesión cerrada')
+    localStorage.removeItem('admin_authenticated')
+    setPassword('')
+    setData({
+      typewriterTexts: [],
+      projects: [],
+      aboutInfo: [],
+      contactInfo: [],
+      siteImages: []
+    })
+  }
+
+  const handleEdit = (item: any, type: string) => {
+    setEditingItem({ ...item, type })
+    setIsEditing(true)
+  }
+
+  const handleSave = async () => {
+    if (!editingItem) return
+
+    try {
+      const { type, ...itemData } = editingItem
+      delete itemData.type
+
+      let result
+      if (editingItem.id) {
+        // Actualizar
+        result = await supabase
+          .from(type)
+          .update(itemData)
+          .eq('id', editingItem.id)
+      } else {
+        // Crear nuevo
+        result = await supabase
+          .from(type)
+          .insert(itemData)
+      }
+
+      if (result.error) throw result.error
+
+      setIsEditing(false)
+      setEditingItem(null)
+      await loadData()
+    } catch (error) {
+      console.error('Error saving:', error)
+    }
+  }
+
+  const handleDelete = async (id: string, type: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este elemento?')) return
+
+    try {
+      const result = await supabase
+        .from(type)
+        .update({ is_active: false })
+        .eq('id', id)
+
+      if (result.error) throw result.error
+
+      await loadData()
+    } catch (error) {
+      console.error('Error deleting:', error)
+    }
+  }
+
+  const handleAddNew = (type: string) => {
+    const newItem: any = { type }
+    
+    switch (type) {
+      case 'typewriter_texts':
+        newItem.text_content = ''
+        newItem.order_index = data.typewriterTexts.length + 1
+        break
+      case 'projects':
+        newItem.title = ''
+        newItem.description = ''
+        newItem.order_index = data.projects.length + 1
+        break
+      case 'about_info':
+        newItem.title = ''
+        newItem.description = ''
+        break
+      case 'contact_info':
+        newItem.contact_type = ''
+        newItem.label = ''
+        newItem.value = ''
+        newItem.icon_name = ''
+        newItem.order_index = data.contactInfo.length + 1
+        break
+    }
+
+    setEditingItem(newItem)
+    setIsEditing(true)
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-black dark:to-gray-900 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <NeoCard className="max-w-md w-full mx-4">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-primary-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Settings className="w-8 h-8 text-white" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-md shadow-xl">
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Panel de Administración
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Ingresa la contraseña para acceder
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Contraseña"
+                  className="w-full px-4 py-3 pr-12 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  )}
+                </button>
               </div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">
-                Panel de Administración
-              </h1>
-              <p className="text-muted-foreground">
-                Inicia sesión para gestionar tu portafolio
-              </p>
+              {error && (
+                <p className="text-red-500 text-sm mt-2">{error}</p>
+              )}
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              <NeoInput
-                label="Email"
-                type="email"
-                placeholder="admin@ejemplo.com"
-                required
-              />
-              <NeoInput
-                label="Contraseña"
-                type="password"
-                placeholder="••••••••"
-                required
-              />
-              <NeoButton
-                type="submit"
-                fullWidth
-                loading={isLoading}
-                size="lg"
-              >
-                Iniciar Sesión
-              </NeoButton>
-            </form>
-          </NeoCard>
-        </motion.div>
+            <button
+              type="submit"
+              disabled={isLoading || !password}
+              className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-xl hover:from-blue-600 hover:to-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+            >
+              {isLoading ? 'Verificando...' : 'Acceder'}
+            </button>
+          </form>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-background/80 backdrop-blur-md shadow-neomorphic dark:shadow-neomorphic-dark sticky top-0 z-50">
-        <div className="container-max section-padding">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center">
-                <Settings className="w-5 h-5 text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-foreground">
+      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Panel de Administración
               </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Gestiona el contenido de tu portafolio
+              </p>
             </div>
-            
-            <div className="flex items-center gap-4">
-              <NeoButton
-                variant="outline"
-                size="sm"
-                onClick={() => window.open('/', '_blank')}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.push('/')}
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                <Eye className="w-4 h-4 mr-2" />
                 Ver Sitio
-              </NeoButton>
-              <ThemeToggle />
-              <NeoButton
-                variant="ghost"
-                size="sm"
+              </button>
+              <button
                 onClick={handleLogout}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
               >
-                <LogOut className="w-4 h-4 mr-2" />
-                Salir
-              </NeoButton>
+                Cerrar Sesión
+              </button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="container-max section-padding py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <motion.div
-            className="lg:col-span-1"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <NeoCard className="p-4">
-              <nav className="space-y-2">
-                {adminSections.map((section) => (
-                  <button
-                    key={section.id}
-                    onClick={() => setActiveSection(section.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                      activeSection === section.id
-                        ? 'bg-primary-500 text-white shadow-neomorphic-inset dark:shadow-neomorphic-inset-dark'
-                        : 'text-foreground hover:bg-muted/50'
-                    }`}
-                  >
-                    <section.icon className="w-5 h-5" />
-                    {section.name}
-                  </button>
-                ))}
-              </nav>
-            </NeoCard>
-          </motion.div>
+      <div className="flex">
+        {/* Sidebar */}
+        <div className="w-64 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 min-h-screen">
+          <nav className="p-4">
+            <div className="space-y-2">
+              {[
+                { key: 'typewriter', label: 'Textos Typewriter', icon: '⌨️' },
+                { key: 'projects', label: 'Proyectos', icon: '💼' },
+                { key: 'about', label: 'Acerca de Mí', icon: '👤' },
+                { key: 'contact', label: 'Contacto', icon: '📞' },
+                { key: 'images', label: 'Imágenes', icon: '🖼️' }
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as any)}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                    activeTab === tab.key
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <span className="text-lg">{tab.icon}</span>
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </nav>
+        </div>
 
-          {/* Main Content */}
-          <motion.div
-            className="lg:col-span-3"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <NeoCard className="p-8">
-              {/* Profile Section */}
-              {activeSection === 'profile' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-foreground mb-6">
-                    Información del Perfil
-                  </h2>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <NeoInput
-                      label="Nombre Completo"
-                      defaultValue="Elkin Mac"
-                      placeholder="Tu nombre completo"
-                    />
-                    <NeoInput
-                      label="Título Profesional"
-                      defaultValue="Senior UX/UI Designer"
-                      placeholder="Tu título profesional"
-                    />
-                    <NeoInput
-                      label="Email"
-                      type="email"
-                      defaultValue="hello@ejemplo.com"
-                      placeholder="tu@email.com"
-                    />
-                    <NeoInput
-                      label="Teléfono"
-                      defaultValue="+54 11 1234-5678"
-                      placeholder="+54 11 1234-5678"
-                    />
-                    <NeoInput
-                      label="Ubicación"
-                      defaultValue="Buenos Aires, Argentina"
-                      placeholder="Tu ubicación"
-                    />
-                    <NeoInput
-                      label="LinkedIn"
-                      defaultValue="linkedin.com/in/elkinmac"
-                      placeholder="Tu perfil de LinkedIn"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Biografía
-                    </label>
-                    <textarea
-                      className="neo-input w-full h-32 resize-none"
-                      placeholder="Cuéntanos sobre ti..."
-                      defaultValue="Diseñador UX/UI Senior con más de 5 años de experiencia creando experiencias digitales excepcionales. Especializado en diseño centrado en el usuario, investigación UX y desarrollo de productos digitales innovadores."
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Projects Section */}
-              {activeSection === 'projects' && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-foreground">
-                      Gestión de Proyectos
-                    </h2>
-                    <NeoButton>
-                      Agregar Proyecto
-                    </NeoButton>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((project) => (
-                      <NeoCard key={project} className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-foreground">
-                            Proyecto {project}
-                          </h3>
-                          <div className="flex gap-2">
-                            <NeoButton variant="outline" size="sm">
-                              Editar
-                            </NeoButton>
-                            <NeoButton variant="ghost" size="sm">
-                              Eliminar
-                            </NeoButton>
-                          </div>
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <NeoInput
-                            label="Título"
-                            defaultValue={`Proyecto ${project}`}
-                          />
-                          <NeoInput
-                            label="Categoría"
-                            defaultValue="Web"
-                          />
-                        </div>
-                        <div className="mt-4">
-                          <label className="block text-sm font-medium text-foreground mb-2">
-                            Descripción
-                          </label>
-                          <textarea
-                            className="neo-input w-full h-20 resize-none"
-                            defaultValue="Descripción del proyecto..."
-                          />
-                        </div>
-                      </NeoCard>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Experience Section */}
-              {activeSection === 'experience' && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-foreground">
-                      Experiencia Laboral
-                    </h2>
-                    <NeoButton>
-                      Agregar Experiencia
-                    </NeoButton>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    {[1, 2].map((exp) => (
-                      <NeoCard key={exp} className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-foreground">
-                            Experiencia {exp}
-                          </h3>
-                          <div className="flex gap-2">
-                            <NeoButton variant="outline" size="sm">
-                              Editar
-                            </NeoButton>
-                            <NeoButton variant="ghost" size="sm">
-                              Eliminar
-                            </NeoButton>
-                          </div>
-                        </div>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <NeoInput
-                            label="Empresa"
-                            defaultValue="TechCorp Solutions"
-                          />
-                          <NeoInput
-                            label="Posición"
-                            defaultValue="Senior UX/UI Designer"
-                          />
-                          <NeoInput
-                            label="Fecha de Inicio"
-                            type="date"
-                            defaultValue="2022-01-01"
-                          />
-                          <NeoInput
-                            label="Fecha de Fin"
-                            type="date"
-                          />
-                        </div>
-                        <div className="mt-4">
-                          <label className="block text-sm font-medium text-foreground mb-2">
-                            Descripción
-                          </label>
-                          <textarea
-                            className="neo-input w-full h-24 resize-none"
-                            defaultValue="Descripción de la experiencia laboral..."
-                          />
-                        </div>
-                      </NeoCard>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Skills Section */}
-              {activeSection === 'skills' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Gestión de Habilidades
-                  </h2>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {['Diseño', 'Desarrollo', 'Herramientas', 'Habilidades Blandas'].map((category) => (
-                      <NeoCard key={category} className="p-6">
-                        <h3 className="text-lg font-semibold text-foreground mb-4">
-                          {category}
-                        </h3>
-                        <div className="space-y-3">
-                          {['Habilidad 1', 'Habilidad 2', 'Habilidad 3'].map((skill, index) => (
-                            <div key={index} className="flex items-center gap-3">
-                              <NeoInput
-                                defaultValue={skill}
-                                className="flex-1"
-                              />
-                              <NeoButton variant="ghost" size="sm">
-                                ×
-                              </NeoButton>
-                            </div>
-                          ))}
-                          <NeoButton variant="outline" size="sm" fullWidth>
-                            Agregar Habilidad
-                          </NeoButton>
-                        </div>
-                      </NeoCard>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Contact Section */}
-              {activeSection === 'contact' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Configuración de Contacto
-                  </h2>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <NeoInput
-                      label="Email de Contacto"
-                      defaultValue="hello@ejemplo.com"
-                    />
-                    <NeoInput
-                      label="WhatsApp"
-                      defaultValue="+54 11 1234-5678"
-                    />
-                    <NeoInput
-                      label="LinkedIn"
-                      defaultValue="linkedin.com/in/elkinmac"
-                    />
-                    <NeoInput
-                      label="GitHub"
-                      defaultValue="github.com/elkinmac"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Mensaje de Disponibilidad
-                    </label>
-                    <textarea
-                      className="neo-input w-full h-24 resize-none"
-                      defaultValue="Estoy siempre interesado en nuevos desafíos y oportunidades para crear experiencias extraordinarias. ¡Conversemos!"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* CV Section */}
-              {activeSection === 'cv' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Configuración del CV
-                  </h2>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <NeoInput
-                      label="URL del CV (PDF)"
-                      defaultValue="/cv.pdf"
-                    />
-                    <NeoInput
-                      label="Título del CV"
-                      defaultValue="CV - Elkin Mac"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Resumen Profesional
-                    </label>
-                    <textarea
-                      className="neo-input w-full h-32 resize-none"
-                      defaultValue="Diseñador UX/UI Senior con más de 5 años de experiencia creando experiencias digitales excepcionales..."
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Settings Section */}
-              {activeSection === 'settings' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Configuración General
-                  </h2>
-                  
-                  <div className="space-y-4">
-                    <NeoCard className="p-6">
-                      <h3 className="text-lg font-semibold text-foreground mb-4">
-                        Configuración del Sitio
-                      </h3>
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <NeoInput
-                          label="Título del Sitio"
-                          defaultValue="Portfolio UX/UI Designer"
-                        />
-                        <NeoInput
-                          label="Descripción"
-                          defaultValue="Portfolio profesional de diseñador UX/UI"
-                        />
-                      </div>
-                    </NeoCard>
-                    
-                    <NeoCard className="p-6">
-                      <h3 className="text-lg font-semibold text-foreground mb-4">
-                        Configuración de SEO
-                      </h3>
-                      <div className="space-y-4">
-                        <NeoInput
-                          label="Meta Keywords"
-                          defaultValue="UX, UI, Design, Portfolio, Neomorphism"
-                        />
-                        <NeoInput
-                          label="Meta Description"
-                          defaultValue="Portfolio profesional de diseñador UX/UI con estilo neomorfismo"
-                        />
-                      </div>
-                    </NeoCard>
-                  </div>
-                </div>
-              )}
-
-              {/* Save Button */}
-              <div className="flex justify-end pt-6 border-t border-border">
-                <NeoButton onClick={handleSave} size="lg">
-                  <Save className="w-5 h-5 mr-2" />
-                  Guardar Cambios
-                </NeoButton>
+        {/* Main Content */}
+        <div className="flex-1 p-6">
+          {activeTab === 'typewriter' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Textos Typewriter
+                </h2>
+                <button
+                  onClick={() => handleAddNew('typewriter_texts')}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Agregar Texto
+                </button>
               </div>
-            </NeoCard>
-          </motion.div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Orden
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Texto
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {data.typewriterTexts.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {item.order_index}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.text_content}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(item, 'typewriter_texts')}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id, 'typewriter_texts')}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'projects' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Proyectos
+                </h2>
+                <button
+                  onClick={() => handleAddNew('projects')}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Agregar Proyecto
+                </button>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Orden
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Título
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Descripción
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {data.projects.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {item.order_index}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                          {item.title}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                          {item.description}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(item, 'projects')}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id, 'projects')}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Similar tables for other tabs... */}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {isEditing && editingItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {editingItem.id ? 'Editar' : 'Agregar'} {editingItem.type === 'typewriter_texts' ? 'Texto' : editingItem.type === 'projects' ? 'Proyecto' : 'Elemento'}
+              </h3>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {editingItem.type === 'typewriter_texts' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Orden
+                    </label>
+                    <input
+                      type="number"
+                      value={editingItem.order_index || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Texto
+                    </label>
+                    <textarea
+                      value={editingItem.text_content || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, text_content: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-24"
+                      placeholder="Ingresa el texto que aparecerá en el typewriter"
+                    />
+                  </div>
+                </>
+              )}
+
+              {editingItem.type === 'projects' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Orden
+                    </label>
+                    <input
+                      type="number"
+                      value={editingItem.order_index || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Título
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItem.title || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Título del proyecto"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Descripción
+                    </label>
+                    <textarea
+                      value={editingItem.description || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-24"
+                      placeholder="Descripción del proyecto"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
