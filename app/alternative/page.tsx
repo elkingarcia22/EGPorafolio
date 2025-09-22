@@ -25,9 +25,10 @@ export default function Page() {
 
 /**
  * SVG FULLSCREEN: letras "EG" hundidas (debossed) con degradado azul→verde
- * - 100% ancho/alto, centrado
- * - Filtro de doble sombra interna (clara arriba-izquierda, oscura abajo-derecha)
+ * - 100% ancho/alto, posicionado al lado izquierdo
+ * - Filtro de doble sombra interna más pronunciado (clara arriba-izquierda, oscura abajo-derecha)
  * - Degradado aplicado SOLO dentro de las letras mediante máscara
+ * - Letras mucho más grandes y con efecto neumórfico más marcado
  */
 function EGDebossed() {
   return (
@@ -46,29 +47,29 @@ function EGDebossed() {
         {/* Máscara: las letras en blanco definen dónde se "pinta" el gradiente */}
         <mask id="egMask">
           <rect width="100%" height="100%" fill="black" />
-          {/* Texto grande centrado. Usa una fuente sans geométrica para parecerse al ejemplo */}
-          <g transform="translate(0, 45)">
+          {/* Texto MUCHO más grande, posicionado al lado izquierdo */}
+          <g transform="translate(-50, 0)">
             <text
-              x="50%"
+              x="25%"
               y="50%"
               fill="white"
               textAnchor="middle"
               dominantBaseline="middle"
               fontFamily="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto"
-              fontWeight={800}
-              fontSize={420}
-              letterSpacing="8"
+              fontWeight={900}
+              fontSize={600}
+              letterSpacing="12"
             >
               EG
             </text>
           </g>
         </mask>
 
-        {/* Filtro de hendidura (inner shadow doble para neuromórfico) */}
-        <filter id="innerDeboss" x="-20%" y="-20%" width="140%" height="140%">
-          {/* sombra oscura interior (abajo-derecha) */}
-          <feOffset dx="0" dy="4" in="SourceAlpha" result="off1" />
-          <feGaussianBlur in="off1" stdDeviation="6" result="blur1" />
+        {/* Filtro de hendidura MÁS PRONUNCIADO (inner shadow doble para neuromórfico) */}
+        <filter id="innerDeboss" x="-30%" y="-30%" width="160%" height="160%">
+          {/* sombra oscura interior MÁS INTENSA (abajo-derecha) */}
+          <feOffset dx="0" dy="8" in="SourceAlpha" result="off1" />
+          <feGaussianBlur in="off1" stdDeviation="12" result="blur1" />
           <feComposite
             in="blur1"
             in2="SourceAlpha"
@@ -83,13 +84,13 @@ function EGDebossed() {
             values="0 0 0 0 0
                     0 0 0 0 0
                     0 0 0 0 0
-                    0 0 0 .45 0"
+                    0 0 0 .6 0"
             result="darkInner"
           />
 
-          {/* realce claro interior (arriba-izquierda) */}
-          <feOffset dx="0" dy="-4" in="SourceAlpha" result="off2" />
-          <feGaussianBlur in="off2" stdDeviation="6" result="blur2" />
+          {/* realce claro interior MÁS INTENSO (arriba-izquierda) */}
+          <feOffset dx="0" dy="-8" in="SourceAlpha" result="off2" />
+          <feGaussianBlur in="off2" stdDeviation="12" result="blur2" />
           <feComposite
             in="blur2"
             in2="SourceAlpha"
@@ -104,7 +105,7 @@ function EGDebossed() {
             values="0 0 0 0 1
                     0 0 0 0 1
                     0 0 0 0 1
-                    0 0 0 .7 0"
+                    0 0 0 .8 0"
             result="lightInner"
           />
 
