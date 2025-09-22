@@ -67,11 +67,11 @@ function EGDebossed() {
           </g>
         </mask>
 
-        {/* Filtro de hendidura MÁS PRONUNCIADO (inner shadow doble para neuromórfico) */}
+        {/* Filtro de hendidura NEUMÓRFICO HUNDIDO (inner shadow doble para neuromórfico) */}
         <filter id="innerDeboss" x="-50%" y="-50%" width="200%" height="200%">
-          {/* sombra oscura interior MÁS INTENSA (abajo-derecha) */}
-          <feOffset dx="0" dy="8" in="SourceAlpha" result="off1" />
-          <feGaussianBlur in="off1" stdDeviation="12" result="blur1" />
+          {/* sombra oscura interior HUNDIDA (abajo-derecha) */}
+          <feOffset dx="12" dy="12" in="SourceAlpha" result="off1" />
+          <feGaussianBlur in="off1" stdDeviation="16" result="blur1" />
           <feComposite
             in="blur1"
             in2="SourceAlpha"
@@ -83,16 +83,16 @@ function EGDebossed() {
           <feColorMatrix
             in="innerShadow1"
             type="matrix"
-            values="0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 0 0
-                    0 0 0 .6 0"
+            values="0 0 0 0 0.2
+                    0 0 0 0 0.2
+                    0 0 0 0 0.2
+                    0 0 0 .7 0"
             result="darkInner"
           />
 
-          {/* realce claro interior MÁS INTENSO (arriba-izquierda) */}
-          <feOffset dx="0" dy="-8" in="SourceAlpha" result="off2" />
-          <feGaussianBlur in="off2" stdDeviation="12" result="blur2" />
+          {/* realce claro interior HUNDIDO (arriba-izquierda) */}
+          <feOffset dx="-12" dy="-12" in="SourceAlpha" result="off2" />
+          <feGaussianBlur in="off2" stdDeviation="16" result="blur2" />
           <feComposite
             in="blur2"
             in2="SourceAlpha"
@@ -104,10 +104,10 @@ function EGDebossed() {
           <feColorMatrix
             in="innerShadow2"
             type="matrix"
-            values="0 0 0 0 1
-                    0 0 0 0 1
-                    0 0 0 0 1
-                    0 0 0 .8 0"
+            values="0 0 0 0 0.9
+                    0 0 0 0 0.9
+                    0 0 0 0 0.9
+                    0 0 0 .9 0"
             result="lightInner"
           />
 
