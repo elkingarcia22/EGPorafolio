@@ -1,13 +1,13 @@
 import { Navigation } from '@/components/navigation'
 import { SupabaseTest } from '@/components/supabase-test'
-import { CirclesBackground } from '@/components/circles-background'
+import { EGBackground } from '@/components/eg-background'
 import { HeroSection } from '@/components/hero-section'
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#f0f0f3] dark:bg-[#0a0a0a] transition-colors duration-300 relative">
-      {/* Fondo de círculos neumórficos */}
-      <CirclesBackground />
+      {/* Fondo EG neumórfico */}
+      <EGBackground />
       
       {/* Navegación */}
       <Navigation />
