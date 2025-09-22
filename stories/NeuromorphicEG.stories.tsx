@@ -52,12 +52,18 @@ export const DarkMode: Story = {
 export const WithCustomBackground: Story = {
   parameters: {
     backgrounds: {
-      default: 'gradient',
+      default: 'light',
       values: [
         { name: 'light', value: '#ffffff' },
         { name: 'dark', value: '#0a0a0a' },
-        { name: 'gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
       ],
     },
   },
+  decorators: [
+    (Story) => (
+      <div className="bg-white dark:bg-[#0a0a0a] min-h-screen">
+        <Story />
+      </div>
+    )
+  ],
 }

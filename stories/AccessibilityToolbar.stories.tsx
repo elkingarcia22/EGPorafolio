@@ -36,7 +36,7 @@ export const WithBackdrop: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] p-8">
         <div className="flex justify-center items-center h-screen">
           <Story />
         </div>
@@ -46,7 +46,7 @@ export const WithBackdrop: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Vista de la barra de herramientas con un fondo degradado para mostrar cómo se ve en diferentes contextos.'
+        story: 'Vista de la barra de herramientas con fondo limpio para mostrar cómo se ve en diferentes contextos.'
       }
     }
   }

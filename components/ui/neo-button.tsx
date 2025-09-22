@@ -42,13 +42,13 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
     onPointerOut,
     ...htmlProps 
   } = props
-  const baseClasses = 'neo-button relative overflow-hidden font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500/50'
+  const baseClasses = 'relative overflow-hidden font-normal transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50'
   
   const variantClasses = {
-    primary: 'neo-button-primary text-white',
-    secondary: 'bg-background text-foreground hover:bg-muted',
-    outline: 'border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white',
-    ghost: 'text-foreground hover:bg-muted/50'
+    primary: 'bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300',
+    secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
+    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
+    ghost: 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
   }
   
   const sizeClasses = {
@@ -70,8 +70,6 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
         className
       )}
       disabled={disabled || loading}
-      whileHover={{ scale: disabled || loading ? 1 : 1.05 }}
-      whileTap={{ scale: disabled || loading ? 1 : 0.95 }}
       {...htmlProps}
     >
       <div className="flex items-center justify-center gap-2">
