@@ -165,6 +165,35 @@ export const Colors: Story = {
           'border-muted-dark': 'rgba(55, 65, 81, 0.5)'
         }}
       />
+      
+      <div className="space-y-4">
+        <h3 className="text-lg font-normal text-gray-600 dark:text-white">Gradaciones Principales</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div 
+              className="w-full h-16 rounded-lg border border-gray-200 dark:border-gray-700"
+              style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}
+            />
+            <div className="text-xs">
+              <div className="font-mono text-gray-600 dark:text-gray-400">primary-gradient</div>
+              <div className="font-mono text-gray-500 dark:text-gray-500">linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)</div>
+              <div className="text-gray-500 dark:text-gray-400">Gradación principal del sistema</div>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <div 
+              className="w-full h-16 rounded-lg border border-gray-200 dark:border-gray-700"
+              style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)' }}
+            />
+            <div className="text-xs">
+              <div className="font-mono text-gray-600 dark:text-gray-400">secondary-gradient</div>
+              <div className="font-mono text-gray-500 dark:text-gray-500">linear-gradient(135deg, #3b82f6 0%, #10b981 100%)</div>
+              <div className="text-gray-500 dark:text-gray-400">Gradación secundaria</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   ),
   parameters: {
@@ -263,6 +292,129 @@ export const Spacing: Story = {
   }
 }
 
+export const Gradients: Story = {
+  render: () => (
+    <div className="p-8 space-y-8 bg-white dark:bg-[#0a0a0a] min-h-screen">
+      <div>
+        <h1 className="text-3xl font-normal text-gray-600 dark:text-white mb-2">Gradaciones del Sistema</h1>
+        <p className="text-gray-500 dark:text-gray-400">Gradaciones utilizadas en el sistema de diseño</p>
+      </div>
+      
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Gradación Principal</h3>
+          <div className="space-y-4">
+            <div 
+              className="w-full h-24 rounded-lg border border-gray-200 dark:border-gray-700"
+              style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}
+            />
+            <div className="space-y-2">
+              <div className="font-mono text-sm text-gray-600 dark:text-gray-400">
+                linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Usada en: líneas decorativas, fondos de secciones, elementos de acento
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h3 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Gradación Secundaria</h3>
+          <div className="space-y-4">
+            <div 
+              className="w-full h-24 rounded-lg border border-gray-200 dark:border-gray-700"
+              style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)' }}
+            />
+            <div className="space-y-2">
+              <div className="font-mono text-sm text-gray-600 dark:text-gray-400">
+                linear-gradient(135deg, #3b82f6 0%, #10b981 100%)
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Usada en: botones, elementos interactivos, estados hover
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h3 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Variaciones de Opacidad</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <div 
+                className="w-full h-16 rounded-lg border border-gray-200 dark:border-gray-700"
+                style={{ background: 'linear-gradient(135deg, rgba(22, 162, 255, 0.1) 0%, rgba(53, 208, 127, 0.1) 100%)' }}
+              />
+              <div className="text-xs text-gray-500 dark:text-gray-400">10% opacidad</div>
+            </div>
+            
+            <div className="space-y-2">
+              <div 
+                className="w-full h-16 rounded-lg border border-gray-200 dark:border-gray-700"
+                style={{ background: 'linear-gradient(135deg, rgba(22, 162, 255, 0.2) 0%, rgba(53, 208, 127, 0.2) 100%)' }}
+              />
+              <div className="text-xs text-gray-500 dark:text-gray-400">20% opacidad</div>
+            </div>
+            
+            <div className="space-y-2">
+              <div 
+                className="w-full h-16 rounded-lg border border-gray-200 dark:border-gray-700"
+                style={{ background: 'linear-gradient(135deg, rgba(22, 162, 255, 0.3) 0%, rgba(53, 208, 127, 0.3) 100%)' }}
+              />
+              <div className="text-xs text-gray-500 dark:text-gray-400">30% opacidad</div>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h3 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Uso en Componentes</h3>
+          <div className="space-y-4">
+            <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Líneas decorativas:</div>
+              <div className="w-full h-1 rounded" style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}></div>
+            </div>
+            
+            <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Fondo de sección:</div>
+              <div 
+                className="w-full h-12 rounded flex items-center justify-center text-white font-medium"
+                style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}
+              >
+                Sección con gradiente
+              </div>
+            </div>
+            
+            <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">Elementos de acento:</div>
+              <div className="flex space-x-2">
+                <div 
+                  className="w-4 h-4 rounded-full"
+                  style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}
+                ></div>
+                <div 
+                  className="w-4 h-4 rounded-full"
+                  style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}
+                ></div>
+                <div 
+                  className="w-4 h-4 rounded-full"
+                  style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Gradaciones utilizadas en el sistema de diseño, incluyendo variaciones de opacidad y ejemplos de uso en componentes.'
+      }
+    }
+  }
+}
+
 export const AllTokens: Story = {
   render: () => (
     <div className="p-8 space-y-12 bg-white dark:bg-[#0a0a0a] min-h-screen">
@@ -285,6 +437,33 @@ export const AllTokens: Story = {
               'dark-bg': '#0a0a0a'
             }}
           />
+          
+          <div className="mt-6">
+            <h3 className="text-lg font-normal text-gray-600 dark:text-white mb-4">Gradaciones</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div 
+                  className="w-full h-12 rounded-lg border border-gray-200 dark:border-gray-700"
+                  style={{ background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)' }}
+                />
+                <div className="text-xs">
+                  <div className="font-mono text-gray-600 dark:text-gray-400">primary-gradient</div>
+                  <div className="text-gray-500 dark:text-gray-400">Gradación principal</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div 
+                  className="w-full h-12 rounded-lg border border-gray-200 dark:border-gray-700"
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)' }}
+                />
+                <div className="text-xs">
+                  <div className="font-mono text-gray-600 dark:text-gray-400">secondary-gradient</div>
+                  <div className="text-gray-500 dark:text-gray-400">Gradación secundaria</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div>
