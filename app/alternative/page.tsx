@@ -26,108 +26,55 @@ export default function Page() {
 }
 
 /**
- * SVG FULLSCREEN: letras "EG" hundidas (debossed) con degradado azul→verde
- * - 100% ancho/alto, posicionado al lado izquierdo
- * - Filtro de doble sombra interna más pronunciado (clara arriba-izquierda, oscura abajo-derecha)
- * - Degradado aplicado SOLO dentro de las letras mediante máscara
- * - Letras mucho más grandes y con efecto neumórfico más marcado
+ * Componente EG con efecto neumórfico hundido usando CSS
+ * - Letras grandes centradas
+ * - Efecto neumórfico con box-shadow inset
+ * - Gradiente azul → verde
+ * - Efecto hundido pronunciado
  */
 function EGDebossed() {
   return (
-    <svg
-      className="absolute inset-0 w-full h-full z-0"
-      viewBox="0 0 1440 900"
-      aria-hidden
-    >
-      <defs>
-        {/* Degradado azul → verde (ajusta colores si lo prefieres) */}
-        <linearGradient id="egGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#16A2FF" />
-          <stop offset="1" stopColor="#35D07F" />
-        </linearGradient>
-
-        {/* Máscara: las letras en blanco definen dónde se "pinta" el gradiente */}
-        <mask id="egMask">
-          <rect width="100%" height="100%" fill="black" />
-          {/* Texto centrado y más grande, sin cortarse */}
-          <g transform="translate(0, 0)">
-            <text
-              x="50%"
-              y="50%"
-              fill="white"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontFamily="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto"
-              fontWeight={900}
-              fontSize={500}
-              letterSpacing="20"
-            >
-              EG
-            </text>
-          </g>
-        </mask>
-
-        {/* Filtro de hendidura NEUMÓRFICO HUNDIDO (inner shadow doble para neuromórfico) */}
-        <filter id="innerDeboss" x="-50%" y="-50%" width="200%" height="200%">
-          {/* sombra oscura interior HUNDIDA (abajo-derecha) */}
-          <feOffset dx="12" dy="12" in="SourceAlpha" result="off1" />
-          <feGaussianBlur in="off1" stdDeviation="16" result="blur1" />
-          <feComposite
-            in="blur1"
-            in2="SourceAlpha"
-            operator="arithmetic"
-            k2="-1"
-            k3="1"
-            result="innerShadow1"
-          />
-          <feColorMatrix
-            in="innerShadow1"
-            type="matrix"
-            values="0 0 0 0 0.2
-                    0 0 0 0 0.2
-                    0 0 0 0 0.2
-                    0 0 0 .7 0"
-            result="darkInner"
-          />
-
-          {/* realce claro interior HUNDIDO (arriba-izquierda) */}
-          <feOffset dx="-12" dy="-12" in="SourceAlpha" result="off2" />
-          <feGaussianBlur in="off2" stdDeviation="16" result="blur2" />
-          <feComposite
-            in="blur2"
-            in2="SourceAlpha"
-            operator="arithmetic"
-            k2="-1"
-            k3="1"
-            result="innerShadow2"
-          />
-          <feColorMatrix
-            in="innerShadow2"
-            type="matrix"
-            values="0 0 0 0 0.9
-                    0 0 0 0 0.9
-                    0 0 0 0 0.9
-                    0 0 0 .9 0"
-            result="lightInner"
-          />
-
-          <feMerge>
-            <feMergeNode in="darkInner" />
-            <feMergeNode in="lightInner" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      {/* Capa base del fondo (mismo gris de la página para continuidad) */}
-      <rect width="100%" height="100%" fill="#ECEDEC" />
-
-      {/* Grupo enmascarado: el gradiente solo aparece dentro de las letras */}
-      <g mask="url(#egMask)">
-        {/* Relleno de color (degradado) que se verá SOLO dentro de "EG" */}
-        <rect width="100%" height="100%" fill="url(#egGrad)" />
-        {/* Aplico el filtro de hendidura para dar profundidad */}
-        <rect width="100%" height="100%" fill="transparent" filter="url(#innerDeboss)" />
-      </g>
-    </svg>
+    <div className="absolute inset-0 w-full h-full z-0 flex items-center justify-center">
+      {/* Letras EG con efecto neumórfico hundido */}
+      <div 
+        className="relative"
+        style={{
+          fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
+          fontWeight: 900,
+          fontSize: '500px',
+          letterSpacing: '20px',
+          color: 'transparent',
+          background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textShadow: `
+            inset 20px 20px 40px rgba(0, 0, 0, 0.3),
+            inset -20px -20px 40px rgba(255, 255, 255, 0.8),
+            0 0 0 1px rgba(0, 0, 0, 0.1)
+          `,
+          filter: 'drop-shadow(0 0 0 transparent)',
+          position: 'relative'
+        }}
+      >
+        EG
+        {/* Efecto de sombra adicional para simular hundimiento */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+            borderRadius: '20px',
+            boxShadow: `
+              inset 25px 25px 50px rgba(0, 0, 0, 0.4),
+              inset -25px -25px 50px rgba(255, 255, 255, 0.9),
+              0 0 0 2px rgba(0, 0, 0, 0.1)
+            `,
+            zIndex: -1,
+            margin: '-10px',
+            opacity: 0.1
+          }}
+        />
+      </div>
+    </div>
   );
 }
