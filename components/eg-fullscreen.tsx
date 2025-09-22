@@ -7,7 +7,7 @@ export const EGFullScreen: React.FC = () => {
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       {/* Letra E - Pantalla completa - Efecto saliente */}
       <div
-        className="absolute top-2 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-0 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
@@ -31,16 +31,16 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Letra G - Pantalla completa - Efecto hundido */}
       <div
-        className="absolute top-2 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-0 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
-          color: '#f0f0f3',
+          color: '#e8e8eb',
           textShadow: `
-            inset 20px 20px 40px #d1d9e6,
-            inset -20px -20px 40px #ffffff,
-            inset 40px 40px 80px #d1d9e6,
-            inset -40px -40px 80px #ffffff
+            20px 20px 40px #d1d9e6,
+            -20px -20px 40px #ffffff,
+            40px 40px 80px #d1d9e6,
+            -40px -40px 80px #ffffff
           `,
           fontFamily: 'system-ui, -apple-system, sans-serif',
           letterSpacing: '-0.05em',
@@ -53,7 +53,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Efectos de profundidad para la E - Saliente */}
       <div
-        className="absolute top-2 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-0 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
@@ -76,7 +76,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Efectos de profundidad para la G - Hundido */}
       <div
-        className="absolute top-2 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-0 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
@@ -99,7 +99,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Sombras de fondo para mayor profundidad - E */}
       <div
-        className="absolute top-2 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-0 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
@@ -118,7 +118,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Sombras de fondo para mayor profundidad - G */}
       <div
-        className="absolute top-2 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-0 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
