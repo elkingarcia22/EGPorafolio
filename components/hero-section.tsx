@@ -55,9 +55,6 @@ export const HeroSection: React.FC = () => {
           <button className="neo-button-primary px-8 py-4 text-lg font-semibold text-white rounded-2xl hover:scale-105 transition-transform duration-300 blue-gradient-bg">
             Ver Proyectos
           </button>
-          <button className="neo-button px-8 py-4 text-lg font-semibold text-gray-700 dark:text-gray-300 rounded-2xl hover:scale-105 transition-transform duration-300">
-            Descargar CV
-          </button>
         </div>
       </div>
     </div>

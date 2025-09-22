@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Home, Briefcase, Code, GraduationCap, MessageCircle, FileText, Sun, Moon, Settings } from 'lucide-react'
+import { Menu, X, Home, Briefcase, Code, GraduationCap, MessageCircle, Sun, Moon, Settings } from 'lucide-react'
 import { useTheme } from '@/hooks/useTheme'
 
 const navigation = [
@@ -51,14 +51,6 @@ export const Navigation: React.FC = () => {
 
           {/* Right Section - Utility Icons */}
           <div className="flex items-center space-x-4">
-            {/* CV Button with notification dot */}
-            <Link href="/cv" className="relative">
-              <div className="neumorphic-icon">
-                <FileText className="w-4 h-4 text-gray-600" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full" />
-              </div>
-            </Link>
-
             {/* Theme Toggle */}
             <button 
               className="neumorphic-icon"
