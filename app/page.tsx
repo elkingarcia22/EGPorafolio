@@ -5,12 +5,15 @@ import { Navbar } from '@/components/navbar'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import AdminModal from '@/components/admin-modal'
 import AdminPanel from '@/components/admin-panel'
+import { SectionSkeleton } from '@/components/section-skeleton'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
+import { useSectionLoading } from '@/hooks/useSectionLoading'
 
 function HomePageContent() {
   const { content, refreshContent } = useAdmin()
   const { t } = useLanguage()
+  const { loading, mounted, markSectionLoaded } = useSectionLoading()
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -30,8 +33,10 @@ function HomePageContent() {
   // Asegurar que la página cargue en el home
   useEffect(() => {
     // Scroll al inicio cuando se monta el componente
-    window.scrollTo(0, 0)
-  }, [])
+    if (mounted) {
+      window.scrollTo(0, 0)
+    }
+  }, [mounted])
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
@@ -50,7 +55,11 @@ function HomePageContent() {
       
       {/* Sección Home - EG neuromórfico */}
       <section id="home" className="pt-24">
-        <NeuromorphicEG />
+        {loading.home ? (
+          <SectionSkeleton type="home" />
+        ) : (
+          <NeuromorphicEG />
+        )}
       </section>
 
       {/* Título de sección Acerca de mí */}
@@ -71,7 +80,10 @@ function HomePageContent() {
       </div>
 
       {/* Sección Acerca de mí */}
-      <section id="acerca" className="py-20">
+      {loading.about ? (
+        <SectionSkeleton type="about" />
+      ) : (
+        <section id="acerca" className="py-20">
         <div className="px-8">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-3 gap-12 items-start">
@@ -181,7 +193,8 @@ function HomePageContent() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      )}
 
       {/* Título de sección Contacto */}
       <div className="py-40">
@@ -201,7 +214,10 @@ function HomePageContent() {
       </div>
 
       {/* Sección Contacto */}
-      <section id="contacto" className="py-20" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}>
+      {loading.contact ? (
+        <SectionSkeleton type="contact" />
+      ) : (
+        <section id="contacto" className="py-20" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}>
         <div className="px-8">
 
           {/* Cards horizontales limpias */}
@@ -291,7 +307,8 @@ function HomePageContent() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      )}
     </div>
   )
 }
