@@ -18,8 +18,18 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
   deletingSpeed = 50,
   pauseTime = 2000
 }) => {
-  const { content } = useAdmin()
-  const displayWords = words || content.typewriterTexts
+  // Default words for Storybook when no context is available
+  const defaultWords = ['Diseñador UX/UI', 'Desarrollador Frontend', 'Estratega Digital']
+  
+  let displayWords: string[]
+  
+  try {
+    const { content } = useAdmin()
+    displayWords = words || content.typewriterTexts
+  } catch (error) {
+    // Fallback for Storybook when AdminContext is not available
+    displayWords = words || defaultWords
+  }
   
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [currentText, setCurrentText] = useState('')
