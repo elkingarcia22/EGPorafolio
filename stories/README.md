@@ -4,10 +4,20 @@ Este Storybook contiene todos los componentes del sistema de diseño neomorfismo
 
 ## Componentes Disponibles
 
+### 🏠 Páginas
+- **HomePage**: Página principal completa con diseño neuromórfico
+- Incluye letras EG gigantes, texto typewriter y sección de proyectos
+- Soporte para modo claro y oscuro
+
 ### 🧭 Navigation
-- **Navigation**: Componente de navegación principal con estilo neomorfismo
-- Incluye logo, enlaces de navegación y botones de utilidad
-- Responsive con menú móvil
+- **Navbar**: Barra de navegación fija con menú expandible
+- **MinimalMenu**: Menú minimalista con animación horizontal y efectos hover
+- **LanguageToggle**: Toggle para cambiar idiomas (ES/EN) con persistencia
+
+### 🎨 Componentes Principales
+- **NeuromorphicEG**: Letras EG gigantes con efecto neuromórfico y gradiente
+- **TypewriterText**: Texto con efecto typewriter animado
+- Incluye controles para velocidad de escritura y pausas
 
 ### 🎨 UI Components
 
