@@ -11,6 +11,20 @@ interface TypewriterTextProps {
   pauseTime?: number
 }
 
+// Hook personalizado para manejar el contexto de manera segura
+const useAdminSafe = () => {
+  try {
+    return useAdmin()
+  } catch (error) {
+    // Fallback para Storybook cuando AdminContext no está disponible
+    return {
+      content: {
+        typewriterTexts: ['Diseñador UX/UI', 'Desarrollador Frontend', 'Estratega Digital']
+      }
+    }
+  }
+}
+
 export const TypewriterText: React.FC<TypewriterTextProps> = ({
   words,
   className = '',
@@ -18,18 +32,8 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
   deletingSpeed = 50,
   pauseTime = 2000
 }) => {
-  // Default words for Storybook when no context is available
-  const defaultWords = ['Diseñador UX/UI', 'Desarrollador Frontend', 'Estratega Digital']
-  
-  let displayWords: string[]
-  
-  try {
-    const { content } = useAdmin()
-    displayWords = words || content.typewriterTexts
-  } catch (error) {
-    // Fallback for Storybook when AdminContext is not available
-    displayWords = words || defaultWords
-  }
+  const { content } = useAdminSafe()
+  const displayWords = words || content.typewriterTexts
   
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [currentText, setCurrentText] = useState('')

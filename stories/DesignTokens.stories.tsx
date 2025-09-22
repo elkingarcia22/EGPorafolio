@@ -21,19 +21,46 @@ const ColorPalette = ({ colors, title }: { colors: Record<string, any>, title: s
   <div className="mb-8">
     <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">{title}</h3>
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      {Object.entries(colors).map(([key, value]) => (
-        <div key={key} className="text-center">
-          <div 
-            className="w-full h-16 rounded-lg mb-2 border border-gray-200 dark:border-gray-700"
-            style={{ 
-              backgroundColor: typeof value === 'string' && value.startsWith('#') ? value : undefined,
-              background: typeof value === 'string' && value.includes('gradient') ? value : undefined
-            }}
-          />
-          <p className="text-xs font-mono text-gray-600 dark:text-gray-400">{key}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-500">{value}</p>
-        </div>
-      ))}
+      {Object.entries(colors).map(([key, value]) => {
+        // Manejar objetos anidados (como primary.blue, primary.green, etc.)
+        if (typeof value === 'object' && value !== null) {
+          return (
+            <div key={key} className="col-span-full">
+              <h4 className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-300">{key}</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 ml-4">
+                {Object.entries(value).map(([subKey, subValue]) => (
+                  <div key={subKey} className="text-center">
+                    <div 
+                      className="w-full h-16 rounded-lg mb-2 border border-gray-200 dark:border-gray-700"
+                      style={{ 
+                        backgroundColor: typeof subValue === 'string' && subValue.startsWith('#') ? subValue : undefined,
+                        background: typeof subValue === 'string' && subValue.includes('gradient') ? subValue : undefined
+                      }}
+                    />
+                    <p className="text-xs font-mono text-gray-600 dark:text-gray-400">{subKey}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">{String(subValue)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        }
+        
+        // Manejar valores simples
+        return (
+          <div key={key} className="text-center">
+            <div 
+              className="w-full h-16 rounded-lg mb-2 border border-gray-200 dark:border-gray-700"
+              style={{ 
+                backgroundColor: typeof value === 'string' && value.startsWith('#') ? value : undefined,
+                background: typeof value === 'string' && value.includes('gradient') ? value : undefined
+              }}
+            />
+            <p className="text-xs font-mono text-gray-600 dark:text-gray-400">{key}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-500">{String(value)}</p>
+          </div>
+        )
+      })}
     </div>
   </div>
 )
