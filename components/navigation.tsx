@@ -8,6 +8,7 @@ import { useTheme } from '@/hooks/useTheme'
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
+  { name: 'Alternative', href: '/alternative', icon: Settings },
   { name: 'Projects', href: '/proyectos', icon: Briefcase },
   { name: 'Skills', href: '/habilidades', icon: Code },
   { name: 'Experience', href: '/experiencia', icon: GraduationCap },
