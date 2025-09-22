@@ -211,15 +211,18 @@ export default function AdminPage() {
       case 'typewriter_texts':
         newItem.text_content = ''
         newItem.order_index = data.typewriterTexts.length + 1
+        newItem.is_active = true
         break
       case 'projects':
         newItem.title = ''
         newItem.description = ''
         newItem.order_index = data.projects.length + 1
+        newItem.is_active = true
         break
       case 'about_info':
         newItem.title = ''
         newItem.description = ''
+        newItem.is_active = true
         break
       case 'contact_info':
         newItem.contact_type = ''
@@ -227,6 +230,14 @@ export default function AdminPage() {
         newItem.value = ''
         newItem.icon_name = ''
         newItem.order_index = data.contactInfo.length + 1
+        newItem.is_active = true
+        break
+      case 'site_images':
+        newItem.image_name = ''
+        newItem.image_url = ''
+        newItem.section = ''
+        newItem.usage_context = ''
+        newItem.is_active = true
         break
     }
 
@@ -288,6 +299,18 @@ export default function AdminPage() {
               {isLoading ? 'Verificando...' : 'Acceder'}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => router.push('/')}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 flex items-center justify-center space-x-2 mx-auto"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span>Volver al sitio</span>
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -500,7 +523,194 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Similar tables for other tabs... */}
+          {activeTab === 'about' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Acerca de Mí
+                </h2>
+                <button
+                  onClick={() => handleAddNew('about_info')}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Agregar Información
+                </button>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Título
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Descripción
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {data.aboutInfo.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                          {item.title}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                          {item.description}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(item, 'about_info')}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id, 'about_info')}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'contact' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Información de Contacto
+                </h2>
+                <button
+                  onClick={() => handleAddNew('contact_info')}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Agregar Contacto
+                </button>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Tipo
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Etiqueta
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Valor
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {data.contactInfo.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                          {item.contact_type}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.label}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.value}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(item, 'contact_info')}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id, 'contact_info')}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'images' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Imágenes del Sitio
+                </h2>
+                <button
+                  onClick={() => handleAddNew('site_images')}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Agregar Imagen
+                </button>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Nombre
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Sección
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        URL
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {data.siteImages.map((item) => (
+                      <tr key={item.id}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                          {item.image_name}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.section}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                          {item.image_url}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(item, 'site_images')}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id, 'site_images')}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -584,6 +794,148 @@ export default function AdminPage() {
                       onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-24"
                       placeholder="Descripción del proyecto"
+                    />
+                  </div>
+                </>
+              )}
+
+              {editingItem.type === 'about_info' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Título
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItem.title || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Título de la sección"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Descripción
+                    </label>
+                    <textarea
+                      value={editingItem.description || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-32"
+                      placeholder="Descripción personal"
+                    />
+                  </div>
+                </>
+              )}
+
+              {editingItem.type === 'contact_info' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Tipo de Contacto
+                    </label>
+                    <select
+                      value={editingItem.contact_type || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, contact_type: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="">Seleccionar tipo</option>
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="email">Email</option>
+                      <option value="location">Ubicación</option>
+                      <option value="phone">Teléfono</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Etiqueta
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItem.label || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, label: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Etiqueta del contacto"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Valor
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItem.value || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, value: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Valor del contacto"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Orden
+                    </label>
+                    <input
+                      type="number"
+                      value={editingItem.order_index || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                  </div>
+                </>
+              )}
+
+              {editingItem.type === 'site_images' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Nombre de la Imagen
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItem.image_name || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, image_name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Nombre descriptivo"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Sección
+                    </label>
+                    <select
+                      value={editingItem.section || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, section: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      <option value="">Seleccionar sección</option>
+                      <option value="hero">Hero</option>
+                      <option value="projects">Proyectos</option>
+                      <option value="about">Acerca de</option>
+                      <option value="contact">Contacto</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      URL de la Imagen
+                    </label>
+                    <input
+                      type="url"
+                      value={editingItem.image_url || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, image_url: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Contexto de Uso
+                    </label>
+                    <input
+                      type="text"
+                      value={editingItem.usage_context || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, usage_context: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Ej: portada, perfil, proyecto1"
                     />
                   </div>
                 </>

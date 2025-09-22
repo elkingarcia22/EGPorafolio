@@ -8,7 +8,7 @@ import AdminPanel from '@/components/admin-panel'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 
 function HomePageContent() {
-  const { content } = useAdmin()
+  const { content, refreshContent } = useAdmin()
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -38,6 +38,17 @@ function HomePageContent() {
           onClose={() => setIsAdminModalOpen(false)}
           onAuthenticate={handleAdminAuthenticate}
         />
+
+        {/* Botón de refrescar contenido (solo visible en desarrollo) */}
+        {process.env.NODE_ENV === 'development' && (
+          <button
+            onClick={refreshContent}
+            className="fixed top-20 right-4 z-50 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+            title="Refrescar contenido desde Supabase"
+          >
+            🔄 Refrescar
+          </button>
+        )}
       
       {/* Sección Home - EG neuromórfico */}
       <section id="home" className="pt-24">
