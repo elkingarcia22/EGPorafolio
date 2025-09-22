@@ -23,7 +23,7 @@ export class DatabaseService {
 
   // Profile operations
   async getProfile() {
-    const { data, error } = await this.supabaseClientClient
+    const { data, error } = await this.supabaseClient
       .from('profiles')
       .select('*')
       .single()
@@ -33,7 +33,7 @@ export class DatabaseService {
   }
 
   async updateProfile(updates: any) {
-    const { data, error } = await this.supabaseClientClient
+    const { data, error } = await this.supabaseClient
       .from('profiles')
       .update(updates)
       .eq('id', updates.id)
@@ -90,7 +90,7 @@ export class DatabaseService {
   }
 
   async deleteProject(id: string) {
-    const { error } = await this.supabase
+    const { error } = await this.supabaseClient
       .from('projects')
       .delete()
       .eq('id', id)
@@ -133,7 +133,7 @@ export class DatabaseService {
   }
 
   async deleteExperience(id: string) {
-    const { error } = await this.supabase
+    const { error } = await this.supabaseClient
       .from('experience')
       .delete()
       .eq('id', id)
@@ -176,7 +176,7 @@ export class DatabaseService {
   }
 
   async deleteEducation(id: string) {
-    const { error } = await this.supabase
+    const { error } = await this.supabaseClient
       .from('education')
       .delete()
       .eq('id', id)
@@ -230,7 +230,7 @@ export class DatabaseService {
   }
 
   async deleteSkill(id: string) {
-    const { error } = await this.supabase
+    const { error } = await this.supabaseClient
       .from('skills')
       .delete()
       .eq('id', id)

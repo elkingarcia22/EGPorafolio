@@ -14,7 +14,7 @@ export function formatDate(date: string | Date): string {
   })
 }
 
-export function formatDateRange(startDate: string | Date, endDate?: string | Date): string {
+export function formatDateRange(startDate: string | Date, endDate?: string | Date | null): string {
   const start = new Date(startDate)
   const end = endDate ? new Date(endDate) : null
   

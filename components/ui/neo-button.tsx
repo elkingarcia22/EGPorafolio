@@ -25,6 +25,23 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
   disabled,
   ...props
 }) => {
+  // Separar props de motion de props de HTML
+  const { 
+    onAnimationStart, 
+    onAnimationEnd, 
+    onDragStart, 
+    onDrag, 
+    onDragEnd,
+    onPointerDown,
+    onPointerUp,
+    onPointerCancel,
+    onPointerEnter,
+    onPointerLeave,
+    onPointerMove,
+    onPointerOver,
+    onPointerOut,
+    ...htmlProps 
+  } = props
   const baseClasses = 'neo-button relative overflow-hidden font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500/50'
   
   const variantClasses = {
@@ -55,7 +72,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
       disabled={disabled || loading}
       whileHover={{ scale: disabled || loading ? 1 : 1.05 }}
       whileTap={{ scale: disabled || loading ? 1 : 0.95 }}
-      {...props}
+      {...htmlProps}
     >
       <div className="flex items-center justify-center gap-2">
         {loading ? (
