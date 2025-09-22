@@ -26,79 +26,149 @@ export default function Page() {
 }
 
 /**
- * Componente EG con efecto neumórfico hundido EXACTO como en la imagen
+ * Componente EG con efecto neumórfico hundido usando CSS puro
  * - Letras grandes centradas con gradiente azul-turquesa-verde
- * - Efecto neumórfico hundido con sombras suaves y difusas
- * - Textura de fondo mate
- * - Sombras internas para simular letras talladas en la superficie
+ * - Efecto neumórfico hundido con box-shadow inset
+ * - Simulación de letras talladas en la superficie
  */
 function EGDebossed() {
   return (
     <div className="absolute inset-0 w-full h-full z-0 flex items-center justify-center">
       {/* Contenedor principal para las letras EG */}
       <div className="relative">
-        {/* Letras EG con efecto neumórfico hundido */}
+        {/* Letra E */}
         <div 
-          className="relative"
+          className="relative inline-block mr-8"
           style={{
-            fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
-            fontWeight: 900,
-            fontSize: '420px',
-            letterSpacing: '8px',
-            color: 'transparent',
-            background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            position: 'relative',
-            zIndex: 2
-          }}
-        >
-          EG
-        </div>
-        
-        {/* Capa de sombra interna para efecto hundido */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
-            fontWeight: 900,
-            fontSize: '420px',
-            letterSpacing: '8px',
-            color: 'transparent',
-            background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            textShadow: `
-              inset 15px 15px 30px rgba(0, 0, 0, 0.25),
-              inset -15px -15px 30px rgba(255, 255, 255, 0.7)
+            width: '200px',
+            height: '280px',
+            background: '#f8f8f8',
+            borderRadius: '20px',
+            boxShadow: `
+              inset 15px 15px 30px rgba(209, 217, 230, 0.8),
+              inset -15px -15px 30px rgba(255, 255, 255, 0.9)
             `,
-            zIndex: 1
+            position: 'relative'
           }}
         >
-          EG
+          {/* Gradiente interno para la letra E */}
+          <div 
+            className="absolute inset-4 rounded-xl"
+            style={{
+              background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
+              borderRadius: '12px',
+              boxShadow: 'inset 8px 8px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          />
+          
+          {/* Forma de la letra E usando pseudo-elementos */}
+          <div className="absolute inset-0 flex flex-col justify-between p-6">
+            {/* Barra superior */}
+            <div 
+              className="w-full"
+              style={{
+                height: '24px',
+                background: 'transparent',
+                borderRadius: '12px',
+                boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.3)'
+              }}
+            />
+            
+            {/* Barra media */}
+            <div 
+              className="w-3/4"
+              style={{
+                height: '24px',
+                background: 'transparent',
+                borderRadius: '12px',
+                boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.3)'
+              }}
+            />
+            
+            {/* Barra inferior */}
+            <div 
+              className="w-full"
+              style={{
+                height: '24px',
+                background: 'transparent',
+                borderRadius: '12px',
+                boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.3)'
+              }}
+            />
+          </div>
         </div>
-        
-        {/* Capa de fondo con efecto de profundidad */}
+
+        {/* Letra G */}
         <div 
-          className="absolute inset-0"
+          className="relative inline-block"
           style={{
-            fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
-            fontWeight: 900,
-            fontSize: '420px',
-            letterSpacing: '8px',
-            color: 'transparent',
-            background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            filter: 'blur(2px)',
-            opacity: 0.3,
-            zIndex: 0
+            width: '200px',
+            height: '280px',
+            background: '#f8f8f8',
+            borderRadius: '20px',
+            boxShadow: `
+              inset 15px 15px 30px rgba(209, 217, 230, 0.8),
+              inset -15px -15px 30px rgba(255, 255, 255, 0.9)
+            `,
+            position: 'relative'
           }}
         >
-          EG
+          {/* Gradiente interno para la letra G */}
+          <div 
+            className="absolute inset-4 rounded-xl"
+            style={{
+              background: 'linear-gradient(135deg, #26C6DA 0%, #66BB6A 50%, #4CAF50 100%)',
+              borderRadius: '12px',
+              boxShadow: 'inset 8px 8px 16px rgba(0, 0, 0, 0.2)'
+            }}
+          />
+          
+          {/* Forma de la letra G usando pseudo-elementos */}
+          <div className="absolute inset-0 flex flex-col justify-between p-6">
+            {/* Barra superior */}
+            <div 
+              className="w-full"
+              style={{
+                height: '24px',
+                background: 'transparent',
+                borderRadius: '12px',
+                boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.3)'
+              }}
+            />
+            
+            {/* Barra media con apertura */}
+            <div className="flex justify-between w-full">
+              <div 
+                className="w-1/2"
+                style={{
+                  height: '24px',
+                  background: 'transparent',
+                  borderRadius: '12px',
+                  boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.3)'
+                }}
+              />
+              <div 
+                className="w-1/3"
+                style={{
+                  height: '24px',
+                  background: 'transparent',
+                  borderRadius: '12px',
+                  boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.3)'
+                }}
+              />
+            </div>
+            
+            {/* Barra inferior */}
+            <div 
+              className="w-full"
+              style={{
+                height: '24px',
+                background: 'transparent',
+                borderRadius: '12px',
+                boxShadow: 'inset 4px 4px 8px rgba(0, 0, 0, 0.3)'
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
