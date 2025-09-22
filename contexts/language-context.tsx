@@ -134,22 +134,33 @@ const translations = {
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<'es' | 'en'>('es') // Iniciar en español
+  
+  console.log('🌍 LanguageProvider renderizado, idioma actual:', language)
 
   useEffect(() => {
+    console.log('🌍 LanguageProvider useEffect ejecutado')
     // Cargar idioma desde localStorage si existe
     const savedLanguage = localStorage.getItem('language') as 'es' | 'en'
+    console.log('💾 Idioma guardado en localStorage:', savedLanguage)
     if (savedLanguage && (savedLanguage === 'es' || savedLanguage === 'en')) {
+      console.log('✅ Cargando idioma desde localStorage:', savedLanguage)
       setLanguage(savedLanguage)
+    } else {
+      console.log('⚠️ No hay idioma guardado, usando español por defecto')
     }
   }, [])
 
   const handleSetLanguage = useCallback((lang: 'es' | 'en') => {
+    console.log('🔄 handleSetLanguage llamado con:', lang)
+    console.log('🔄 Idioma actual antes del cambio:', language)
     setLanguage(lang)
     localStorage.setItem('language', lang)
-  }, [])
+    console.log('💾 Idioma guardado en localStorage:', lang)
+  }, [language])
 
   const t = useCallback((key: string): string => {
     const translation = translations[language][key as keyof typeof translations[typeof language]] || key
+    console.log(`🔤 Traduciendo "${key}" (${language}):`, translation)
     return translation
   }, [language])
 
