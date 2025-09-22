@@ -17,6 +17,8 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
     { name: 'Administrador', href: '#', isAdmin: true }
   ]
 
+  console.log('MinimalMenu rendered with items:', menuItems)
+
   return (
     <div className="flex items-center group">
       {/* Botón de menú */}

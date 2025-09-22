@@ -13,6 +13,8 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
+  console.log('Navbar rendered with onAdminClick:', typeof onAdminClick)
+
   useEffect(() => {
     setMounted(true)
   }, [])
