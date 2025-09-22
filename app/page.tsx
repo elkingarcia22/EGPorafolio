@@ -1,14 +1,10 @@
 import { Navigation } from '@/components/navigation'
 import { SupabaseTest } from '@/components/supabase-test'
-import { GeometricBackground } from '@/components/geometric-background'
 import { HeroSection } from '@/components/hero-section'
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#ffffff] dark:bg-[#000000] transition-colors duration-300 relative">
-      {/* Fondo geométrico */}
-      <GeometricBackground />
-      
       {/* Navegación */}
       <Navigation />
       
