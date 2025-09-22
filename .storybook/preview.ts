@@ -10,16 +10,6 @@ const preview: Preview = {
       test: 'todo'
     }
   },
-  decorators: [
-    (Story, context) => {
-      const theme = context.globals.theme || 'light'
-      return (
-        <div className={theme === 'dark' ? 'dark' : ''}>
-          <Story />
-        </div>
-      )
-    }
-  ],
   globalTypes: {
     theme: {
       description: 'Global theme for components',
