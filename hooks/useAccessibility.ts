@@ -7,15 +7,13 @@ export interface AccessibilitySettings {
   highContrast: boolean
   reducedMotion: boolean
   screenReader: boolean
-  language: string
 }
 
 const defaultSettings: AccessibilitySettings = {
   fontSize: 16,
   highContrast: false,
   reducedMotion: false,
-  screenReader: false,
-  language: 'es'
+  screenReader: false
 }
 
 export const useAccessibility = () => {
@@ -57,8 +55,6 @@ export const useAccessibility = () => {
       document.documentElement.style.removeProperty('--motion-duration')
     }
 
-    // Configurar idioma
-    document.documentElement.lang = settings.language
 
   }, [settings, mounted])
 

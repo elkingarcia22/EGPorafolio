@@ -7,7 +7,6 @@ import {
   Type, 
   Volume2, 
   VolumeX, 
-  Languages, 
   Eye, 
   EyeOff,
   Minus,
@@ -20,11 +19,6 @@ export const AccessibilityToolbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { settings, updateSetting, resetSettings, mounted } = useAccessibility()
 
-  const languages = [
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'pt', name: 'Português', flag: '🇧🇷' }
-  ]
 
   if (!mounted) {
     return null
@@ -153,29 +147,6 @@ export const AccessibilityToolbar: React.FC = () => {
                 </button>
               </div>
 
-              {/* Selector de idioma */}
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-normal text-gray-600 dark:text-gray-300">
-                  <Languages className="h-4 w-4" />
-                  Idioma
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => updateSetting('language', lang.code)}
-                      className={`flex flex-col items-center gap-1 p-2 rounded-md transition-colors duration-200 ${
-                        settings.language === lang.code 
-                          ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white' 
-                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                      }`}
-                    >
-                      <span className="text-lg">{lang.flag}</span>
-                      <span className="text-xs">{lang.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
               {/* Información adicional */}
               <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
