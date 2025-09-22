@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { mockData, isSupabaseConfigured } from '@/lib/mock-data'
 import { supabase } from '@/lib/supabase-client'
+import { useLanguage } from './language-context'
 
 interface AdminContent {
   typewriterTexts: string[]
@@ -44,10 +45,11 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined)
 
 export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const [content, setContent] = useState<AdminContent>(defaultContent)
+  const { language } = useLanguage()
 
   // Cargar contenido desde Supabase si está configurado
   useEffect(() => {
-    console.log('🚀 AdminProvider montado')
+    console.log('🚀 AdminProvider montado, idioma:', language)
     console.log('🔧 isSupabaseConfigured():', isSupabaseConfigured())
     
     if (!isSupabaseConfigured()) {
@@ -55,7 +57,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       return
     }
 
-    console.log('🔄 Cargando contenido desde Supabase...')
+    console.log('🔄 Cargando contenido desde Supabase para idioma:', language)
 
     const fetchContent = async () => {
       try {
@@ -66,6 +68,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           .from('typewriter_texts')
           .select('*')
           .eq('is_active', true)
+          .eq('language', language)
           .order('order_index')
         
         if (typewriterError) {
@@ -79,6 +82,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           .from('projects')
           .select('*')
           .eq('is_active', true)
+          .eq('language', language)
           .order('order_index')
         
         if (projectsError) {
@@ -92,6 +96,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           .from('about_info')
           .select('*')
           .eq('is_active', true)
+          .eq('language', language)
           .limit(1)
         
         if (aboutError) {
@@ -105,6 +110,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           .from('contact_info')
           .select('*')
           .eq('is_active', true)
+          .eq('language', language)
           .order('order_index')
         
         if (contactError) {
@@ -158,7 +164,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       console.log('🧹 Limpiando polling...')
       clearInterval(pollInterval)
     }
-  }, [])
+  }, [language])
 
   const updateTypewriterTexts = (texts: string[]) => {
     setContent(prev => ({ ...prev, typewriterTexts: texts }))
@@ -187,13 +193,13 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const refreshContent = async () => {
     if (!isSupabaseConfigured()) return
     
-    console.log('🔄 Forzando recarga de contenido...')
+    console.log('🔄 Forzando recarga de contenido para idioma:', language)
     try {
       const [typewriterRes, projectsRes, aboutRes, contactRes] = await Promise.all([
-        supabase.from('typewriter_texts').select('*').eq('is_active', true).order('order_index'),
-        supabase.from('projects').select('*').eq('is_active', true).order('order_index'),
-        supabase.from('about_info').select('*').eq('is_active', true).limit(1),
-        supabase.from('contact_info').select('*').eq('is_active', true).order('order_index')
+        supabase.from('typewriter_texts').select('*').eq('is_active', true).eq('language', language).order('order_index'),
+        supabase.from('projects').select('*').eq('is_active', true).eq('language', language).order('order_index'),
+        supabase.from('about_info').select('*').eq('is_active', true).eq('language', language).limit(1),
+        supabase.from('contact_info').select('*').eq('is_active', true).eq('language', language).order('order_index')
       ])
 
       const typewriter = typewriterRes.data ?? []
