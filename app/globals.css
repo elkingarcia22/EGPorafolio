@@ -885,11 +885,11 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-primary-500/30 rounded-full;
+    @apply bg-primary-blue/30 rounded-full;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-500/50;
+    @apply bg-primary-blue/50;
   }
   
   /* Gradient backgrounds */
