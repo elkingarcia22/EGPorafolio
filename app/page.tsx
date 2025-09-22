@@ -1,12 +1,41 @@
 'use client'
 
+import { useState } from 'react'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import { Navbar } from '@/components/navbar'
+import AdminModal from '@/components/admin-modal'
+import AdminPanel from '@/components/admin-panel'
 
 export default function HomePage() {
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  const handleAdminClick = () => {
+    console.log('Admin click detected')
+    setIsAdminModalOpen(true)
+  }
+
+  const handleAdminAuthenticate = () => {
+    setIsAdmin(true)
+  }
+
+  const handleAdminLogout = () => {
+    setIsAdmin(false)
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-      <Navbar />
+      <Navbar onAdminClick={handleAdminClick} />
+      
+      {/* Panel de administración */}
+      <AdminPanel isAdmin={isAdmin} onLogout={handleAdminLogout} />
+      
+      {/* Modal de autenticación */}
+      <AdminModal 
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        onAuthenticate={handleAdminAuthenticate}
+      />
       
       {/* Sección Home - EG neuromórfico */}
       <section id="home" className="pt-24">

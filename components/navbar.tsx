@@ -5,7 +5,11 @@ import { LanguageToggle } from './language-toggle'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 
-export const Navbar = () => {
+interface NavbarProps {
+  onAdminClick: () => void
+}
+
+export const Navbar = ({ onAdminClick }: NavbarProps) => {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
@@ -22,7 +26,7 @@ export const Navbar = () => {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm">
       <div className="flex items-center justify-between px-8 py-4">
-        <MinimalMenu />
+        <MinimalMenu onAdminClick={onAdminClick} />
         <div className="flex items-center space-x-4">
           <LanguageToggle />
           <button 
