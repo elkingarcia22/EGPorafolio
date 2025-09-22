@@ -7,7 +7,8 @@ export const MinimalMenu = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   const menuItems = [
-    { name: 'Mi trabajo', href: '/proyectos' },
+    { name: 'Home', href: '/' },
+    { name: 'Mi trabajo', href: '/#proyectos' },
     { name: 'Hoja de vida', href: '/cv' },
     { name: 'Contacto', href: '/contacto' },
     { name: 'Administración', href: '/admin' }
@@ -33,7 +34,18 @@ export const MinimalMenu = () => {
               key={index}
               href={item.href}
               className="relative text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 text-sm font-light whitespace-nowrap px-2 py-1 group"
-              onClick={() => setIsOpen(false)}
+              onClick={(e) => {
+                setIsOpen(false)
+                // Si es un enlace interno con hash, hacer scroll suave
+                if (item.href.startsWith('/#')) {
+                  e.preventDefault()
+                  const targetId = item.href.substring(2) // Remover '/#'
+                  const targetElement = document.getElementById(targetId)
+                  if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' })
+                  }
+                }
+              }}
             >
               {item.name}
               {/* Línea animada con gradiente */}

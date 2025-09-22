@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExternalLink, Github, Eye, Filter, Search } from 'lucide-react'
-import { Navigation } from '@/components/navigation'
+import { Navbar } from '@/components/navbar'
 import { NeoCard } from '@/components/ui/neo-card'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoInput } from '@/components/ui/neo-input'
@@ -109,7 +109,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
-      <Navigation />
+      <Navbar />
       
       <section className="pt-24 pb-16 section-padding">
         <div className="container-max">

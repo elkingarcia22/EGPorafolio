@@ -101,7 +101,7 @@ export const NeuromorphicEG = () => {
                     </div>
                     
                     {/* Sección de proyectos - Grid 2x2 full screen sin márgenes */}
-                    <div className="mt-48 grid grid-cols-2 h-screen">
+                    <div id="proyectos" className="mt-48 grid grid-cols-2 h-screen">
                       {/* Proyecto 1 - UX Research */}
                       <div className="group cursor-pointer relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500"></div>

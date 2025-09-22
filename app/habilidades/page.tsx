@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Code, Palette, Wrench, Users, Star, TrendingUp } from 'lucide-react'
-import { Navigation } from '@/components/navigation'
+import { Navbar } from '@/components/navbar'
 import { NeoCard } from '@/components/ui/neo-card'
 import { NeoButton } from '@/components/ui/neo-button'
 
@@ -89,7 +89,7 @@ export default function SkillsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
-      <Navigation />
+      <Navbar />
       
       <section className="pt-24 pb-16 section-padding">
         <div className="container-max">
