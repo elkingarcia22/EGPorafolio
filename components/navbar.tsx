@@ -6,6 +6,7 @@ import { AccessibilityToolbar } from './accessibility-toolbar'
 import { useTheme } from 'next-themes'
 import { useLanguage } from '@/contexts/language-context'
 import { useEffect, useState } from 'react'
+import { designTokens } from '@/lib/design-tokens'
 
 interface NavbarProps {
   onAdminClick: () => void

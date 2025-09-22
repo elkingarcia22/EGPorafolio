@@ -9,6 +9,7 @@ import { SectionSkeleton } from '@/components/section-skeleton'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
 import { useSectionLoading } from '@/hooks/useSectionLoading'
+import { designTokens } from '@/lib/design-tokens'
 
 function HomePageContent() {
   const { content, refreshContent } = useAdmin()
@@ -114,7 +115,7 @@ function HomePageContent() {
                 <div className="text-center mt-6">
                   <h3 className="text-2xl font-normal text-gray-600 dark:text-white mb-2">{t('about.name')}</h3>
                   <p className="text-lg font-normal text-gray-600 dark:text-gray-400">{t('about.professionalTitle')}</p>
-                  <div className="w-16 h-0.5 mx-auto mt-4" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                  <div className="w-16 h-0.5 mx-auto mt-4" style={{background: designTokens.colors.primary.gradient}}></div>
                 </div>
               </div>
 
@@ -138,21 +139,21 @@ function HomePageContent() {
                     <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">{t('about.experience')}</h5>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
                         <div>
                           <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience1')}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience1Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
                         <div>
                           <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience2')}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience2Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
                         <div>
                           <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience3')}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience3Desc')}</p>
@@ -165,21 +166,21 @@ function HomePageContent() {
                     <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">{t('about.specialties')}</h5>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
                         <div>
                           <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty1')}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty1Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
                         <div>
                           <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty2')}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty2Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
                         <div>
                           <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty3')}</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty3Desc')}</p>
@@ -193,7 +194,7 @@ function HomePageContent() {
             </div>
           </div>
         </div>
-        </section>
+      </section>
       )}
 
       {/* Título de sección Contacto */}
@@ -206,7 +207,7 @@ function HomePageContent() {
                   {t('contact.title')}
                 </span>
                   {/* Línea degradada que baja hacia la sección */}
-                  <div className="absolute w-1 h-40" style={{left: '-13px', top: '2px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                  <div className="absolute w-1 h-40" style={{left: '-13px', top: '2px', background: designTokens.colors.primary.gradient}}></div>
               </div>
             </div>
           </div>
@@ -217,7 +218,7 @@ function HomePageContent() {
       {loading.contact ? (
         <SectionSkeleton type="contact" />
       ) : (
-        <section id="contacto" className="py-20" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}>
+        <section id="contacto" className="py-20" style={{background: designTokens.colors.primary.gradient}}>
         <div className="px-8">
 
           {/* Cards horizontales limpias */}

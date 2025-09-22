@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useLanguage } from '@/contexts/language-context'
+import { designTokens } from '@/lib/design-tokens'
 
 interface AdminModalProps {
   isOpen: boolean
@@ -98,7 +99,11 @@ export default function AdminModal({ isOpen, onClose, onAuthenticate }: AdminMod
             <button
               type="submit"
               disabled={isLoading || !password}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-xl hover:from-blue-600 hover:to-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                     className="flex-1 px-4 py-3 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                     style={{ 
+                       background: designTokens.colors.primary.gradient,
+                       ':hover': { opacity: 0.9 }
+                     }}
             >
               {isLoading ? t('admin.modal.verifying') : t('admin.modal.access')}
             </button>

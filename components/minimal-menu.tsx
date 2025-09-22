@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useMemo } from 'react'
 import { useLanguage } from '@/contexts/language-context'
+import { designTokens } from '@/lib/design-tokens'
 
 interface MinimalMenuProps {
   onAdminClick: () => void
@@ -41,7 +42,10 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
               >
                 {item.name}
                 {/* Línea animada con gradiente - solo aparece en hover del elemento individual */}
-                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-green-500 group-hover/item:w-full transition-all duration-300 ease-out"></div>
+                <div 
+                  className="absolute bottom-0 left-0 w-0 h-0.5 group-hover/item:w-full transition-all duration-300 ease-out"
+                  style={{ background: designTokens.colors.primary.gradient }}
+                ></div>
               </Link>
             ) : (
               <Link
@@ -62,7 +66,10 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
               >
                 {item.name}
                 {/* Línea animada con gradiente - solo aparece en hover del elemento individual */}
-                <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-green-500 group-hover/item:w-full transition-all duration-300 ease-out"></div>
+                <div 
+                  className="absolute bottom-0 left-0 w-0 h-0.5 group-hover/item:w-full transition-all duration-300 ease-out"
+                  style={{ background: designTokens.colors.primary.gradient }}
+                ></div>
               </Link>
             )
           })}

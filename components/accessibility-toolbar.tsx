@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useAccessibility } from '@/hooks/useAccessibility'
 import { useLanguage } from '@/contexts/language-context'
+import { designTokens } from '@/lib/design-tokens'
 
 export const AccessibilityToolbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)

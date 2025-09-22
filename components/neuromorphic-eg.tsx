@@ -5,6 +5,7 @@ import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
+import { designTokens } from '@/lib/design-tokens'
 
 export const NeuromorphicEG = () => {
   const { theme } = useTheme()
@@ -32,8 +33,8 @@ export const NeuromorphicEG = () => {
             style={{
               fontSize: 'clamp(25rem, 60vw, 50rem)',
               lineHeight: '0.8',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-              background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+              fontFamily: designTokens.typography.fontFamily.sans,
+              background: designTokens.colors.primary.gradient,
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -56,8 +57,8 @@ export const NeuromorphicEG = () => {
             style={{
               fontSize: 'clamp(25rem, 60vw, 50rem)',
               lineHeight: '0.8',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-              background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+              fontFamily: designTokens.typography.fontFamily.sans,
+              background: designTokens.colors.primary.gradient,
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent',

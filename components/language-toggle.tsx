@@ -1,6 +1,7 @@
 'use client'
 
 import { useLanguage } from '@/contexts/language-context'
+import { designTokens } from '@/lib/design-tokens'
 
 export const LanguageToggle = () => {
   const { language, setLanguage } = useLanguage()

@@ -9,29 +9,27 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Colores del sistema de diseño
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+          blue: '#16A2FF',
+          green: '#35D07F',
         },
-        dark: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+        text: {
+          primary: '#374151',
+          secondary: '#6B7280',
+          tertiary: '#9CA3AF',
+          white: '#FFFFFF',
+          dark: '#111827',
+        },
+        background: {
+          light: '#FFFFFF',
+          dark: '#0A0A0A',
+        },
+        state: {
+          success: '#10B981',
+          warning: '#F59E0B',
+          error: '#EF4444',
+          info: '#3B82F6',
         }
       },
       fontFamily: {

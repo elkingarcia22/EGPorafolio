@@ -1,6 +1,7 @@
 'use client'
 
 import { useTheme } from 'next-themes'
+import { designTokens } from '@/lib/design-tokens'
 
 interface SectionSkeletonProps {
   type: 'home' | 'about' | 'contact'
@@ -103,7 +104,7 @@ export const SectionSkeleton = ({ type }: SectionSkeletonProps) => {
 
   if (type === 'contact') {
     return (
-      <section className="py-20" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}>
+      <section className="py-20" style={{background: designTokens.colors.primary.gradient}}>
         <div className="px-8">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
