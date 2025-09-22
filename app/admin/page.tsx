@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase-client'
+import { isSupabaseConfigured } from '@/lib/mock-data'
 
 interface AdminData {
   typewriterTexts: Array<{ id: string; text_content: string; order_index: number }>
@@ -63,6 +64,34 @@ export default function AdminPage() {
   }
 
   const loadData = async () => {
+    if (!isSupabaseConfigured()) {
+      // Usar datos mock si Supabase no está configurado
+      setData({
+        typewriterTexts: [
+          { id: '1', text_content: 'Diseñador UX/UI senior specialist', order_index: 1 },
+          { id: '2', text_content: 'Diseño de interacciones', order_index: 2 },
+          { id: '3', text_content: 'Diseño de estrategias', order_index: 3 },
+          { id: '4', text_content: 'Diseño inteligente IA', order_index: 4 }
+        ],
+        projects: [
+          { id: '1', title: 'UX Research', description: 'Investigación profunda de usuarios para crear experiencias excepcionales y centradas en el ser humano', order_index: 1 },
+          { id: '2', title: 'UI Design', description: 'Diseño de interfaces modernas, funcionales y visualmente impactantes que conectan con los usuarios', order_index: 2 },
+          { id: '3', title: 'Estrategia Digital', description: 'Desarrollo de estrategias digitales integrales que transforman marcas y productos', order_index: 3 },
+          { id: '4', title: 'Diseño con IA', description: 'Proyectos innovadores que combinan inteligencia artificial con diseño creativo', order_index: 4 }
+        ],
+        aboutInfo: [
+          { id: '1', title: 'Acerca de mí', description: 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.' }
+        ],
+        contactInfo: [
+          { id: '1', contact_type: 'whatsapp', label: 'WhatsApp', value: '+54 11 1234-5678', icon_name: 'whatsapp', order_index: 1 },
+          { id: '2', contact_type: 'linkedin', label: 'LinkedIn', value: 'Conectar', icon_name: 'linkedin', order_index: 2 },
+          { id: '3', contact_type: 'location', label: 'Ubicación', value: 'Buenos Aires, Argentina', icon_name: 'location', order_index: 3 }
+        ],
+        siteImages: []
+      })
+      return
+    }
+
     try {
       // Cargar textos del typewriter
       const { data: typewriterData } = await supabase
@@ -295,6 +324,26 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
+
+      {/* Banner de advertencia si Supabase no está configurado */}
+      {!isSupabaseConfigured() && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                <strong>Modo de desarrollo:</strong> Supabase no está configurado. Los cambios se guardan localmente.
+                <br />
+                <a href="/scripts/setup-env.js" className="underline">Configura Supabase</a> para persistir los datos.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex">
         {/* Sidebar */}

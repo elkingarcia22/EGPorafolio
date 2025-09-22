@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, ReactNode } from 'react'
+import { mockData, isSupabaseConfigured } from '@/lib/mock-data'
 
 interface AdminContent {
   typewriterTexts: string[]
@@ -25,30 +26,15 @@ interface AdminContextType {
 }
 
 const defaultContent: AdminContent = {
-  typewriterTexts: [
-    'Diseñador UX/UI senior specialist',
-    'Diseño de interacciones',
-    'Diseño de estrategias',
-    'Diseño inteligente IA'
-  ],
-  projectTitles: [
-    'UX Research',
-    'UI Design',
-    'Estrategia Digital',
-    'Diseño con IA'
-  ],
-  projectDescriptions: [
-    'Investigación profunda de usuarios para crear experiencias excepcionales y centradas en el ser humano',
-    'Diseño de interfaces modernas, funcionales y visualmente impactantes que conectan con los usuarios',
-    'Desarrollo de estrategias digitales integrales que transforman marcas y productos',
-    'Proyectos innovadores que combinan inteligencia artificial con diseño creativo'
-  ],
-  aboutTitle: 'Acerca de mí',
-  aboutDescription: 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
+  typewriterTexts: mockData.typewriterTexts.map(item => item.text_content),
+  projectTitles: mockData.projects.map(item => item.title),
+  projectDescriptions: mockData.projects.map(item => item.description),
+  aboutTitle: mockData.aboutInfo[0]?.title || 'Acerca de mí',
+  aboutDescription: mockData.aboutInfo[0]?.description || 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
   contactInfo: {
-    whatsapp: '+54 11 1234-5678',
-    linkedin: 'Conectar',
-    location: 'Buenos Aires, Argentina'
+    whatsapp: mockData.contactInfo.find(item => item.contact_type === 'whatsapp')?.value || '+54 11 1234-5678',
+    linkedin: mockData.contactInfo.find(item => item.contact_type === 'linkedin')?.value || 'Conectar',
+    location: mockData.contactInfo.find(item => item.contact_type === 'location')?.value || 'Buenos Aires, Argentina'
   }
 }
 
