@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLanguage } from '@/contexts/language-context'
 
 interface AdminModalProps {
   isOpen: boolean
@@ -13,6 +14,7 @@ export default function AdminModal({ isOpen, onClose, onAuthenticate }: AdminMod
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const { t } = useLanguage()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +28,7 @@ export default function AdminModal({ isOpen, onClose, onAuthenticate }: AdminMod
         setPassword('')
         onClose()
       } else {
-        setError('Contraseña incorrecta')
+        setError(t('admin.modal.error'))
       }
       setIsLoading(false)
     }, 500)
@@ -45,10 +47,10 @@ export default function AdminModal({ isOpen, onClose, onAuthenticate }: AdminMod
       <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 w-full max-w-md shadow-2xl">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-thin text-black dark:text-white mb-2">
-            Acceso de Administrador
+            {t('admin.modal.title')}
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Ingresa la contraseña para acceder al modo administrador
+            {t('admin.modal.subtitle')}
           </p>
         </div>
 
@@ -59,7 +61,7 @@ export default function AdminModal({ isOpen, onClose, onAuthenticate }: AdminMod
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Contraseña"
+                placeholder={t('admin.modal.password')}
                 className="w-full px-4 py-3 pr-12 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 required
               />
@@ -91,14 +93,14 @@ export default function AdminModal({ isOpen, onClose, onAuthenticate }: AdminMod
               onClick={handleClose}
               className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 font-medium"
             >
-              Cancelar
+              {t('admin.modal.cancel')}
             </button>
             <button
               type="submit"
               disabled={isLoading || !password}
               className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-xl hover:from-blue-600 hover:to-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
             >
-              {isLoading ? 'Verificando...' : 'Acceder'}
+              {isLoading ? t('admin.modal.verifying') : t('admin.modal.access')}
             </button>
           </div>
         </form>

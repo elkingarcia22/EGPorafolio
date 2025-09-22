@@ -14,10 +14,12 @@ import {
   RotateCcw
 } from 'lucide-react'
 import { useAccessibility } from '@/hooks/useAccessibility'
+import { useLanguage } from '@/contexts/language-context'
 
 export const AccessibilityToolbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { settings, updateSetting, resetSettings, mounted } = useAccessibility()
+  const { t } = useLanguage()
 
 
   if (!mounted) {
@@ -30,7 +32,7 @@ export const AccessibilityToolbar: React.FC = () => {
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200"
-        title="Herramientas de accesibilidad"
+        title={t('accessibility.tools')}
       >
         <motion.div
           className="flex items-center justify-center"
@@ -55,12 +57,12 @@ export const AccessibilityToolbar: React.FC = () => {
               {/* Título */}
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-normal text-gray-600 dark:text-white">
-                  Accesibilidad
+                  {t('accessibility.title')}
                 </h3>
                 <button
                   onClick={resetSettings}
                   className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200"
-                  title="Restablecer configuración"
+                  title={t('accessibility.reset')}
                 >
                   <RotateCcw className="h-4 w-4" />
                 </button>
@@ -70,7 +72,7 @@ export const AccessibilityToolbar: React.FC = () => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-normal text-gray-600 dark:text-gray-300">
                   <Type className="h-4 w-4" />
-                  Tamaño de fuente
+                  {t('accessibility.fontSize')}
                 </label>
                 <div className="flex items-center gap-2">
                   <button
@@ -97,7 +99,7 @@ export const AccessibilityToolbar: React.FC = () => {
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm font-normal text-gray-600 dark:text-gray-300">
                   <Eye className="h-4 w-4" />
-                  Contraste alto
+                  {t('accessibility.highContrast')}
                 </label>
                 <button
                   onClick={() => updateSetting('highContrast', !settings.highContrast)}
@@ -115,7 +117,7 @@ export const AccessibilityToolbar: React.FC = () => {
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm font-normal text-gray-600 dark:text-gray-300">
                   <VolumeX className="h-4 w-4" />
-                  Movimiento reducido
+                  {t('accessibility.reducedMotion')}
                 </label>
                 <button
                   onClick={() => updateSetting('reducedMotion', !settings.reducedMotion)}
@@ -133,7 +135,7 @@ export const AccessibilityToolbar: React.FC = () => {
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm font-normal text-gray-600 dark:text-gray-300">
                   <Volume2 className="h-4 w-4" />
-                  Lector de pantalla
+                  {t('accessibility.screenReader')}
                 </label>
                 <button
                   onClick={() => updateSetting('screenReader', !settings.screenReader)}
@@ -151,7 +153,7 @@ export const AccessibilityToolbar: React.FC = () => {
               {/* Información adicional */}
               <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                  Estas configuraciones se aplican inmediatamente y se guardan en tu navegador.
+                  {t('accessibility.info')}
                 </p>
               </div>
             </div>
