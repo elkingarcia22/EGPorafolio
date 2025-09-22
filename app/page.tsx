@@ -88,7 +88,7 @@ function HomePageContent() {
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                           </svg>
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Foto profesional</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('about.photoPlaceholder')}</p>
                       </div>
                     </div>
                   </div>
@@ -100,8 +100,8 @@ function HomePageContent() {
                 
                 {/* Nombre y título */}
                 <div className="text-center mt-6">
-                  <h3 className="text-2xl font-normal text-gray-600 dark:text-white mb-2">Elin Garcia</h3>
-                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400">Diseñador UX/UI Senior</p>
+                  <h3 className="text-2xl font-normal text-gray-600 dark:text-white mb-2">{t('about.name')}</h3>
+                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400">{t('about.professionalTitle')}</p>
                   <div className="w-16 h-0.5 mx-auto mt-4" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                 </div>
               </div>
@@ -110,71 +110,67 @@ function HomePageContent() {
               <div className="lg:col-span-2 space-y-8">
                 <div>
                   <h4 className="text-3xl font-normal text-gray-600 dark:text-white mb-6">
-                    Creando experiencias digitales que conectan con las personas
+                    {t('about.mainTitle')}
                   </h4>
                   <p className="text-lg font-normal text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                    Soy un diseñador UX/UI apasionado por crear soluciones digitales que no solo se ven bien, 
-                    sino que realmente funcionan para las personas. Con más de 5 años de experiencia, 
-                    me especializo en transformar ideas complejas en interfaces intuitivas y accesibles.
+                    {t('about.description1')}
                   </p>
                   <p className="text-lg font-normal text-gray-600 dark:text-gray-400 leading-relaxed">
-                    Mi enfoque se centra en la investigación profunda del usuario, el diseño iterativo 
-                    y la colaboración estrecha con equipos multidisciplinarios para lograr resultados 
-                    excepcionales que impactan positivamente en el negocio y la experiencia del usuario.
+                    {t('about.description2')}
                   </p>
                 </div>
 
                 {/* Experiencia y habilidades */}
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
-                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Experiencia</h5>
+                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">{t('about.experience')}</h5>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">5+ años en diseño UX/UI</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">Especialización en productos digitales</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience1')}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience1Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">50+ proyectos completados</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">Desde startups hasta empresas</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience2')}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience2Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Liderazgo de equipos</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">Mentoría y dirección creativa</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience3')}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience3Desc')}</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Especialidades</h5>
+                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">{t('about.specialties')}</h5>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Research & Testing</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">Investigación de usuarios</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty1')}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty1Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Design Systems</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">Sistemas de diseño escalables</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty2')}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty2Desc')}</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Prototipado</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">Figma, Framer, Principle</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty3')}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty3Desc')}</p>
                         </div>
                       </div>
                     </div>
