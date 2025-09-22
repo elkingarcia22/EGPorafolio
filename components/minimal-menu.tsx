@@ -29,10 +29,11 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
       </div>
 
       {/* Menú expandible horizontal - se activa con hover */}
-      <div className="overflow-hidden transition-all duration-500 ease-in-out group-hover:max-w-96 group-hover:opacity-100 max-w-0 opacity-0">
-        <div className="flex items-center space-x-6 pl-4">
-          {menuItems.map((item, index) => (
-            item.isAdmin ? (
+      <div className="overflow-hidden transition-all duration-500 ease-in-out group-hover:max-w-[600px] group-hover:opacity-100 max-w-0 opacity-0">
+        <div className="flex items-center space-x-4 pl-4">
+          {menuItems.map((item, index) => {
+            console.log(`Rendering item ${index}:`, item.name, 'isAdmin:', item.isAdmin)
+            return item.isAdmin ? (
               <button
                 key={index}
                 onClick={onAdminClick}
@@ -64,7 +65,7 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
                 <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-500 to-green-500 group-hover/item:w-full transition-all duration-300 ease-out"></div>
               </Link>
             )
-          ))}
+          })}
         </div>
       </div>
     </div>
