@@ -220,9 +220,9 @@ function HomePageContent() {
                     </div>
                     
                     {/* Contenido */}
-                    <h3 className="text-2xl font-normal text-white mb-3">WhatsApp</h3>
+                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.whatsapp')}</h3>
                     <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.whatsapp}</p>
-                    <p className="text-sm text-white/80 mb-6">Respuesta inmediata</p>
+                    <p className="text-sm text-white/80 mb-6">{t('contact.immediateResponse')}</p>
                     
                     {/* Línea blanca suave */}
                     <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
@@ -242,9 +242,9 @@ function HomePageContent() {
                     </div>
                     
                     {/* Contenido */}
-                    <h3 className="text-2xl font-normal text-white mb-3">LinkedIn</h3>
+                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.linkedin')}</h3>
                     <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.linkedin}</p>
-                    <p className="text-sm text-white/80 mb-6">Red profesional</p>
+                    <p className="text-sm text-white/80 mb-6">{t('contact.professionalNetwork')}</p>
                     
                     {/* Línea blanca suave */}
                     <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
@@ -265,9 +265,9 @@ function HomePageContent() {
                     </div>
                     
                     {/* Contenido */}
-                    <h3 className="text-2xl font-normal text-white mb-3">Ubicación</h3>
+                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.location')}</h3>
                     <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.location}</p>
-                    <p className="text-sm text-white/80 mb-6">Trabajo remoto</p>
+                    <p className="text-sm text-white/80 mb-6">{t('contact.remoteWork')}</p>
                     
                     {/* Línea blanca suave */}
                     <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
@@ -282,10 +282,10 @@ function HomePageContent() {
           <div className="text-center mt-20">
             <div className="max-w-2xl mx-auto">
               <p className="text-xl font-normal text-white/90 mb-4">
-                Disponible para nuevos proyectos y oportunidades
+                {t('contact.availableForProjects')}
               </p>
               <p className="text-lg text-white/80 mb-8">
-                Respuesta en menos de 24 horas
+                {t('contact.responseTime')}
               </p>
               <div className="w-24 h-0.5 mx-auto bg-white/60"></div>
             </div>

@@ -72,6 +72,11 @@ const translations = {
     'contact.location': 'Ubicación',
     'contact.getInTouch': 'Ponte en contacto',
     'contact.description': '¿Tienes un proyecto en mente? Me encantaría escuchar sobre él.',
+    'contact.immediateResponse': 'Respuesta inmediata',
+    'contact.professionalNetwork': 'Red profesional',
+    'contact.remoteWork': 'Trabajo remoto',
+    'contact.availableForProjects': 'Disponible para nuevos proyectos y oportunidades',
+    'contact.responseTime': 'Respuesta en menos de 24 horas',
     
     // Admin
     'admin.login': 'Iniciar sesión',
@@ -194,6 +199,11 @@ const translations = {
     'contact.location': 'Location',
     'contact.getInTouch': 'Get in touch',
     'contact.description': 'Have a project in mind? I would love to hear about it.',
+    'contact.immediateResponse': 'Immediate response',
+    'contact.professionalNetwork': 'Professional network',
+    'contact.remoteWork': 'Remote work',
+    'contact.availableForProjects': 'Available for new projects and opportunities',
+    'contact.responseTime': 'Response within 24 hours',
     
     // Admin
     'admin.login': 'Login',
