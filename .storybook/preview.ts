@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/nextjs-vite'
 import '../app/globals.css'
-import { ThemeDecorator } from './ThemeDecorator'
+import { GlobalDecorator } from './GlobalDecorator'
 
 const preview: Preview = {
   parameters: {
@@ -11,7 +11,7 @@ const preview: Preview = {
       test: 'todo'
     }
   },
-  decorators: [ThemeDecorator],
+  decorators: [GlobalDecorator],
   globalTypes: {
     theme: {
       description: 'Global theme for components',
