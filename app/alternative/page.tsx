@@ -1,6 +1,8 @@
+import { Navigation } from '@/components/navigation'
+
 export default function Page() {
   return (
-    <main className="min-h-screen bg-[#ECEDEC] relative overflow-hidden">
+    <div className="min-h-screen bg-[#ECEDEC] relative overflow-hidden">
       {/* Fondo texturizado sutil (opcional) */}
       <div
         className="absolute inset-0"
@@ -12,9 +14,14 @@ export default function Page() {
         }}
       />
 
-      {/* SVG que genera el relieve HUNDIDO + degradado dentro de las letras */}
+      {/* SVG que genera el relieve HUNDIDO + degradado dentro de las letras - COMO FONDO */}
       <EGDebossed />
-    </main>
+
+      {/* Navegación por encima del fondo */}
+      <div className="relative z-10">
+        <Navigation />
+      </div>
+    </div>
   );
 }
 
@@ -28,7 +35,7 @@ export default function Page() {
 function EGDebossed() {
   return (
     <svg
-      className="absolute inset-0 w-full h-full"
+      className="absolute inset-0 w-full h-full z-0"
       viewBox="0 0 1440 900"
       aria-hidden
     >
