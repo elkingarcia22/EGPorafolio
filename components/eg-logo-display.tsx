@@ -25,43 +25,24 @@ export const EGLogoDisplay: React.FC<EGLogoDisplayProps> = ({
   }
 
   if (error || !image) {
-    // Fallback: mostrar imagen por defecto
+    // Fallback: mostrar imagen por defecto desde URL externa
     return (
       <div className={`flex items-center justify-center ${className}`}>
-        <div 
-          className="relative"
+        <img
+          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop&crop=center"
+          alt="Logo EG con efecto neumórfico"
+          className="max-w-full max-h-full object-contain"
           style={{
-            width: '600px',
-            height: '800px',
-            background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
+            width: size === 'large' ? '600px' : size === 'medium' ? '400px' : size === 'small' ? '200px' : '100%',
+            height: size === 'large' ? '800px' : size === 'medium' ? '600px' : size === 'small' ? '300px' : '100vh',
             borderRadius: '30px',
             boxShadow: `
               inset 25px 25px 50px rgba(0, 0, 0, 0.3),
               inset -25px -25px 50px rgba(255, 255, 255, 0.8),
               0 0 0 2px rgba(0, 0, 0, 0.1)
-            `,
-            position: 'relative'
+            `
           }}
-        >
-          {/* Letras EG dentro de la imagen */}
-          <div 
-            className="absolute inset-0 flex items-center justify-center"
-            style={{
-              fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
-              fontWeight: 900,
-              fontSize: '300px',
-              letterSpacing: '20px',
-              color: 'white',
-              textShadow: `
-                inset 15px 15px 30px rgba(0, 0, 0, 0.4),
-                inset -15px -15px 30px rgba(255, 255, 255, 0.6)
-              `,
-              filter: 'drop-shadow(0 0 0 transparent)'
-            }}
-          >
-            EG
-          </div>
-        </div>
+        />
       </div>
     )
   }

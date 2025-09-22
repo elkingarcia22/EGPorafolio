@@ -3,17 +3,12 @@ import { EGLogoDisplay } from '@/components/eg-logo-display'
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-[#f8f8f8] relative overflow-hidden">
-      {/* Fondo con textura sutil como en la imagen */}
+    <div className="min-h-screen bg-[#ECEDEC] relative overflow-hidden">
+      {/* Fondo exacto como en la imagen de referencia */}
       <div
         className="absolute inset-0"
         style={{
-          background: '#f8f8f8',
-          backgroundImage: `
-            radial-gradient(circle at 1px 1px, rgba(0,0,0,0.02) 1px, transparent 0),
-            radial-gradient(circle at 2px 2px, rgba(0,0,0,0.01) 1px, transparent 0)
-          `,
-          backgroundSize: '20px 20px, 40px 40px'
+          background: '#ECEDEC'
         }}
       />
 
@@ -27,13 +22,20 @@ export default function Page() {
         {/* Contenido al lado derecho */}
         <div className="w-1/2 flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-6xl font-bold text-gray-800 mb-8">
+            <h1 className="text-6xl font-bold text-gray-800 mb-8" style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto' }}>
               Portafolio EG
             </h1>
-            <p className="text-xl text-gray-600 mb-8">
+            <p className="text-xl text-gray-600 mb-8" style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto' }}>
               Diseño UX/UI con estilo neumórfico
             </p>
-            <button className="px-8 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+            <button 
+              className="px-8 py-4 text-white rounded-lg transition-colors"
+              style={{
+                background: '#3B82F6',
+                fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+              }}
+            >
               Ver Proyectos
             </button>
           </div>
