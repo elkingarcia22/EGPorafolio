@@ -26,54 +26,80 @@ export default function Page() {
 }
 
 /**
- * Componente EG con efecto neumórfico hundido usando CSS
- * - Letras grandes centradas
- * - Efecto neumórfico con box-shadow inset
- * - Gradiente azul → verde
- * - Efecto hundido pronunciado
+ * Componente EG con efecto neumórfico hundido EXACTO como en la imagen
+ * - Letras grandes centradas con gradiente azul-turquesa-verde
+ * - Efecto neumórfico hundido con sombras suaves y difusas
+ * - Textura de fondo mate
+ * - Sombras internas para simular letras talladas en la superficie
  */
 function EGDebossed() {
   return (
     <div className="absolute inset-0 w-full h-full z-0 flex items-center justify-center">
-      {/* Letras EG con efecto neumórfico hundido */}
-      <div 
-        className="relative"
-        style={{
-          fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
-          fontWeight: 900,
-          fontSize: '500px',
-          letterSpacing: '20px',
-          color: 'transparent',
-          background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
-          backgroundClip: 'text',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: `
-            inset 20px 20px 40px rgba(0, 0, 0, 0.3),
-            inset -20px -20px 40px rgba(255, 255, 255, 0.8),
-            0 0 0 1px rgba(0, 0, 0, 0.1)
-          `,
-          filter: 'drop-shadow(0 0 0 transparent)',
-          position: 'relative'
-        }}
-      >
-        EG
-        {/* Efecto de sombra adicional para simular hundimiento */}
+      {/* Contenedor principal para las letras EG */}
+      <div className="relative">
+        {/* Letras EG con efecto neumórfico hundido */}
+        <div 
+          className="relative"
+          style={{
+            fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
+            fontWeight: 900,
+            fontSize: '420px',
+            letterSpacing: '8px',
+            color: 'transparent',
+            background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            position: 'relative',
+            zIndex: 2
+          }}
+        >
+          EG
+        </div>
+        
+        {/* Capa de sombra interna para efecto hundido */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
-            borderRadius: '20px',
-            boxShadow: `
-              inset 25px 25px 50px rgba(0, 0, 0, 0.4),
-              inset -25px -25px 50px rgba(255, 255, 255, 0.9),
-              0 0 0 2px rgba(0, 0, 0, 0.1)
+            fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
+            fontWeight: 900,
+            fontSize: '420px',
+            letterSpacing: '8px',
+            color: 'transparent',
+            background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textShadow: `
+              inset 15px 15px 30px rgba(0, 0, 0, 0.25),
+              inset -15px -15px 30px rgba(255, 255, 255, 0.7)
             `,
-            zIndex: -1,
-            margin: '-10px',
-            opacity: 0.1
+            zIndex: 1
           }}
-        />
+        >
+          EG
+        </div>
+        
+        {/* Capa de fondo con efecto de profundidad */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto',
+            fontWeight: 900,
+            fontSize: '420px',
+            letterSpacing: '8px',
+            color: 'transparent',
+            background: 'linear-gradient(135deg, #4FC3F7 0%, #26C6DA 50%, #66BB6A 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            filter: 'blur(2px)',
+            opacity: 0.3,
+            zIndex: 0
+          }}
+        >
+          EG
+        </div>
       </div>
     </div>
   );
