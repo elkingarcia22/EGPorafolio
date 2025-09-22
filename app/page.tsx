@@ -39,16 +39,6 @@ function HomePageContent() {
           onAuthenticate={handleAdminAuthenticate}
         />
 
-        {/* Botón de refrescar contenido (solo visible en desarrollo) */}
-        {process.env.NODE_ENV === 'development' && (
-          <button
-            onClick={refreshContent}
-            className="fixed top-20 right-4 z-50 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-            title="Refrescar contenido desde Supabase"
-          >
-            🔄 Refrescar
-          </button>
-        )}
       
       {/* Sección Home - EG neuromórfico */}
       <section id="home" className="pt-24">
@@ -61,11 +51,11 @@ function HomePageContent() {
           <div className="max-w-6xl mx-auto">
             <div className="relative">
               <div className="absolute -left-20">
-                <span className="text-2xl md:text-3xl font-thin text-black dark:text-white">
+                <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
                   Acerca de mí
                 </span>
                 {/* Línea degradada que baja hacia la sección */}
-                <div className="absolute w-1 h-96" style={{right: '-8px', top: '8px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                <div className="absolute w-1 h-96" style={{right: '-13px', top: '8px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
               </div>
             </div>
           </div>
@@ -102,8 +92,8 @@ function HomePageContent() {
                 
                 {/* Nombre y título */}
                 <div className="text-center mt-6">
-                  <h3 className="text-2xl font-thin text-black dark:text-white mb-2">Elin Garcia</h3>
-                  <p className="text-lg font-light text-gray-600 dark:text-gray-400">Diseñador UX/UI Senior</p>
+                  <h3 className="text-2xl font-normal text-gray-600 dark:text-white mb-2">Elin Garcia</h3>
+                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400">Diseñador UX/UI Senior</p>
                   <div className="w-16 h-0.5 mx-auto mt-4" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                 </div>
               </div>
@@ -111,15 +101,15 @@ function HomePageContent() {
               {/* Descripción y experiencia */}
               <div className="lg:col-span-2 space-y-8">
                 <div>
-                  <h4 className="text-3xl font-thin text-black dark:text-white mb-6">
+                  <h4 className="text-3xl font-normal text-gray-600 dark:text-white mb-6">
                     Creando experiencias digitales que conectan con las personas
                   </h4>
-                  <p className="text-lg font-light text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
                     Soy un diseñador UX/UI apasionado por crear soluciones digitales que no solo se ven bien, 
                     sino que realmente funcionan para las personas. Con más de 5 años de experiencia, 
                     me especializo en transformar ideas complejas en interfaces intuitivas y accesibles.
                   </p>
-                  <p className="text-lg font-light text-gray-600 dark:text-gray-400 leading-relaxed">
+                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400 leading-relaxed">
                     Mi enfoque se centra en la investigación profunda del usuario, el diseño iterativo 
                     y la colaboración estrecha con equipos multidisciplinarios para lograr resultados 
                     excepcionales que impactan positivamente en el negocio y la experiencia del usuario.
@@ -129,26 +119,26 @@ function HomePageContent() {
                 {/* Experiencia y habilidades */}
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
-                    <h5 className="text-xl font-thin text-black dark:text-white mb-4">Experiencia</h5>
+                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Experiencia</h5>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-light text-gray-600 dark:text-gray-400">5+ años en diseño UX/UI</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">5+ años en diseño UX/UI</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">Especialización en productos digitales</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-light text-gray-600 dark:text-gray-400">50+ proyectos completados</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">50+ proyectos completados</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">Desde startups hasta empresas</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-light text-gray-600 dark:text-gray-400">Liderazgo de equipos</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Liderazgo de equipos</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">Mentoría y dirección creativa</p>
                         </div>
                       </div>
@@ -156,26 +146,26 @@ function HomePageContent() {
                   </div>
 
                   <div>
-                    <h5 className="text-xl font-thin text-black dark:text-white mb-4">Especialidades</h5>
+                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">Especialidades</h5>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-light text-gray-600 dark:text-gray-400">Research & Testing</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Research & Testing</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">Investigación de usuarios</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-light text-gray-600 dark:text-gray-400">Design Systems</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Design Systems</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">Sistemas de diseño escalables</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
                         <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                         <div>
-                          <p className="text-base font-light text-gray-600 dark:text-gray-400">Prototipado</p>
+                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">Prototipado</p>
                           <p className="text-sm text-gray-500 dark:text-gray-500">Figma, Framer, Principle</p>
                         </div>
                       </div>
@@ -195,11 +185,11 @@ function HomePageContent() {
           <div className="max-w-6xl mx-auto">
             <div className="relative">
               <div className="absolute right-0">
-                <span className="text-2xl md:text-3xl font-thin text-black dark:text-white">
+                <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
                   Contacto
                 </span>
                   {/* Línea degradada que baja hacia la sección */}
-                  <div className="absolute w-1 h-40" style={{left: '-8px', top: '2px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+                  <div className="absolute w-1 h-40" style={{left: '-13px', top: '2px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
               </div>
             </div>
           </div>
@@ -226,12 +216,12 @@ function HomePageContent() {
                     </div>
                     
                     {/* Contenido */}
-                    <h3 className="text-2xl font-thin text-white mb-3">WhatsApp</h3>
-                    <p className="text-lg font-light text-white/90 mb-4">{content.contactInfo.whatsapp}</p>
+                    <h3 className="text-2xl font-normal text-white mb-3">WhatsApp</h3>
+                    <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.whatsapp}</p>
                     <p className="text-sm text-white/80 mb-6">Respuesta inmediata</p>
                     
-                    {/* Línea blanca */}
-                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white"></div>
+                    {/* Línea blanca suave */}
+                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
                   </div>
                 </div>
               </div>
@@ -248,12 +238,12 @@ function HomePageContent() {
                     </div>
                     
                     {/* Contenido */}
-                    <h3 className="text-2xl font-thin text-white mb-3">LinkedIn</h3>
-                    <p className="text-lg font-light text-white/90 mb-4">{content.contactInfo.linkedin}</p>
+                    <h3 className="text-2xl font-normal text-white mb-3">LinkedIn</h3>
+                    <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.linkedin}</p>
                     <p className="text-sm text-white/80 mb-6">Red profesional</p>
                     
-                    {/* Línea blanca */}
-                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white"></div>
+                    {/* Línea blanca suave */}
+                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
                   </div>
                 </div>
               </div>
@@ -271,12 +261,12 @@ function HomePageContent() {
                     </div>
                     
                     {/* Contenido */}
-                    <h3 className="text-2xl font-thin text-white mb-3">Ubicación</h3>
-                    <p className="text-lg font-light text-white/90 mb-4">{content.contactInfo.location}</p>
+                    <h3 className="text-2xl font-normal text-white mb-3">Ubicación</h3>
+                    <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.location}</p>
                     <p className="text-sm text-white/80 mb-6">Trabajo remoto</p>
                     
-                    {/* Línea blanca */}
-                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white"></div>
+                    {/* Línea blanca suave */}
+                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
                   </div>
                 </div>
               </div>
@@ -287,13 +277,13 @@ function HomePageContent() {
           {/* Información adicional */}
           <div className="text-center mt-20">
             <div className="max-w-2xl mx-auto">
-              <p className="text-xl font-light text-white/90 mb-4">
+              <p className="text-xl font-normal text-white/90 mb-4">
                 Disponible para nuevos proyectos y oportunidades
               </p>
               <p className="text-lg text-white/80 mb-8">
                 Respuesta en menos de 24 horas
               </p>
-              <div className="w-24 h-0.5 mx-auto bg-white"></div>
+              <div className="w-24 h-0.5 mx-auto bg-white/60"></div>
             </div>
           </div>
         </div>

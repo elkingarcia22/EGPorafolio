@@ -71,10 +71,12 @@ export const NeuromorphicEG = () => {
           </span>
           
                       {/* Texto typewriter dentro del espacio de la G */}
-                      <div className="absolute top-1/3 left-full transform -translate-x-1/2 -translate-y-1/2 translate-y-8 -translate-x-72 translate-y-4 w-full max-w-none">
+                      <div 
+                        className="absolute w-full max-w-none left-[calc(100%-280px)] top-[calc(33.333%+35px)]"
+                      >
                         <TypewriterText 
                           words={content.typewriterTexts}
-                          className="text-2xl md:text-3xl font-thin text-black dark:text-white whitespace-nowrap"
+                          className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white whitespace-nowrap"
                           typingSpeed={80}
                           deletingSpeed={40}
                           pauseTime={2500}
@@ -89,11 +91,11 @@ export const NeuromorphicEG = () => {
                     <div className="relative">
                       {/* "Mi trabajo" más a la derecha y más arriba */}
                       <div className="absolute right-1/4 -top-8" style={{right: '22%'}}>
-                        <span className="text-2xl md:text-3xl font-thin text-black dark:text-white">
+                        <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
                           Mi trabajo
                         </span>
-                        {/* Línea degradada al lado derecho del texto "Mi trabajo" */}
-                        <div className="absolute w-1 h-96" style={{right: '-8px', top: '8px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
+         {/* Línea degradada al lado derecho del texto "Mi trabajo" */}
+         <div className="absolute w-1 h-96" style={{right: '-13px', top: '8px', background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'}}></div>
                       </div>
                     </div>
                     
