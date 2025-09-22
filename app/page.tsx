@@ -10,11 +10,9 @@ import { useLanguage } from '@/contexts/language-context'
 
 function HomePageContent() {
   const { content, refreshContent } = useAdmin()
-  const { t, language } = useLanguage()
+  const { t } = useLanguage()
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
-
-  console.log('🏠 HomePageContent renderizado, idioma:', language)
 
   const handleAdminClick = () => {
     console.log('Admin click detected')
