@@ -7,6 +7,9 @@ export default function TestLanguagePage() {
   const { language, setLanguage, t } = useLanguage()
   const [clickCount, setClickCount] = useState(0)
   const [logs, setLogs] = useState<string[]>([])
+  const [mounted, setMounted] = useState(false)
+  const [localStorageValue, setLocalStorageValue] = useState<string>('N/A')
+  const [userAgent, setUserAgent] = useState<string>('N/A')
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString()
@@ -16,12 +19,25 @@ export default function TestLanguagePage() {
   }
 
   useEffect(() => {
+    setMounted(true)
     addLog(`🌍 Página de prueba montada, idioma actual: ${language}`)
+    
+    // Cargar valores del cliente
+    if (typeof window !== 'undefined') {
+      setLocalStorageValue(localStorage.getItem('language') || 'null')
+      setUserAgent(navigator.userAgent.slice(0, 50) + '...')
+    }
   }, [])
 
   useEffect(() => {
-    addLog(`🔄 Idioma cambió a: ${language}`)
-  }, [language])
+    if (mounted) {
+      addLog(`🔄 Idioma cambió a: ${language}`)
+      // Actualizar localStorage value cuando cambie el idioma
+      if (typeof window !== 'undefined') {
+        setLocalStorageValue(localStorage.getItem('language') || 'null')
+      }
+    }
+  }, [language, mounted])
 
   const handleToggleLanguage = () => {
     const newLanguage = language === 'es' ? 'en' : 'es'
@@ -120,9 +136,10 @@ export default function TestLanguagePage() {
             ℹ️ Información de Debug
           </h3>
           <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-            <li>• Idioma en localStorage: {typeof window !== 'undefined' ? localStorage.getItem('language') || 'null' : 'N/A'}</li>
-            <li>• Timestamp: {new Date().toLocaleString()}</li>
-            <li>• User Agent: {typeof window !== 'undefined' ? navigator.userAgent.slice(0, 50) + '...' : 'N/A'}</li>
+            <li>• Idioma en localStorage: {localStorageValue}</li>
+            <li>• Timestamp: {mounted ? new Date().toLocaleString() : 'Cargando...'}</li>
+            <li>• User Agent: {userAgent}</li>
+            <li>• Montado: {mounted ? 'Sí' : 'No'}</li>
           </ul>
         </div>
       </div>
