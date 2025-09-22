@@ -1,11 +1,11 @@
-import React, { createContext, useContext, ReactNode } from 'react'
+import React, { createContext, useContext, ReactNode, useState } from 'react'
 
 // Mock data para Storybook
 const mockContent = {
   typewriterTexts: [
     'Diseñador UX/UI',
     'Desarrollador Frontend',
-    'Estratega Digital',
+    'Estrategia Digital',
     'Innovador Tecnológico'
   ],
   projectTitles: [
@@ -56,7 +56,7 @@ interface AdminProviderProps {
 }
 
 export const AdminProvider: React.FC<AdminProviderProps> = ({ children }) => {
-  const [isAdmin, setIsAdmin] = React.useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const refreshContent = () => {
     // Mock function for Storybook
