@@ -1,5 +1,4 @@
 import type { StorybookConfig } from "@storybook/nextjs-vite";
-import path from 'path';
 
 const config: StorybookConfig = {
   "stories": [
@@ -25,16 +24,6 @@ const config: StorybookConfig = {
   "env": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://erdseuduiclcatzntljc.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyZHNldWR1aWNsY2F0em50bGpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMzg0MTgsImV4cCI6MjA3MzkxNDQxOH0.KSPHAkw87ntX81lp3VCMNe-VxV40UwRshQNWoI8MkDk"
-  },
-  "viteFinal": async (config) => {
-    if (config.resolve) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@/contexts/admin-context': path.resolve(__dirname, './mocks/admin-context.tsx'),
-        '@/contexts/language-context': path.resolve(__dirname, './mocks/language-context.tsx'),
-      };
-    }
-    return config;
   }
 };
 export default config;

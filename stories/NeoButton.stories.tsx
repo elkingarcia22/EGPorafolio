@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { NeoButton } from '@/components/ui/neo-button'
-import { Loader2, Star, Heart, Download } from 'lucide-react'
+import { NeoButton } from '../components/ui/neo-button'
 
 const meta: Meta<typeof NeoButton> = {
   title: 'Components/NeoButton',
@@ -9,33 +8,33 @@ const meta: Meta<typeof NeoButton> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Botón minimalista con variantes y estados. Actualizado al estilo minimalista con colores consistentes y tipografía regular.'
+        component: 'Botón con estilo neuromórfico minimalista.'
       }
     }
   },
   tags: ['autodocs'],
   argTypes: {
+    children: {
+      control: 'text',
+      description: 'Contenido del botón'
+    },
     variant: {
-      control: { type: 'select' },
-      options: ['primary', 'secondary', 'outline', 'ghost'],
-      description: 'Variante visual del botón'
+      control: 'select',
+      options: ['default', 'primary', 'secondary'],
+      description: 'Variante del botón'
     },
     size: {
-      control: { type: 'select' },
+      control: 'select',
       options: ['sm', 'md', 'lg'],
       description: 'Tamaño del botón'
     },
-    loading: {
-      control: { type: 'boolean' },
-      description: 'Estado de carga'
-    },
     disabled: {
-      control: { type: 'boolean' },
+      control: 'boolean',
       description: 'Estado deshabilitado'
     },
-    fullWidth: {
-      control: { type: 'boolean' },
-      description: 'Ancho completo'
+    onClick: {
+      action: 'clicked',
+      description: 'Función de click'
     }
   }
 }
@@ -43,15 +42,33 @@ const meta: Meta<typeof NeoButton> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Primary: Story = {
+export const Default: Story = {
   args: {
-    children: 'Botón Primario',
-    variant: 'primary'
+    children: 'Botón por defecto',
+    variant: 'default',
+    size: 'md',
+    disabled: false
   },
   parameters: {
     docs: {
       description: {
-        story: 'Botón primario con fondo gris oscuro y texto blanco. Ideal para acciones principales.'
+        story: 'Botón con estilo por defecto.'
+      }
+    }
+  }
+}
+
+export const Primary: Story = {
+  args: {
+    children: 'Botón primario',
+    variant: 'primary',
+    size: 'md',
+    disabled: false
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Botón con variante primaria.'
       }
     }
   }
@@ -59,71 +76,47 @@ export const Primary: Story = {
 
 export const Secondary: Story = {
   args: {
-    children: 'Botón Secundario',
-    variant: 'secondary'
+    children: 'Botón secundario',
+    variant: 'secondary',
+    size: 'md',
+    disabled: false
   },
   parameters: {
     docs: {
       description: {
-        story: 'Botón secundario con fondo gris claro. Perfecto para acciones secundarias.'
+        story: 'Botón con variante secundaria.'
       }
     }
   }
 }
 
-export const Outline: Story = {
+export const Small: Story = {
   args: {
-    children: 'Botón Outline',
-    variant: 'outline'
+    children: 'Pequeño',
+    variant: 'default',
+    size: 'sm',
+    disabled: false
   },
   parameters: {
     docs: {
       description: {
-        story: 'Botón con borde y fondo transparente. Ideal para acciones menos prominentes.'
+        story: 'Botón de tamaño pequeño.'
       }
     }
   }
 }
 
-export const Ghost: Story = {
+export const Large: Story = {
   args: {
-    children: 'Botón Ghost',
-    variant: 'ghost'
+    children: 'Botón grande',
+    variant: 'default',
+    size: 'lg',
+    disabled: false
   },
   parameters: {
     docs: {
       description: {
-        story: 'Botón fantasma con solo texto. Perfecto para acciones sutiles.'
-      }
-    }
-  }
-}
-
-export const WithIcon: Story = {
-  args: {
-    children: 'Con Icono',
-    variant: 'primary',
-    icon: <Star className="h-4 w-4" />
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Botón con icono a la izquierda del texto.'
-      }
-    }
-  }
-}
-
-export const Loading: Story = {
-  args: {
-    children: 'Cargando...',
-    variant: 'primary',
-    loading: true
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Botón en estado de carga con spinner animado.'
+        story: 'Botón de tamaño grande.'
       }
     }
   }
@@ -131,117 +124,15 @@ export const Loading: Story = {
 
 export const Disabled: Story = {
   args: {
-    children: 'Deshabilitado',
-    variant: 'primary',
+    children: 'Botón deshabilitado',
+    variant: 'default',
+    size: 'md',
     disabled: true
   },
   parameters: {
     docs: {
       description: {
-        story: 'Botón deshabilitado con opacidad reducida.'
-      }
-    }
-  }
-}
-
-export const Sizes: Story = {
-  render: () => (
-    <div className="flex items-center gap-4">
-      <NeoButton variant="primary" size="sm">Pequeño</NeoButton>
-      <NeoButton variant="primary" size="md">Mediano</NeoButton>
-      <NeoButton variant="primary" size="lg">Grande</NeoButton>
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Diferentes tamaños disponibles: pequeño, mediano y grande.'
-      }
-    }
-  }
-}
-
-export const Variants: Story = {
-  render: () => (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-4">
-        <NeoButton variant="primary">Primario</NeoButton>
-        <NeoButton variant="secondary">Secundario</NeoButton>
-        <NeoButton variant="outline">Outline</NeoButton>
-        <NeoButton variant="ghost">Ghost</NeoButton>
-      </div>
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Todas las variantes disponibles en una vista comparativa.'
-      }
-    }
-  }
-}
-
-export const WithIcons: Story = {
-  render: () => (
-    <div className="flex items-center gap-4">
-      <NeoButton variant="primary" icon={<Star className="h-4 w-4" />}>
-        Favorito
-      </NeoButton>
-      <NeoButton variant="secondary" icon={<Heart className="h-4 w-4" />}>
-        Me Gusta
-      </NeoButton>
-      <NeoButton variant="outline" icon={<Download className="h-4 w-4" />}>
-        Descargar
-      </NeoButton>
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story: 'Botones con diferentes iconos para diferentes acciones.'
-      }
-    }
-  }
-}
-
-export const FullWidth: Story = {
-  args: {
-    children: 'Ancho Completo',
-    variant: 'primary',
-    fullWidth: true
-  },
-  decorators: [
-    (Story) => (
-      <div className="w-80">
-        <Story />
-      </div>
-    )
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story: 'Botón que ocupa todo el ancho disponible de su contenedor.'
-      }
-    }
-  }
-}
-
-export const DarkMode: Story = {
-  args: {
-    children: 'Modo Oscuro',
-    variant: 'primary'
-  },
-  decorators: [
-    (Story) => (
-      <div className="dark bg-[#0a0a0a] p-8 rounded-lg">
-        <Story />
-      </div>
-    )
-  ],
-  parameters: {
-    docs: {
-      description: {
-        story: 'Botón en modo oscuro con los colores apropiados.'
+        story: 'Botón en estado deshabilitado.'
       }
     }
   }
