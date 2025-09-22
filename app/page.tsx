@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import { Navbar } from '@/components/navbar'
 import AdminModal from '@/components/admin-modal'
 import AdminPanel from '@/components/admin-panel'
@@ -40,9 +39,16 @@ function HomePageContent() {
         />
 
       
-      {/* Sección Home - EG neuromórfico */}
+      {/* Sección Home */}
       <section id="home" className="pt-24">
-        <NeuromorphicEG />
+        <div className="flex flex-col items-center justify-center min-h-screen px-8">
+          <h1 className="text-6xl md:text-8xl font-normal text-gray-600 dark:text-white mb-8">
+            EG
+          </h1>
+          <p className="text-xl text-gray-500 dark:text-gray-400 text-center max-w-2xl">
+            Diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.
+          </p>
+        </div>
       </section>
 
       {/* Título de sección Acerca de mí */}

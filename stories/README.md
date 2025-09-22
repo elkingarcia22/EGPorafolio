@@ -15,7 +15,7 @@ Este Storybook contiene todos los componentes del sistema de diseño neomorfismo
 - **LanguageToggle**: Toggle para cambiar idiomas (ES/EN) con persistencia
 
 ### 🎨 Componentes Principales
-- **NeuromorphicEG**: Letras EG gigantes con efecto neuromórfico y gradiente
+- **DesignTokens**: Tokens de diseño del sistema (colores, tipografía, espaciado)
 - **TypewriterText**: Texto con efecto typewriter animado
 - Incluye controles para velocidad de escritura y pausas
 
