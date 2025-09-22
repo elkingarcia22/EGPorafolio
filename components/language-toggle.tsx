@@ -5,8 +5,11 @@ import { useLanguage } from '@/contexts/language-context'
 export const LanguageToggle = () => {
   const { language, setLanguage } = useLanguage()
 
+  console.log('🔘 LanguageToggle renderizado, idioma actual:', language)
+
   const toggleLanguage = () => {
     const newLanguage = language === 'es' ? 'en' : 'es'
+    console.log('🔄 LanguageToggle: cambiando de', language, 'a', newLanguage)
     setLanguage(newLanguage)
   }
 

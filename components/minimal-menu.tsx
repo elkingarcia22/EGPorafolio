@@ -9,7 +9,9 @@ interface MinimalMenuProps {
 }
 
 export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  
+  console.log('📋 MinimalMenu renderizado, idioma:', language)
   
   const menuItems = [
     { name: t('nav.home'), href: '/#home' },
@@ -20,7 +22,7 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
     { name: t('nav.admin'), href: '/admin', isAdmin: true }
   ]
 
-  console.log('MinimalMenu rendered with items:', menuItems)
+  console.log('📋 MinimalMenu items traducidos:', menuItems)
 
   return (
     <div className="flex items-center group">
