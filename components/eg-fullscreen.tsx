@@ -7,9 +7,9 @@ export const EGFullScreen: React.FC = () => {
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       {/* Letra E - Pantalla completa - Efecto saliente */}
       <div
-        className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-8 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
-          fontSize: '35rem',
+          fontSize: '45rem',
           fontWeight: '900',
           color: '#f0f0f3',
           textShadow: `
@@ -31,7 +31,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Letra G - Pantalla completa - Efecto hundido */}
       <div
-        className="absolute top-16 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-8 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
@@ -53,9 +53,9 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Efectos de profundidad para la E - Saliente */}
       <div
-        className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-8 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
-          fontSize: '35rem',
+          fontSize: '45rem',
           fontWeight: '900',
           color: 'transparent',
           background: 'linear-gradient(135deg, #f0f0f3 0%, #e8e8eb 50%, #f0f0f3 100%)',
@@ -76,7 +76,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Efectos de profundidad para la G - Hundido */}
       <div
-        className="absolute top-16 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-8 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
@@ -99,9 +99,9 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Sombras de fondo para mayor profundidad - E */}
       <div
-        className="absolute top-16 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
+        className="absolute top-8 left-1/4 transform -translate-x-1/2 -translate-y-1/2"
         style={{
-          fontSize: '35rem',
+          fontSize: '45rem',
           fontWeight: '900',
           color: 'transparent',
           background: 'radial-gradient(circle, rgba(209, 217, 230, 0.2) 0%, transparent 70%)',
@@ -118,7 +118,7 @@ export const EGFullScreen: React.FC = () => {
       
       {/* Sombras de fondo para mayor profundidad - G */}
       <div
-        className="absolute top-16 right-1/4 transform translate-x-1/2 -translate-y-1/2"
+        className="absolute top-8 right-1/4 transform translate-x-1/2 -translate-y-1/2"
         style={{
           fontSize: '45rem',
           fontWeight: '900',
