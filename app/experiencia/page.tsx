@@ -114,9 +114,13 @@ const education = [
 export default function ExperiencePage() {
   const [activeTab, setActiveTab] = useState<'experience' | 'education'>('experience')
 
+  const handleAdminClick = () => {
+    window.location.href = '/admin'
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-black dark:to-gray-900">
-      <Navbar />
+      <Navbar onAdminClick={handleAdminClick} />
       
       <section className="pt-24 pb-16 section-padding">
         <div className="container-max">

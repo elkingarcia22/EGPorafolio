@@ -99,10 +99,9 @@ export default function AdminModal({ isOpen, onClose, onAuthenticate }: AdminMod
             <button
               type="submit"
               disabled={isLoading || !password}
-                     className="flex-1 px-4 py-3 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+                     className="flex-1 px-4 py-3 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium hover:opacity-90"
                      style={{ 
-                       background: designTokens.colors.primary.gradient,
-                       ':hover': { opacity: 0.9 }
+                       background: designTokens.colors.primary.gradient
                      }}
             >
               {isLoading ? t('admin.modal.verifying') : t('admin.modal.access')}

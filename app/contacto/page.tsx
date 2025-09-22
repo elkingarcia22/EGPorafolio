@@ -3,9 +3,14 @@
 import { Navbar } from '@/components/navbar'
 
 export default function ContactPage() {
+  const handleAdminClick = () => {
+    // Redirigir a la página de admin
+    window.location.href = '/admin'
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-      <Navbar />
+      <Navbar onAdminClick={handleAdminClick} />
       
       <div className="pt-24 px-8">
         {/* Título principal */}
