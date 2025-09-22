@@ -10,7 +10,11 @@
     "test-supabase": "node scripts/test-supabase.js",
     "setup-db": "node scripts/setup-database.js",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "workflow": "node scripts/dev-workflow.js",
+    "new-feature": "node scripts/dev-workflow.js new-feature",
+    "check-status": "node scripts/dev-workflow.js check-status",
+    "pre-commit": "node scripts/dev-workflow.js pre-commit"
   },
   "dependencies": {
     "@supabase/ssr": "^0.1.0",

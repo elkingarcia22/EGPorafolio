@@ -46,6 +46,7 @@ Portfolio profesional de **Elkin Garcia** con estilo neomorfismo, panel de admin
 - Node.js 18+ 
 - npm o yarn
 - Cuenta de Supabase
+- Git
 
 ### 1. Clonar el repositorio
 
@@ -233,20 +234,81 @@ docker run -p 3000:3000 portfolio-ux-ui
 
 ## 📝 Scripts Disponibles
 
+### Desarrollo
 ```bash
-npm run dev          # Desarrollo
-npm run build        # Construcción para producción
-npm run start        # Servidor de producción
-npm run lint         # Linter
+npm run dev              # Desarrollo Next.js
+npm run storybook        # Desarrollo Storybook
+npm run build            # Construcción para producción
+npm run start            # Servidor de producción
+npm run lint             # Linter
 ```
+
+### Flujo de Trabajo
+```bash
+npm run workflow         # Script de ayuda del workflow
+npm run new-feature      # Crear nueva feature branch
+npm run check-status     # Verificar estado del proyecto
+npm run pre-commit       # Ejecutar checks pre-commit
+```
+
+### Base de Datos
+```bash
+npm run setup-db         # Configurar base de datos
+npm run test-supabase    # Probar conexión Supabase
+```
+
+### Storybook
+```bash
+npm run storybook        # Desarrollo Storybook
+npm run build-storybook  # Build Storybook para producción
+```
+
+## 🔄 Flujo de Trabajo con Git y Storybook
+
+### Estrategia de Branching
+- **`main`**: Código de producción estable
+- **`develop`**: Rama de desarrollo donde se integran features
+- **`feature/*`**: Ramas para nuevas funcionalidades
+
+### Comandos Rápidos
+```bash
+# Crear nueva feature
+npm run new-feature nombre-feature
+
+# Verificar estado
+npm run check-status
+
+# Checks pre-commit
+npm run pre-commit
+
+# Desarrollo con Storybook
+npm run storybook
+```
+
+### Flujo de Desarrollo
+1. **Crear feature branch**: `npm run new-feature mi-feature`
+2. **Desarrollar**: Trabajar en la feature con Storybook
+3. **Testing**: `npm run pre-commit` para verificar
+4. **Commit**: `git commit -m "feat: descripción"`
+5. **Push**: `git push origin feature/mi-feature`
+6. **Pull Request**: Crear PR hacia `develop`
+
+### Storybook
+- **Desarrollo**: `npm run storybook` (puerto 6006)
+- **Build**: `npm run build-storybook`
+- **Deploy**: Automático en PRs via Chromatic
+
+📚 **Documentación completa**: Ver [WORKFLOW.md](./WORKFLOW.md)
 
 ## 🤝 Contribución
 
 1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+2. Crea una rama para tu feature (`npm run new-feature AmazingFeature`)
+3. Desarrolla con Storybook (`npm run storybook`)
+4. Ejecuta checks (`npm run pre-commit`)
+5. Commit tus cambios (`git commit -m 'feat: Add some AmazingFeature'`)
+6. Push a la rama (`git push origin feature/AmazingFeature`)
+7. Abre un Pull Request
 
 ## 📄 Licencia
 

@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Pre-commit hook para el portafolio EG
+# Ejecuta checks básicos antes de permitir commits
+
+echo "🔍 Ejecutando pre-commit checks..."
+
+# Verificar que estamos en una feature branch
+current_branch=$(git branch --show-current)
+if [[ "$current_branch" == "main" || "$current_branch" == "develop" ]]; then
+    echo "⚠️  Advertencia: Estás haciendo commit directamente en $current_branch"
+    echo "   Considera usar una feature branch para cambios"
+    read -p "¿Continuar? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "❌ Commit cancelado"
+        exit 1
+    fi
+fi
+
+# Ejecutar linter
+echo "📝 Ejecutando linter..."
+if ! npm run lint; then
+    echo "❌ Linter falló. Corrige los errores antes de hacer commit."
+    exit 1
+fi
+
+# Verificar que no hay archivos de configuración sensibles
+echo "🔒 Verificando archivos sensibles..."
+if git diff --cached --name-only | grep -E "\.(env|key|secret)" > /dev/null; then
+    echo "❌ Error: No puedes hacer commit de archivos de configuración sensibles"
+    echo "   Asegúrate de que estén en .gitignore"
+    exit 1
+fi
+
+# Verificar tamaño de archivos
+echo "📏 Verificando tamaño de archivos..."
+large_files=$(git diff --cached --name-only | xargs -I {} sh -c 'if [ -f "{}" ]; then if [ $(stat -f%z "{}" 2>/dev/null || stat -c%s "{}" 2>/dev/null || echo 0) -gt 10485760 ]; then echo "{}"; fi; fi')
+if [ ! -z "$large_files" ]; then
+    echo "❌ Error: Archivos muy grandes detectados:"
+    echo "$large_files"
+    echo "   Considera usar Git LFS para archivos grandes"
+    exit 1
+fi
+
+echo "✅ Pre-commit checks pasaron exitosamente"
+exit 0
