@@ -1144,3 +1144,34 @@
     transform: translateY(-25px) rotate(4deg) scale(1.03);
   }
 }
+
+/* Animaciones para las letras EG */
+@keyframes floatE {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  50% {
+    transform: translateY(-20px) translateX(0px);
+  }
+  75% {
+    transform: translateY(-10px) translateX(-5px);
+  }
+}
+
+@keyframes floatG {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(15px) translateX(-3px);
+  }
+  50% {
+    transform: translateY(25px) translateX(0px);
+  }
+  75% {
+    transform: translateY(15px) translateX(3px);
+  }
+}
