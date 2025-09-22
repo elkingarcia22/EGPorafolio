@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useAdmin } from '@/contexts/admin-context'
 
 interface TypewriterTextProps {
-  words: string[]
+  words?: string[]
   className?: string
   typingSpeed?: number
   deletingSpeed?: number
@@ -17,12 +18,15 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
   deletingSpeed = 50,
   pauseTime = 2000
 }) => {
+  const { content } = useAdmin()
+  const displayWords = words || content.typewriterTexts
+  
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [currentText, setCurrentText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    const currentWord = words[currentWordIndex]
+    const currentWord = displayWords[currentWordIndex]
     
     const timeout = setTimeout(() => {
       if (!isDeleting) {
@@ -40,13 +44,13 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
         } else {
           // Finished deleting, move to next word
           setIsDeleting(false)
-          setCurrentWordIndex((prev) => (prev + 1) % words.length)
+          setCurrentWordIndex((prev) => (prev + 1) % displayWords.length)
         }
       }
     }, isDeleting ? deletingSpeed : typingSpeed)
 
     return () => clearTimeout(timeout)
-  }, [currentText, isDeleting, currentWordIndex, words, typingSpeed, deletingSpeed, pauseTime])
+  }, [currentText, isDeleting, currentWordIndex, displayWords, typingSpeed, deletingSpeed, pauseTime])
 
   return (
     <span 

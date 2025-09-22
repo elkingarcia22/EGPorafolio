@@ -5,8 +5,10 @@ import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import { Navbar } from '@/components/navbar'
 import AdminModal from '@/components/admin-modal'
 import AdminPanel from '@/components/admin-panel'
+import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 
-export default function HomePage() {
+function HomePageContent() {
+  const { content } = useAdmin()
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -25,17 +27,17 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-      <Navbar onAdminClick={handleAdminClick} />
-      
-      {/* Panel de administración */}
-      <AdminPanel isAdmin={isAdmin} onLogout={handleAdminLogout} />
-      
-      {/* Modal de autenticación */}
-      <AdminModal 
-        isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
-        onAuthenticate={handleAdminAuthenticate}
-      />
+        <Navbar onAdminClick={handleAdminClick} />
+        
+        {/* Panel de administración */}
+        <AdminPanel isAdmin={isAdmin} onLogout={handleAdminLogout} />
+        
+        {/* Modal de autenticación */}
+        <AdminModal 
+          isOpen={isAdminModalOpen}
+          onClose={() => setIsAdminModalOpen(false)}
+          onAuthenticate={handleAdminAuthenticate}
+        />
       
       {/* Sección Home - EG neuromórfico */}
       <section id="home" className="pt-24">
@@ -214,7 +216,7 @@ export default function HomePage() {
                     
                     {/* Contenido */}
                     <h3 className="text-2xl font-thin text-white mb-3">WhatsApp</h3>
-                    <p className="text-lg font-light text-white/90 mb-4">+54 11 1234-5678</p>
+                    <p className="text-lg font-light text-white/90 mb-4">{content.contactInfo.whatsapp}</p>
                     <p className="text-sm text-white/80 mb-6">Respuesta inmediata</p>
                     
                     {/* Línea blanca */}
@@ -236,7 +238,7 @@ export default function HomePage() {
                     
                     {/* Contenido */}
                     <h3 className="text-2xl font-thin text-white mb-3">LinkedIn</h3>
-                    <p className="text-lg font-light text-white/90 mb-4">Conectar</p>
+                    <p className="text-lg font-light text-white/90 mb-4">{content.contactInfo.linkedin}</p>
                     <p className="text-sm text-white/80 mb-6">Red profesional</p>
                     
                     {/* Línea blanca */}
@@ -259,7 +261,7 @@ export default function HomePage() {
                     
                     {/* Contenido */}
                     <h3 className="text-2xl font-thin text-white mb-3">Ubicación</h3>
-                    <p className="text-lg font-light text-white/90 mb-4">Buenos Aires, Argentina</p>
+                    <p className="text-lg font-light text-white/90 mb-4">{content.contactInfo.location}</p>
                     <p className="text-sm text-white/80 mb-6">Trabajo remoto</p>
                     
                     {/* Línea blanca */}
@@ -286,5 +288,13 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <AdminProvider>
+      <HomePageContent />
+    </AdminProvider>
   )
 }

@@ -3,9 +3,11 @@
 import { TypewriterText } from './typewriter-text'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import { useAdmin } from '@/contexts/admin-context'
 
 export const NeuromorphicEG = () => {
   const { theme } = useTheme()
+  const { content } = useAdmin()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -112,8 +114,8 @@ export const NeuromorphicEG = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-transparent"></div>
                         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(22,162,255,0.3) 50%, rgba(53,208,127,0.4) 100%)'}}></div>
                         <div className="relative z-10 p-12 h-full flex flex-col justify-end">
-                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">UX Research</h3>
-                          <p className="text-xl text-white/90 mb-8 max-w-md">Investigación profunda de usuarios para crear experiencias excepcionales y centradas en el ser humano</p>
+                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[0]}</h3>
+                          <p className="text-xl text-white/90 mb-8 max-w-md">{content.projectDescriptions[0]}</p>
                           <div className="w-16 h-1 bg-white/60 group-hover:w-24 transition-all duration-500"></div>
                         </div>
                       </div>
@@ -128,8 +130,8 @@ export const NeuromorphicEG = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-transparent"></div>
                         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(22,162,255,0.3) 50%, rgba(53,208,127,0.4) 100%)'}}></div>
                         <div className="relative z-10 p-12 h-full flex flex-col justify-end">
-                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">UI Design</h3>
-                          <p className="text-xl text-white/90 mb-8 max-w-md">Diseño de interfaces modernas, funcionales y visualmente impactantes que conectan con los usuarios</p>
+                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[1]}</h3>
+                          <p className="text-xl text-white/90 mb-8 max-w-md">{content.projectDescriptions[1]}</p>
                           <div className="w-16 h-1 bg-white/60 group-hover:w-24 transition-all duration-500"></div>
                         </div>
                       </div>
@@ -144,8 +146,8 @@ export const NeuromorphicEG = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-transparent"></div>
                         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(22,162,255,0.3) 50%, rgba(53,208,127,0.4) 100%)'}}></div>
                         <div className="relative z-10 p-12 h-full flex flex-col justify-end">
-                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">Estrategia Digital</h3>
-                          <p className="text-xl text-white/90 mb-8 max-w-md">Desarrollo de estrategias digitales integrales que transforman marcas y productos</p>
+                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[2]}</h3>
+                          <p className="text-xl text-white/90 mb-8 max-w-md">{content.projectDescriptions[2]}</p>
                           <div className="w-16 h-1 bg-white/60 group-hover:w-24 transition-all duration-500"></div>
                         </div>
                       </div>
@@ -160,8 +162,8 @@ export const NeuromorphicEG = () => {
                         <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/40 to-transparent"></div>
                         <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(22,162,255,0.3) 50%, rgba(53,208,127,0.4) 100%)'}}></div>
                         <div className="relative z-10 p-12 h-full flex flex-col justify-end">
-                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">Diseño con IA</h3>
-                          <p className="text-xl text-white/90 mb-8 max-w-md">Proyectos innovadores que combinan inteligencia artificial con diseño creativo</p>
+                          <h3 className="text-5xl font-bold text-white mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[3]}</h3>
+                          <p className="text-xl text-white/90 mb-8 max-w-md">{content.projectDescriptions[3]}</p>
                           <div className="w-16 h-1 bg-white/60 group-hover:w-24 transition-all duration-500"></div>
                         </div>
                       </div>
