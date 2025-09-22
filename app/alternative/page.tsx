@@ -14,11 +14,6 @@ export default function Page() {
 
       {/* SVG que genera el relieve HUNDIDO + degradado dentro de las letras */}
       <EGDebossed />
-
-      {/* Contenido de la página (si quieres poner algo encima) */}
-      <section className="relative z-10 flex items-center justify-center min-h-screen">
-        {/* vacío: es un fondo */}
-      </section>
     </main>
   );
 }
@@ -47,18 +42,18 @@ function EGDebossed() {
         {/* Máscara: las letras en blanco definen dónde se "pinta" el gradiente */}
         <mask id="egMask">
           <rect width="100%" height="100%" fill="black" />
-          {/* Texto MUCHO más grande, posicionado al lado izquierdo */}
-          <g transform="translate(-50, 0)">
+          {/* Texto centrado y más grande, sin cortarse */}
+          <g transform="translate(0, 0)">
             <text
-              x="25%"
+              x="50%"
               y="50%"
               fill="white"
               textAnchor="middle"
               dominantBaseline="middle"
               fontFamily="Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto"
               fontWeight={900}
-              fontSize={600}
-              letterSpacing="12"
+              fontSize={500}
+              letterSpacing="20"
             >
               EG
             </text>
@@ -66,7 +61,7 @@ function EGDebossed() {
         </mask>
 
         {/* Filtro de hendidura MÁS PRONUNCIADO (inner shadow doble para neuromórfico) */}
-        <filter id="innerDeboss" x="-30%" y="-30%" width="160%" height="160%">
+        <filter id="innerDeboss" x="-50%" y="-50%" width="200%" height="200%">
           {/* sombra oscura interior MÁS INTENSA (abajo-derecha) */}
           <feOffset dx="0" dy="8" in="SourceAlpha" result="off1" />
           <feGaussianBlur in="off1" stdDeviation="12" result="blur1" />
