@@ -73,12 +73,7 @@ export const NeuromorphicEG = () => {
                       {/* Texto typewriter dentro del espacio de la G */}
                       <div className="absolute top-1/3 left-full transform -translate-x-1/2 -translate-y-1/2 translate-y-8 -translate-x-72 translate-y-4 w-full max-w-none">
                         <TypewriterText 
-                          words={[
-                            "Diseñador UX/UI senior specialist",
-                            "Diseño de interacciones", 
-                            "Diseño de estrategias",
-                            "Diseño inteligente IA"
-                          ]}
+                          words={content.typewriterTexts}
                           className="text-2xl md:text-3xl font-thin text-black dark:text-white whitespace-nowrap"
                           typingSpeed={80}
                           deletingSpeed={40}
