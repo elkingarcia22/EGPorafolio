@@ -2,6 +2,7 @@
 
 import { MinimalMenu } from './minimal-menu'
 import { LanguageToggle } from './language-toggle'
+import { AccessibilityToolbar } from './accessibility-toolbar'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 
@@ -29,11 +30,13 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
     <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm">
       <div className="flex items-center justify-between px-8 py-4">
         <MinimalMenu onAdminClick={onAdminClick} />
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <LanguageToggle />
+          <AccessibilityToolbar />
           <button 
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
             className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200"
+            title={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
           >
             {isDark ? (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
