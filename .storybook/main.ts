@@ -30,8 +30,8 @@ const config: StorybookConfig = {
     if (config.resolve) {
       config.resolve.alias = {
         ...config.resolve.alias,
-        '@/contexts/admin-context': path.resolve(__dirname, './mocks/admin-context.tsx'),
-        '@/contexts/language-context': path.resolve(__dirname, './mocks/language-context.tsx'),
+        '@/contexts/admin-context': path.resolve(__dirname, './GlobalDecorator.tsx'),
+        '@/contexts/language-context': path.resolve(__dirname, './GlobalDecorator.tsx'),
       };
     }
     return config;

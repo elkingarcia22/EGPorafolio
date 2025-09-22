@@ -104,6 +104,9 @@ export const useLanguage = () => {
   return context
 }
 
+// Export mock contexts for direct use
+export { AdminContext, LanguageContext }
+
 // Providers
 const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = React.useState(false)
