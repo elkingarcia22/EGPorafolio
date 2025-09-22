@@ -1,6 +1,7 @@
 'use client'
 
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
+import { MinimalMenu } from '@/components/minimal-menu'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 
@@ -19,13 +20,9 @@ export default function Page() {
   const isDark = theme === 'dark'
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300 relative overflow-hidden">
-      {/* Menú minimalista de 3 líneas */}
+      {/* Menú minimalista funcional */}
       <div className="absolute top-8 left-8 z-50">
-        <button className="flex flex-col gap-1 p-2">
-          <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400"></div>
-          <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400"></div>
-          <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400"></div>
-        </button>
+        <MinimalMenu />
       </div>
 
       {/* Toggle de tema en la parte superior derecha */}

@@ -1,8 +1,22 @@
 'use client'
 
 import { TypewriterText } from './typewriter-text'
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
 
 export const NeuromorphicEG = () => {
+  const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null
+  }
+
+  const isDark = theme === 'dark'
   return (
     <div className="flex flex-col items-center justify-start min-h-screen px-8 pt-16">
       {/* Contenedor para las letras EG gigantes */}
@@ -21,8 +35,10 @@ export const NeuromorphicEG = () => {
               WebkitTextFillColor: 'transparent',
               color: 'transparent',
               WebkitTextStroke: '0.5px transparent',
-              filter: 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.8)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.6))',
-              opacity: 0.7
+              filter: isDark 
+                ? 'drop-shadow(-12px -12px 24px rgba(0, 0, 0, 0.8)) drop-shadow(12px 12px 24px rgba(255, 255, 255, 0.1)) drop-shadow(-6px -6px 12px rgba(0, 0, 0, 0.6)) drop-shadow(6px 6px 12px rgba(255, 255, 255, 0.05))'
+                : 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.7)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.5))',
+              opacity: 0.9
             }}
           >
             E
@@ -43,8 +59,10 @@ export const NeuromorphicEG = () => {
               WebkitTextFillColor: 'transparent',
               color: 'transparent',
               WebkitTextStroke: '0.5px transparent',
-              filter: 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.8)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.6))',
-              opacity: 0.7
+              filter: isDark 
+                ? 'drop-shadow(-12px -12px 24px rgba(0, 0, 0, 0.8)) drop-shadow(12px 12px 24px rgba(255, 255, 255, 0.1)) drop-shadow(-6px -6px 12px rgba(0, 0, 0, 0.6)) drop-shadow(6px 6px 12px rgba(255, 255, 255, 0.05))'
+                : 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.7)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.5))',
+              opacity: 0.9
             }}
           >
             G
