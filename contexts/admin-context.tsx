@@ -12,9 +12,11 @@ interface AdminContent {
   projectDescriptions: string[]
   aboutTitle: string
   aboutDescription: string
+  aboutInfo: any[] // Array de objetos de información personal
   contactInfo: {
     whatsapp: string
     linkedin: string
+    linkedinUrl: string
     location: string
   }
 }
@@ -36,9 +38,11 @@ const defaultContent: AdminContent = {
   projectDescriptions: mockData.projects.map(item => item.description),
   aboutTitle: mockData.aboutInfo[0]?.title || 'Acerca de mí',
   aboutDescription: mockData.aboutInfo[0]?.description || 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
+  aboutInfo: mockData.aboutInfo, // Incluir los objetos completos de aboutInfo
   contactInfo: {
     whatsapp: mockData.contactInfo.find(item => item.contact_type === 'whatsapp')?.value || '+54 11 1234-5678',
     linkedin: mockData.contactInfo.find(item => item.contact_type === 'linkedin')?.value || 'Conectar',
+    linkedinUrl: 'https://linkedin.com/in/elkingarcia',
     location: mockData.contactInfo.find(item => item.contact_type === 'location')?.value || 'Buenos Aires, Argentina'
   }
 }
@@ -98,8 +102,6 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           .from('about_info')
           .select('*')
           .eq('is_active', true)
-          .eq('language', language)
-          .limit(1)
         
         if (aboutError) {
           console.error('❌ Error about:', aboutError)
@@ -140,14 +142,17 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           projectDescriptions: projects.map((p: any) => p.description).slice(0, 4),
           aboutTitle: about[0]?.title ?? 'Acerca de mí',
           aboutDescription: about[0]?.description ?? 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
+          aboutInfo: about, // Incluir los objetos completos de aboutInfo
           contactInfo: {
             whatsapp: contact.find((c: any) => c.contact_type === 'whatsapp')?.value ?? '+54 11 1234-5678',
             linkedin: contact.find((c: any) => c.contact_type === 'linkedin')?.value ?? 'Conectar',
+            linkedinUrl: contact.find((c: any) => c.contact_type === 'linkedin')?.url ?? 'https://linkedin.com/in/elkingarcia',
             location: contact.find((c: any) => c.contact_type === 'location')?.value ?? 'Buenos Aires, Argentina'
           }
         }
 
         console.log('✅ Actualizando contexto con:', newContent)
+        console.log('🔗 LinkedIn URL cargada:', newContent.contactInfo.linkedinUrl)
         setContent(newContent)
       } catch (error) {
         console.error('❌ Error cargando contenido desde Supabase:', error)
@@ -200,9 +205,9 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     try {
       const [typewriterRes, projectsRes, aboutRes, contactRes] = await Promise.all([
         supabase.from('typewriter_texts').select('*').eq('is_active', true).eq('language', language).order('order_index'),
-        supabase.from('projects').select('*').eq('is_active', true).eq('language', language).order('order_index'),
-        supabase.from('about_info').select('*').eq('is_active', true).eq('language', language).limit(1),
-        supabase.from('contact_info').select('*').eq('is_active', true).eq('language', language).order('order_index')
+        supabase.from('projects').select('*').eq('is_active', true).order('order_index'),
+        supabase.from('about_info').select('*').eq('is_active', true),
+        supabase.from('contact_info').select('*').eq('is_active', true).order('order_index')
       ])
 
       const typewriter = typewriterRes.data ?? []
@@ -217,9 +222,11 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
         projectDescriptions: projects.map((p: any) => p.description).slice(0, 4),
         aboutTitle: about[0]?.title ?? 'Acerca de mí',
         aboutDescription: about[0]?.description ?? 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
+        aboutInfo: about, // Incluir los objetos completos de aboutInfo
         contactInfo: {
           whatsapp: contact.find((c: any) => c.contact_type === 'whatsapp')?.value ?? '+54 11 1234-5678',
           linkedin: contact.find((c: any) => c.contact_type === 'linkedin')?.value ?? 'Conectar',
+          linkedinUrl: contact.find((c: any) => c.contact_type === 'linkedin')?.url ?? 'https://linkedin.com/in/elkingarcia',
           location: contact.find((c: any) => c.contact_type === 'location')?.value ?? 'Buenos Aires, Argentina'
         }
       }

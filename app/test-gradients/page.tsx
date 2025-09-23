@@ -1,21 +1,34 @@
 'use client'
 
-import { useState, useEffect, useLayoutEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useDesignTokens } from '@/hooks/useDesignTokens'
+import { useColors } from '@/contexts/colors-context'
+import { supabase } from '@/lib/supabase-client'
 import { Navbar } from '@/components/navbar'
+import { NeoButton } from '@/components/ui/neo-button'
+import { NeoCard } from '@/components/ui/neo-card'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import { SectionSkeleton } from '@/components/section-skeleton'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
 import { useSectionLoading } from '@/hooks/useSectionLoading'
-import { useDesignTokens } from '@/hooks/useDesignTokens'
 
-function HomePageContent() {
+
+interface Gradient {
+  id: string
+  name: string
+  gradient_css: string
+  is_active: boolean
+  is_default: boolean
+}
+
+// Componente de vista previa del home - exactamente igual al home actual
+const HomePreview = () => {
   const { content, refreshContent } = useAdmin()
   const { t, language } = useLanguage()
   const { loading, mounted, markSectionLoaded } = useSectionLoading()
   const designTokens = useDesignTokens()
-  
-  console.log('🏠 HomePageContent renderizado - mounted:', mounted, 'loading:', loading)
   
   // Función para generar overlay dinámico basado en el gradiente actual
   const getDynamicOverlay = () => {
@@ -31,72 +44,36 @@ function HomePageContent() {
       return 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.3) 100%)'
     }
   }
-  
-  const handleAdminClick = () => {
-    console.log('Admin click detected - redirecting to admin page')
-    window.location.href = '/admin'
-  }
 
-  // Comportamiento de carga: iniciar siempre en el Home
-  useLayoutEffect(() => {
-    console.log('🔄 useLayoutEffect ejecutado - mounted:', mounted)
-    
-    if (mounted) {
-      console.log('🎯 Asegurando que la página inicie en el Home...')
-      console.log('📍 Posición actual del scroll:', window.scrollY)
-      
-      // Limpiar cualquier hash de la URL que pueda causar scroll automático
-      if (window.location.hash) {
-        console.log('🧹 Limpiando hash de la URL:', window.location.hash)
-        window.history.replaceState(null, '', window.location.pathname)
-      }
-      
-      // Forzar scroll inmediato al Home sin animación
-      window.scrollTo({ top: 0, behavior: 'auto' })
-      console.log('✅ Scroll al Home ejecutado (sin animación)')
-      console.log('📍 Posición después del scroll:', window.scrollY)
-    } else {
-      console.log('⏳ Componente no montado aún, esperando...')
-    }
-  }, [mounted])
-
-  console.log('🏠 HomePage renderizado')
-  
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-        <Navbar onAdminClick={handleAdminClick} />
-
-      
       {/* Sección Home - EG neuromórfico */}
       <section id="home" className="pt-24">
         <NeuromorphicEG />
       </section>
 
-           {/* Título de sección Acerca de mí */}
-           {!loading.home && (
-             <div className="py-32">
-               <div className="px-8">
-                 <div className="max-w-6xl mx-auto">
-                   <div className="relative">
-                     <div className="absolute -left-20">
-                       <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
-                         {t('about.title')}
-                       </span>
-                       {/* Línea degradada que baja hacia la sección */}
-                       <div className="absolute w-1 h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div>
-           )}
+      {/* Título de sección Acerca de mí */}
+      <div className="py-32">
+        <div className="px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="relative">
+              <div className="absolute -left-20">
+                <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
+                  {t('about.title')}
+                </span>
+                {/* Línea degradada que baja hacia la sección */}
+                <div className="absolute w-1 h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-           {/* Sección Acerca de mí - Nueva Versión 3 */}
-           {loading.about ? (
-             <SectionSkeleton type="about" />
-           ) : (
+      {/* Sección Acerca de mí - Nueva Versión 3 */}
+      {loading.about ? (
+        <SectionSkeleton type="about" />
+      ) : (
         <section id="acerca" className="py-20">
-        {console.log('📄 Renderizando sección Acerca de mí')}
         <div className="px-8">
           <div className="max-w-6xl mx-auto">
             {/* Layout: Foto + Grid de 2x2 */}
@@ -105,7 +82,7 @@ function HomePageContent() {
               {/* Columna 1: Perfil - Solo Foto */}
               <div className="relative group">
                 {/* Foto real o placeholder */}
-                <div className="w-full h-full min-h-[450px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center rounded-xl overflow-hidden">
+                <div className="w-full h-full min-h-[450px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
                   {(() => {
                     const profilePhoto = content.aboutInfo?.find(item => 
                       item.section === 'photo' && item.language === language
@@ -120,7 +97,7 @@ function HomePageContent() {
                             className="w-full h-full object-cover grayscale contrast-150"
                           />
                           {/* Mismo degradado que las cards de proyectos */}
-                          <div className="absolute inset-0 rounded-xl" style={{background: getDynamicOverlay()}}></div>
+                          <div className="absolute inset-0" style={{background: getDynamicOverlay()}}></div>
                         </>
                       );
                     } else {
@@ -149,8 +126,8 @@ function HomePageContent() {
                 </div>
                 
                 {/* Overlay con gradiente al hover */}
-                <div className="absolute inset-0 rounded-xl" style={{background: designTokens.colors.primary.gradient, opacity: 0.2}}></div>
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.2}}></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
 
               {/* Columna 2-3: Grid de 2x2 (Descripción + Experiencia + Especialidades) */}
@@ -360,145 +337,236 @@ function HomePageContent() {
         </div>
       </section>
       )}
-
-
-           {/* Título de sección Contacto */}
-           {!loading.home && (
-             <div className="py-40">
-               <div className="px-8">
-                 <div className="max-w-6xl mx-auto">
-                   <div className="relative">
-                     <div className="absolute right-0">
-                       <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
-                         {t('contact.title')}
-                       </span>
-                         {/* Línea degradada que baja hacia la sección */}
-                         <div className="absolute w-1 h-40" style={{left: '-13px', top: '2px', background: designTokens.colors.primary.gradient}}></div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div>
-           )}
-
-           {/* Sección Contacto */}
-           {loading.contact ? (
-             <SectionSkeleton type="contact" />
-           ) : (
-        <section id="contacto" className="py-20" style={{background: designTokens.colors.primary.gradient}}>
-        <div className="px-8">
-
-          {/* Cards horizontales limpias */}
-          <div className="max-w-6xl mx-auto">
-            <div className="grid md:grid-cols-3 gap-8">
-              
-              {/* WhatsApp Card */}
-              <a 
-                href={`https://wa.me/${content.contactInfo.whatsapp.replace(/[^0-9]/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group cursor-pointer block"
-              >
-                <div className="bg-transparent border-2 border-white rounded-2xl p-8 hover:border-white/80 transition-all duration-300 group-hover:scale-105">
-                  <div className="text-center">
-                    {/* Icono */}
-                    <div className="flex justify-center mb-6">
-                      <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                      </svg>
-                    </div>
-                    
-                    {/* Contenido */}
-                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.whatsapp')}</h3>
-                    <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.whatsapp}</p>
-                    <p className="text-sm text-white/80 mb-6">{t('contact.immediateResponse')}</p>
-                    
-                    {/* Línea blanca suave */}
-                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
-                  </div>
-                </div>
-              </a>
-
-              {/* LinkedIn Card */}
-              <a 
-                href={content.contactInfo.linkedinUrl ? 
-                  (content.contactInfo.linkedinUrl.startsWith('http') ? 
-                    content.contactInfo.linkedinUrl : 
-                    `https://${content.contactInfo.linkedinUrl}`) : 
-                  '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group cursor-pointer block"
-              >
-                <div className="bg-transparent border-2 border-white rounded-2xl p-8 hover:border-white/80 transition-all duration-300 group-hover:scale-105">
-                  <div className="text-center">
-                    {/* Icono */}
-                    <div className="flex justify-center mb-6">
-                      <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                      </svg>
-                    </div>
-                    
-                    {/* Contenido */}
-                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.linkedin')}</h3>
-                    <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.linkedin}</p>
-                    <p className="text-sm text-white/80 mb-6">{t('contact.professionalNetwork')}</p>
-                    
-                    {/* Línea blanca suave */}
-                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
-                  </div>
-                </div>
-              </a>
-
-              {/* Ubicación Card */}
-              <div className="group cursor-pointer">
-                <div className="bg-transparent border-2 border-white rounded-2xl p-8 hover:border-white/80 transition-all duration-300 group-hover:scale-105">
-                  <div className="text-center">
-                    {/* Icono */}
-                    <div className="flex justify-center mb-6">
-                      <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </div>
-                    
-                    {/* Contenido */}
-                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.location')}</h3>
-                    <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.location}</p>
-                    <p className="text-sm text-white/80 mb-6">{t('contact.remoteWork')}</p>
-                    
-                    {/* Línea blanca suave */}
-                    <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Información adicional */}
-          <div className="text-center mt-20">
-            <div className="max-w-2xl mx-auto">
-              <p className="text-xl font-normal text-white/90 mb-4">
-                {t('contact.availableForProjects')}
-              </p>
-              <p className="text-lg text-white/80 mb-8">
-                {t('contact.responseTime')}
-              </p>
-              <div className="w-24 h-0.5 mx-auto bg-white/60"></div>
-            </div>
-          </div>
-        </div>
-        </section>
-      )}
     </div>
   )
 }
 
-export default function HomePage() {
+function TestGradientsContent() {
+  const router = useRouter()
+  const { currentGradient, setCurrentGradient } = useColors()
+  const designTokens = useDesignTokens()
+  const [gradients, setGradients] = useState<Gradient[]>([])
+  const [selectedGradient, setSelectedGradient] = useState<string>(currentGradient)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // Cargar gradientes desde Supabase
+  useEffect(() => {
+    const loadGradients = async () => {
+      try {
+        console.log('🎨 Cargando gradientes para página de prueba...')
+        const { data, error } = await supabase
+          .from('colors')
+          .select('*')
+          .eq('is_active', true)
+          .order('is_default', { ascending: false })
+          .order('name', { ascending: true })
+
+        if (error) {
+          console.error('❌ Error cargando gradientes:', error)
+          return
+        }
+
+        console.log('✅ Gradientes cargados:', data)
+        setGradients(data || [])
+        
+        // Establecer el gradiente por defecto como seleccionado
+        const defaultGradient = data?.find(g => g.is_default)
+        if (defaultGradient) {
+          setSelectedGradient(defaultGradient.gradient_css)
+        }
+      } catch (error) {
+        console.error('❌ Error:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadGradients()
+  }, [])
+
+  // Aplicar gradiente seleccionado en tiempo real
+  useEffect(() => {
+    if (selectedGradient) {
+      setCurrentGradient(selectedGradient)
+    }
+  }, [selectedGradient, setCurrentGradient])
+
+  const handleGradientSelect = (gradient: Gradient) => {
+    console.log('🎨 Gradiente seleccionado:', gradient.name)
+    setSelectedGradient(gradient.gradient_css)
+  }
+
+  const handleApplyGradient = async (gradient: Gradient) => {
+    try {
+      console.log('🎨 Aplicando gradiente:', gradient.name)
+      
+      // Quitar is_default de todos los gradientes
+      await supabase
+        .from('colors')
+        .update({ is_default: false })
+        .eq('is_active', true)
+
+      // Establecer el gradiente seleccionado como por defecto
+      const { error } = await supabase
+        .from('colors')
+        .update({ is_default: true })
+        .eq('id', gradient.id)
+
+      if (error) {
+        console.error('❌ Error aplicando gradiente:', error)
+        return
+      }
+
+      console.log('✅ Gradiente aplicado exitosamente:', gradient.name)
+      alert(`¡Gradiente "${gradient.name}" aplicado exitosamente al sitio!`)
+      
+    } catch (error) {
+      console.error('❌ Error:', error)
+      alert('Error al aplicar el gradiente. Por favor, inténtalo de nuevo.')
+    }
+  }
+
+  const handleGoToAdmin = () => {
+    router.push('/admin')
+  }
+
+  const handleGoToSite = () => {
+    router.push('/')
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Cargando gradientes...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header de la página de prueba */}
+      <div className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                🎨 Prueba de Gradientes
+              </h1>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Selecciona un gradiente para verlo en tiempo real
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <NeoButton
+                variant="outline"
+                onClick={handleGoToAdmin}
+                className="flex items-center space-x-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>Admin</span>
+              </NeoButton>
+              <NeoButton
+                variant="primary"
+                onClick={handleGoToSite}
+                className="flex items-center space-x-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span>Ver Sitio</span>
+              </NeoButton>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Selector de gradientes - Arriba horizontal */}
+        <div className="mb-8">
+          <NeoCard className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Seleccionar Gradiente
+            </h2>
+            
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+              {/* Dropdown simple */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Gradiente:
+                </label>
+                <select
+                  value={selectedGradient}
+                  onChange={(e) => setSelectedGradient(e.target.value)}
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {gradients.map((gradient) => (
+                    <option key={gradient.id} value={gradient.gradient_css}>
+                      {gradient.name} {gradient.is_default && '(Default)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Vista previa del gradiente seleccionado */}
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Vista Previa:
+                </label>
+                <div
+                  className="w-full h-16 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center text-white font-bold text-sm"
+                  style={{ background: selectedGradient }}
+                >
+                  {gradients.find(g => g.gradient_css === selectedGradient)?.name || 'Gradiente'}
+                </div>
+              </div>
+
+              {/* Botón para aplicar */}
+              <div className="md:w-auto w-full">
+                <NeoButton
+                  variant="primary"
+                  fullWidth
+                  onClick={() => {
+                    const gradient = gradients.find(g => g.gradient_css === selectedGradient)
+                    if (gradient) {
+                      handleApplyGradient(gradient)
+                    }
+                  }}
+                >
+                  Aplicar al Sitio
+                </NeoButton>
+              </div>
+            </div>
+          </NeoCard>
+        </div>
+
+        {/* Vista previa del home - Abajo ocupando todo el ancho */}
+        <div>
+          <NeoCard className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Vista Previa del Home
+            </h2>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              {/* Home completo con el gradiente seleccionado */}
+              <div className="min-h-[800px] bg-gray-50 dark:bg-gray-900">
+                <HomePreview />
+              </div>
+            </div>
+          </NeoCard>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function TestGradientsPage() {
   return (
     <AdminProvider>
-      <HomePageContent />
+      <TestGradientsContent />
     </AdminProvider>
   )
 }

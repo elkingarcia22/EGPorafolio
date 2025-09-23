@@ -2,14 +2,52 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { supabase } from '@/lib/supabase-client'
 import { isSupabaseConfigured } from '@/lib/mock-data'
-import { designTokens } from '@/lib/design-tokens'
+import { useDesignTokens } from '@/hooks/useDesignTokens'
+import { useNotificationHelpers } from '@/components/ui/notification-system'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoInput } from '@/components/ui/neo-input'
 import { NeoTextarea } from '@/components/ui/neo-textarea'
 import { NeoSelect } from '@/components/ui/neo-select'
 import { NeoCard } from '@/components/ui/neo-card'
+
+// Función para determinar el mejor color de texto basado en el gradiente
+const getTextColorForGradient = (gradientCss: string) => {
+  // Extraer colores del gradiente para determinar si es claro u oscuro
+  const colors = gradientCss.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/g) || []
+  
+  if (colors.length === 0) {
+    return { color: '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }
+  }
+  
+  // Calcular luminancia promedio de los colores
+  let totalLuminance = 0
+  colors.forEach(color => {
+    const hex = color.replace('#', '')
+    const r = parseInt(hex.substr(0, 2), 16)
+    const g = parseInt(hex.substr(2, 2), 16)
+    const b = parseInt(hex.substr(4, 2), 16)
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    totalLuminance += luminance
+  })
+  
+  const avgLuminance = totalLuminance / colors.length
+  
+  // Si el gradiente es claro, usar texto oscuro, si es oscuro, usar texto claro
+  if (avgLuminance > 0.5) {
+    return { 
+      color: '#000000', 
+      textShadow: '2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(255,255,255,0.5)' 
+    }
+  } else {
+    return { 
+      color: '#ffffff', 
+      textShadow: '2px 2px 4px rgba(0,0,0,0.8), -1px -1px 2px rgba(0,0,0,0.5)' 
+    }
+  }
+}
 
 interface AdminData {
   typewriterTexts: Array<{ id: string; text_content: string; order_index: number }>
@@ -23,24 +61,29 @@ interface AdminData {
     language: string;
     order_index?: number;
   }>
-  contactInfo: Array<{ id: string; contact_type: string; label: string; value: string; icon_name: string; order_index: number }>
+  contactInfo: Array<{ id: string; contact_type: string; label: string; value: string; url?: string; language?: string; icon_name: string; order_index: number }>
   siteImages: Array<{ id: string; image_name: string; image_url: string; section: string; usage_context: string }>
+  colors: Array<{ id: string; name: string; gradient_css: string; is_active: boolean; is_default: boolean }>
 }
 
 export default function AdminPage() {
   const router = useRouter()
+  const { theme, setTheme } = useTheme()
+  const designTokens = useDesignTokens()
+  const { success, error: showError, info, warning } = useNotificationHelpers()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [activeTab, setActiveTab] = useState<'typewriter' | 'projects' | 'about' | 'contact' | 'images'>('typewriter')
+  const [activeTab, setActiveTab] = useState<'typewriter' | 'projects' | 'about' | 'contact' | 'images' | 'colors'>('typewriter')
   const [data, setData] = useState<AdminData>({
     typewriterTexts: [],
     projects: [],
     aboutInfo: [],
     contactInfo: [],
-    siteImages: []
+    siteImages: [],
+    colors: []
   })
   const [editingItem, setEditingItem] = useState<any>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -96,10 +139,66 @@ export default function AdminPage() {
         aboutInfo: [
           { 
             id: '1', 
-            title: 'Acerca de mí', 
-            description: 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
+            title: 'Del output al outcome: diseño que entrega resultados reales.', 
+            description: 'Senior Product & UX/UI Designer con más de 10 años de experiencia liderando proyectos digitales de principio a fin. Trabajo de manera estratégica y planificada, combinando investigación, diseño visual y sistemas de diseño para asegurar consistencia, escalabilidad y eficiencia. Complemento mi trabajo con herramientas de IA que me permiten acelerar la ideación y validación, logrando productos más robustos y efectivos.',
             section: 'main',
             language: 'es'
+          },
+          {
+            id: '2',
+            title: '10+ años en UX/UI & Product Design',
+            description: 'Especialización en productos digitales',
+            section: 'experience',
+            language: 'es',
+            order_index: 1
+          },
+          {
+            id: '3',
+            title: '15+ proyectos completados',
+            description: 'Desde startups hasta empresas',
+            section: 'experience',
+            language: 'es',
+            order_index: 2
+          },
+          {
+            id: '4',
+            title: 'Sistemas Estratégicos',
+            description: 'Escalables y consistentes',
+            section: 'experience',
+            language: 'es',
+            order_index: 3
+          },
+          {
+            id: '5',
+            title: 'Research & Strategy',
+            description: 'Insights, outcomes',
+            section: 'specialties',
+            language: 'es',
+            order_index: 1
+          },
+          {
+            id: '6',
+            title: 'Interaction Design',
+            description: 'Micro-experiences, usability',
+            section: 'specialties',
+            language: 'es',
+            order_index: 2
+          },
+          {
+            id: '7',
+            title: 'AI-Enhanced Design',
+            description: 'Optimization, agility',
+            section: 'specialties',
+            language: 'es',
+            order_index: 3
+          },
+          {
+            id: '8',
+            title: 'Foto de Perfil',
+            description: '',
+            section: 'photo',
+            language: 'es',
+            profile_image_url: ''
           }
         ],
         contactInfo: [
@@ -107,7 +206,16 @@ export default function AdminPage() {
           { id: '2', contact_type: 'linkedin', label: 'LinkedIn', value: 'Conectar', icon_name: 'linkedin', order_index: 2 },
           { id: '3', contact_type: 'location', label: 'Ubicación', value: 'Buenos Aires, Argentina', icon_name: 'location', order_index: 3 }
         ],
-        siteImages: []
+        siteImages: [],
+        colors: [
+          {
+            id: '1',
+            name: 'Gradiente Original',
+            gradient_css: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+            is_active: true,
+            is_default: true
+          }
+        ]
       })
       return
     }
@@ -139,6 +247,7 @@ export default function AdminPage() {
         .select('*')
         .eq('is_active', true)
         .order('order_index')
+      
 
       // Cargar imágenes
       const { data: imagesData } = await supabase
@@ -146,15 +255,50 @@ export default function AdminPage() {
         .select('*')
         .eq('is_active', true)
 
-      setData({
+      // Cargar colores
+      console.log('🎨 Cargando colores desde Supabase...')
+      const { data: colorsData, error: colorsError } = await supabase
+        .from('colors')
+        .select('*')
+        .eq('is_active', true)
+        .order('is_default', { ascending: false })
+        .order('name', { ascending: true })
+      
+      if (colorsError) {
+        console.error('❌ Error cargando colores:', colorsError)
+      } else {
+        console.log('✅ Colores cargados:', colorsData)
+      }
+
+      const newData = {
         typewriterTexts: typewriterData || [],
         projects: projectsData || [],
         aboutInfo: aboutData || [],
         contactInfo: contactData || [],
-        siteImages: imagesData || []
+        siteImages: imagesData || [],
+        colors: colorsData || []
+      }
+      
+      console.log('📊 Estableciendo datos en el estado:', {
+        colors: newData.colors,
+        colorsCount: newData.colors.length
       })
-    } catch (error) {
-      console.error('Error loading data:', error)
+      
+      setData(newData)
+      
+    } catch (error: any) {
+      console.error('❌ Error loading data:', error)
+      console.error('📊 Detalles del error:', {
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code
+      })
+      
+      // Si es un error de tabla no encontrada, mostrar mensaje específico
+      if (error?.message?.includes('relation "colors" does not exist')) {
+        console.warn('⚠️ La tabla colors no existe. Ejecuta el SQL de creación primero.')
+      }
     }
   }
 
@@ -167,8 +311,14 @@ export default function AdminPage() {
       projects: [],
       aboutInfo: [],
       contactInfo: [],
-      siteImages: []
+      siteImages: [],
+      colors: []
     })
+  }
+
+  const handleRefreshData = async () => {
+    console.log('🔄 Recargando datos...')
+    await loadData()
   }
 
   const handleEdit = (item: any, type: string) => {
@@ -342,7 +492,7 @@ export default function AdminPage() {
         errorMessage += 'Verifica que Supabase esté configurado correctamente.'
       }
       
-      alert(errorMessage)
+      showError('Error al guardar', errorMessage)
     } finally {
       setIsLoading(false)
       console.log('🏁 Proceso de subida finalizado')
@@ -363,26 +513,65 @@ export default function AdminPage() {
       }
 
       let result
-      if (editingItem.id) {
+      if (editingItem.id && editingItem.id !== '') {
         // Actualizar
+        console.log('🔄 Actualizando elemento con ID:', editingItem.id)
         result = await supabase
           .from(tableName)
           .update(itemData)
           .eq('id', editingItem.id)
       } else {
         // Crear nuevo
+        console.log('➕ Creando nuevo elemento')
         result = await supabase
           .from(tableName)
           .insert(itemData)
       }
 
-      if (result.error) throw result.error
+      if (result.error) {
+        console.error('❌ Error de Supabase:', result.error)
+        console.error('🔍 Datos que se intentaron guardar:', itemData)
+        console.error('🔍 Tabla:', activeTab)
+        console.error('🔍 Operación:', editingItem ? 'UPDATE' : 'INSERT')
+        console.error('🔍 ID del elemento:', editingItem?.id)
+        console.error('🔍 editingItem completo:', editingItem)
+        console.error('🔍 Condición editingItem.id:', !!editingItem.id)
+        throw result.error
+      }
 
+      console.log('✅ Elemento guardado exitosamente')
       setIsEditing(false)
       setEditingItem(null)
+      console.log('🔄 Recargando datos después del guardado...')
       await loadData()
-    } catch (error) {
-      console.error('Error saving:', error)
+      console.log('✅ Datos recargados exitosamente')
+    } catch (error: any) {
+      console.error('❌ Error saving:', error)
+      console.error('📊 Detalles del error:', {
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code,
+        status: error?.status,
+        statusText: error?.statusText
+      })
+      console.error('🔍 Configuración de Supabase:', {
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Configurado' : 'No configurado',
+        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Configurado' : 'No configurado',
+        serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Configurado' : 'No configurado'
+      })
+      
+      // Mostrar error más específico al usuario
+      let errorMessage = 'Error al guardar el elemento'
+      if (error?.message?.includes('relation "colors" does not exist')) {
+        errorMessage = 'La tabla de colores no existe. Ejecuta el SQL de creación primero.'
+      } else if (error?.message?.includes('permission denied')) {
+        errorMessage = 'Error de permisos. Verifica las políticas de RLS.'
+      } else if (error?.message) {
+        errorMessage = `Error: ${error.message}`
+      }
+      
+      showError('Error al guardar', errorMessage)
     }
   }
 
@@ -406,6 +595,49 @@ export default function AdminPage() {
       await loadData()
     } catch (error) {
       console.error('Error deleting:', error)
+    }
+  }
+
+  const handleApplyGradient = async (gradient: any) => {
+    try {
+      console.log('🎨 Aplicando gradiente:', gradient.name)
+      
+      // Primero, quitar el estado de "por defecto" de todos los gradientes
+      const { error: clearError } = await supabase
+        .from('colors')
+        .update({ is_default: false })
+        .neq('id', '00000000-0000-0000-0000-000000000000')
+
+      if (clearError) {
+        console.error('❌ Error limpiando gradientes por defecto:', clearError)
+        throw clearError
+      }
+
+      // Luego, establecer el gradiente seleccionado como por defecto
+      const { error: applyError } = await supabase
+        .from('colors')
+        .update({ is_default: true })
+        .eq('id', gradient.id)
+
+      if (applyError) {
+        console.error('❌ Error aplicando gradiente:', applyError)
+        throw applyError
+      }
+
+      console.log('✅ Gradiente aplicado exitosamente:', gradient.name)
+      
+      // Recargar datos para reflejar los cambios
+      await loadData()
+      
+      // Marcar en localStorage que se actualizó un gradiente
+      localStorage.setItem('admin-gradient-updated', Date.now().toString())
+      
+      // Mostrar mensaje de éxito
+      success('Gradiente aplicado', `¡Gradiente "${gradient.name}" aplicado exitosamente al sitio!`)
+      
+    } catch (error) {
+      console.error('❌ Error aplicando gradiente:', error)
+      showError('Error al aplicar gradiente', 'Por favor, inténtalo de nuevo.')
     }
   }
 
@@ -476,6 +708,12 @@ export default function AdminPage() {
         newItem.usage_context = ''
         newItem.is_active = true
         break
+      case 'colors':
+        newItem.name = ''
+        newItem.gradient_css = ''
+        newItem.is_active = true
+        newItem.is_default = false
+        break
     }
 
     setEditingItem(newItem)
@@ -485,9 +723,8 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div 
-        className="min-h-screen flex items-center justify-center p-4"
+        className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900"
         style={{ 
-          background: designTokens.colors.background.gray[50],
           fontFamily: designTokens.typography.fontFamily.sans 
         }}
       >
@@ -500,7 +737,7 @@ export default function AdminPage() {
                 stroke="currentColor" 
                 viewBox="0 0 24 24" 
                 strokeWidth={2}
-                style={{ color: designTokens.colors.primary.blue }}
+                style={{ color: designTokens.colors.text.secondary }}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
@@ -602,18 +839,15 @@ export default function AdminPage() {
 
   return (
     <div 
-      className="min-h-screen"
+      className="min-h-screen bg-gray-50 dark:bg-gray-900"
       style={{ 
-        background: designTokens.colors.background.gray[50],
         fontFamily: designTokens.typography.fontFamily.sans 
       }}
     >
       {/* Header */}
       <div 
-        className="shadow-sm border-b"
+        className="shadow-sm border-b bg-white dark:bg-black border-gray-200 dark:border-gray-800"
         style={{ 
-          background: designTokens.colors.background.light,
-          borderColor: designTokens.colors.background.gray[200],
           boxShadow: designTokens.boxShadow.sm
         }}
       >
@@ -626,15 +860,14 @@ export default function AdminPage() {
                 stroke="currentColor" 
                 viewBox="0 0 24 24" 
                 strokeWidth={2}
-                style={{ color: designTokens.colors.primary.blue }}
+                style={{ color: designTokens.colors.text.secondary }}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               <div>
                 <h1 
-                  className="text-2xl font-bold"
+                  className="text-2xl font-bold text-gray-900 dark:text-white"
                   style={{ 
-                    color: designTokens.colors.text.primary,
                     fontSize: designTokens.typography.fontSize['2xl'],
                     fontWeight: designTokens.typography.fontWeight.bold
                   }}
@@ -642,9 +875,8 @@ export default function AdminPage() {
                 Panel de Administración
               </h1>
                 <p 
-                  className="text-sm"
+                  className="text-sm text-gray-600 dark:text-gray-400"
                   style={{ 
-                    color: designTokens.colors.text.secondary,
                     fontSize: designTokens.typography.fontSize.sm
                   }}
                 >
@@ -655,7 +887,39 @@ export default function AdminPage() {
             <div className="flex items-center space-x-2">
               <NeoButton
                 variant="ghost"
-                onClick={() => router.push('/')}
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="flex items-center space-x-2"
+              >
+                {theme === 'dark' ? (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+                <span>{theme === 'dark' ? 'Claro' : 'Oscuro'}</span>
+              </NeoButton>
+              <NeoButton
+                variant="ghost"
+                onClick={() => {
+                  // Abrir página de prueba de gradientes en nueva pestaña
+                  window.open('/test-gradients', '_blank')
+                }}
+                className="flex items-center space-x-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                </svg>
+                <span>Probar Gradientes</span>
+              </NeoButton>
+              <NeoButton
+                variant="ghost"
+                onClick={() => {
+                  // Abrir en nueva pestaña para que se recargue automáticamente
+                  window.open('/', '_blank')
+                }}
                 className="flex items-center space-x-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -722,10 +986,8 @@ export default function AdminPage() {
       <div className="flex">
           {/* Sidebar */}
         <div 
-          className="w-64 shadow-sm border-r min-h-screen"
+          className="w-64 shadow-sm border-r min-h-screen bg-white dark:bg-black border-gray-200 dark:border-gray-800"
           style={{ 
-            background: designTokens.colors.background.light,
-            borderColor: designTokens.colors.background.gray[200],
             boxShadow: designTokens.boxShadow.sm
           }}
         >
@@ -767,6 +1029,15 @@ export default function AdminPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   )
+                },
+                { 
+                  key: 'colors', 
+                  label: 'Colores', 
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                    </svg>
+                  )
                 }
               ].map(tab => (
                   <button
@@ -775,11 +1046,11 @@ export default function AdminPage() {
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors"
                   style={{
                     background: activeTab === tab.key 
-                      ? designTokens.colors.primary.blue + '20' 
+                      ? 'rgba(255, 255, 255, 0.1)' 
                       : 'transparent',
                     color: activeTab === tab.key 
-                      ? designTokens.colors.primary.blue 
-                      : designTokens.colors.text.primary,
+                      ? 'transparent' 
+                      : designTokens.colors.text.secondary,
                     borderRadius: designTokens.borderRadius.lg,
                     fontSize: designTokens.typography.fontSize.sm,
                     fontWeight: designTokens.typography.fontWeight.medium,
@@ -787,7 +1058,7 @@ export default function AdminPage() {
                   }}
                   onMouseEnter={(e) => {
                     if (activeTab !== tab.key) {
-                      e.currentTarget.style.background = designTokens.colors.background.gray[100]
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -796,10 +1067,10 @@ export default function AdminPage() {
                     }
                   }}
                 >
-                  <span style={{ color: activeTab === tab.key ? designTokens.colors.primary.blue : designTokens.colors.text.secondary }}>
+                  <span style={{ color: activeTab === tab.key ? 'transparent' : designTokens.colors.text.secondary, backgroundImage: activeTab === tab.key ? designTokens.colors.primary.gradient : 'none', WebkitBackgroundClip: activeTab === tab.key ? 'text' : 'initial', backgroundClip: activeTab === tab.key ? 'text' : 'initial' }}>
                     {tab.icon}
                   </span>
-                  <span>{tab.label}</span>
+                  <span style={{ color: activeTab === tab.key ? 'transparent' : designTokens.colors.text.secondary, backgroundImage: activeTab === tab.key ? designTokens.colors.primary.gradient : 'none', WebkitBackgroundClip: activeTab === tab.key ? 'text' : 'initial', backgroundClip: activeTab === tab.key ? 'text' : 'initial' }}>{tab.label}</span>
                   </button>
                 ))}
             </div>
@@ -807,7 +1078,7 @@ export default function AdminPage() {
         </div>
 
           {/* Main Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 bg-gray-50 dark:bg-black">
           {activeTab === 'typewriter' && (
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -895,7 +1166,7 @@ export default function AdminPage() {
                             size="sm"
                             onClick={() => handleEdit(item, 'typewriter_texts')}
                             className="mr-3"
-                            style={{ color: designTokens.colors.primary.blue }}
+                            style={{ color: designTokens.colors.text.secondary }}
                           >
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1053,7 +1324,7 @@ export default function AdminPage() {
                             size="sm"
                             onClick={() => handleEdit(item, 'projects')}
                             className="mr-3"
-                            style={{ color: designTokens.colors.primary.blue }}
+                            style={{ color: designTokens.colors.text.secondary }}
                           >
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1102,7 +1373,7 @@ export default function AdminPage() {
                   
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1118,11 +1389,11 @@ export default function AdminPage() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
                       {data.aboutInfo.filter(item => item.section === 'main').map((item) => (
                         <tr key={item.id}>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}`}>
                               {item.language === 'es' ? 'ES' : 'EN'}
                             </span>
                           </td>
@@ -1177,7 +1448,7 @@ export default function AdminPage() {
                 
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1196,11 +1467,11 @@ export default function AdminPage() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
                       {data.aboutInfo.filter(item => item.section === 'experience').sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((item) => (
                         <tr key={item.id}>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}`}>
                               {item.language === 'es' ? 'ES' : 'EN'}
                             </span>
                           </td>
@@ -1258,7 +1529,7 @@ export default function AdminPage() {
                 
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1277,11 +1548,11 @@ export default function AdminPage() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
                       {data.aboutInfo.filter(item => item.section === 'specialties').sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((item) => (
                         <tr key={item.id}>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}`}>
                               {item.language === 'es' ? 'ES' : 'EN'}
                             </span>
                           </td>
@@ -1339,7 +1610,7 @@ export default function AdminPage() {
                   
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1355,11 +1626,11 @@ export default function AdminPage() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-white dark:bg-black divide-y divide-gray-200 dark:divide-gray-800">
                       {data.aboutInfo.filter(item => item.section === 'photo').map((item) => (
                         <tr key={item.id}>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}`}>
                               {item.language === 'es' ? 'ES' : 'EN'}
                             </span>
                           </td>
@@ -1414,25 +1685,40 @@ export default function AdminPage() {
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Información de Contacto
                     </h2>
-                <button
-                  onClick={() => handleAddNew('contact_info')}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  Agregar Contacto
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleRefreshData}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    Recargar
+                  </button>
+                  <button
+                    onClick={() => handleAddNew('contact_info')}
+                    className="px-4 py-2 text-white rounded-lg transition-colors"
+                    style={{ background: designTokens.colors.primary.gradient }}
+                  >
+                    Agregar Contacto
+                  </button>
+                </div>
                   </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+              <div className="bg-white dark:bg-black rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Tipo
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Idioma
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Etiqueta
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Valor
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        URL
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Acciones
@@ -1446,15 +1732,32 @@ export default function AdminPage() {
                           {item.contact_type}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.language || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                           {item.label}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                           {item.value}
                         </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.url ? (
+                            <a 
+                              href={item.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
+                            >
+                              {item.url}
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
                             onClick={() => handleEdit(item, 'contact_info')}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 mr-3"
                           >
                               Editar
                           </button>
@@ -1481,14 +1784,15 @@ export default function AdminPage() {
                   </h2>
                 <button
                   onClick={() => handleAddNew('site_images')}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="px-4 py-2 text-white rounded-lg transition-colors"
+                  style={{ background: designTokens.colors.primary.gradient }}
                 >
                   Agregar Imagen
                 </button>
                             </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+              <div className="bg-white dark:bg-black rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Nombre
@@ -1519,7 +1823,7 @@ export default function AdminPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
                             onClick={() => handleEdit(item, 'site_images')}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 mr-3"
                           >
                             Editar
                           </button>
@@ -1537,6 +1841,248 @@ export default function AdminPage() {
                   </div>
                 </div>
               )}
+
+          {activeTab === 'colors' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Gestión de Colores
+                </h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleRefreshData}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    Recargar
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (confirm('¿Estás seguro de que quieres restaurar el gradiente original? Esto cambiará el gradiente por defecto.')) {
+                        try {
+                          // Buscar el gradiente original
+                          const originalGradient = data.colors.find(c => c.name === 'Gradiente Original')
+                          if (originalGradient) {
+                            // Actualizar todos los gradientes para que no sean por defecto
+                            await supabase
+                              .from('colors')
+                              .update({ is_default: false })
+                              .neq('id', '00000000-0000-0000-0000-000000000000')
+                            
+                            // Establecer el gradiente original como por defecto
+                            await supabase
+                              .from('colors')
+                              .update({ is_default: true })
+                              .eq('id', originalGradient.id)
+                            
+                            await loadData()
+                            
+                            // Marcar en localStorage que se actualizó un gradiente
+                            localStorage.setItem('admin-gradient-updated', Date.now().toString())
+                            
+                            success('Gradiente restaurado', 'Gradiente original restaurado exitosamente')
+                          } else {
+                            warning('Gradiente no encontrado', 'No se encontró el gradiente original')
+                          }
+                        } catch (error) {
+                          console.error('Error restaurando gradiente:', error)
+                          showError('Error al restaurar', 'Error al restaurar el gradiente original')
+                        }
+                      }
+                    }}
+                    className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors dark:bg-gray-700 dark:hover:bg-gray-600"
+                  >
+                    Restaurar Original
+                  </button>
+                  <button
+                    onClick={() => handleAddNew('colors')}
+                    className="px-4 py-2 text-white rounded-lg transition-colors"
+                    style={{ background: designTokens.colors.primary.gradient }}
+                  >
+                    Agregar Gradiente
+                  </button>
+                </div>
+              </div>
+              
+              {/* Vista previa del gradiente actual */}
+              <div className="mb-6 p-4 bg-white dark:bg-black rounded-lg shadow">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
+                  Vista Previa del Gradiente Actual
+                </h3>
+                <div 
+                  className="w-full h-20 rounded-lg flex items-center justify-center font-medium relative overflow-hidden"
+                  style={{ 
+                    background: (() => {
+                      const gradient = data.colors.find(c => c.is_default)?.gradient_css || 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'
+                      return gradient
+                        .replace(/background:\s*/g, '') // Remover "background:" duplicado
+                        .replace(/;+$/, '') // Remover punto y coma al final
+                        .trim()
+                    })()
+                  }}
+                >
+                  {/* Texto con contraste automático */}
+                  <span 
+                    className="drop-shadow-lg"
+                    style={{
+                      ...getTextColorForGradient(data.colors.find(c => c.is_default)?.gradient_css || 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'),
+                      fontWeight: '600',
+                      fontSize: '16px',
+                      textAlign: 'center',
+                      padding: '0 12px'
+                  }}
+                >
+                  {data.colors.find(c => c.is_default)?.name || 'Gradiente Original'}
+                  </span>
+                  
+                  {/* Overlay semi-transparente para mejorar legibilidad */}
+                  <div 
+                    className="absolute inset-0 rounded-lg"
+                    style={{
+                      background: 'linear-gradient(45deg, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0.1) 100%)',
+                      pointerEvents: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-black rounded-lg shadow overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Nombre
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Vista Previa
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        CSS
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Estado
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {data.colors.map((item) => {
+                      console.log('🎨 [TABLA] Renderizando color:', item.name, 'CSS:', item.gradient_css)
+                      return (
+                      <tr key={item.id}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                          {item.name}
+                          {item.is_default && (
+                            <span className="ml-2 px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full dark:bg-gray-700 dark:text-gray-200">
+                              Por defecto
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div 
+                            className="w-16 h-8 rounded border"
+                            style={{ 
+                              background: (() => {
+                                console.log('🎨 [TABLA] CSS original:', item.gradient_css)
+                                
+                                if (!item.gradient_css || item.gradient_css.trim() === '') {
+                                  console.log('🎨 [TABLA] CSS vacío, usando fallback')
+                                  return 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)'
+                                }
+                                
+                                let processedGradient = item.gradient_css
+                                
+                                // Si contiene múltiples declaraciones background, buscar la mejor
+                                if (processedGradient.includes(';')) {
+                                  const declarations = processedGradient.split(';').map(d => d.trim()).filter(d => d)
+                                  console.log('🎨 [TABLA] Declaraciones encontradas:', declarations)
+                                  
+                                  // Priorizar linear-gradient sobre -webkit-linear-gradient
+                                  const standardGradient = declarations.find(d => d.includes('linear-gradient') && !d.includes('-webkit-'))
+                                  const webkitGradient = declarations.find(d => d.includes('-webkit-linear-gradient'))
+                                  
+                                  console.log('🎨 [TABLA] Gradiente estándar:', standardGradient)
+                                  console.log('🎨 [TABLA] Gradiente webkit:', webkitGradient)
+                                  
+                                  if (standardGradient) {
+                                    processedGradient = standardGradient
+                                    console.log('🎨 [TABLA] Usando gradiente estándar')
+                                  } else if (webkitGradient) {
+                                    // Convertir -webkit-linear-gradient a linear-gradient
+                                    processedGradient = webkitGradient.replace('-webkit-linear-gradient', 'linear-gradient')
+                                    console.log('🎨 [TABLA] Convirtiendo webkit a estándar')
+                                  } else {
+                                    processedGradient = declarations[0]
+                                    console.log('🎨 [TABLA] Usando primera declaración')
+                                  }
+                                }
+                                
+                                // Remover "background:" si está presente
+                                processedGradient = processedGradient.replace(/background:\s*/g, '')
+                                
+                                // Limpiar espacios y caracteres extra
+                                processedGradient = processedGradient.trim()
+                                
+                                console.log('🎨 [TABLA] Gradiente procesado:', processedGradient)
+                                
+                                // Si no es un gradiente válido, usar fallback
+                                if (!processedGradient.includes('gradient')) {
+                                  console.log('🎨 [TABLA] No es gradiente válido, usando fallback')
+                                  return 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)'
+                                }
+                                
+                                console.log('🎨 [TABLA] ¿Es válido?', true)
+                                return processedGradient
+                              })()
+                            }}
+                          ></div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                          {item.gradient_css}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                          {item.is_active ? (
+                            <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                              Activo
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
+                              Inactivo
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(item, 'colors')}
+                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 mr-3"
+                          >
+                            Editar
+                          </button>
+                          {!item.is_default && (
+                            <button
+                              onClick={() => handleDelete(item.id, 'colors')}
+                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-3"
+                            >
+                              Eliminar
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleApplyGradient(item)}
+                            className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                            disabled={item.is_default}
+                          >
+                            {item.is_default ? 'Aplicado' : 'Aplicar'}
+                          </button>
+                        </td>
+                      </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1550,18 +2096,16 @@ export default function AdminPage() {
           }}
         >
           <div 
-            className="w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 rounded-2xl shadow-2xl"
+            className="w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 rounded-2xl shadow-2xl bg-white dark:bg-black"
             style={{ 
-              background: designTokens.colors.background.light,
               borderRadius: designTokens.borderRadius['2xl'],
               boxShadow: designTokens.boxShadow['2xl']
             }}
           >
             <div className="flex items-center justify-between mb-6">
               <h3 
-                className="text-lg font-semibold"
+                className="text-lg font-semibold text-gray-900 dark:text-white"
                 style={{ 
-                  color: designTokens.colors.text.primary,
                   fontSize: designTokens.typography.fontSize.lg,
                   fontWeight: designTokens.typography.fontWeight.semibold
                 }}
@@ -2048,7 +2592,7 @@ export default function AdminPage() {
                       type="text"
                       value={editingItem.title || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white"
                       placeholder="Título de la sección"
                     />
                   </div>
@@ -2128,6 +2672,26 @@ export default function AdminPage() {
                       placeholder="Valor del contacto"
                     />
                   </div>
+                  {editingItem.contact_type === 'linkedin' && (
+                    <div>
+                      <label 
+                        className="block text-sm font-medium mb-2"
+                        style={{ 
+                          color: designTokens.colors.text.primary,
+                          fontSize: designTokens.typography.fontSize.sm,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
+                        URL de LinkedIn
+                      </label>
+                      <NeoInput
+                        type="url"
+                        value={editingItem.url || ''}
+                        onChange={(e) => setEditingItem({ ...editingItem, url: e.target.value })}
+                        placeholder="https://linkedin.com/in/tu-perfil"
+                      />
+                    </div>
+                  )}
                   <div>
                     <label 
                       className="block text-sm font-medium mb-2"
@@ -2159,7 +2723,7 @@ export default function AdminPage() {
                       type="text"
                       value={editingItem.image_name || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, image_name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white"
                       placeholder="Nombre descriptivo"
                     />
                   </div>
@@ -2170,7 +2734,7 @@ export default function AdminPage() {
                     <select
                       value={editingItem.section || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, section: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white"
                     >
                       <option value="">Seleccionar sección</option>
                       <option value="hero">Hero</option>
@@ -2187,7 +2751,7 @@ export default function AdminPage() {
                       type="url"
                       value={editingItem.image_url || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, image_url: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white"
                       placeholder="https://ejemplo.com/imagen.jpg"
                         />
                       </div>
@@ -2199,9 +2763,178 @@ export default function AdminPage() {
                       type="text"
                       value={editingItem.usage_context || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, usage_context: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white"
                       placeholder="Ej: portada, perfil, proyecto1"
                     />
+                  </div>
+                </>
+              )}
+
+              {editingItem.type === 'colors' && (
+                <>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Nombre del Gradiente
+                    </label>
+                    <NeoInput
+                      type="text"
+                      value={editingItem.name || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                      placeholder="Ej: Gradiente Azul-Verde"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      CSS del Gradiente
+                    </label>
+                    <NeoTextarea
+                      value={editingItem.gradient_css || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, gradient_css: e.target.value })}
+                      placeholder="linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)"
+                      rows={3}
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Ejemplo: linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)
+                    </p>
+                  </div>
+
+                  {/* Vista previa del gradiente */}
+                  <div>
+                    <div>
+                      <label 
+                        className="block text-sm font-medium mb-2"
+                        style={{ 
+                          color: designTokens.colors.text.primary,
+                          fontSize: designTokens.typography.fontSize.sm,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
+                        Vista Previa
+                      </label>
+                      <div 
+                        className="w-full h-16 rounded-lg border-2 border-gray-200 dark:border-gray-600 flex items-center justify-center font-medium relative overflow-hidden"
+                        style={{ 
+                          background: (() => {
+                            if (!editingItem.gradient_css || editingItem.gradient_css.trim() === '') {
+                              return 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)'
+                            }
+                            
+                            let processedGradient = editingItem.gradient_css
+                            console.log('🎨 CSS original:', processedGradient)
+                            
+                            // Si contiene múltiples declaraciones background, buscar la mejor
+                            if (processedGradient.includes(';')) {
+                              const declarations = processedGradient.split(';').map(d => d.trim()).filter(d => d)
+                              console.log('🎨 Declaraciones encontradas:', declarations)
+                              
+                              // Priorizar linear-gradient sobre -webkit-linear-gradient
+                              const standardGradient = declarations.find(d => d.includes('linear-gradient') && !d.includes('-webkit-'))
+                              const webkitGradient = declarations.find(d => d.includes('-webkit-linear-gradient'))
+                              
+                              console.log('🎨 Gradiente estándar:', standardGradient)
+                              console.log('🎨 Gradiente webkit:', webkitGradient)
+                              
+                              if (standardGradient) {
+                                processedGradient = standardGradient
+                                console.log('🎨 Usando gradiente estándar')
+                              } else if (webkitGradient) {
+                                // Convertir -webkit-linear-gradient a linear-gradient
+                                processedGradient = webkitGradient.replace('-webkit-linear-gradient', 'linear-gradient')
+                                console.log('🎨 Convirtiendo webkit a estándar')
+                              } else {
+                                processedGradient = declarations[0]
+                                console.log('🎨 Usando primera declaración')
+                              }
+                            }
+                            
+                            // Remover "background:" si está presente
+                            processedGradient = processedGradient.replace(/background:\s*/g, '')
+                            
+                            // Limpiar espacios y caracteres extra
+                            processedGradient = processedGradient.trim()
+                            
+                            console.log('🎨 Gradiente procesado:', processedGradient)
+                            
+                            // Si no es un gradiente válido, usar fallback
+                            if (!processedGradient.includes('gradient')) {
+                              console.log('🎨 No es gradiente válido, usando fallback')
+                              return 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)'
+                            }
+                            
+                            console.log('🎨 ¿Es válido?', true)
+                            return processedGradient
+                          })()
+                        }}
+                      >
+                        {/* Texto con contraste automático */}
+                        <span 
+                          className="drop-shadow-lg"
+                          style={{
+                            ...getTextColorForGradient(editingItem.gradient_css),
+                            fontWeight: '600',
+                            fontSize: '14px',
+                            textAlign: 'center',
+                            padding: '0 8px'
+                        }}
+                      >
+                        {editingItem.name || 'Vista previa del gradiente'}
+                        </span>
+                        
+                        {/* Overlay semi-transparente para mejorar legibilidad */}
+                        <div 
+                          className="absolute inset-0 rounded-lg"
+                          style={{
+                            background: 'linear-gradient(45deg, rgba(0,0,0,0.1) 0%, rgba(255,255,255,0.1) 100%)',
+                            pointerEvents: 'none'
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Mensaje cuando no hay gradiente */}
+                      {(!editingItem.gradient_css || editingItem.gradient_css.trim() === '') && (
+                        <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                            ⚠️ Escribe un CSS de gradiente válido arriba para ver la vista previa
+                          </p>
+                    </div>
+                  )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={editingItem.is_default || false}
+                        onChange={(e) => setEditingItem({ ...editingItem, is_default: e.target.checked })}
+                        className="mr-2"
+                      />
+                      <span 
+                        className="text-sm"
+                        style={{ 
+                          color: designTokens.colors.text.primary,
+                          fontSize: designTokens.typography.fontSize.sm,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
+                        Establecer como gradiente por defecto
+                      </span>
+                    </label>
                   </div>
                 </>
               )}

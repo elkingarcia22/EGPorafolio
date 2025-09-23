@@ -2,12 +2,13 @@
 
 import { useLanguage } from '@/contexts/language-context'
 import { useAdmin } from '@/contexts/admin-context'
-import { designTokens } from '@/lib/design-tokens'
+import { useDesignTokens } from '@/hooks/useDesignTokens'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
 export default function AcercaDeMi3Page() {
   const { t } = useLanguage()
+  const designTokens = useDesignTokens()
   const { content } = useAdmin()
 
   return (
@@ -43,7 +44,7 @@ export default function AcercaDeMi3Page() {
             </div>
             
             {/* Overlay con gradiente al hover */}
-            <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)', opacity: 0.2}}></div>
+            <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.2}}></div>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </motion.div>
 

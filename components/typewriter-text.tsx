@@ -42,6 +42,11 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
   useEffect(() => {
     const currentWord = displayWords[currentWordIndex]
     
+    // Verificar que currentWord existe antes de continuar
+    if (!currentWord) {
+      return
+    }
+    
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         // Typing

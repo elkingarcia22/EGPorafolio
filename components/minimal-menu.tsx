@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { useLanguage } from '@/contexts/language-context'
-import { designTokens } from '@/lib/design-tokens'
+import { useDesignTokens } from '@/hooks/useDesignTokens'
+import { Tooltip } from './ui/tooltip'
 
 interface MinimalMenuProps {
   onAdminClick: () => void
@@ -11,6 +12,7 @@ interface MinimalMenuProps {
 
 export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
   const { t, language } = useLanguage()
+  const designTokens = useDesignTokens()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [showCloseButton, setShowCloseButton] = useState(false)
@@ -54,26 +56,13 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
     }
   }
 
-  // Función para manejar hover
+  // Función para manejar hover - solo para efectos visuales, no para abrir menú
   const handleMouseEnter = () => {
     setIsHovered(true)
-    setIsMenuOpen(true)
-    
-    // Iniciar timer para mostrar botón X después de 3 segundos
-    closeButtonTimerRef.current = setTimeout(() => {
-      setShowCloseButton(true)
-    }, 3000)
   }
 
   const handleMouseLeave = () => {
     setIsHovered(false)
-    // Solo cerrar si no está abierto por click
-    if (!isMenuOpen) {
-      setShowCloseButton(false)
-      if (closeButtonTimerRef.current) {
-        clearTimeout(closeButtonTimerRef.current)
-      }
-    }
   }
 
   // Efecto para cerrar el menú cuando se hace clic fuera
@@ -110,10 +99,11 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
       onMouseLeave={handleMouseLeave}
     >
       {/* Botón de menú - clickeable para abrir/cerrar, se convierte en X después de 3 segundos */}
-      <button 
-        onClick={toggleMenu}
-        className="flex items-center justify-center w-8 h-8 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200 z-50"
-      >
+      <Tooltip content={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}>
+        <button 
+          onClick={toggleMenu}
+          className="flex items-center justify-center w-8 h-8 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 z-50 group relative"
+        >
         {showCloseButton ? (
           // Botón X después de 3 segundos
           <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -133,7 +123,8 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
             }`}></div>
           </div>
         )}
-      </button>
+        </button>
+      </Tooltip>
 
       {/* Menú expandible horizontal - se activa con hover o click */}
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${

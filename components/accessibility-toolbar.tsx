@@ -16,6 +16,7 @@ import {
 import { useAccessibility } from '@/hooks/useAccessibility'
 import { useLanguage } from '@/contexts/language-context'
 import { designTokens } from '@/lib/design-tokens'
+import { Tooltip } from './ui/tooltip'
 
 export const AccessibilityToolbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -30,19 +31,20 @@ export const AccessibilityToolbar: React.FC = () => {
   return (
     <div className="relative">
       {/* Botón principal de accesibilidad */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200"
-        title={t('accessibility.tools')}
-      >
-        <motion.div
-          className="flex items-center justify-center"
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
+      <Tooltip content="Herramientas de accesibilidad">
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group relative"
         >
-          <Accessibility className="h-6 w-6" />
-        </motion.div>
-      </button>
+          <motion.div
+            className="flex items-center justify-center"
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Accessibility className="h-6 w-6" />
+          </motion.div>
+        </button>
+      </Tooltip>
 
       {/* Panel de herramientas */}
       <AnimatePresence>

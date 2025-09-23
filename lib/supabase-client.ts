@@ -4,7 +4,27 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// En desarrollo, usar service role key para evitar problemas de RLS
+const isDevelopment = process.env.NODE_ENV === 'development'
+const supabaseKey = isDevelopment && process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY 
+  ? process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY 
+  : supabaseAnonKey
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: isDevelopment ? {
+    autoRefreshToken: false,
+    persistSession: false
+  } : undefined
+})
+
+// Log para debugging
+if (isDevelopment) {
+  console.log('🔑 Supabase configurado con:', {
+    url: supabaseUrl,
+    keyType: supabaseKey === supabaseAnonKey ? 'ANON_KEY' : 'SERVICE_ROLE_KEY',
+    isDevelopment
+  })
+}
 
 // Verificar si Supabase está configurado
 export const isSupabaseConfigured = () => {

@@ -5,13 +5,37 @@ import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import { useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
-import { designTokens } from '@/lib/design-tokens'
+import { useDesignTokens } from '@/hooks/useDesignTokens'
 
 export const NeuromorphicEG = () => {
   const { theme } = useTheme()
   const { content } = useAdmin()
   const { t } = useLanguage()
+  const designTokens = useDesignTokens()
   const [mounted, setMounted] = useState(false)
+
+  // Función para procesar el gradiente para efectos de texto
+  const getTextGradient = () => {
+    const gradient = designTokens.colors.primary.gradient
+    
+    // Si el gradiente tiene múltiples declaraciones, extraer solo la linear-gradient
+    if (gradient.includes(';')) {
+      const parts = gradient.split(';')
+      const linearGradient = parts.find(part => part.includes('linear-gradient'))
+      if (linearGradient) {
+        return linearGradient.trim()
+      }
+    }
+    
+    // Si no tiene múltiples declaraciones, usar tal como está
+    return gradient
+  }
+
+  // Función para generar overlay dinámico basado en el gradiente actual
+  const getDynamicOverlay = () => {
+    // Gradación de gris: más oscuro abajo, más claro arriba
+    return 'linear-gradient(to top, rgba(0,0,0,0.99) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.6) 100%)'
+  }
 
   // Debug logs
   console.log('🔍 NeuromorphicEG - content:', content)
@@ -52,7 +76,7 @@ export const NeuromorphicEG = () => {
               fontSize: 'clamp(25rem, 60vw, 50rem)',
               lineHeight: '0.8',
               fontFamily: 'system-ui, -apple-system, sans-serif',
-              background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+              backgroundImage: getTextGradient(),
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -76,7 +100,7 @@ export const NeuromorphicEG = () => {
               fontSize: 'clamp(25rem, 60vw, 50rem)',
               lineHeight: '0.8',
               fontFamily: 'system-ui, -apple-system, sans-serif',
-              background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+              backgroundImage: getTextGradient(),
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -115,7 +139,7 @@ export const NeuromorphicEG = () => {
               style={{
                 left: 'calc(22% - 13px)', 
                 top: '-95px', 
-                background: designTokens.colors.primary.gradient,
+                background: getTextGradient(),
                 zIndex: 10
               }}
               onLoad={() => console.log('Línea ELKIN GARCIA cargada - top: -95px (subida otro poquito), left: calc(22% - 13px)')}
@@ -148,9 +172,8 @@ export const NeuromorphicEG = () => {
         <div id="proyectos" className="mt-16 sm:mt-24 md:mt-32 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8">
           {/* Proyecto 1 - UX Research */}
           <div className="group cursor-pointer relative overflow-hidden">
-            {/* Imagen de portada - SIN gradaciones para probar */}
+            {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {/* Mostrar imagen real si existe */}
               {content.projects && content.projects[0]?.cover_image_url ? (
                 <img 
                   src={content.projects[0].cover_image_url} 
@@ -161,13 +184,14 @@ export const NeuromorphicEG = () => {
                 <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
               )}
             </div>
-            {/* Gradaciones más oscuras para máxima legibilidad */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/85 to-black/50"></div>
-            <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(22,162,255,0.1) 50%, rgba(53,208,127,0.2) 100%)'}}></div>
+            {/* Overlay oscuro para contraste */}
+            <div className="absolute inset-0" style={{background: getDynamicOverlay()}}></div>
+            {/* Gradación encima del overlay oscuro */}
+            <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
+            {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[0]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-md">{content.projectDescriptions[0]}</p>
-              <div className="w-12 sm:w-16 h-1 bg-white/60 group-hover:w-16 sm:group-hover:w-24 transition-all duration-500"></div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[0]}</h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[0]}</p>
             </div>
           </div>
           
@@ -175,7 +199,6 @@ export const NeuromorphicEG = () => {
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {/* Mostrar imagen real si existe */}
               {content.projects && content.projects[1]?.cover_image_url ? (
                 <img 
                   src={content.projects[1].cover_image_url} 
@@ -186,13 +209,14 @@ export const NeuromorphicEG = () => {
                 <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
               )}
             </div>
-            {/* Gradaciones más oscuras para máxima legibilidad */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/85 to-black/50"></div>
-            <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(22,162,255,0.1) 50%, rgba(53,208,127,0.2) 100%)'}}></div>
+            {/* Overlay oscuro para contraste */}
+            <div className="absolute inset-0" style={{background: getDynamicOverlay()}}></div>
+            {/* Gradación encima del overlay oscuro */}
+            <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
+            {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[1]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-md">{content.projectDescriptions[1]}</p>
-              <div className="w-12 sm:w-16 h-1 bg-white/60 group-hover:w-16 sm:group-hover:w-24 transition-all duration-500"></div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[1]}</h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[1]}</p>
             </div>
           </div>
           
@@ -200,7 +224,6 @@ export const NeuromorphicEG = () => {
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {/* Mostrar imagen real si existe */}
               {content.projects && content.projects[2]?.cover_image_url ? (
                 <img 
                   src={content.projects[2].cover_image_url} 
@@ -211,13 +234,14 @@ export const NeuromorphicEG = () => {
                 <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
               )}
             </div>
-            {/* Gradaciones más oscuras para máxima legibilidad */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/85 to-black/50"></div>
-            <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(22,162,255,0.1) 50%, rgba(53,208,127,0.2) 100%)'}}></div>
+            {/* Overlay oscuro para contraste */}
+            <div className="absolute inset-0" style={{background: getDynamicOverlay()}}></div>
+            {/* Gradación encima del overlay oscuro */}
+            <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
+            {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[2]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-md">{content.projectDescriptions[2]}</p>
-              <div className="w-12 sm:w-16 h-1 bg-white/60 group-hover:w-16 sm:group-hover:w-24 transition-all duration-500"></div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[2]}</h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[2]}</p>
             </div>
           </div>
           
@@ -225,7 +249,6 @@ export const NeuromorphicEG = () => {
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {/* Mostrar imagen real si existe */}
               {content.projects && content.projects[3]?.cover_image_url ? (
                 <img 
                   src={content.projects[3].cover_image_url} 
@@ -236,13 +259,14 @@ export const NeuromorphicEG = () => {
                 <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
               )}
             </div>
-            {/* Gradaciones más oscuras para máxima legibilidad */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/85 to-black/50"></div>
-            <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(22,162,255,0.1) 50%, rgba(53,208,127,0.2) 100%)'}}></div>
+            {/* Overlay oscuro para contraste */}
+            <div className="absolute inset-0" style={{background: getDynamicOverlay()}}></div>
+            {/* Gradación encima del overlay oscuro */}
+            <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
+            {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 group-hover:scale-105 transition-transform duration-500">{content.projectTitles[3]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-md">{content.projectDescriptions[3]}</p>
-              <div className="w-12 sm:w-16 h-1 bg-white/60 group-hover:w-16 sm:group-hover:w-24 transition-all duration-500"></div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[3]}</h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[3]}</p>
             </div>
           </div>
         </div>

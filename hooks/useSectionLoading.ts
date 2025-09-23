@@ -24,15 +24,15 @@ export const useSectionLoading = () => {
     const timeouts = {
       home: setTimeout(() => {
         setLoading(prev => ({ ...prev, home: false }))
-      }, 800), // Home carga más rápido
+      }, 500), // Home carga rápido
       
       about: setTimeout(() => {
         setLoading(prev => ({ ...prev, about: false }))
-      }, 1200), // About tarda un poco más
+      }, 800), // About tarda un poco más
       
       contact: setTimeout(() => {
         setLoading(prev => ({ ...prev, contact: false }))
-      }, 1000) // Contact carga rápido
+      }, 600) // Contact carga rápido
     }
 
     return () => {

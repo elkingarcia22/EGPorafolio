@@ -4,6 +4,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
+import { useDesignTokens } from '@/hooks/useDesignTokens'
 
 interface NeoButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
@@ -25,6 +26,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
   disabled,
   ...props
 }) => {
+  const designTokens = useDesignTokens()
   // Separar props de motion de props de HTML
   const { 
     onAnimationStart, 
@@ -45,7 +47,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
   const baseClasses = 'relative overflow-hidden font-normal transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-lg'
   
   const variantClasses = {
-    primary: 'bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300',
+    primary: 'text-white',
     secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
     outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
     ghost: 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
@@ -69,6 +71,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
         (disabled || loading) && 'opacity-50 cursor-not-allowed',
         className
       )}
+      style={variant === 'primary' ? { background: designTokens.colors.primary.gradient } : undefined}
       disabled={disabled || loading}
       {...htmlProps}
     >

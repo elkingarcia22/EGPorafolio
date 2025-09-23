@@ -3,12 +3,59 @@
  * Define todos los valores de diseño reutilizables del portafolio
  */
 
-export const designTokens = {
+// Función para procesar el CSS del gradiente
+const processGradient = (gradientCss?: string) => {
+  if (!gradientCss || gradientCss.trim() === '') {
+    return 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'
+  }
+  
+  let processedGradient = gradientCss
+  
+  // Remover "background:" duplicado al inicio
+  processedGradient = processedGradient.replace(/^background:\s*/, '')
+  
+  // Si contiene múltiples declaraciones background, buscar la mejor
+  if (processedGradient.includes(';')) {
+    const declarations = processedGradient.split(';').map(d => d.trim()).filter(d => d)
+    
+    // Priorizar linear-gradient sobre -webkit-linear-gradient
+    const standardGradient = declarations.find(d => d.includes('linear-gradient') && !d.includes('-webkit-'))
+    const webkitGradient = declarations.find(d => d.includes('-webkit-linear-gradient'))
+    const radialGradient = declarations.find(d => d.includes('radial-gradient'))
+    
+    if (standardGradient) {
+      processedGradient = standardGradient
+    } else if (webkitGradient) {
+      // Convertir -webkit-linear-gradient a linear-gradient
+      processedGradient = webkitGradient.replace('-webkit-linear-gradient', 'linear-gradient')
+    } else if (radialGradient) {
+      processedGradient = radialGradient
+    } else {
+      processedGradient = declarations[0]
+    }
+  }
+  
+  // Remover "background:" si está presente en cualquier parte
+  processedGradient = processedGradient.replace(/background:\s*/g, '')
+  
+  // Limpiar espacios y caracteres extra
+  processedGradient = processedGradient.trim()
+  
+  // Si no es un gradiente válido, usar fallback
+  if (!processedGradient.includes('gradient')) {
+    return 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)'
+  }
+  
+  return processedGradient
+}
+
+// Función para obtener design tokens dinámicos
+export const getDesignTokens = (currentGradient?: string) => ({
   // Colores
   colors: {
     // Gradiente principal
     primary: {
-      gradient: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)',
+      gradient: processGradient(currentGradient),
       blue: '#16A2FF',
       green: '#35D07F',
     },
@@ -186,10 +233,13 @@ export const designTokens = {
     toast: 1700,
     tooltip: 1800,
   }
-} as const
+} as const)
+
+// Design tokens estáticos para compatibilidad
+export const designTokens = getDesignTokens()
 
 // Tipos TypeScript para los tokens
-export type DesignTokens = typeof designTokens
-export type ColorToken = keyof typeof designTokens.colors
-export type TypographyToken = keyof typeof designTokens.typography
-export type SpacingToken = keyof typeof designTokens.spacing
+export type DesignTokens = ReturnType<typeof getDesignTokens>
+export type ColorToken = keyof ReturnType<typeof getDesignTokens>['colors']
+export type TypographyToken = keyof ReturnType<typeof getDesignTokens>['typography']
+export type SpacingToken = keyof ReturnType<typeof getDesignTokens>['spacing']

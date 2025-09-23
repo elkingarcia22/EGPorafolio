@@ -3,6 +3,8 @@ import { Inter, Poppins, Montserrat } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { LanguageProvider } from '@/contexts/language-context'
+import { ColorsProvider } from '@/contexts/colors-context'
+import { NotificationProvider } from '@/components/ui/notification-system'
 
 const inter = Inter({ subsets: ['latin'] })
 const poppins = Poppins({
@@ -54,7 +56,11 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <LanguageProvider>
-                {children}
+                <ColorsProvider>
+                  <NotificationProvider>
+                    {children}
+                  </NotificationProvider>
+                </ColorsProvider>
               </LanguageProvider>
             </ThemeProvider>
           </body>

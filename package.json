@@ -19,7 +19,18 @@
     "setup-storage": "node setup-storage.js",
     "debug-storage": "node debug-storage.js",
     "create-bucket": "node create-bucket-manual.js",
-    "setup-policies": "node setup-storage-policies.js"
+    "setup-policies": "node setup-storage-policies.js",
+    "insert-about-data": "node scripts/insert-about-data.js",
+    "fix-about-table": "node scripts/fix-about-table.js",
+    "insert-contact-data": "node scripts/insert-contact-data.js",
+    "create-colors-table": "node scripts/create-colors-table.sql",
+    "insert-colors-data": "node scripts/insert-colors-data.js",
+    "setup-colors": "node scripts/setup-colors-complete.js",
+    "fix-colors-rls": "node scripts/fix-colors-rls.js",
+    "check-colors": "node scripts/check-colors-table.js",
+    "fix-colors-structure": "node scripts/fix-colors-table-structure.js",
+    "fix-colors-rls-complete": "node scripts/fix-colors-rls-complete.js",
+    "test-colors-admin": "node scripts/test-colors-admin.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.1.0",

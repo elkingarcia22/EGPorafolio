@@ -1,7 +1,7 @@
 'use client'
 
 import { useTheme } from 'next-themes'
-import { designTokens } from '@/lib/design-tokens'
+import { useDesignTokens } from '@/hooks/useDesignTokens'
 
 interface SectionSkeletonProps {
   type: 'home' | 'about' | 'contact'
@@ -9,6 +9,7 @@ interface SectionSkeletonProps {
 
 export const SectionSkeleton = ({ type }: SectionSkeletonProps) => {
   const { theme } = useTheme()
+  const designTokens = useDesignTokens()
   const isDark = theme === 'dark'
 
   if (type === 'home') {
