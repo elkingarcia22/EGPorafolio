@@ -51,18 +51,60 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       
       const mailtoLink = `mailto:garcia.elkin.salazar@gmail.com?subject=${subject}&body=${body}`
       
-      // Abrir el cliente de email
-      const link = document.createElement('a')
-      link.href = mailtoLink
-      link.click()
+      // Intentar múltiples métodos para abrir el cliente de email
+      let emailOpened = false
       
-      setSubmitStatus('success')
-      addNotification({
-        title: 'Cliente de email abierto',
-        message: 'Se ha abierto tu cliente de email con el mensaje pre-llenado',
-        type: 'info',
-        duration: 3000
-      })
+      // Método 1: Crear elemento <a> y hacer click
+      try {
+        const link = document.createElement('a')
+        link.href = mailtoLink
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        emailOpened = true
+      } catch (e) {
+        console.log('Método 1 falló:', e)
+      }
+      
+      // Método 2: window.location.href
+      if (!emailOpened) {
+        try {
+          window.location.href = mailtoLink
+          emailOpened = true
+        } catch (e) {
+          console.log('Método 2 falló:', e)
+        }
+      }
+      
+      // Método 3: window.open
+      if (!emailOpened) {
+        try {
+          window.open(mailtoLink, '_blank')
+          emailOpened = true
+        } catch (e) {
+          console.log('Método 3 falló:', e)
+        }
+      }
+      
+      if (emailOpened) {
+        setSubmitStatus('success')
+        addNotification({
+          title: 'Cliente de email abierto',
+          message: 'Se ha abierto tu cliente de email con el mensaje pre-llenado',
+          type: 'info',
+          duration: 3000
+        })
+      } else {
+        setSubmitStatus('error')
+        addNotification({
+          title: 'Error',
+          message: 'No se pudo abrir el cliente de email. Copia manualmente: garcia.elkin.salazar@gmail.com',
+          type: 'error',
+          duration: 5000
+        })
+      }
 
       // Limpiar el formulario y cerrar modal inmediatamente
       setFormData({ name: '', email: '', subject: '', message: '' })
