@@ -5,6 +5,7 @@ import { Navbar } from '@/components/navbar'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import { SectionSkeleton } from '@/components/section-skeleton'
 import { EmailModal } from '@/components/ui/email-modal'
+import { PageLoader } from '@/components/page-loader'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
 import { useSectionLoading } from '@/hooks/useSectionLoading'
@@ -16,6 +17,7 @@ function HomePageContent() {
   const { loading, mounted, markSectionLoaded } = useSectionLoading()
   const designTokens = useDesignTokens()
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
+  const [showPageLoader, setShowPageLoader] = useState(true)
   
   console.log('🏠 HomePageContent renderizado - mounted:', mounted, 'loading:', loading)
   
@@ -497,6 +499,11 @@ function HomePageContent() {
       <EmailModal 
         isOpen={isEmailModalOpen} 
         onClose={() => setIsEmailModalOpen(false)} 
+      />
+      
+      {/* Page Loader */}
+      <PageLoader 
+        onComplete={() => setShowPageLoader(false)}
       />
     </div>
   )
