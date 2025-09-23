@@ -50,7 +50,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       const mailtoLink = `mailto:garcia.elkin.salazar@gmail.com?subject=${subject}&body=${body}`
       
       // Abrir el cliente de email
-      window.open(mailtoLink, '_blank')
+      window.location.href = mailtoLink
       
       setSubmitStatus('success')
       
@@ -85,6 +85,11 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       const result = await response.json()
 
       if (response.ok) {
+        // Si es un fallback, abrir mailto
+        if (result.fallback && result.mailto) {
+          window.location.href = result.mailto
+        }
+        
         setSubmitStatus('success')
         // Limpiar el formulario después de un momento
         setTimeout(() => {
@@ -93,6 +98,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
           onClose()
         }, 2000)
       } else {
+        const errorData = await response.json()
+        console.error('Error del servidor:', errorData)
         setSubmitStatus('error')
       }
       
@@ -226,7 +233,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
               {submitStatus === 'error' && (
                 <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
                   <p className="text-red-800 dark:text-red-200 text-sm">
-                    {t('contact.emailError')}
+                    Error al enviar. Usa la opción "Abrir mi cliente de email" o configura las variables de entorno.
                   </p>
                 </div>
               )}

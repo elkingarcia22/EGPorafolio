@@ -65,6 +65,31 @@ Enviado desde el portafolio de Elkin García
       `
     }
 
+    // Verificar si las variables de entorno están configuradas
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log('📧 Variables de entorno no configuradas, usando mailto como fallback')
+      
+      // Crear mailto link como fallback
+      const subject = encodeURIComponent(subject || 'Contacto desde portafolio')
+      const body = encodeURIComponent(
+        `Hola Elkin,\n\n` +
+        `Mi nombre es: ${name}\n` +
+        `Mi email es: ${email}\n\n` +
+        `Mensaje:\n${message}\n\n` +
+        `Saludos cordiales.`
+      )
+      
+      return NextResponse.json(
+        { 
+          success: true, 
+          message: 'Variables de entorno no configuradas. Usa la opción de cliente de email.',
+          mailto: `mailto:garcia.elkin.salazar@gmail.com?subject=${subject}&body=${body}`,
+          fallback: true
+        },
+        { status: 200 }
+      )
+    }
+
     // Intentar enviar el email usando Nodemailer
     const emailResult = await sendEmailWithNodemailer({
       name,
