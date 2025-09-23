@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDesignTokens } from '@/hooks/useDesignTokens'
 import { useLanguage } from '@/contexts/language-context'
-import { useNotificationHelpers } from '@/components/ui/notification-system'
+import { useNotifications } from '@/components/ui/notification-system'
 
 interface EmailModalProps {
   isOpen: boolean
@@ -14,7 +14,7 @@ interface EmailModalProps {
 export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
   const { t } = useLanguage()
   const designTokens = useDesignTokens()
-  const { showNotification } = useNotificationHelpers()
+  const { addNotification } = useNotifications()
   
   const [formData, setFormData] = useState({
     name: '',
@@ -57,7 +57,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       link.click()
       
       setSubmitStatus('success')
-      showNotification({
+      addNotification({
+        title: 'Éxito',
         message: '¡Correo enviado exitosamente!',
         type: 'success',
         duration: 3000
@@ -115,7 +116,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       
       // Mostrar notificación de éxito después de cerrar el modal
       setTimeout(() => {
-        showNotification({
+        addNotification({
+          title: 'Éxito',
           message: '¡Mensaje enviado exitosamente!',
           type: 'success',
           duration: 3000
@@ -149,13 +151,15 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
             const link = document.createElement('a')
             link.href = result.mailto
             link.click()
-            showNotification({
+            addNotification({
+              title: 'Advertencia',
               message: 'Variables de entorno no configuradas. Abriendo cliente de email.',
               type: 'warning',
               duration: 5000
             })
           } else {
-            showNotification({
+            addNotification({
+              title: 'Éxito',
               message: '¡Mensaje enviado exitosamente!',
               type: 'success',
               duration: 3000
@@ -169,7 +173,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
           onClose()
         } else {
           setSubmitStatus('error')
-          showNotification({
+          addNotification({
+            title: 'Error',
             message: 'Error al enviar. Usa la opción "Abrir mi cliente de email".',
             type: 'error',
             duration: 5000
@@ -178,7 +183,8 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       } catch (apiError) {
         console.error('Error con API route:', apiError)
         setSubmitStatus('error')
-        showNotification({
+        addNotification({
+          title: 'Error',
           message: 'Error de conexión. Usa la opción "Abrir mi cliente de email".',
           type: 'error',
           duration: 5000
