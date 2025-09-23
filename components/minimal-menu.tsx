@@ -12,7 +12,10 @@ interface MinimalMenuProps {
 export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
   const { t, language } = useLanguage()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [showCloseButton, setShowCloseButton] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const closeButtonTimerRef = useRef<NodeJS.Timeout | null>(null)
   
   const menuItems = useMemo(() => [
     { name: t('nav.home'), href: '/#home' },
@@ -33,13 +36,40 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
   // Función para cerrar el menú
   const closeMenu = () => {
     setIsMenuOpen(false)
+    setIsHovered(false)
+    setShowCloseButton(false)
+    if (closeButtonTimerRef.current) {
+      clearTimeout(closeButtonTimerRef.current)
+    }
+  }
+
+  // Función para manejar hover
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    setIsMenuOpen(true)
+    
+    // Iniciar timer para mostrar botón X después de 3 segundos
+    closeButtonTimerRef.current = setTimeout(() => {
+      setShowCloseButton(true)
+    }, 3000)
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    // Solo cerrar si no está abierto por click
+    if (!isMenuOpen) {
+      setShowCloseButton(false)
+      if (closeButtonTimerRef.current) {
+        clearTimeout(closeButtonTimerRef.current)
+      }
+    }
   }
 
   // Efecto para cerrar el menú cuando se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false)
+        closeMenu()
       }
     }
 
@@ -52,10 +82,21 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
     }
   }, [isMenuOpen])
 
+  // Limpiar timer al desmontar
+  useEffect(() => {
+    return () => {
+      if (closeButtonTimerRef.current) {
+        clearTimeout(closeButtonTimerRef.current)
+      }
+    }
+  }, [])
+
   return (
     <div 
       ref={menuRef}
       className="flex items-center"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Botón de menú - clickeable para abrir/cerrar */}
       <button 
@@ -73,13 +114,26 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
         }`}></div>
       </button>
 
-      {/* Menú expandible horizontal - se activa solo con click */}
+      {/* Menú expandible horizontal - se activa con hover o click */}
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
         isMenuOpen 
           ? 'max-w-[600px] opacity-100 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg' 
           : 'max-w-0 opacity-0'
       }`}>
         <div className={`flex items-center space-x-4 ${isMenuOpen ? 'pl-0' : 'pl-4'}`}>
+          {/* Botón X para cerrar - aparece después de 3 segundos */}
+          {showCloseButton && (
+            <button
+              onClick={closeMenu}
+              className="flex items-center justify-center w-6 h-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
+              title="Cerrar menú"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          
           {menuItems.map((item, index) => {
             return item.isAdmin ? (
               <Link
