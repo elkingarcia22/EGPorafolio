@@ -1,0 +1,18 @@
+# Copia estas líneas a tu archivo .env.local
+# (Agrega estas líneas a las que ya tienes)
+
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_7biglfe
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_bv6fyha
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BRErhCzNKbnaUC1ZQ
+
+# IMPORTANTE: 
+# 1. Abre tu archivo .env.local
+# 2. Agrega estas 3 líneas al final
+# 3. Guarda el archivo
+# 4. Reinicia el servidor: npm run dev
+# 5. Prueba el modal de email nuevamente
+
+# Si ya tienes estas líneas, verifica que los valores sean exactamente estos:
+# - Service ID: service_7biglfe
+# - Template ID: template_bv6fyha  
+# - Public Key: BRErhCzNKbnaUC1ZQ

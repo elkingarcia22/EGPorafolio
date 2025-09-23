@@ -121,6 +121,12 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       
     } catch (error) {
       console.error('Error enviando email con EmailJS:', error)
+      console.log('EmailJS Error details:', {
+        serviceId,
+        templateId,
+        publicKey: publicKey.substring(0, 10) + '...',
+        error: error.message || error
+      })
       
       // Fallback: intentar con API route
       try {
@@ -170,6 +176,11 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       } catch (apiError) {
         console.error('Error con API route:', apiError)
         setSubmitStatus('error')
+        showNotification({
+          message: 'Error de conexión. Usa la opción "Abrir mi cliente de email".',
+          type: 'error',
+          duration: 5000
+        })
       }
     } finally {
       setIsSubmitting(false)
