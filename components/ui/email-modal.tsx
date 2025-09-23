@@ -50,10 +50,17 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       const mailtoLink = `mailto:garcia.elkin.salazar@gmail.com?subject=${subject}&body=${body}`
       
       // Abrir el cliente de email
-      window.location.href = mailtoLink
+      const link = document.createElement('a')
+      link.href = mailtoLink
+      link.click()
       
       setSubmitStatus('success')
-      
+      showNotification({
+        message: 'Cliente de email abierto. Completa el envío desde tu aplicación de email.',
+        type: 'success',
+        duration: 4000
+      })
+
       // Limpiar el formulario después de un momento
       setTimeout(() => {
         setFormData({ name: '', email: '', subject: '', message: '' })
@@ -99,6 +106,11 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       
       console.log('📧 Email enviado exitosamente:', result)
       setSubmitStatus('success')
+      showNotification({
+        message: '¡Mensaje enviado exitosamente!',
+        type: 'success',
+        duration: 3000
+      })
       
       // Limpiar el formulario después de un momento
       setTimeout(() => {
@@ -125,7 +137,20 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
         if (response.ok) {
           // Si es un fallback, abrir mailto
           if (result.fallback && result.mailto) {
-            window.location.href = result.mailto
+            const link = document.createElement('a')
+            link.href = result.mailto
+            link.click()
+            showNotification({
+              message: 'Variables de entorno no configuradas. Abriendo cliente de email.',
+              type: 'warning',
+              duration: 5000
+            })
+          } else {
+            showNotification({
+              message: '¡Mensaje enviado exitosamente!',
+              type: 'success',
+              duration: 3000
+            })
           }
           
           setSubmitStatus('success')
@@ -136,6 +161,11 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
           }, 2000)
         } else {
           setSubmitStatus('error')
+          showNotification({
+            message: 'Error al enviar. Usa la opción "Abrir mi cliente de email".',
+            type: 'error',
+            duration: 5000
+          })
         }
       } catch (apiError) {
         console.error('Error con API route:', apiError)
