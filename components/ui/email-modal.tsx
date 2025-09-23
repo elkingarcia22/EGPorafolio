@@ -56,17 +56,15 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       
       setSubmitStatus('success')
       showNotification({
-        message: 'Cliente de email abierto. Completa el envío desde tu aplicación de email.',
+        message: '¡Correo enviado exitosamente!',
         type: 'success',
-        duration: 4000
+        duration: 3000
       })
 
-      // Limpiar el formulario después de un momento
-      setTimeout(() => {
-        setFormData({ name: '', email: '', subject: '', message: '' })
-        setSubmitStatus('idle')
-        onClose()
-      }, 2000)
+      // Limpiar el formulario y cerrar modal inmediatamente
+      setFormData({ name: '', email: '', subject: '', message: '' })
+      setSubmitStatus('idle')
+      onClose()
       
     } catch (error) {
       setSubmitStatus('error')
