@@ -8,181 +8,117 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const colors = {
-  reset: '\x1b[0m',
-  bright: '\x1b[1m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m'
-};
-
-function log(message, color = 'reset') {
-  console.log(`${colors[color]}${message}${colors.reset}`);
-}
-
-function exec(command, options = {}) {
+function execCommand(command) {
   try {
-    return execSync(command, { stdio: 'inherit', ...options });
+    console.log(`\n🔄 Ejecutando: ${command}`);
+    const output = execSync(command, { encoding: 'utf8', stdio: 'inherit' });
+    return output;
   } catch (error) {
-    log(`❌ Error ejecutando: ${command}`, 'red');
+    console.error(`❌ Error ejecutando: ${command}`);
+    console.error(error.message);
     process.exit(1);
   }
 }
 
-function question(query) {
-  return new Promise(resolve => rl.question(query, resolve));
+function askQuestion(question) {
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      resolve(answer);
+    });
+  });
 }
 
 async function main() {
-  log('🚀 GitHub Workflow Helper - Portafolio EG', 'cyan');
-  log('==========================================', 'cyan');
+  console.log('🚀 Git Workflow Helper para EG Portafolio\n');
   
-  const action = await question('\n¿Qué quieres hacer?\n1. Crear nueva feature\n2. Hacer merge a develop\n3. Crear release\n4. Ver estado\n5. Sincronizar\n\nOpción (1-5): ');
+  const action = await askQuestion('¿Qué quieres hacer?\n1. Crear nueva feature\n2. Hacer commit de cambios\n3. Hacer push a GitHub\n4. Ver estado actual\n5. Cambiar de rama\nOpción (1-5): ');
   
   switch (action) {
     case '1':
       await createFeature();
       break;
     case '2':
-      await mergeToDevelop();
+      await commitChanges();
       break;
     case '3':
-      await createRelease();
+      await pushToGitHub();
       break;
     case '4':
       await showStatus();
       break;
     case '5':
-      await sync();
+      await switchBranch();
       break;
     default:
-      log('❌ Opción inválida', 'red');
+      console.log('❌ Opción no válida');
   }
   
   rl.close();
 }
 
 async function createFeature() {
-  log('\n🆕 Creando nueva feature...', 'green');
+  const featureName = await askQuestion('Nombre de la nueva feature (sin espacios): ');
+  const branchName = `feature/${featureName}`;
   
-  const featureName = await question('Nombre de la feature (sin espacios): ');
-  if (!featureName) {
-    log('❌ Nombre de feature requerido', 'red');
-    return;
-  }
-  
-  log('📥 Sincronizando develop...', 'yellow');
-  exec('git checkout develop');
-  exec('git pull origin develop');
-  
-  log(`🌿 Creando rama feature/${featureName}...`, 'yellow');
-  exec(`git checkout -b feature/${featureName}`);
-  
-  log(`✅ Rama feature/${featureName} creada`, 'green');
-  log('💡 Ahora puedes trabajar en tu feature y hacer commits', 'cyan');
-  log(`📤 Para hacer push: git push origin feature/${featureName}`, 'blue');
+  console.log(`\n🌿 Creando nueva feature: ${branchName}`);
+  execCommand(`git checkout -b ${branchName}`);
+  console.log(`✅ Feature branch creada: ${branchName}`);
 }
 
-async function mergeToDevelop() {
-  log('\n🔄 Haciendo merge a develop...', 'green');
+async function commitChanges() {
+  console.log('\n📋 Estado actual:');
+  execCommand('git status');
   
-  const currentBranch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+  const addAll = await askQuestion('\n¿Agregar todos los archivos? (y/n): ');
   
-  if (!currentBranch.startsWith('feature/')) {
-    log('❌ Debes estar en una rama feature para hacer merge', 'red');
-    return;
+  if (addAll.toLowerCase() === 'y') {
+    execCommand('git add .');
+  } else {
+    const files = await askQuestion('Archivos específicos (separados por espacio): ');
+    execCommand(`git add ${files}`);
   }
   
-  log('📥 Sincronizando develop...', 'yellow');
-  exec('git checkout develop');
-  exec('git pull origin develop');
+  const message = await askQuestion('Mensaje del commit: ');
+  const type = await askQuestion('Tipo de commit (feat/fix/docs/style/refactor/test/chore): ');
   
-  log(`🔀 Haciendo merge de ${currentBranch}...`, 'yellow');
-  exec(`git merge ${currentBranch}`);
-  
-  log('📤 Haciendo push a develop...', 'yellow');
-  exec('git push origin develop');
-  
-  const deleteBranch = await question(`¿Eliminar rama local ${currentBranch}? (y/n): `);
-  if (deleteBranch.toLowerCase() === 'y') {
-    exec(`git branch -d ${currentBranch}`);
-    log(`✅ Rama ${currentBranch} eliminada`, 'green');
-  }
-  
-  log('✅ Merge completado', 'green');
+  execCommand(`git commit -m "${type}: ${message}"`);
+  console.log('✅ Commit realizado exitosamente');
 }
 
-async function createRelease() {
-  log('\n🏷️ Creando release...', 'green');
+async function pushToGitHub() {
+  const currentBranch = execCommand('git branch --show-current').trim();
+  console.log(`\n🚀 Haciendo push de la rama: ${currentBranch}`);
   
-  const version = await question('Versión (ej: v1.1.0): ');
-  if (!version) {
-    log('❌ Versión requerida', 'red');
-    return;
+  const pushType = await askQuestion('¿Es la primera vez que haces push de esta rama? (y/n): ');
+  
+  if (pushType.toLowerCase() === 'y') {
+    execCommand(`git push -u origin ${currentBranch}`);
+  } else {
+    execCommand(`git push origin ${currentBranch}`);
   }
   
-  log('📥 Sincronizando develop...', 'yellow');
-  exec('git checkout develop');
-  exec('git pull origin develop');
-  
-  log('📥 Sincronizando main...', 'yellow');
-  exec('git checkout main');
-  exec('git pull origin main');
-  
-  log('🔀 Haciendo merge de develop a main...', 'yellow');
-  exec('git merge develop');
-  
-  log(`🏷️ Creando tag ${version}...`, 'yellow');
-  exec(`git tag -a ${version} -m "Release ${version}"`);
-  
-  log('📤 Haciendo push a main y tags...', 'yellow');
-  exec('git push origin main');
-  exec(`git push origin ${version}`);
-  
-  log(`✅ Release ${version} creado`, 'green');
-  log('🚀 GitHub Actions ejecutará el deploy automáticamente', 'cyan');
+  console.log('✅ Push realizado exitosamente');
 }
 
 async function showStatus() {
-  log('\n📊 Estado del repositorio:', 'green');
-  exec('git status');
+  console.log('\n📊 Estado del repositorio:');
+  execCommand('git status');
   
-  log('\n📋 Últimos commits:', 'green');
-  exec('git log --oneline -5');
+  console.log('\n🌿 Ramas disponibles:');
+  execCommand('git branch -a');
   
-  log('\n🌿 Ramas:', 'green');
-  exec('git branch -a');
+  console.log('\n📈 Últimos commits:');
+  execCommand('git log --oneline -5');
 }
 
-async function sync() {
-  log('\n🔄 Sincronizando repositorio...', 'green');
+async function switchBranch() {
+  console.log('\n🌿 Ramas disponibles:');
+  execCommand('git branch');
   
-  const currentBranch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
-  
-  log('📥 Haciendo fetch...', 'yellow');
-  exec('git fetch origin');
-  
-  log('📥 Haciendo pull...', 'yellow');
-  exec('git pull origin ' + currentBranch);
-  
-  log('✅ Sincronización completada', 'green');
+  const branchName = await askQuestion('\nNombre de la rama a la que quieres cambiar: ');
+  execCommand(`git checkout ${branchName}`);
+  console.log(`✅ Cambiado a la rama: ${branchName}`);
 }
 
-// Manejo de errores
-process.on('uncaughtException', (error) => {
-  log(`❌ Error inesperado: ${error.message}`, 'red');
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (error) => {
-  log(`❌ Error de promesa: ${error.message}`, 'red');
-  process.exit(1);
-});
-
-main().catch(error => {
-  log(`❌ Error: ${error.message}`, 'red');
-  process.exit(1);
-});
+// Ejecutar el script
+main().catch(console.error);
