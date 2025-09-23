@@ -58,9 +58,9 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       
       setSubmitStatus('success')
       addNotification({
-        title: 'Éxito',
-        message: '¡Correo enviado exitosamente!',
-        type: 'success',
+        title: 'Cliente de email abierto',
+        message: 'Se ha abierto tu cliente de email con el mensaje pre-llenado',
+        type: 'info',
         duration: 3000
       })
 
