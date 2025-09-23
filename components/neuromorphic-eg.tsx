@@ -123,27 +123,27 @@ export const NeuromorphicEG = () => {
             >
               G
             </span>
+            
+            {/* Texto typewriter dentro del espacio de la G - Solo visible en desktop */}
+            <div 
+              className="hidden md:block absolute w-full max-w-none left-[calc(100%-200px)] sm:left-[calc(100%-240px)] md:left-[calc(100%-280px)] top-[calc(33.333%+20px)] sm:top-[calc(33.333%+30px)] md:top-[calc(33.333%+35px)]"
+            >
+              <TypewriterText 
+                words={content.typewriterTexts}
+                className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white whitespace-nowrap"
+                typingSpeed={80}
+                deletingSpeed={40}
+                pauseTime={2500}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Texto typewriter - Abajo del EG en mobile, dentro de la G en desktop */}
+        {/* Texto typewriter - Abajo del EG en mobile */}
         <div className="md:hidden text-center mt-8">
           <TypewriterText 
             words={content.typewriterTexts}
             className="text-lg font-normal text-gray-600 dark:text-white"
-            typingSpeed={80}
-            deletingSpeed={40}
-            pauseTime={2500}
-          />
-        </div>
-
-        {/* Texto typewriter dentro del espacio de la G - Solo visible en desktop */}
-        <div 
-          className="hidden md:block absolute w-full max-w-none left-[calc(100%-280px)] top-[calc(33.333%+35px)]"
-        >
-          <TypewriterText 
-            words={content.typewriterTexts}
-            className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white whitespace-nowrap"
             typingSpeed={80}
             deletingSpeed={40}
             pauseTime={2500}
