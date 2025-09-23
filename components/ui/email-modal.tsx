@@ -78,9 +78,9 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       const emailjs = await import('@emailjs/browser')
       
       // Configuración de EmailJS (gratuita y funciona para todos)
-      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_elkin_portfolio'
-      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'template_contact'
-      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YOUR_EMAILJS_PUBLIC_KEY'
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_7biglfe'
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'template_bv6fyha'
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'BRErhCzNKbnaUC1ZQ'
       
       const templateParams = {
         from_name: formData.name,

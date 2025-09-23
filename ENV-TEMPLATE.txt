@@ -7,9 +7,9 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # EmailJS Configuration (Recomendado - Funciona para todos)
-NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_abc123
-NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_xyz789
-NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=user_abc123def456
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=service_7biglfe
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=template_bv6fyha
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=BRErhCzNKbnaUC1ZQ
 
 # Gmail SMTP (Alternativa)
 EMAIL_USER=garcia.elkin.salazar@gmail.com
