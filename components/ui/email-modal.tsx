@@ -68,20 +68,22 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
         console.log('Método 1 falló:', e)
       }
       
-      // Método 2: window.location.href
+      // Método 2: window.open (sin _blank para evitar about:blank)
       if (!emailOpened) {
         try {
-          window.location.href = mailtoLink
+          window.open(mailtoLink)
           emailOpened = true
         } catch (e) {
           console.log('Método 2 falló:', e)
         }
       }
       
-      // Método 3: window.open
+      // Método 3: Intentar con setTimeout para dar tiempo al navegador
       if (!emailOpened) {
         try {
-          window.open(mailtoLink, '_blank')
+          setTimeout(() => {
+            window.open(mailtoLink, '_self')
+          }, 100)
           emailOpened = true
         } catch (e) {
           console.log('Método 3 falló:', e)
