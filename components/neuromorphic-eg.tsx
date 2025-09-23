@@ -69,7 +69,7 @@ export const NeuromorphicEG = () => {
       {/* Layout Mobile: Nombre arriba, EG más pequeño, texto typewriter abajo */}
       <div className="flex flex-col items-center w-full">
         {/* Nombre - Solo visible en mobile */}
-        <div className="md:hidden text-center mb-8">
+        <div className="md:hidden text-center mb-4">
           <h1 className="text-2xl font-normal text-gray-600 dark:text-white">
             {t('home.name')}
           </h1>
@@ -80,7 +80,7 @@ export const NeuromorphicEG = () => {
           {/* Letra E */}
           <div className="relative">
             <span 
-              className="font-black select-none text-[14rem] md:text-[25rem] lg:text-[50rem]"
+              className="font-black select-none text-[16rem] md:text-[25rem] lg:text-[50rem]"
               style={{
                 lineHeight: '0.8',
                 fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -103,7 +103,7 @@ export const NeuromorphicEG = () => {
           {/* Letra G */}
           <div className="relative">
             <span 
-              className="font-black select-none text-[14rem] md:text-[25rem] lg:text-[50rem]"
+              className="font-black select-none text-[16rem] md:text-[25rem] lg:text-[50rem]"
               style={{
                 lineHeight: '0.8',
                 fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -138,10 +138,10 @@ export const NeuromorphicEG = () => {
         </div>
 
         {/* Texto typewriter - Abajo del EG en mobile */}
-        <div className="md:hidden text-center mt-8">
+        <div className="md:hidden text-center mt-4">
           <TypewriterText 
             words={content.typewriterTexts}
-            className="text-lg font-normal text-gray-600 dark:text-white"
+            className="text-xl font-normal text-gray-600 dark:text-white"
             typingSpeed={80}
             deletingSpeed={40}
             pauseTime={2500}
