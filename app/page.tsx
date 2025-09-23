@@ -78,9 +78,15 @@ function HomePageContent() {
 
            {/* Título de sección Acerca de mí */}
            {!loading.home && (
-             <div className="py-16">
+             <div className="py-12">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
+                   <div className="text-center mb-8 hidden md:block">
+                     <h2 className="text-3xl font-light text-gray-600 dark:text-white mb-4">
+                       {t('about.title')}
+                     </h2>
+                     <div className="w-24 h-0.5 mx-auto" style={{background: designTokens.colors.primary.gradient}}></div>
+                   </div>
                  </div>
                </div>
              </div>
@@ -90,7 +96,7 @@ function HomePageContent() {
            {loading.about ? (
              <SectionSkeleton type="about" />
            ) : (
-        <section id="acerca" className="py-16">
+        <section id="acerca" className="py-12">
         {console.log('📄 Renderizando sección Acerca de mí')}
         
         {/* Título "Acerca de mí" - Solo visible en mobile */}
@@ -367,9 +373,15 @@ function HomePageContent() {
 
            {/* Título de sección Contacto */}
            {!loading.home && (
-             <div className="py-16">
+             <div className="py-12">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
+                   <div className="text-center mb-8 hidden md:block">
+                     <h2 className="text-3xl font-light text-gray-600 dark:text-white mb-4">
+                       {t('contact.title')}
+                     </h2>
+                     <div className="w-24 h-0.5 mx-auto" style={{background: designTokens.colors.primary.gradient}}></div>
+                   </div>
                  </div>
                </div>
              </div>
@@ -379,7 +391,7 @@ function HomePageContent() {
            {loading.contact ? (
              <SectionSkeleton type="contact" />
            ) : (
-        <section id="contacto" className="py-16" style={{background: designTokens.colors.primary.gradient}}>
+        <section id="contacto" className="py-12" style={{background: designTokens.colors.primary.gradient}}>
         
         {/* Título "Contacto" - Solo visible en mobile */}
         <div className="md:hidden text-center mb-8">
