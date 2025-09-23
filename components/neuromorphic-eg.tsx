@@ -66,110 +66,136 @@ export const NeuromorphicEG = () => {
   const isDark = theme === 'dark'
   return (
     <div className="flex flex-col items-center justify-start min-h-screen px-8 pt-8">
-      {/* Contenedor para las letras EG gigantes */}
-      <div className="flex items-center gap-8">
-        {/* Letra E gigante */}
-        <div className="relative">
-          <span 
-            className="font-black select-none"
-            style={{
-              fontSize: 'clamp(25rem, 60vw, 50rem)',
-              lineHeight: '0.8',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-              backgroundImage: getTextGradient(),
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              color: 'transparent',
-              WebkitTextStroke: '0.5px transparent',
-              filter: isDark 
-                ? 'drop-shadow(-12px -12px 24px rgba(0, 0, 0, 0.8)) drop-shadow(12px 12px 24px rgba(255, 255, 255, 0.1)) drop-shadow(-6px -6px 12px rgba(0, 0, 0, 0.6)) drop-shadow(6px 6px 12px rgba(255, 255, 255, 0.05))'
-                : 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.7)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.5))',
-              opacity: 0.9
-            }}
-          >
-            E
-          </span>
+      {/* Layout Mobile: Nombre arriba, EG más pequeño, texto typewriter abajo */}
+      <div className="flex flex-col items-center w-full">
+        {/* Nombre - Solo visible en mobile */}
+        <div className="md:hidden text-center mb-8">
+          <h1 className="text-2xl font-normal text-gray-600 dark:text-white">
+            {t('home.name')}
+          </h1>
         </div>
 
-        {/* Letra G gigante */}
-        <div className="relative">
-          <span 
-            className="font-black select-none"
-            style={{
-              fontSize: 'clamp(25rem, 60vw, 50rem)',
-              lineHeight: '0.8',
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-              backgroundImage: getTextGradient(),
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              color: 'transparent',
-              WebkitTextStroke: '0.5px transparent',
-              filter: isDark 
-                ? 'drop-shadow(-12px -12px 24px rgba(0, 0, 0, 0.8)) drop-shadow(12px 12px 24px rgba(255, 255, 255, 0.1)) drop-shadow(-6px -6px 12px rgba(0, 0, 0, 0.6)) drop-shadow(6px 6px 12px rgba(255, 255, 255, 0.05))'
-                : 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.7)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.5))',
-              opacity: 0.9
-            }}
-          >
-            G
-          </span>
-          
-          {/* Texto typewriter dentro del espacio de la G */}
-          <div 
-            className="absolute w-full max-w-none left-[calc(100%-200px)] sm:left-[calc(100%-240px)] md:left-[calc(100%-280px)] top-[calc(33.333%+20px)] sm:top-[calc(33.333%+30px)] md:top-[calc(33.333%+35px)]"
-          >
-            <TypewriterText 
-              words={content.typewriterTexts}
-              className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white whitespace-nowrap"
-              typingSpeed={80}
-              deletingSpeed={40}
-              pauseTime={2500}
-            />
+        {/* Contenedor para las letras EG - Más pequeño en mobile */}
+        <div className="flex items-center gap-4 md:gap-8">
+          {/* Letra E */}
+          <div className="relative">
+            <span 
+              className="font-black select-none"
+              style={{
+                fontSize: 'clamp(8rem, 25vw, 50rem)', // Más pequeño en mobile
+                lineHeight: '0.8',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                backgroundImage: getTextGradient(),
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+                WebkitTextStroke: '0.5px transparent',
+                filter: isDark 
+                  ? 'drop-shadow(-12px -12px 24px rgba(0, 0, 0, 0.8)) drop-shadow(12px 12px 24px rgba(255, 255, 255, 0.1)) drop-shadow(-6px -6px 12px rgba(0, 0, 0, 0.6)) drop-shadow(6px 6px 12px rgba(255, 255, 255, 0.05))'
+                  : 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.7)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.5))',
+                opacity: 0.9
+              }}
+            >
+              E
+            </span>
+          </div>
+
+          {/* Letra G */}
+          <div className="relative">
+            <span 
+              className="font-black select-none"
+              style={{
+                fontSize: 'clamp(8rem, 25vw, 50rem)', // Más pequeño en mobile
+                lineHeight: '0.8',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                backgroundImage: getTextGradient(),
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
+                WebkitTextStroke: '0.5px transparent',
+                filter: isDark 
+                  ? 'drop-shadow(-12px -12px 24px rgba(0, 0, 0, 0.8)) drop-shadow(12px 12px 24px rgba(255, 255, 255, 0.1)) drop-shadow(-6px -6px 12px rgba(0, 0, 0, 0.6)) drop-shadow(6px 6px 12px rgba(255, 255, 255, 0.05))'
+                  : 'drop-shadow(8px 8px 16px rgba(0, 0, 0, 0.15)) drop-shadow(-8px -8px 16px rgba(255, 255, 255, 0.7)) drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.1)) drop-shadow(-4px -4px 8px rgba(255, 255, 255, 0.5))',
+                opacity: 0.9
+              }}
+            >
+              G
+            </span>
           </div>
         </div>
-      </div>
 
-        {/* "ELKIN GARCIA" más abajo en la página */}
-        <div className="absolute top-0 left-0 w-full">
+        {/* Texto typewriter - Abajo del EG en mobile, dentro de la G en desktop */}
+        <div className="md:hidden text-center mt-8">
+          <TypewriterText 
+            words={content.typewriterTexts}
+            className="text-lg font-normal text-gray-600 dark:text-white"
+            typingSpeed={80}
+            deletingSpeed={40}
+            pauseTime={2500}
+          />
+        </div>
+
+        {/* Texto typewriter dentro del espacio de la G - Solo visible en desktop */}
+        <div 
+          className="hidden md:block absolute w-full max-w-none left-[calc(100%-280px)] top-[calc(33.333%+35px)]"
+        >
+          <TypewriterText 
+            words={content.typewriterTexts}
+            className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white whitespace-nowrap"
+            typingSpeed={80}
+            deletingSpeed={40}
+            pauseTime={2500}
+          />
+        </div>
+
+        {/* "ELKIN GARCIA" - Solo visible en desktop */}
+        <div className="hidden md:block absolute top-0 left-0 w-full">
           <div className="relative">
-            {/* Línea degradada que baja desde el inicio de la página hasta el nombre - POSICIONADA INDEPENDIENTEMENTE */}
+            {/* Línea degradada que baja desde el inicio de la página hasta el nombre */}
             <div 
-              className="absolute w-1 h-32 sm:h-40 md:h-48 lg:h-56" 
+              className="absolute w-1 h-48 lg:h-56" 
               style={{
                 left: 'calc(22% - 13px)', 
                 top: '-95px', 
                 background: getTextGradient(),
                 zIndex: 10
               }}
-              onLoad={() => console.log('Línea ELKIN GARCIA cargada - top: -95px (subida otro poquito), left: calc(22% - 13px)')}
             ></div>
             
             {/* "ELKIN GARCIA" en posición más alta */}
-            <div className="absolute left-1/4 top-12 sm:top-16 md:top-20 lg:top-24" style={{left: '22%'}}>
-              <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
+            <div className="absolute top-20 lg:top-24" style={{left: '22%'}}>
+              <span className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
                 {t('home.name')}
               </span>
             </div>
           </div>
         </div>
 
-      {/* Diseño dramático con "Mi trabajo" */}
-      <div className="mt-8 sm:mt-12 md:mt-16 lg:mt-20 w-full">
-        {/* "Mi trabajo" con misma tipografía que texto typewriter */}
-        <div className="relative">
-          {/* "Mi trabajo" más a la derecha y más arriba */}
-          <div className="absolute right-1/4 -top-4 sm:-top-6 md:-top-8" style={{right: '22%'}}>
-            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
-              {t('home.myWork')}
-            </span>
-            {/* Línea degradada al lado derecho del texto "Mi trabajo" */}
-            <div className="absolute w-1 h-48 sm:h-64 md:h-80 lg:h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
+        {/* "Mi trabajo" - Solo visible en desktop */}
+        <div className="hidden md:block mt-16 lg:mt-20 w-full">
+          <div className="relative">
+            {/* "Mi trabajo" más a la derecha y más arriba */}
+            <div className="absolute right-1/4 -top-8" style={{right: '22%'}}>
+              <span className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
+                {t('home.myWork')}
+              </span>
+              {/* Línea degradada al lado derecho del texto "Mi trabajo" */}
+              <div className="absolute w-1 h-80 lg:h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
+            </div>
           </div>
         </div>
         
+        {/* Título "Mi trabajo" - Solo visible en mobile */}
+        <div className="md:hidden text-center mt-12 mb-8">
+          <h2 className="text-2xl font-normal text-gray-600 dark:text-white">
+            {t('home.myWork')}
+          </h2>
+        </div>
+
         {/* Sección de proyectos - Grid responsivo */}
-        <div id="proyectos" className="mt-16 sm:mt-24 md:mt-32 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8">
+        <div id="proyectos" className="mt-8 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8">
           {/* Proyecto 1 - UX Research */}
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
