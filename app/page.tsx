@@ -190,7 +190,7 @@ function HomePageContent() {
 
 
       {/* Título de sección Contacto */}
-      <div className="py-40">
+      <div className="py-32">
         <div className="px-8">
           <div className="max-w-6xl mx-auto">
             <div className="relative">
@@ -210,7 +210,7 @@ function HomePageContent() {
       {loading.contact ? (
         <SectionSkeleton type="contact" />
       ) : (
-        <section id="contacto" className="py-20" style={{background: designTokens.colors.primary.gradient}}>
+        <section id="contacto" className="py-16" style={{background: designTokens.colors.primary.gradient}}>
         <div className="px-8">
 
           {/* Cards horizontales limpias */}
