@@ -114,11 +114,13 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       onClose()
       
       // Mostrar notificación de éxito después de cerrar el modal
-      showNotification({
-        message: '¡Mensaje enviado exitosamente!',
-        type: 'success',
-        duration: 3000
-      })
+      setTimeout(() => {
+        showNotification({
+          message: '¡Mensaje enviado exitosamente!',
+          type: 'success',
+          duration: 3000
+        })
+      }, 100)
       
     } catch (error) {
       console.error('Error enviando email con EmailJS:', error)
