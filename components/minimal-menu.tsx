@@ -21,8 +21,6 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
     { name: t('nav.home'), href: '/#home' },
     { name: t('home.myWork'), href: '/#proyectos' },
     { name: t('nav.about'), href: '/#acerca' },
-    { name: 'Acerca de mí 2', href: '/acerca-de-mi-2' },
-    { name: 'Acerca de mí 3', href: '/acerca-de-mi-3' },
     { name: t('nav.contact'), href: '/#contacto' },
     { name: 'CV', href: '/cv' },
     { name: t('nav.admin'), href: '/admin', isAdmin: true }
@@ -31,6 +29,19 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
   // Función para alternar el menú
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
+    
+    // Si se abre por click, iniciar timer para mostrar botón X después de 3 segundos
+    if (!isMenuOpen) {
+      closeButtonTimerRef.current = setTimeout(() => {
+        setShowCloseButton(true)
+      }, 3000)
+    } else {
+      // Si se cierra, limpiar timer y ocultar botón X
+      setShowCloseButton(false)
+      if (closeButtonTimerRef.current) {
+        clearTimeout(closeButtonTimerRef.current)
+      }
+    }
   }
 
   // Función para cerrar el menú
@@ -98,20 +109,30 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Botón de menú - clickeable para abrir/cerrar */}
+      {/* Botón de menú - clickeable para abrir/cerrar, se convierte en X después de 3 segundos */}
       <button 
         onClick={toggleMenu}
-        className="flex flex-col gap-1 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200 z-50"
+        className="flex items-center justify-center w-8 h-8 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200 z-50"
       >
-        <div className={`w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 ${
-          isMenuOpen ? 'rotate-45 translate-y-1.5' : ''
-        }`}></div>
-        <div className={`w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-opacity duration-300 ${
-          isMenuOpen ? 'opacity-0' : ''
-        }`}></div>
-        <div className={`w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 ${
-          isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
-        }`}></div>
+        {showCloseButton ? (
+          // Botón X después de 3 segundos
+          <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          // Botón hamburguesa normal
+          <div className="flex flex-col gap-1">
+            <div className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 ${
+              isMenuOpen ? 'rotate-45 translate-y-1.5' : ''
+            }`}></div>
+            <div className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-400 transition-opacity duration-300 ${
+              isMenuOpen ? 'opacity-0' : ''
+            }`}></div>
+            <div className={`w-5 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 ${
+              isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
+            }`}></div>
+          </div>
+        )}
       </button>
 
       {/* Menú expandible horizontal - se activa con hover o click */}
@@ -121,19 +142,6 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
           : 'max-w-0 opacity-0'
       }`}>
         <div className={`flex items-center space-x-4 ${isMenuOpen ? 'pl-0' : 'pl-4'}`}>
-          {/* Botón X para cerrar - aparece después de 3 segundos */}
-          {showCloseButton && (
-            <button
-              onClick={closeMenu}
-              className="flex items-center justify-center w-6 h-6 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
-              title="Cerrar menú"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-          
           {menuItems.map((item, index) => {
             return item.isAdmin ? (
               <Link
