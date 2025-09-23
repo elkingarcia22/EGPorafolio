@@ -482,8 +482,18 @@ function HomePageContent() {
             </div>
           </div>
 
+          {/* Ubicación */}
+          <div className="text-center mt-16">
+            <div className="max-w-2xl mx-auto">
+              <p className="text-2xl font-medium text-white/90 mb-4">
+                Bogotá, Colombia para el mundo
+              </p>
+              <div className="w-32 h-0.5 mx-auto bg-white/60"></div>
+            </div>
+          </div>
+
           {/* Información adicional */}
-          <div className="text-center mt-20">
+          <div className="text-center mt-16">
             <div className="max-w-2xl mx-auto">
               <p className="text-xl font-normal text-white/90 mb-8">
                 {t('contact.availableForProjects')}
