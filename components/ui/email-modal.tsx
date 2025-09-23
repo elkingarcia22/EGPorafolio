@@ -74,38 +74,73 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
     setSubmitStatus('idle')
 
     try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      const result = await response.json()
-
-      if (response.ok) {
-        // Si es un fallback, abrir mailto
-        if (result.fallback && result.mailto) {
-          window.location.href = result.mailto
-        }
-        
-        setSubmitStatus('success')
-        // Limpiar el formulario después de un momento
-        setTimeout(() => {
-          setFormData({ name: '', email: '', subject: '', message: '' })
-          setSubmitStatus('idle')
-          onClose()
-        }, 2000)
-      } else {
-        const errorData = await response.json()
-        console.error('Error del servidor:', errorData)
-        setSubmitStatus('error')
+      // Usar EmailJS para envío directo
+      const emailjs = await import('@emailjs/browser')
+      
+      // Configuración de EmailJS (gratuita y funciona para todos)
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_elkin_portfolio'
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'template_contact'
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YOUR_EMAILJS_PUBLIC_KEY'
+      
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        subject: formData.subject || 'Contacto desde portafolio',
+        message: formData.message,
+        to_email: 'garcia.elkin.salazar@gmail.com'
       }
       
+      const result = await emailjs.send(
+        serviceId,
+        templateId,
+        templateParams,
+        publicKey
+      )
+      
+      console.log('📧 Email enviado exitosamente:', result)
+      setSubmitStatus('success')
+      
+      // Limpiar el formulario después de un momento
+      setTimeout(() => {
+        setFormData({ name: '', email: '', subject: '', message: '' })
+        setSubmitStatus('idle')
+        onClose()
+      }, 2000)
+      
     } catch (error) {
-      console.error('Error enviando email:', error)
-      setSubmitStatus('error')
+      console.error('Error enviando email con EmailJS:', error)
+      
+      // Fallback: intentar con API route
+      try {
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        })
+
+        const result = await response.json()
+
+        if (response.ok) {
+          // Si es un fallback, abrir mailto
+          if (result.fallback && result.mailto) {
+            window.location.href = result.mailto
+          }
+          
+          setSubmitStatus('success')
+          setTimeout(() => {
+            setFormData({ name: '', email: '', subject: '', message: '' })
+            setSubmitStatus('idle')
+            onClose()
+          }, 2000)
+        } else {
+          setSubmitStatus('error')
+        }
+      } catch (apiError) {
+        console.error('Error con API route:', apiError)
+        setSubmitStatus('error')
+      }
     } finally {
       setIsSubmitting(false)
     }
