@@ -99,17 +99,17 @@ function HomePageContent() {
            {loading.about ? (
              <SectionSkeleton type="about" />
            ) : (
-        <section id="acerca" className="py-20">
+        <section id="acerca" className="py-24">
         {console.log('📄 Renderizando sección Acerca de mí')}
         <div className="px-8">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* Layout: Foto + Grid de 2x2 */}
-            <div className="grid lg:grid-cols-3 gap-6">
+            <div className="grid lg:grid-cols-3 gap-12">
               
               {/* Columna 1: Perfil - Solo Foto */}
               <div className="relative group">
                 {/* Foto real o placeholder */}
-                <div className="w-full h-full min-h-[450px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center rounded-xl overflow-hidden">
+                <div className="w-full h-full min-h-[550px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center rounded-xl overflow-hidden">
                   {(() => {
                     const profilePhoto = content.aboutInfo?.find(item => 
                       item.section === 'photo' && item.language === language
@@ -158,10 +158,10 @@ function HomePageContent() {
               </div>
 
               {/* Columna 2-3: Grid de 2x2 (Descripción + Experiencia + Especialidades) */}
-              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
                 
                 {/* Descripción - Sin card, texto alineado a la izquierda */}
-                <div className="md:col-span-2 mb-4">
+                <div className="md:col-span-2 mb-8">
                   {(() => {
                     const mainInfo = content.aboutInfo?.find(item => 
                       item.section === 'main' && item.language === language
@@ -170,7 +170,7 @@ function HomePageContent() {
                     return (
                       <>
                         <h3 
-                          className="mb-3 text-left text-gray-700 dark:text-white"
+                          className="mb-6 text-left text-gray-700 dark:text-white"
                           style={{
                             fontSize: designTokens.typography.fontSize['2xl'],
                             fontWeight: designTokens.typography.fontWeight.bold,
@@ -197,7 +197,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Experiencia */}
-                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col">
+                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-8 h-8 rounded-lg mr-3 flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -217,7 +217,7 @@ function HomePageContent() {
                     </h2>
                   </div>
                   
-                  <div className="flex-1 flex flex-col justify-center space-y-4">
+                  <div className="flex-1 flex flex-col justify-center space-y-6">
                     {(() => {
                       const experienceItems = content.aboutInfo?.filter(item => 
                         item.section === 'experience' && item.language === language
@@ -242,7 +242,7 @@ function HomePageContent() {
                       const dataToUse = experienceItems.length > 0 ? experienceItems : fallbackData;
                       
                       return dataToUse.map((experience, index) => (
-                      <div key={index} className="relative pl-4 py-2">
+                      <div key={index} className="relative pl-6 py-3">
                         <div className="absolute left-0 top-3 w-2 h-2 rounded-full" style={{background: designTokens.colors.primary.gradient}}></div>
                         <div className="absolute left-1 top-5 w-0.5 h-8 bg-gray-200 dark:bg-gray-600"></div>
                         <div>
@@ -276,7 +276,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Especialidades */}
-                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col">
+                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-8 h-8 rounded-lg mr-3 flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -296,7 +296,7 @@ function HomePageContent() {
                     </h2>
                   </div>
                   
-                  <div className="flex-1 flex flex-col justify-center space-y-3">
+                  <div className="flex-1 flex flex-col justify-center space-y-5">
                     {(() => {
                       const specialtyItems = content.aboutInfo?.filter(item => 
                         item.section === 'specialties' && item.language === language
@@ -321,7 +321,7 @@ function HomePageContent() {
                       const dataToUse = specialtyItems.length > 0 ? specialtyItems : fallbackData;
                       
                       return dataToUse.map((specialty, index) => (
-                      <div key={index} className="p-3">
+                      <div key={index} className="p-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
