@@ -81,12 +81,15 @@ function HomePageContent() {
              <div className="py-12">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
-                   <div className="text-center">
-                     <h2 className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white mb-4">
-                       {t('about.title')}
-                     </h2>
-                     {/* Línea degradada que baja hacia la sección */}
-                     <div className="w-0.5 h-16 mx-auto" style={{background: designTokens.colors.primary.gradient}}></div>
+                   <div className="relative">
+                     {/* "Acerca de mí" más a la derecha y más arriba */}
+                     <div className="absolute right-1/4 -top-8" style={{right: '22%'}}>
+                       <span className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
+                         {t('about.title')}
+                       </span>
+                       {/* Línea degradada al lado derecho del texto "Acerca de mí" */}
+                       <div className="absolute w-1 h-80 lg:h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
+                     </div>
                    </div>
                  </div>
                </div>
@@ -377,12 +380,15 @@ function HomePageContent() {
              <div className="py-12">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
-                   <div className="text-center">
-                     <h2 className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white mb-4">
-                       {t('contact.title')}
-                     </h2>
-                     {/* Línea degradada que baja hacia la sección */}
-                     <div className="w-0.5 h-16 mx-auto" style={{background: designTokens.colors.primary.gradient}}></div>
+                   <div className="relative">
+                     {/* "Contacto" más a la derecha y más arriba */}
+                     <div className="absolute right-1/4 -top-8" style={{right: '22%'}}>
+                       <span className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
+                         {t('contact.title')}
+                       </span>
+                       {/* Línea degradada al lado derecho del texto "Contacto" */}
+                       <div className="absolute w-1 h-80 lg:h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
+                     </div>
                    </div>
                  </div>
                </div>
