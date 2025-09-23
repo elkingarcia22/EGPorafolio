@@ -105,6 +105,9 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       )
       
       console.log('📧 Email enviado exitosamente:', result)
+      console.log('📧 Result status:', result.status)
+      console.log('📧 Result text:', result.text)
+      
       setSubmitStatus('success')
       showNotification({
         message: '¡Mensaje enviado exitosamente!',
@@ -112,12 +115,10 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
         duration: 3000
       })
       
-      // Limpiar el formulario después de un momento
-      setTimeout(() => {
-        setFormData({ name: '', email: '', subject: '', message: '' })
-        setSubmitStatus('idle')
-        onClose()
-      }, 2000)
+      // Limpiar el formulario y cerrar modal inmediatamente
+      setFormData({ name: '', email: '', subject: '', message: '' })
+      setSubmitStatus('idle')
+      onClose()
       
     } catch (error) {
       console.error('Error enviando email con EmailJS:', error)
@@ -160,11 +161,10 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
           }
           
           setSubmitStatus('success')
-          setTimeout(() => {
-            setFormData({ name: '', email: '', subject: '', message: '' })
-            setSubmitStatus('idle')
-            onClose()
-          }, 2000)
+          // Limpiar el formulario y cerrar modal inmediatamente
+          setFormData({ name: '', email: '', subject: '', message: '' })
+          setSubmitStatus('idle')
+          onClose()
         } else {
           setSubmitStatus('error')
           showNotification({
