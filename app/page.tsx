@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { Navbar } from '@/components/navbar'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
-import AdminModal from '@/components/admin-modal'
-import AdminPanel from '@/components/admin-panel'
 import { SectionSkeleton } from '@/components/section-skeleton'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
@@ -15,20 +13,9 @@ function HomePageContent() {
   const { content, refreshContent } = useAdmin()
   const { t } = useLanguage()
   const { loading, mounted, markSectionLoaded } = useSectionLoading()
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-
   const handleAdminClick = () => {
-    console.log('Admin click detected')
-    setIsAdminModalOpen(true)
-  }
-
-  const handleAdminAuthenticate = () => {
-    setIsAdmin(true)
-  }
-
-  const handleAdminLogout = () => {
-    setIsAdmin(false)
+    console.log('Admin click detected - redirecting to admin page')
+    window.location.href = '/admin'
   }
 
   // Asegurar que la página cargue en el home
@@ -39,28 +26,16 @@ function HomePageContent() {
     }
   }, [mounted])
 
+  console.log('🏠 HomePage renderizado')
+  
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
         <Navbar onAdminClick={handleAdminClick} />
-        
-        {/* Panel de administración */}
-        <AdminPanel isAdmin={isAdmin} onLogout={handleAdminLogout} />
-        
-        {/* Modal de autenticación */}
-        <AdminModal 
-          isOpen={isAdminModalOpen}
-          onClose={() => setIsAdminModalOpen(false)}
-          onAuthenticate={handleAdminAuthenticate}
-        />
 
       
       {/* Sección Home - EG neuromórfico */}
       <section id="home" className="pt-24">
-        {loading.home ? (
-          <SectionSkeleton type="home" />
-        ) : (
-          <NeuromorphicEG />
-        )}
+        <NeuromorphicEG />
       </section>
 
       {/* Título de sección Acerca de mí */}
@@ -80,122 +55,139 @@ function HomePageContent() {
         </div>
       </div>
 
-      {/* Sección Acerca de mí */}
+      {/* Sección Acerca de mí - Nueva Versión 3 */}
       {loading.about ? (
         <SectionSkeleton type="about" />
       ) : (
         <section id="acerca" className="py-20">
         <div className="px-8">
           <div className="max-w-6xl mx-auto">
-            <div className="grid lg:grid-cols-3 gap-12 items-start">
+            {/* Layout: Foto + Grid de 2x2 */}
+            <div className="grid lg:grid-cols-3 gap-6">
               
-              {/* Foto y nombre */}
-              <div className="lg:col-span-1">
-                <div className="relative group">
-                  {/* Foto placeholder con gradiente */}
-                  <div className="w-full h-96 rounded-2xl overflow-hidden shadow-lg">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center">
-                          <svg className="w-16 h-16 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                          </svg>
-                        </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('about.photoPlaceholder')}</p>
-                      </div>
+              {/* Columna 1: Perfil - Solo Foto */}
+              <div className="relative group">
+                {/* Foto placeholder sin card */}
+                <div className="w-full h-full min-h-[450px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-40 h-40 mx-auto mb-6 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center shadow-lg">
+                      <svg className="w-20 h-20 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
                     </div>
+                    <p className="text-xl text-gray-500 dark:text-gray-400 font-medium">{t('about.photoPlaceholder')}</p>
                   </div>
-                  
-                  {/* Overlay con gradiente al hover */}
-                  <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)', opacity: 0.2}}></div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
                 </div>
                 
-                {/* Nombre y título */}
-                <div className="text-center mt-6">
-                  <h3 className="text-2xl font-normal text-gray-600 dark:text-white mb-2">{t('about.name')}</h3>
-                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400">{t('about.professionalTitle')}</p>
-                  <div className="w-16 h-0.5 mx-auto mt-4" style={{background: designTokens.colors.primary.gradient}}></div>
-                </div>
+                {/* Overlay con gradiente al hover */}
+                <div className="absolute inset-0" style={{background: 'linear-gradient(135deg, #16A2FF 0%, #35D07F 100%)', opacity: 0.2}}></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-green-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
 
-              {/* Descripción y experiencia */}
-              <div className="lg:col-span-2 space-y-8">
-                <div>
-                  <h4 className="text-3xl font-normal text-gray-600 dark:text-white mb-6">
-                    {t('about.mainTitle')}
-                  </h4>
-                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                    {t('about.description1')}
-                  </p>
-                  <p className="text-lg font-normal text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {t('about.description2')}
+              {/* Columna 2-3: Grid de 2x2 (Descripción + Experiencia + Especialidades) */}
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                {/* Descripción - Sin card, texto alineado a la izquierda */}
+                <div className="md:col-span-2 mb-4">
+                  <h3 className="text-lg font-bold mb-3 text-left" style={{color: designTokens.colors.primary.DEFAULT}}>
+                    Del output al outcome: diseño que entrega resultados reales.
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm text-left">
+                    Senior Product & UX/UI Designer con más de 10 años de experiencia liderando proyectos digitales de principio a fin. Trabajo de manera estratégica y planificada, combinando investigación, diseño visual y sistemas de diseño para asegurar consistencia, escalabilidad y eficiencia. Complemento mi trabajo con herramientas de IA que me permiten acelerar la ideación y validación, logrando productos más robustos y efectivos.
                   </p>
                 </div>
 
-                {/* Experiencia y habilidades */}
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">{t('about.experience')}</h5>
-                    <div className="space-y-3">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
-                        <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience1')}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience1Desc')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
-                        <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience2')}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience2Desc')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
-                        <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.experience3')}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.experience3Desc')}</p>
-                        </div>
-                      </div>
+                {/* Experiencia */}
+                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col">
+                  <div className="flex items-center mb-4">
+                    <div className="w-8 h-8 rounded-lg mr-3 flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
                     </div>
+                    <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                      {t('about.experience')}
+                    </h2>
                   </div>
+                  
+                  <div className="flex-1 flex flex-col justify-center space-y-4">
+                    {[
+                      {
+                        title: "10+ years in UX/UI & Product Design",
+                        description: "Specialization in digital products"
+                      },
+                      {
+                        title: "15+ completed projects",
+                        description: "From startups to enterprises"
+                      },
+                      {
+                        title: "Strategic Systems",
+                        description: "Scalable & consistent"
+                      }
+                    ].map((experience, index) => (
+                      <div key={index} className="relative pl-4 py-2">
+                        <div className="absolute left-0 top-3 w-2 h-2 rounded-full" style={{background: designTokens.colors.primary.gradient}}></div>
+                        <div className="absolute left-1 top-5 w-0.5 h-8 bg-gray-200 dark:bg-gray-600"></div>
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{experience.title}</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{experience.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                  <div>
-                    <h5 className="text-xl font-normal text-gray-600 dark:text-white mb-4">{t('about.specialties')}</h5>
-                    <div className="space-y-3">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
-                        <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty1')}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty1Desc')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
-                        <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty2')}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty2Desc')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{background: designTokens.colors.primary.gradient}}></div>
-                        <div>
-                          <p className="text-base font-normal text-gray-600 dark:text-gray-400">{t('about.specialty3')}</p>
-                          <p className="text-sm text-gray-500 dark:text-gray-500">{t('about.specialty3Desc')}</p>
-                        </div>
-                      </div>
+                {/* Especialidades */}
+                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col">
+                  <div className="flex items-center mb-4">
+                    <div className="w-8 h-8 rounded-lg mr-3 flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
                     </div>
+                    <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                      {t('about.specialties')}
+                    </h2>
+                  </div>
+                  
+                  <div className="flex-1 flex flex-col justify-center space-y-3">
+                    {[
+                      {
+                        title: "Research & Strategy",
+                        description: "Insights, outcomes"
+                      },
+                      {
+                        title: "Interaction Design", 
+                        description: "Micro-experiences, usability"
+                      },
+                      {
+                        title: "AI-Enhanced Design",
+                        description: "Optimization, agility"
+                      }
+                    ].map((specialty, index) => (
+                      <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{specialty.title}</h3>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{specialty.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </section>
       )}
+
 
       {/* Título de sección Contacto */}
       <div className="py-40">

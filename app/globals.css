@@ -797,74 +797,8 @@
       inset -8px -8px 16px #ffffff;
   }
 
-  /* General Neumorphic Components */
-  .neo-card {
-    @apply rounded-2xl;
-    background: #f5f5f0;
-    box-shadow: 
-      20px 20px 60px #d1d9e6,
-      -20px -20px 60px #ffffff;
-    transition: all 0.3s ease;
-  }
-  
-  .neo-card:hover {
-    box-shadow: 
-      inset 20px 20px 60px #d1d9e6,
-      inset -20px -20px 60px #ffffff;
-    transform: translateY(-2px);
-  }
-  
-  .neo-button {
-    @apply rounded-xl px-6 py-3 font-medium transition-all duration-300;
-    background: #f5f5f0;
-    box-shadow: 
-      8px 8px 16px #d1d9e6,
-      -8px -8px 16px #ffffff;
-  }
-  
-  .neo-button:hover {
-    box-shadow: 
-      inset 8px 8px 16px #d1d9e6,
-      inset -8px -8px 16px #ffffff;
-  }
-  
-  .neo-button:active {
-    box-shadow: 
-      inset 8px 8px 16px #d1d9e6,
-      inset -8px -8px 16px #ffffff;
-    transform: scale(0.98);
-  }
-  
-  .neo-button-primary {
-    @apply neo-button text-white;
-    background: linear-gradient(145deg, #3b82f6, #2563eb);
-    box-shadow: 
-      8px 8px 16px #d1d9e6,
-      -8px -8px 16px #ffffff;
-  }
-  
-  .neo-input {
-    @apply rounded-xl px-4 py-3 border-0 outline-none transition-all duration-300;
-    background: #f5f5f0;
-    box-shadow: 
-      inset 8px 8px 16px #d1d9e6,
-      inset -8px -8px 16px #ffffff;
-  }
-  
-  .neo-input:focus {
-    box-shadow: 
-      inset 8px 8px 16px #d1d9e6,
-      inset -8px -8px 16px #ffffff,
-      0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  .neo-container {
-    @apply rounded-3xl p-8 m-4 transition-all duration-300;
-    background: #f5f5f0;
-    box-shadow: 
-      20px 20px 60px #d1d9e6,
-      -20px -20px 60px #ffffff;
-  }
+  /* Minimalist Components - Neuromorphic effects removed */
+  /* Only EG letters maintain neuromorphic styling */
   
   /* Glassmorphism effect */
   .glass {
@@ -1057,51 +991,7 @@
   }
 
   /* Dark Mode Cards and Components */
-  .dark .neo-card {
-    background: #1a1a1a;
-    box-shadow: 
-      6px 6px 12px #000000,
-      -6px -6px 12px #1a1a1a;
-  }
-
-  .dark .neo-button {
-    background: #1a1a1a;
-    box-shadow: 
-      4px 4px 8px #000000,
-      -4px -4px 8px #1a1a1a;
-  }
-
-  .dark .neo-button:hover {
-    box-shadow: 
-      inset 4px 4px 8px #000000,
-      inset -4px -4px 8px #1a1a1a;
-  }
-
-  .dark .neo-button-primary {
-    background: #1e40af;
-    box-shadow: 
-      4px 4px 8px #000000,
-      -4px -4px 8px #3b82f6;
-  }
-
-  .dark .neo-button-primary:hover {
-    box-shadow: 
-      inset 4px 4px 8px #000000,
-      inset -4px -4px 8px #3b82f6;
-  }
-
-  .dark .neo-input {
-    background: #1a1a1a;
-    box-shadow: 
-      inset 4px 4px 8px #000000,
-      inset -4px -4px 8px #1a1a1a;
-  }
-
-  .dark .neo-input:focus {
-    box-shadow: 
-      inset 6px 6px 12px #000000,
-      inset -6px -6px 12px #1a1a1a;
-  }
+  /* Dark mode neuromorphic classes removed - only EG letters maintain neuromorphic styling */
 
   /* Dark Mode Text Colors */
   .dark .text-gray-800 {

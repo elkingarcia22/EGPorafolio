@@ -7,6 +7,7 @@ import { useLanguage } from './language-context'
 
 interface AdminContent {
   typewriterTexts: string[]
+  projects: any[] // Array de objetos completos de proyectos
   projectTitles: string[]
   projectDescriptions: string[]
   aboutTitle: string
@@ -30,6 +31,7 @@ interface AdminContextType {
 
 const defaultContent: AdminContent = {
   typewriterTexts: mockData.typewriterTexts.map(item => item.text_content),
+  projects: mockData.projects, // Incluir los objetos completos de proyectos
   projectTitles: mockData.projects.map(item => item.title),
   projectDescriptions: mockData.projects.map(item => item.description),
   aboutTitle: mockData.aboutInfo[0]?.title || 'Acerca de mí',
@@ -77,7 +79,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           console.log('✅ Typewriter data:', typewriterData)
         }
 
-        // Fetch projects
+        // Fetch projects (sin filtrar por idioma para compartir imágenes)
         const { data: projectsData, error: projectsError } = await supabase
           .from('projects')
           .select('*')
@@ -133,6 +135,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
         const newContent = {
           typewriterTexts: typewriter.map((t: any) => t.text_content),
+          projects: projects.slice(0, 4), // Incluir los objetos completos de proyectos
           projectTitles: projects.map((p: any) => p.title).slice(0, 4),
           projectDescriptions: projects.map((p: any) => p.description).slice(0, 4),
           aboutTitle: about[0]?.title ?? 'Acerca de mí',
@@ -209,6 +212,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
       const newContent = {
         typewriterTexts: typewriter.map((t: any) => t.text_content),
+        projects: projects, // Incluir el array completo de proyectos
         projectTitles: projects.map((p: any) => p.title).slice(0, 4),
         projectDescriptions: projects.map((p: any) => p.description).slice(0, 4),
         aboutTitle: about[0]?.title ?? 'Acerca de mí',

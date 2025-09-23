@@ -20,7 +20,7 @@ const meta: Meta<typeof NeoButton> = {
     },
     variant: {
       control: 'select',
-      options: ['default', 'primary', 'secondary'],
+      options: ['primary', 'secondary', 'outline', 'ghost'],
       description: 'Variante del botón'
     },
     size: {
@@ -45,7 +45,7 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     children: 'Botón por defecto',
-    variant: 'default',
+    variant: 'primary',
     size: 'md',
     disabled: false
   },
@@ -93,7 +93,7 @@ export const Secondary: Story = {
 export const Small: Story = {
   args: {
     children: 'Pequeño',
-    variant: 'default',
+    variant: 'primary',
     size: 'sm',
     disabled: false
   },
@@ -109,7 +109,7 @@ export const Small: Story = {
 export const Large: Story = {
   args: {
     children: 'Botón grande',
-    variant: 'default',
+    variant: 'primary',
     size: 'lg',
     disabled: false
   },
@@ -125,7 +125,7 @@ export const Large: Story = {
 export const Disabled: Story = {
   args: {
     children: 'Botón deshabilitado',
-    variant: 'default',
+    variant: 'primary',
     size: 'md',
     disabled: true
   },

@@ -4,11 +4,25 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase-client'
 import { isSupabaseConfigured } from '@/lib/mock-data'
+import { designTokens } from '@/lib/design-tokens'
+import { NeoButton } from '@/components/ui/neo-button'
+import { NeoInput } from '@/components/ui/neo-input'
+import { NeoTextarea } from '@/components/ui/neo-textarea'
+import { NeoSelect } from '@/components/ui/neo-select'
+import { NeoCard } from '@/components/ui/neo-card'
 
 interface AdminData {
   typewriterTexts: Array<{ id: string; text_content: string; order_index: number }>
   projects: Array<{ id: string; title: string; description: string; cover_image_url?: string; order_index: number }>
-  aboutInfo: Array<{ id: string; title: string; description: string; profile_image_url?: string }>
+  aboutInfo: Array<{ 
+    id: string; 
+    title: string; 
+    description: string; 
+    profile_image_url?: string;
+    section: string;
+    language: string;
+    order_index?: number;
+  }>
   contactInfo: Array<{ id: string; contact_type: string; label: string; value: string; icon_name: string; order_index: number }>
   siteImages: Array<{ id: string; image_name: string; image_url: string; section: string; usage_context: string }>
 }
@@ -46,11 +60,11 @@ export default function AdminPage() {
     e.preventDefault()
     setIsLoading(true)
     setError('')
-
+    
     try {
       // Simular validación de contraseña
       if (password === 'Lineadesangre22') {
-        setIsAuthenticated(true)
+    setIsAuthenticated(true)
         localStorage.setItem('admin_authenticated', 'true')
         await loadData()
       } else {
@@ -59,7 +73,7 @@ export default function AdminPage() {
     } catch (err) {
       setError('Error de conexión')
     } finally {
-      setIsLoading(false)
+    setIsLoading(false)
     }
   }
 
@@ -74,13 +88,19 @@ export default function AdminPage() {
           { id: '4', text_content: 'Diseño inteligente IA', order_index: 4 }
         ],
         projects: [
-          { id: '1', title: 'UX Research', description: 'Investigación profunda de usuarios para crear experiencias excepcionales y centradas en el ser humano', order_index: 1 },
-          { id: '2', title: 'UI Design', description: 'Diseño de interfaces modernas, funcionales y visualmente impactantes que conectan con los usuarios', order_index: 2 },
-          { id: '3', title: 'Estrategia Digital', description: 'Desarrollo de estrategias digitales integrales que transforman marcas y productos', order_index: 3 },
-          { id: '4', title: 'Diseño con IA', description: 'Proyectos innovadores que combinan inteligencia artificial con diseño creativo', order_index: 4 }
+          { id: '1', title: 'UX Research', description: 'Investigación profunda de usuarios para crear experiencias excepcionales y centradas en el ser humano', order_index: 1, cover_image_url: '' },
+          { id: '2', title: 'UI Design', description: 'Diseño de interfaces modernas, funcionales y visualmente impactantes que conectan con los usuarios', order_index: 2, cover_image_url: '' },
+          { id: '3', title: 'Estrategia Digital', description: 'Desarrollo de estrategias digitales integrales que transforman marcas y productos', order_index: 3, cover_image_url: '' },
+          { id: '4', title: 'Diseño con IA', description: 'Proyectos innovadores que combinan inteligencia artificial con diseño creativo', order_index: 4, cover_image_url: '' }
         ],
         aboutInfo: [
-          { id: '1', title: 'Acerca de mí', description: 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.' }
+          { 
+            id: '1', 
+            title: 'Acerca de mí', 
+            description: 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
+            section: 'main',
+            language: 'es'
+          }
         ],
         contactInfo: [
           { id: '1', contact_type: 'whatsapp', label: 'WhatsApp', value: '+54 11 1234-5678', icon_name: 'whatsapp', order_index: 1 },
@@ -156,6 +176,179 @@ export default function AdminPage() {
     setIsEditing(true)
   }
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      console.log('❌ No se seleccionó ningún archivo')
+      return
+    }
+
+    console.log('📁 Archivo seleccionado:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified
+    })
+
+    try {
+      setIsLoading(true)
+      
+      // El bucket "images" ya existe (confirmado en Dashboard)
+      console.log('🪣 Usando bucket "images" existente')
+      
+      // Crear un nombre único para el archivo
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+      const filePath = `project-images/${fileName}`
+
+      console.log('📤 Preparando subida:', {
+        fileName,
+        filePath,
+        fileSize: file.size,
+        fileType: file.type
+      })
+      
+      // Verificar permisos del bucket (opcional)
+      console.log('🔐 Verificando acceso al bucket...')
+      try {
+        const { data: bucketInfo, error: bucketError } = await supabase.storage.getBucket('images')
+        if (bucketError) {
+          console.warn('⚠️ No se pudo obtener info del bucket (normal para anon key):', bucketError.message)
+        } else {
+          console.log('📊 Información del bucket:', bucketInfo)
+        }
+      } catch (error) {
+        console.warn('⚠️ Error verificando bucket (continuando...):', error)
+      }
+      
+      // Subir archivo a Supabase Storage
+      console.log('⬆️ Iniciando subida...')
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, file)
+
+      if (uploadError) {
+        console.error('❌ Error uploading file:', uploadError)
+        console.error('❌ Detalles del error:', {
+          message: uploadError.message,
+          name: uploadError.name
+        })
+        throw uploadError
+      }
+
+      console.log('✅ Imagen subida exitosamente:', uploadData)
+
+      // Obtener URL pública de la imagen
+      console.log('🔗 Generando URL pública...')
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath)
+
+      console.log('🔗 URL pública generada:', publicUrl)
+
+      // Verificar que la URL es accesible
+      console.log('🌐 Verificando accesibilidad de la URL...')
+      try {
+        const response = await fetch(publicUrl, { method: 'HEAD' })
+        console.log('📡 Respuesta de verificación:', response.status, response.statusText)
+      } catch (fetchError) {
+        console.warn('⚠️ No se pudo verificar la URL:', fetchError)
+      }
+
+      // Actualizar el elemento con la URL de la imagen según el tipo
+      console.log('💾 Actualizando elemento con URL de imagen...')
+      
+      if (editingItem.type === 'about_photo') {
+        setEditingItem({ ...editingItem, profile_image_url: publicUrl })
+      } else {
+        setEditingItem({ ...editingItem, cover_image_url: publicUrl })
+      }
+      
+      // Guardar automáticamente en la base de datos si el elemento ya existe
+      if (editingItem.id) {
+        console.log('💾 Guardando URL en la base de datos...')
+        
+        if (editingItem.type === 'about_photo') {
+          // Actualizar imagen de perfil
+          const { error: updateError } = await supabase
+            .from('about_info')
+            .update({ profile_image_url: publicUrl })
+            .eq('id', editingItem.id)
+          
+          if (updateError) {
+            console.error('❌ Error guardando URL en BD:', updateError)
+            throw updateError
+          }
+          
+          // También actualizar la imagen para el mismo perfil en el otro idioma
+          console.log('🌐 Actualizando imagen de perfil en ambos idiomas...')
+          const { error: updateOtherLangError } = await supabase
+            .from('about_info')
+            .update({ profile_image_url: publicUrl })
+            .eq('section', 'photo')
+            .neq('id', editingItem.id)
+          
+          if (updateOtherLangError) {
+            console.warn('⚠️ No se pudo actualizar el otro idioma (normal si no existe):', updateOtherLangError.message)
+          } else {
+            console.log('✅ Imagen de perfil actualizada en ambos idiomas')
+          }
+        } else {
+          // Actualizar imagen de proyecto
+          const { error: updateError } = await supabase
+            .from('projects')
+            .update({ cover_image_url: publicUrl })
+            .eq('id', editingItem.id)
+          
+          if (updateError) {
+            console.error('❌ Error guardando URL en BD:', updateError)
+            throw updateError
+          }
+          
+          // También actualizar la imagen para el mismo proyecto en el otro idioma
+          console.log('🌐 Actualizando imagen en ambos idiomas...')
+          const { error: updateOtherLangError } = await supabase
+            .from('projects')
+            .update({ cover_image_url: publicUrl })
+            .eq('order_index', editingItem.order_index)
+            .neq('id', editingItem.id)
+          
+          if (updateOtherLangError) {
+            console.warn('⚠️ No se pudo actualizar el otro idioma (normal si no existe):', updateOtherLangError.message)
+          } else {
+            console.log('✅ Imagen actualizada en ambos idiomas')
+          }
+        }
+        
+        console.log('✅ URL guardada en la base de datos')
+        // Recargar datos para reflejar cambios
+        await loadData()
+      }
+      
+      console.log('✅ Imagen actualizada exitosamente')
+      
+    } catch (error: any) {
+      console.error('❌ Error uploading image:', error)
+      console.error('❌ Stack trace:', error.stack)
+      
+      let errorMessage = 'Error al subir la imagen. '
+      if (error.message?.includes('JWT')) {
+        errorMessage += 'Problema de autenticación. Verifica las credenciales de Supabase.'
+      } else if (error.message?.includes('permission')) {
+        errorMessage += 'Problema de permisos. Verifica las políticas del bucket.'
+      } else if (error.message?.includes('size')) {
+        errorMessage += 'Archivo muy grande. Máximo 5MB.'
+      } else {
+        errorMessage += 'Verifica que Supabase esté configurado correctamente.'
+      }
+      
+      alert(errorMessage)
+    } finally {
+      setIsLoading(false)
+      console.log('🏁 Proceso de subida finalizado')
+    }
+  }
+
   const handleSave = async () => {
     if (!editingItem) return
 
@@ -163,17 +356,23 @@ export default function AdminPage() {
       const { type, ...itemData } = editingItem
       delete itemData.type
 
+      // Mapear los nuevos tipos a las tablas de la base de datos
+      let tableName = type
+      if (type.startsWith('about_')) {
+        tableName = 'about_info'
+      }
+
       let result
       if (editingItem.id) {
         // Actualizar
         result = await supabase
-          .from(type)
+          .from(tableName)
           .update(itemData)
           .eq('id', editingItem.id)
       } else {
         // Crear nuevo
         result = await supabase
-          .from(type)
+          .from(tableName)
           .insert(itemData)
       }
 
@@ -191,8 +390,14 @@ export default function AdminPage() {
     if (!confirm('¿Estás seguro de que quieres eliminar este elemento?')) return
 
     try {
+      // Mapear los nuevos tipos a las tablas de la base de datos
+      let tableName = type
+      if (type.startsWith('about_')) {
+        tableName = 'about_info'
+      }
+
       const result = await supabase
-        .from(type)
+        .from(tableName)
         .update({ is_active: false })
         .eq('id', id)
 
@@ -216,7 +421,39 @@ export default function AdminPage() {
       case 'projects':
         newItem.title = ''
         newItem.description = ''
+        newItem.cover_image_url = ''
         newItem.order_index = data.projects.length + 1
+        newItem.is_active = true
+        break
+      case 'about_main':
+        newItem.title = ''
+        newItem.description = ''
+        newItem.section = 'main'
+        newItem.language = 'es'
+        newItem.is_active = true
+        break
+      case 'about_experience':
+        newItem.title = ''
+        newItem.description = ''
+        newItem.section = 'experience'
+        newItem.language = 'es'
+        newItem.order_index = (data.aboutInfo.filter(item => item.section === 'experience').length) + 1
+        newItem.is_active = true
+        break
+      case 'about_specialties':
+        newItem.title = ''
+        newItem.description = ''
+        newItem.section = 'specialties'
+        newItem.language = 'es'
+        newItem.order_index = (data.aboutInfo.filter(item => item.section === 'specialties').length) + 1
+        newItem.is_active = true
+        break
+      case 'about_photo':
+        newItem.title = 'Foto de Perfil'
+        newItem.description = ''
+        newItem.section = 'photo'
+        newItem.language = 'es'
+        newItem.profile_image_url = ''
         newItem.is_active = true
         break
       case 'about_info':
@@ -247,102 +484,199 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 w-full max-w-md shadow-xl">
+      <div 
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ 
+          background: designTokens.colors.background.gray[50],
+          fontFamily: designTokens.typography.fontFamily.sans 
+        }}
+      >
+        <NeoCard className="w-full max-w-md p-8">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Panel de Administración
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <div className="flex items-center justify-center mb-4">
+              <svg 
+                className="w-8 h-8 mr-3" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                strokeWidth={2}
+                style={{ color: designTokens.colors.primary.blue }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <h1 
+                className="text-3xl font-bold"
+                style={{ 
+                  color: designTokens.colors.text.primary,
+                  fontSize: designTokens.typography.fontSize['3xl'],
+                  fontWeight: designTokens.typography.fontWeight.bold
+                }}
+              >
+                Panel de Administración
+              </h1>
+            </div>
+            <p 
+              className="text-sm"
+              style={{ 
+                color: designTokens.colors.text.secondary,
+                fontSize: designTokens.typography.fontSize.sm
+              }}
+            >
               Ingresa la contraseña para acceder
-            </p>
-          </div>
+              </p>
+            </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <div className="relative">
-                <input
+              <NeoInput
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Contraseña"
-                  className="w-full px-4 py-3 pr-12 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  required
+                required
+                  className="pr-12"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  style={{ color: designTokens.colors.text.tertiary }}
                 >
                   {showPassword ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   )}
                 </button>
               </div>
               {error && (
-                <p className="text-red-500 text-sm mt-2">{error}</p>
+                <p 
+                  className="text-sm mt-2"
+                  style={{ 
+                    color: designTokens.colors.state.error,
+                    fontSize: designTokens.typography.fontSize.sm
+                  }}
+                >
+                  {error}
+                </p>
               )}
             </div>
 
-            <button
-              type="submit"
+              <NeoButton
+                type="submit"
+              variant="primary"
               disabled={isLoading || !password}
-              className="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-xl hover:from-blue-600 hover:to-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
+              className="w-full"
+              style={{ 
+                background: designTokens.colors.primary.gradient,
+                fontSize: designTokens.typography.fontSize.base,
+                fontWeight: designTokens.typography.fontWeight.medium
+              }}
             >
               {isLoading ? 'Verificando...' : 'Acceder'}
-            </button>
-          </form>
+              </NeoButton>
+            </form>
 
           <div className="mt-6 text-center">
-            <button
+            <NeoButton
+              variant="ghost"
               onClick={() => router.push('/')}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 flex items-center justify-center space-x-2 mx-auto"
+              className="flex items-center justify-center space-x-2 mx-auto"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               <span>Volver al sitio</span>
-            </button>
+            </NeoButton>
           </div>
-        </div>
+          </NeoCard>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div 
+      className="min-h-screen"
+      style={{ 
+        background: designTokens.colors.background.gray[50],
+        fontFamily: designTokens.typography.fontFamily.sans 
+      }}
+    >
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div 
+        className="shadow-sm border-b"
+        style={{ 
+          background: designTokens.colors.background.light,
+          borderColor: designTokens.colors.background.gray[200],
+          boxShadow: designTokens.boxShadow.sm
+        }}
+      >
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="flex items-center space-x-3">
+              <svg 
+                className="w-8 h-8" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                strokeWidth={2}
+                style={{ color: designTokens.colors.primary.blue }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <div>
+                <h1 
+                  className="text-2xl font-bold"
+                  style={{ 
+                    color: designTokens.colors.text.primary,
+                    fontSize: designTokens.typography.fontSize['2xl'],
+                    fontWeight: designTokens.typography.fontWeight.bold
+                  }}
+                >
                 Panel de Administración
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Gestiona el contenido de tu portafolio
-              </p>
+                <p 
+                  className="text-sm"
+                  style={{ 
+                    color: designTokens.colors.text.secondary,
+                    fontSize: designTokens.typography.fontSize.sm
+                  }}
+                >
+                  Gestiona el contenido de tu portafolio
+                </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <button
+            </div>
+            <div className="flex items-center space-x-2">
+              <NeoButton
+                variant="ghost"
                 onClick={() => router.push('/')}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="flex items-center space-x-2"
               >
-                Ver Sitio
-              </button>
-              <button
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span>Ver Sitio</span>
+              </NeoButton>
+              <NeoButton
+                variant="secondary"
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                className="flex items-center space-x-2"
+                style={{ 
+                  background: designTokens.colors.state.error,
+                  color: designTokens.colors.text.white
+                }}
               >
-                Cerrar Sesión
-              </button>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Cerrar Sesión</span>
+              </NeoButton>
             </div>
           </div>
         </div>
@@ -350,15 +684,32 @@ export default function AdminPage() {
 
       {/* Banner de advertencia si Supabase no está configurado */}
       {!isSupabaseConfigured() && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
+        <div 
+          className="border-l-4 p-4"
+          style={{ 
+            background: '#FEF3C7',
+            borderColor: designTokens.colors.state.warning
+          }}
+        >
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg 
+                className="h-5 w-5" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+                style={{ color: designTokens.colors.state.warning }}
+              >
                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+              <p 
+                className="text-sm"
+                style={{ 
+                  color: '#92400E',
+                  fontSize: designTokens.typography.fontSize.sm
+                }}
+              >
                 <strong>Modo de desarrollo:</strong> Supabase no está configurado. Los cambios se guardan localmente.
                 <br />
                 <a href="/scripts/setup-env.js" className="underline">Configura Supabase</a> para persistir los datos.
@@ -369,217 +720,692 @@ export default function AdminPage() {
       )}
 
       <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 bg-white dark:bg-gray-800 shadow-sm border-r border-gray-200 dark:border-gray-700 min-h-screen">
+          {/* Sidebar */}
+        <div 
+          className="w-64 shadow-sm border-r min-h-screen"
+          style={{ 
+            background: designTokens.colors.background.light,
+            borderColor: designTokens.colors.background.gray[200],
+            boxShadow: designTokens.boxShadow.sm
+          }}
+        >
           <nav className="p-4">
             <div className="space-y-2">
               {[
-                { key: 'typewriter', label: 'Textos Typewriter', icon: '⌨️' },
-                { key: 'projects', label: 'Proyectos', icon: '💼' },
-                { key: 'about', label: 'Acerca de Mí', icon: '👤' },
-                { key: 'contact', label: 'Contacto', icon: '📞' },
-                { key: 'images', label: 'Imágenes', icon: '🖼️' }
+                { 
+                  key: 'typewriter', 
+                  label: 'Textos Typewriter', 
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  )
+                },
+                { 
+                  key: 'projects', 
+                  label: 'Cards Proyectos', 
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
+                    </svg>
+                  )
+                },
+                { 
+                  key: 'about', 
+                  label: 'Acerca de Mí', 
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  )
+                },
+                { 
+                  key: 'contact', 
+                  label: 'Contacto', 
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  )
+                }
               ].map(tab => (
-                <button
+                  <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key as any)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeTab === tab.key
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors"
+                  style={{
+                    background: activeTab === tab.key 
+                      ? designTokens.colors.primary.blue + '20' 
+                      : 'transparent',
+                    color: activeTab === tab.key 
+                      ? designTokens.colors.primary.blue 
+                      : designTokens.colors.text.primary,
+                    borderRadius: designTokens.borderRadius.lg,
+                    fontSize: designTokens.typography.fontSize.sm,
+                    fontWeight: designTokens.typography.fontWeight.medium,
+                    transition: `all ${designTokens.transition.duration[200]} ${designTokens.transition.timing.out}`
+                  }}
+                  onMouseEnter={(e) => {
+                    if (activeTab !== tab.key) {
+                      e.currentTarget.style.background = designTokens.colors.background.gray[100]
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (activeTab !== tab.key) {
+                      e.currentTarget.style.background = 'transparent'
+                    }
+                  }}
                 >
-                  <span className="text-lg">{tab.icon}</span>
-                  <span className="font-medium">{tab.label}</span>
-                </button>
-              ))}
+                  <span style={{ color: activeTab === tab.key ? designTokens.colors.primary.blue : designTokens.colors.text.secondary }}>
+                    {tab.icon}
+                  </span>
+                  <span>{tab.label}</span>
+                  </button>
+                ))}
             </div>
-          </nav>
+              </nav>
         </div>
 
-        {/* Main Content */}
+          {/* Main Content */}
         <div className="flex-1 p-6">
           {activeTab === 'typewriter' && (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Textos Typewriter
-                </h2>
-                <button
-                  onClick={() => handleAddNew('typewriter_texts')}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                <h2 
+                  className="text-xl font-semibold"
+                  style={{ 
+                    color: designTokens.colors.text.primary,
+                    fontSize: designTokens.typography.fontSize.xl,
+                    fontWeight: designTokens.typography.fontWeight.semibold
+                  }}
                 >
-                  Agregar Texto
-                </button>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                  Textos Typewriter
+                  </h2>
+                <NeoButton
+                  variant="primary"
+                  onClick={() => handleAddNew('typewriter_texts')}
+                  className="flex items-center space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Agregar Texto</span>
+                </NeoButton>
+                  </div>
+              <NeoCard className="overflow-hidden">
+                <table className="min-w-full divide-y" style={{ borderColor: designTokens.colors.background.gray[200] }}>
+                  <thead style={{ background: designTokens.colors.background.gray[50] }}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Orden
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Texto
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Acciones
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="divide-y" style={{ borderColor: designTokens.colors.background.gray[200] }}>
                     {data.typewriterTexts.map((item) => (
                       <tr key={item.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <td 
+                          className="px-6 py-4 whitespace-nowrap text-sm"
+                          style={{ 
+                            color: designTokens.colors.text.primary,
+                            fontSize: designTokens.typography.fontSize.sm
+                          }}
+                        >
                           {item.order_index}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                        <td 
+                          className="px-6 py-4 text-sm"
+                          style={{ 
+                            color: designTokens.colors.text.primary,
+                            fontSize: designTokens.typography.fontSize.sm
+                          }}
+                        >
                           {item.text_content}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
+                          <NeoButton
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleEdit(item, 'typewriter_texts')}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                            className="mr-3"
+                            style={{ color: designTokens.colors.primary.blue }}
                           >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                             Editar
-                          </button>
-                          <button
+                          </NeoButton>
+                          <NeoButton
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleDelete(item.id, 'typewriter_texts')}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                            style={{ color: designTokens.colors.state.error }}
                           >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                             Eliminar
-                          </button>
+                          </NeoButton>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-          )}
+                  </NeoCard>
+                </div>
+              )}
 
           {activeTab === 'projects' && (
-            <div>
+                  <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Proyectos
-                </h2>
-                <button
-                  onClick={() => handleAddNew('projects')}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                <h2 
+                  className="text-xl font-semibold"
+                  style={{ 
+                    color: designTokens.colors.text.primary,
+                    fontSize: designTokens.typography.fontSize.xl,
+                    fontWeight: designTokens.typography.fontWeight.semibold
+                  }}
                 >
-                  Agregar Proyecto
-                </button>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                  Cards Proyectos
+                </h2>
+                <NeoButton
+                  variant="primary"
+                  onClick={() => handleAddNew('projects')}
+                  className="flex items-center space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span>Agregar Card</span>
+                </NeoButton>
+                  </div>
+              <NeoCard className="overflow-hidden">
+                <table className="min-w-full divide-y" style={{ borderColor: designTokens.colors.background.gray[200] }}>
+                  <thead style={{ background: designTokens.colors.background.gray[50] }}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Orden
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Título
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Descripción
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
+                        Imagen
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Acciones
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="divide-y" style={{ borderColor: designTokens.colors.background.gray[200] }}>
                     {data.projects.map((item) => (
                       <tr key={item.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <td 
+                          className="px-6 py-4 whitespace-nowrap text-sm"
+                          style={{ 
+                            color: designTokens.colors.text.primary,
+                            fontSize: designTokens.typography.fontSize.sm
+                          }}
+                        >
                           {item.order_index}
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                        <td 
+                          className="px-6 py-4 text-sm font-medium"
+                          style={{ 
+                            color: designTokens.colors.text.primary,
+                            fontSize: designTokens.typography.fontSize.sm
+                          }}
+                        >
                           {item.title}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                        <td 
+                          className="px-6 py-4 text-sm max-w-xs truncate"
+                          style={{ 
+                            color: designTokens.colors.text.primary,
+                            fontSize: designTokens.typography.fontSize.sm
+                          }}
+                        >
                           {item.description}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
+                          {item.cover_image_url ? (
+                            <img 
+                              src={item.cover_image_url} 
+                              alt={item.title}
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                  </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <NeoButton
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleEdit(item, 'projects')}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
+                            className="mr-3"
+                            style={{ color: designTokens.colors.primary.blue }}
                           >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                             Editar
-                          </button>
-                          <button
+                          </NeoButton>
+                          <NeoButton
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleDelete(item.id, 'projects')}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                            style={{ color: designTokens.colors.state.error }}
                           >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                             Eliminar
-                          </button>
+                          </NeoButton>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-          )}
+                          </NeoCard>
+                </div>
+              )}
 
           {activeTab === 'about' && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Acerca de Mí
-                </h2>
-                <button
-                  onClick={() => handleAddNew('about_info')}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                  Agregar Información
-                </button>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Título
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Descripción
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Acciones
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {data.aboutInfo.map((item) => (
-                      <tr key={item.id}>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                          {item.title}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
-                          {item.description}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleEdit(item, 'about_info')}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDelete(item.id, 'about_info')}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                          >
-                            Eliminar
-                          </button>
-                        </td>
+            <div className="space-y-8">
+              {/* Sección Principal - Título y Descripción */}
+              <NeoCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Información Principal
+                    </h2>
+                  <NeoButton
+                    onClick={() => handleAddNew('about_main')}
+                    variant="primary"
+                    className="flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Agregar Información</span>
+                    </NeoButton>
+                  </div>
+                  
+                <div className="overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Idioma
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Título Principal
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Descripción
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Acciones
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      {data.aboutInfo.filter(item => item.section === 'main').map((item) => (
+                        <tr key={item.id}>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                              {item.language === 'es' ? 'ES' : 'EN'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                            {item.title}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                            {item.description}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <NeoButton
+                              onClick={() => handleEdit(item, 'about_main')}
+                              variant="ghost"
+                              size="sm"
+                              className="mr-2"
+                            >
+                              Editar
+                            </NeoButton>
+                            <NeoButton
+                              onClick={() => handleDelete(item.id, 'about_main')}
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              Eliminar
+                            </NeoButton>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                          </div>
+              </NeoCard>
+
+              {/* Sección Experiencia */}
+              <NeoCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Experiencia
+                  </h2>
+                  <NeoButton
+                    onClick={() => handleAddNew('about_experience')}
+                    variant="primary"
+                    className="flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Agregar Experiencia</span>
+                  </NeoButton>
+                        </div>
+                
+                <div className="overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Idioma
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Título
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            Descripción
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Orden
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      {data.aboutInfo.filter(item => item.section === 'experience').sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((item) => (
+                        <tr key={item.id}>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                              {item.language === 'es' ? 'ES' : 'EN'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                            {item.title}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                            {item.description}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                            {item.order_index}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <NeoButton
+                              onClick={() => handleEdit(item, 'about_experience')}
+                              variant="ghost"
+                              size="sm"
+                              className="mr-2"
+                            >
+                              Editar
+                            </NeoButton>
+                            <NeoButton
+                              onClick={() => handleDelete(item.id, 'about_experience')}
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              Eliminar
+                            </NeoButton>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                        </div>
+                      </NeoCard>
+
+              {/* Sección Especialidades */}
+              <NeoCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Especialidades
+                  </h2>
+                  <NeoButton
+                    onClick={() => handleAddNew('about_specialties')}
+                    variant="primary"
+                    className="flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Agregar Especialidad</span>
+                  </NeoButton>
+                </div>
+                
+                <div className="overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Idioma
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Título
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Descripción
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Orden
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      {data.aboutInfo.filter(item => item.section === 'specialties').sort((a, b) => (a.order_index || 0) - (b.order_index || 0)).map((item) => (
+                        <tr key={item.id}>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                              {item.language === 'es' ? 'ES' : 'EN'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                            {item.title}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                            {item.description}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                            {item.order_index}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <NeoButton
+                              onClick={() => handleEdit(item, 'about_specialties')}
+                              variant="ghost"
+                              size="sm"
+                              className="mr-2"
+                            >
+                              Editar
+                            </NeoButton>
+                            <NeoButton
+                              onClick={() => handleDelete(item.id, 'about_specialties')}
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              Eliminar
+                            </NeoButton>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  </div>
+              </NeoCard>
+
+              {/* Sección Foto de Perfil */}
+              <NeoCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    Foto de Perfil
+                    </h2>
+                  <NeoButton
+                    onClick={() => handleAddNew('about_photo')}
+                    variant="primary"
+                    className="flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Agregar Foto</span>
+                    </NeoButton>
+                  </div>
+                  
+                <div className="overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Idioma
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Imagen
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          URL
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      {data.aboutInfo.filter(item => item.section === 'photo').map((item) => (
+                        <tr key={item.id}>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                            <span className={`px-2 py-1 text-xs rounded-full ${item.language === 'es' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'}`}>
+                              {item.language === 'es' ? 'ES' : 'EN'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                            {item.profile_image_url ? (
+                              <img 
+                                src={item.profile_image_url} 
+                                alt="Profile" 
+                                className="w-12 h-12 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                            {item.profile_image_url || 'Sin imagen'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <NeoButton
+                              onClick={() => handleEdit(item, 'about_photo')}
+                              variant="ghost"
+                              size="sm"
+                              className="mr-2"
+                            >
+                              Editar
+                            </NeoButton>
+                            <NeoButton
+                              onClick={() => handleDelete(item.id, 'about_photo')}
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              Eliminar
+                            </NeoButton>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                          </div>
+              </NeoCard>
+                        </div>
           )}
 
           {activeTab === 'contact' && (
@@ -587,14 +1413,14 @@ export default function AdminPage() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Información de Contacto
-                </h2>
+                    </h2>
                 <button
                   onClick={() => handleAddNew('contact_info')}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 >
                   Agregar Contacto
                 </button>
-              </div>
+                  </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-700">
@@ -630,36 +1456,36 @@ export default function AdminPage() {
                             onClick={() => handleEdit(item, 'contact_info')}
                             className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
                           >
-                            Editar
+                              Editar
                           </button>
                           <button
                             onClick={() => handleDelete(item.id, 'contact_info')}
                             className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                           >
-                            Eliminar
+                              Eliminar
                           </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-          )}
+                  </div>
+                </div>
+              )}
 
           {activeTab === 'images' && (
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Imágenes del Sitio
-                </h2>
+                  </h2>
                 <button
                   onClick={() => handleAddNew('site_images')}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 >
                   Agregar Imagen
                 </button>
-              </div>
+                            </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-700">
@@ -708,53 +1534,89 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-          )}
+                  </div>
+                </div>
+              )}
         </div>
       </div>
 
       {/* Edit Modal */}
       {isEditing && editingItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div 
+          className="fixed inset-0 flex items-center justify-center z-50 p-4"
+          style={{ 
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: designTokens.zIndex.modal
+          }}
+        >
+          <div 
+            className="w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 rounded-2xl shadow-2xl"
+            style={{ 
+              background: designTokens.colors.background.light,
+              borderRadius: designTokens.borderRadius['2xl'],
+              boxShadow: designTokens.boxShadow['2xl']
+            }}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 
+                className="text-lg font-semibold"
+                style={{ 
+                  color: designTokens.colors.text.primary,
+                  fontSize: designTokens.typography.fontSize.lg,
+                  fontWeight: designTokens.typography.fontWeight.semibold
+                }}
+              >
                 {editingItem.id ? 'Editar' : 'Agregar'} {editingItem.type === 'typewriter_texts' ? 'Texto' : editingItem.type === 'projects' ? 'Proyecto' : 'Elemento'}
               </h3>
-              <button
+              <NeoButton
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsEditing(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="p-2"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </button>
+              </NeoButton>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {editingItem.type === 'typewriter_texts' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Orden
                     </label>
-                    <input
+                          <NeoInput
                       type="number"
                       value={editingItem.order_index || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Orden de aparición"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Texto
                     </label>
-                    <textarea
+                    <NeoTextarea
                       value={editingItem.text_content || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, text_content: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-24"
                       placeholder="Ingresa el texto que aparecerá en el typewriter"
+                      rows={4}
                     />
                   </div>
                 </>
@@ -763,42 +1625,419 @@ export default function AdminPage() {
               {editingItem.type === 'projects' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Orden
                     </label>
-                    <input
+                          <NeoInput
                       type="number"
                       value={editingItem.order_index || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="Orden de aparición"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Título
                     </label>
-                    <input
+                          <NeoInput
                       type="text"
                       value={editingItem.title || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Título del proyecto"
+                          />
+                        </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                            Descripción
+                          </label>
+                    <NeoTextarea
+                      value={editingItem.description || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                      placeholder="Descripción del proyecto"
+                      rows={4}
+                          />
+                        </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Imagen
+                    </label>
+                    <div className="space-y-4">
+                      {editingItem.cover_image_url && (
+                        <div className="flex items-center space-x-4">
+                          <img 
+                            src={editingItem.cover_image_url} 
+                            alt="Preview"
+                            className="w-20 h-20 object-cover rounded-lg border"
+                          />
+                          <NeoButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingItem({ ...editingItem, cover_image_url: '' })}
+                            style={{ color: designTokens.colors.state.error }}
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Eliminar
+                          </NeoButton>
+                  </div>
+                      )}
+                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="image-upload"
+                        />
+                        <label 
+                          htmlFor="image-upload" 
+                          className="cursor-pointer flex flex-col items-center space-y-2"
+                        >
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {editingItem.cover_image_url ? 'Cambiar imagen' : 'Subir imagen'}
+                          </span>
+                        </label>
+                </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Sección Principal */}
+              {editingItem.type === 'about_main' && (
+                <>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Idioma
+                    </label>
+                    <NeoSelect
+                      value={editingItem.language || 'es'}
+                      onChange={(e) => setEditingItem({ ...editingItem, language: e.target.value })}
+                      options={[
+                        { value: 'es', label: 'Español' },
+                        { value: 'en', label: 'English' }
+                      ]}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Título Principal
+                    </label>
+                              <NeoInput
+                      type="text"
+                      value={editingItem.title || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                      placeholder="Del output al outcome: diseño que entrega resultados reales."
+                    />
+                            </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Descripción
                     </label>
-                    <textarea
+                    <NeoTextarea
                       value={editingItem.description || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white h-24"
-                      placeholder="Descripción del proyecto"
+                      placeholder="Senior Product & UX/UI Designer con más de 10 años de experiencia..."
+                      rows={6}
+                    />
+                        </div>
+                </>
+              )}
+
+              {/* Experiencia */}
+              {editingItem.type === 'about_experience' && (
+                <>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Idioma
+                    </label>
+                    <NeoSelect
+                      value={editingItem.language || 'es'}
+                      onChange={(e) => setEditingItem({ ...editingItem, language: e.target.value })}
+                      options={[
+                        { value: 'es', label: 'Español' },
+                        { value: 'en', label: 'English' }
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Orden
+                    </label>
+                    <NeoInput
+                      type="number"
+                      value={editingItem.order_index || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
+                      placeholder="1, 2, 3..."
+                    />
+                  </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Título
+                    </label>
+                    <NeoInput
+                      type="text"
+                      value={editingItem.title || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                      placeholder="10+ years in UX/UI & Product Design"
+                    />
+                  </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Descripción
+                    </label>
+                    <NeoTextarea
+                      value={editingItem.description || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                      placeholder="Specialization in digital products"
+                      rows={3}
+                    />
+                  </div>
+                </>
+              )}
+                  
+              {/* Especialidades */}
+              {editingItem.type === 'about_specialties' && (
+                <>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Idioma
+                    </label>
+                    <NeoSelect
+                      value={editingItem.language || 'es'}
+                      onChange={(e) => setEditingItem({ ...editingItem, language: e.target.value })}
+                      options={[
+                        { value: 'es', label: 'Español' },
+                        { value: 'en', label: 'English' }
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Orden
+                    </label>
+                    <NeoInput
+                      type="number"
+                      value={editingItem.order_index || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
+                      placeholder="1, 2, 3..."
+                    />
+                </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Título
+                    </label>
+                    <NeoInput
+                      type="text"
+                      value={editingItem.title || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                      placeholder="Research & Strategy"
+                    />
+                  </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Descripción
+                    </label>
+                    <NeoTextarea
+                      value={editingItem.description || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                      placeholder="Insights, outcomes"
+                      rows={3}
                     />
                   </div>
                 </>
               )}
 
+              {/* Foto de Perfil */}
+              {editingItem.type === 'about_photo' && (
+                <>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Idioma
+                    </label>
+                    <NeoSelect
+                      value={editingItem.language || 'es'}
+                      onChange={(e) => setEditingItem({ ...editingItem, language: e.target.value })}
+                      options={[
+                        { value: 'es', label: 'Español' },
+                        { value: 'en', label: 'English' }
+                      ]}
+                    />
+                  </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Imagen de Perfil
+                    </label>
+                    <div className="space-y-4">
+                      {editingItem.profile_image_url && (
+                        <div className="flex items-center space-x-4">
+                          <img 
+                            src={editingItem.profile_image_url} 
+                            alt="Preview"
+                            className="w-20 h-20 object-cover rounded-lg border"
+                          />
+                          <NeoButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingItem({ ...editingItem, profile_image_url: '' })}
+                            style={{ color: designTokens.colors.state.error }}
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Eliminar
+                          </NeoButton>
+                  </div>
+                      )}
+                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                          id="profile-image-upload"
+                        />
+                        <label 
+                          htmlFor="profile-image-upload" 
+                          className="cursor-pointer flex flex-col items-center space-y-2"
+                        >
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {editingItem.profile_image_url ? 'Cambiar imagen' : 'Subir imagen de perfil'}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Sección Legacy - about_info */}
               {editingItem.type === 'about_info' && (
                 <>
                   <div>
@@ -830,57 +2069,83 @@ export default function AdminPage() {
               {editingItem.type === 'contact_info' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Tipo de Contacto
                     </label>
-                    <select
+                    <NeoSelect
                       value={editingItem.contact_type || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, contact_type: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
-                      <option value="">Seleccionar tipo</option>
-                      <option value="whatsapp">WhatsApp</option>
-                      <option value="linkedin">LinkedIn</option>
-                      <option value="email">Email</option>
-                      <option value="location">Ubicación</option>
-                      <option value="phone">Teléfono</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Etiqueta
-                    </label>
-                    <input
-                      type="text"
-                      value={editingItem.label || ''}
-                      onChange={(e) => setEditingItem({ ...editingItem, label: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="Etiqueta del contacto"
+                      options={[
+                        { value: '', label: 'Seleccionar tipo' },
+                        { value: 'whatsapp', label: 'WhatsApp' },
+                        { value: 'linkedin', label: 'LinkedIn' },
+                        { value: 'email', label: 'Email' },
+                        { value: 'location', label: 'Ubicación' },
+                        { value: 'phone', label: 'Teléfono' }
+                      ]}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      Etiqueta
+                    </label>
+                        <NeoInput
+                      type="text"
+                      value={editingItem.label || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, label: e.target.value })}
+                      placeholder="Etiqueta del contacto"
+                        />
+                      </div>
+                  <div>
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Valor
                     </label>
-                    <input
+                        <NeoInput
                       type="text"
                       value={editingItem.value || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, value: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="Valor del contacto"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label 
+                      className="block text-sm font-medium mb-2"
+                      style={{ 
+                        color: designTokens.colors.text.primary,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
                       Orden
                     </label>
-                    <input
+                        <NeoInput
                       type="number"
                       value={editingItem.order_index || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, order_index: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
-                  </div>
+                      placeholder="Orden de aparición"
+                        />
+                      </div>
                 </>
               )}
 
@@ -913,7 +2178,7 @@ export default function AdminPage() {
                       <option value="about">Acerca de</option>
                       <option value="contact">Contacto</option>
                     </select>
-                  </div>
+                </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       URL de la Imagen
@@ -924,8 +2189,8 @@ export default function AdminPage() {
                       onChange={(e) => setEditingItem({ ...editingItem, image_url: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="https://ejemplo.com/imagen.jpg"
-                    />
-                  </div>
+                        />
+                      </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Contexto de Uso
@@ -942,22 +2207,35 @@ export default function AdminPage() {
               )}
             </div>
 
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
+            <div className="flex justify-end space-x-3 mt-8">
+              <NeoButton
+                variant="ghost"
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="flex items-center space-x-2"
               >
-                Cancelar
-              </button>
-              <button
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Cancelar</span>
+              </NeoButton>
+              <NeoButton
+                variant="primary"
                 onClick={handleSave}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                className="flex items-center space-x-2"
+                style={{ 
+                  background: designTokens.colors.primary.gradient,
+                  fontSize: designTokens.typography.fontSize.sm,
+                  fontWeight: designTokens.typography.fontWeight.medium
+                }}
               >
-                Guardar
-              </button>
-            </div>
-          </div>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Guardar</span>
+                </NeoButton>
+              </div>
         </div>
+      </div>
       )}
     </div>
   )

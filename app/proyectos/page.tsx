@@ -1,102 +1,53 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ExternalLink, Github, Eye, Filter, Search } from 'lucide-react'
 import { Navbar } from '@/components/navbar'
 import { NeoCard } from '@/components/ui/neo-card'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoInput } from '@/components/ui/neo-input'
+import { useAdmin } from '@/contexts/admin-context'
 import Image from 'next/image'
 
-// Mock data - esto vendrá de Supabase
-const projects = [
-  {
-    id: 1,
-    title: 'E-commerce Mobile App',
-    description: 'Aplicación móvil completa para e-commerce con diseño centrado en el usuario',
-    longDescription: 'Desarrollé una aplicación móvil completa para e-commerce que incluye catálogo de productos, carrito de compras, sistema de pagos y seguimiento de pedidos. El diseño se enfoca en la experiencia del usuario con navegación intuitiva y procesos optimizados.',
-    image: '/api/placeholder/600/400',
-    technologies: ['Figma', 'Adobe XD', 'React Native', 'Node.js'],
-    projectUrl: '#',
-    githubUrl: '#',
-    behanceUrl: '#',
-    featured: true,
-    category: 'mobile'
-  },
-  {
-    id: 2,
-    title: 'Dashboard Analytics',
-    description: 'Dashboard interactivo para análisis de datos empresariales',
-    longDescription: 'Creé un dashboard completo para análisis de datos empresariales con visualizaciones interactivas, reportes en tiempo real y sistema de alertas. La interfaz permite a los usuarios explorar datos de manera intuitiva.',
-    image: '/api/placeholder/600/400',
-    technologies: ['Figma', 'D3.js', 'React', 'TypeScript'],
-    projectUrl: '#',
-    githubUrl: '#',
-    behanceUrl: '#',
-    featured: true,
-    category: 'web'
-  },
-  {
-    id: 3,
-    title: 'Sistema de Reservas',
-    description: 'Plataforma web para gestión de reservas y citas',
-    longDescription: 'Diseñé y desarrollé una plataforma web completa para gestión de reservas que incluye calendario interactivo, notificaciones automáticas y sistema de pagos integrado.',
-    image: '/api/placeholder/600/400',
-    technologies: ['Sketch', 'Vue.js', 'Firebase', 'Stripe'],
-    projectUrl: '#',
-    githubUrl: '#',
-    behanceUrl: '#',
-    featured: false,
-    category: 'web'
-  },
-  {
-    id: 4,
-    title: 'App de Fitness',
-    description: 'Aplicación móvil para seguimiento de ejercicios y nutrición',
-    longDescription: 'Desarrollé una aplicación móvil completa para fitness que incluye rutinas personalizadas, seguimiento de progreso, planificación nutricional y comunidad de usuarios.',
-    image: '/api/placeholder/600/400',
-    technologies: ['Figma', 'React Native', 'Firebase', 'MongoDB'],
-    projectUrl: '#',
-    githubUrl: '#',
-    behanceUrl: '#',
-    featured: true,
-    category: 'mobile'
-  },
-  {
-    id: 5,
-    title: 'Portal Educativo',
-    description: 'Plataforma educativa con cursos interactivos',
-    longDescription: 'Creé una plataforma educativa completa con sistema de cursos, evaluaciones, certificaciones y seguimiento de progreso. Incluye herramientas de colaboración y gamificación.',
-    image: '/api/placeholder/600/400',
-    technologies: ['Adobe XD', 'React', 'Node.js', 'PostgreSQL'],
-    projectUrl: '#',
-    githubUrl: '#',
-    behanceUrl: '#',
-    featured: false,
-    category: 'web'
-  },
-  {
-    id: 6,
-    title: 'App de Delivery',
-    description: 'Aplicación móvil para delivery de comida',
-    longDescription: 'Diseñé una aplicación móvil para delivery que incluye catálogo de restaurantes, seguimiento en tiempo real, sistema de calificaciones y pagos integrados.',
-    image: '/api/placeholder/600/400',
-    technologies: ['Figma', 'Flutter', 'Firebase', 'Google Maps'],
-    projectUrl: '#',
-    githubUrl: '#',
-    behanceUrl: '#',
-    featured: false,
-    category: 'mobile'
-  }
-]
 
 const categories = ['all', 'web', 'mobile', 'design']
 
 export default function ProjectsPage() {
+  const { data } = useAdmin()
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null)
+  const [selectedProject, setSelectedProject] = useState<any>(null)
+  
+  // Usar datos reales de Supabase o fallback a mock data
+  const projects = data.projects.length > 0 ? data.projects : [
+    {
+      id: 1,
+      title: 'E-commerce Mobile App',
+      description: 'Aplicación móvil completa para e-commerce con diseño centrado en el usuario',
+      longDescription: 'Desarrollé una aplicación móvil completa para e-commerce que incluye catálogo de productos, carrito de compras, sistema de pagos y seguimiento de pedidos. El diseño se enfoca en la experiencia del usuario con navegación intuitiva y procesos optimizados.',
+      cover_image_url: '/api/placeholder/600/400',
+      technologies: ['Figma', 'Adobe XD', 'React Native', 'Node.js'],
+      project_url: '#',
+      github_url: '#',
+      behance_url: '#',
+      featured: true,
+      category: 'mobile'
+    },
+    {
+      id: 2,
+      title: 'Dashboard Analytics',
+      description: 'Dashboard interactivo para análisis de datos empresariales',
+      longDescription: 'Creé un dashboard completo para análisis de datos empresariales con visualizaciones interactivas, reportes en tiempo real y sistema de alertas. La interfaz permite a los usuarios explorar datos de manera intuitiva.',
+      cover_image_url: '/api/placeholder/600/400',
+      technologies: ['Figma', 'D3.js', 'React', 'TypeScript'],
+      project_url: '#',
+      github_url: '#',
+      behance_url: '#',
+      featured: true,
+      category: 'web'
+    }
+  ]
 
   const filteredProjects = projects.filter(project => {
     const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory
@@ -244,12 +195,22 @@ export default function ProjectsPage() {
                       onClick={() => setSelectedProject(project)}
                     >
                       <div className="relative h-40 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 rounded-xl mb-4 overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                            <Eye className="w-6 h-6 text-white" />
+                        {project.cover_image_url ? (
+                          <Image
+                            src={project.cover_image_url}
+                            alt={project.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                              <Eye className="w-6 h-6 text-white" />
+                            </div>
                           </div>
-                        </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                       </div>
                       
                       <div className="space-y-3">
@@ -321,12 +282,22 @@ export default function ProjectsPage() {
                 </div>
                 
                 <div className="relative h-64 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900 dark:to-primary-800 rounded-xl mb-6 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                      <Eye className="w-10 h-10 text-white" />
+                  {selectedProject.cover_image_url ? (
+                    <Image
+                      src={selectedProject.cover_image_url}
+                      alt={selectedProject.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 80vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-20 h-20 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <Eye className="w-10 h-10 text-white" />
+                      </div>
                     </div>
-                  </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
                 
                 <div className="space-y-6">
@@ -349,18 +320,24 @@ export default function ProjectsPage() {
                   </div>
                   
                   <div className="flex gap-4">
-                    <NeoButton variant="primary">
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Ver Proyecto
-                    </NeoButton>
-                    <NeoButton variant="outline">
-                      <Github className="w-4 h-4 mr-2" />
-                      Código
-                    </NeoButton>
-                    <NeoButton variant="outline">
-                      <Eye className="w-4 h-4 mr-2" />
-                      Behance
-                    </NeoButton>
+                    {selectedProject.project_url && selectedProject.project_url !== '#' && (
+                      <NeoButton variant="primary" onClick={() => window.open(selectedProject.project_url, '_blank')}>
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Ver Proyecto
+                      </NeoButton>
+                    )}
+                    {selectedProject.github_url && selectedProject.github_url !== '#' && (
+                      <NeoButton variant="outline" onClick={() => window.open(selectedProject.github_url, '_blank')}>
+                        <Github className="w-4 h-4 mr-2" />
+                        Código
+                      </NeoButton>
+                    )}
+                    {selectedProject.behance_url && selectedProject.behance_url !== '#' && (
+                      <NeoButton variant="outline" onClick={() => window.open(selectedProject.behance_url, '_blank')}>
+                        <Eye className="w-4 h-4 mr-2" />
+                        Behance
+                      </NeoButton>
+                    )}
                   </div>
                 </div>
               </div>

@@ -2,53 +2,79 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 const meta: Meta<typeof ThemeToggle> = {
-  title: 'UI Components/ThemeToggle',
+  title: 'Components/ThemeToggle',
   component: ThemeToggle,
   parameters: {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Botón para alternar entre tema claro y oscuro. Incluye iconos de sol y luna con animaciones suaves.'
-      }
-    }
-  },
-  argTypes: {
-    size: {
-      control: 'select',
-      options: ['sm', 'md', 'lg'],
-      description: 'Tamaño del botón'
+        component: 'Botón para alternar entre tema claro y oscuro.',
+      },
     },
-    className: {
-      control: 'text',
-      description: 'Clases CSS adicionales'
-    }
-  }
+  },
+  tags: ['autodocs'],
+  argTypes: {
+    className: { control: 'text' },
+    size: {
+      control: { type: 'select' },
+      options: ['small', 'medium', 'large'],
+      description: 'Tamaño del botón',
+    },
+  },
 }
 
 export default meta
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof ThemeToggle>
 
 export const Default: Story = {
   args: {
-    size: 'md'
-  }
+    size: 'medium',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Toggle de tema por defecto con tamaño mediano.',
+      },
+    },
+  },
 }
 
 export const Small: Story = {
   args: {
-    size: 'sm'
-  }
+    size: 'small',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Toggle de tema con tamaño pequeño.',
+      },
+    },
+  },
 }
 
 export const Large: Story = {
   args: {
-    size: 'lg'
-  }
+    size: 'large',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Toggle de tema con tamaño grande.',
+      },
+    },
+  },
 }
 
 export const CustomStyling: Story = {
   args: {
-    size: 'md',
-    className: 'border-2 border-blue-500'
-  }
+    size: 'medium',
+    className: 'border-2 border-purple-500 p-1 rounded-md',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Toggle de tema con estilos personalizados.',
+      },
+    },
+  },
 }

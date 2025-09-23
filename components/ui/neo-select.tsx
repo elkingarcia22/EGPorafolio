@@ -22,9 +22,9 @@ export const NeoSelect: React.FC<NeoSelectProps> = ({
 }) => {
   const [isFocused, setIsFocused] = React.useState(false)
 
-  const baseClasses = 'neo-input w-full transition-all duration-300 appearance-none cursor-pointer'
+  const baseClasses = 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer'
   
-  const variantClasses = 'shadow-neomorphic-inset dark:shadow-neomorphic-inset-dark focus:shadow-neomorphic dark:focus:shadow-neomorphic-dark'
+  const variantClasses = 'shadow-sm focus:shadow-md'
 
   return (
     <motion.div

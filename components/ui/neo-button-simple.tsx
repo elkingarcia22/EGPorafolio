@@ -18,14 +18,14 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
   disabled = false,
   ...props
 }) => {
-  const baseClasses = 'neo-button relative overflow-hidden font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-full'
+  const baseClasses = 'relative overflow-hidden font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-lg'
   
   const variantClasses = {
-    default: 'neo-button-default',
-    primary: 'neo-button-primary',
-    secondary: 'neo-button-secondary',
-    outline: 'neo-button-outline',
-    ghost: 'neo-button-ghost'
+    default: 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600',
+    primary: 'bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300',
+    secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500',
+    outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
+    ghost: 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
   }
   
   const sizeClasses = {

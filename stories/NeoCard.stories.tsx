@@ -42,7 +42,7 @@ export const Default: Story = {
 export const Elevated: Story = {
   args: {
     children: 'Tarjeta con efecto elevado',
-    variant: 'elevated'
+    variant: 'outset'
   }
 }
 
@@ -76,6 +76,6 @@ export const CustomStyling: Story = {
   args: {
     children: 'Tarjeta con estilos personalizados',
     className: 'w-80 h-40',
-    variant: 'elevated'
+    variant: 'outset'
   }
 }

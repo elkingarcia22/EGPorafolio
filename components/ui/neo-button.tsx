@@ -42,7 +42,7 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
     onPointerOut,
     ...htmlProps 
   } = props
-  const baseClasses = 'relative overflow-hidden font-normal transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50'
+  const baseClasses = 'relative overflow-hidden font-normal transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 rounded-lg'
   
   const variantClasses = {
     primary: 'bg-gray-800 text-white hover:bg-gray-700 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300',
@@ -72,13 +72,13 @@ export const NeoButton: React.FC<NeoButtonProps> = ({
       disabled={disabled || loading}
       {...htmlProps}
     >
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center space-x-2">
         {loading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           icon && <span className="flex-shrink-0">{icon}</span>
         )}
-        <span>{children}</span>
+        {children}
       </div>
     </motion.button>
   )

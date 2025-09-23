@@ -14,7 +14,11 @@
     "workflow": "node scripts/dev-workflow.js",
     "new-feature": "node scripts/dev-workflow.js new-feature",
     "check-status": "node scripts/dev-workflow.js check-status",
-    "pre-commit": "node scripts/dev-workflow.js pre-commit"
+    "pre-commit": "node scripts/dev-workflow.js pre-commit",
+    "setup-storage": "node setup-storage.js",
+    "debug-storage": "node debug-storage.js",
+    "create-bucket": "node create-bucket-manual.js",
+    "setup-policies": "node setup-storage-policies.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.1.0",

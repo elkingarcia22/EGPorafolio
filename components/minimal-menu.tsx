@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useLanguage } from '@/contexts/language-context'
 import { designTokens } from '@/lib/design-tokens'
 
@@ -11,33 +11,81 @@ interface MinimalMenuProps {
 
 export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
   const { t, language } = useLanguage()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   
   const menuItems = useMemo(() => [
     { name: t('nav.home'), href: '/#home' },
     { name: t('home.myWork'), href: '/#proyectos' },
     { name: t('nav.about'), href: '/#acerca' },
+    { name: 'Acerca de mí 2', href: '/acerca-de-mi-2' },
+    { name: 'Acerca de mí 3', href: '/acerca-de-mi-3' },
     { name: t('nav.contact'), href: '/#contacto' },
     { name: 'CV', href: '/cv' },
     { name: t('nav.admin'), href: '/admin', isAdmin: true }
   ], [t, language])
 
-  return (
-    <div className="flex items-center group">
-      {/* Botón de menú */}
-      <div className="flex flex-col gap-1 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200 z-50">
-        <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 group-hover:rotate-45 group-hover:translate-y-1.5"></div>
-        <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-opacity duration-300 group-hover:opacity-0"></div>
-        <div className="w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 group-hover:-rotate-45 group-hover:-translate-y-1.5"></div>
-      </div>
+  // Función para alternar el menú
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+  }
 
-      {/* Menú expandible horizontal - se activa con hover */}
-      <div className="overflow-hidden transition-all duration-500 ease-in-out group-hover:max-w-[600px] group-hover:opacity-100 max-w-0 opacity-0">
-        <div className="flex items-center space-x-4 pl-4">
+  // Función para cerrar el menú
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+  }
+
+  // Efecto para cerrar el menú cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
+  return (
+    <div 
+      ref={menuRef}
+      className="flex items-center"
+    >
+      {/* Botón de menú - clickeable para abrir/cerrar */}
+      <button 
+        onClick={toggleMenu}
+        className="flex flex-col gap-1 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors duration-200 z-50"
+      >
+        <div className={`w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 ${
+          isMenuOpen ? 'rotate-45 translate-y-1.5' : ''
+        }`}></div>
+        <div className={`w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-opacity duration-300 ${
+          isMenuOpen ? 'opacity-0' : ''
+        }`}></div>
+        <div className={`w-6 h-0.5 bg-gray-600 dark:bg-gray-400 transition-transform duration-300 ${
+          isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
+        }`}></div>
+      </button>
+
+      {/* Menú expandible horizontal - se activa solo con click */}
+      <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+        isMenuOpen 
+          ? 'max-w-[600px] opacity-100 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg' 
+          : 'max-w-0 opacity-0'
+      }`}>
+        <div className={`flex items-center space-x-4 ${isMenuOpen ? 'pl-0' : 'pl-4'}`}>
           {menuItems.map((item, index) => {
             return item.isAdmin ? (
               <Link
                 key={index}
                 href={item.href}
+                onClick={closeMenu}
                 className="relative text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 text-sm font-light whitespace-nowrap px-2 py-1 group/item"
               >
                 {item.name}
@@ -53,6 +101,9 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
                 href={item.href}
                 className="relative text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 text-sm font-light whitespace-nowrap px-2 py-1 group/item"
                 onClick={(e) => {
+                  // Cerrar el menú
+                  closeMenu()
+                  
                   // Si es un enlace interno con hash, hacer scroll suave
                   if (item.href.startsWith('/#')) {
                     e.preventDefault()

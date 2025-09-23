@@ -16,11 +16,20 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
   const { theme, setTheme } = useTheme()
   const { t } = useLanguage()
   const [mounted, setMounted] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   console.log('Navbar rendered with onAdminClick:', typeof onAdminClick)
 
   useEffect(() => {
     setMounted(true)
+    
+    const handleScroll = () => {
+      const scrollTop = window.scrollY
+      setIsScrolled(scrollTop > 50)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   if (!mounted) {
@@ -30,7 +39,11 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
   const isDark = theme === 'dark'
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm">
+    <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? 'bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm' 
+        : 'bg-transparent'
+    }`}>
       <div className="flex items-center justify-between px-8 py-4">
         <MinimalMenu onAdminClick={onAdminClick} />
         <div className="flex items-center space-x-2">

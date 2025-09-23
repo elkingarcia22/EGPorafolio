@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { TypewriterText } from '../components/typewriter-text'
+import { TypewriterText } from '@/components/typewriter-text'
 
 const meta: Meta<typeof TypewriterText> = {
   title: 'Components/TypewriterText',

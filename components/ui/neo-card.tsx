@@ -21,12 +21,12 @@ export const NeoCard: React.FC<NeoCardProps> = ({
   variant = 'default',
   size = 'md',
 }) => {
-  const baseClasses = 'neo-card cursor-pointer transition-all duration-300'
+  const baseClasses = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer transition-all duration-300'
   
   const variantClasses = {
-    default: 'shadow-neomorphic dark:shadow-neomorphic-dark',
-    inset: 'shadow-neomorphic-inset dark:shadow-neomorphic-inset-dark',
-    outset: 'shadow-neomorphic dark:shadow-neomorphic-dark'
+    default: 'shadow-sm hover:shadow-md',
+    inset: 'shadow-inner',
+    outset: 'shadow-md'
   }
   
   const sizeClasses = {
@@ -36,7 +36,7 @@ export const NeoCard: React.FC<NeoCardProps> = ({
   }
   
   const hoverClasses = hover 
-    ? 'hover:shadow-neomorphic-inset dark:hover:shadow-neomorphic-inset-dark hover:-translate-y-1' 
+    ? 'hover:shadow-lg hover:-translate-y-1' 
     : ''
 
   return (

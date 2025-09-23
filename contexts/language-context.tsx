@@ -27,7 +27,29 @@ const translations = {
     // Home
     'home.title': 'EG',
     'home.subtitle': 'Diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
+      'home.name': 'Elkin García',
     'home.myWork': 'Mi trabajo',
+    'home.yearsExperience': 'Años de experiencia',
+    'home.projectsCompleted': 'Proyectos completados',
+    'home.happyClients': 'Clientes satisfechos',
+    'home.clientSatisfaction': 'Satisfacción del cliente',
+    'home.ctaTitle': '¿Listo para crear algo increíble?',
+    'home.ctaDescription': 'Trabajemos juntos para transformar tus ideas en experiencias digitales excepcionales.',
+    'home.ctaButton': 'Comenzar proyecto',
+    'home.ctaButtonSecondary': 'Conocer más',
+    
+    // Testimonials
+    'testimonials.title': 'Lo que dicen mis clientes',
+    'testimonials.subtitle': 'Testimonios reales de proyectos exitosos y clientes satisfechos.',
+    'testimonials.client1.name': 'María González',
+    'testimonials.client1.role': 'CEO, TechStart',
+    'testimonials.client1.quote': 'Elkin transformó completamente nuestra plataforma. Su enfoque en UX y atención al detalle resultó en un aumento del 40% en conversiones.',
+    'testimonials.client2.name': 'Santiago Rodríguez',
+    'testimonials.client2.role': 'Director de Producto, InnovateLab',
+    'testimonials.client2.quote': 'Trabajar con Elkin fue una experiencia excepcional. Su capacidad para entender las necesidades del usuario y traducirlas en diseño es impresionante.',
+    'testimonials.client3.name': 'Ana Martínez',
+    'testimonials.client3.role': 'Fundadora, DigitalFlow',
+    'testimonials.client3.quote': 'Elkin no solo diseñó nuestra app, sino que nos ayudó a definir nuestra estrategia digital. Un profesional de primer nivel.',
     
     // About
     'about.title': 'Acerca de mí',
@@ -154,7 +176,29 @@ const translations = {
     // Home
     'home.title': 'EG',
     'home.subtitle': 'UX/UI Designer with over 5 years of experience creating exceptional digital experiences.',
+      'home.name': 'Elkin García',
     'home.myWork': 'My work',
+    'home.yearsExperience': 'Years of experience',
+    'home.projectsCompleted': 'Projects completed',
+    'home.happyClients': 'Happy clients',
+    'home.clientSatisfaction': 'Client satisfaction',
+    'home.ctaTitle': 'Ready to create something amazing?',
+    'home.ctaDescription': 'Let\'s work together to transform your ideas into exceptional digital experiences.',
+    'home.ctaButton': 'Start project',
+    'home.ctaButtonSecondary': 'Learn more',
+    
+    // Testimonials
+    'testimonials.title': 'What my clients say',
+    'testimonials.subtitle': 'Real testimonials from successful projects and satisfied clients.',
+    'testimonials.client1.name': 'Maria Gonzalez',
+    'testimonials.client1.role': 'CEO, TechStart',
+    'testimonials.client1.quote': 'Elkin completely transformed our platform. His UX focus and attention to detail resulted in a 40% increase in conversions.',
+    'testimonials.client2.name': 'Santiago Rodriguez',
+    'testimonials.client2.role': 'Product Director, InnovateLab',
+    'testimonials.client2.quote': 'Working with Elkin was an exceptional experience. His ability to understand user needs and translate them into design is impressive.',
+    'testimonials.client3.name': 'Ana Martinez',
+    'testimonials.client3.role': 'Founder, DigitalFlow',
+    'testimonials.client3.quote': 'Elkin not only designed our app, but helped us define our digital strategy. A top-tier professional.',
     
     // About
     'about.title': 'About me',

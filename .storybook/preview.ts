@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/nextjs-vite'
 import '../app/globals.css'
+import { GlobalDecorator } from './GlobalDecorator'
 
 const preview: Preview = {
   parameters: {
@@ -25,6 +26,7 @@ const preview: Preview = {
       },
     },
   },
+  decorators: [GlobalDecorator],
 };
 
 export default preview;

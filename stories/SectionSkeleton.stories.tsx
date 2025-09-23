@@ -2,42 +2,64 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { SectionSkeleton } from '@/components/section-skeleton'
 
 const meta: Meta<typeof SectionSkeleton> = {
-  title: 'Loading/SectionSkeleton',
+  title: 'Components/SectionSkeleton',
   component: SectionSkeleton,
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Componente de esqueleto para mostrar estados de carga. Proporciona una representación visual del contenido mientras se carga.'
-      }
-    }
+        component: 'Componente de esqueleto para mostrar estados de carga de diferentes secciones.',
+      },
+    },
   },
+  tags: ['autodocs'],
   argTypes: {
     type: {
-      control: 'select',
+      control: { type: 'select' },
       options: ['home', 'about', 'contact'],
-      description: 'Tipo de esqueleto a mostrar'
-    }
-  }
+      description: 'Tipo de esqueleto a mostrar',
+    },
+  },
 }
 
 export default meta
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof SectionSkeleton>
 
 export const Home: Story = {
   args: {
-    type: 'home'
-  }
+    type: 'home',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Esqueleto de carga para la sección home.',
+      },
+    },
+  },
 }
 
 export const About: Story = {
   args: {
-    type: 'about'
-  }
+    type: 'about',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Esqueleto de carga para la sección acerca de mí.',
+      },
+    },
+  },
 }
 
 export const Contact: Story = {
   args: {
-    type: 'contact'
-  }
+    type: 'contact',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Esqueleto de carga para la sección de contacto.',
+      },
+    },
+  },
 }
