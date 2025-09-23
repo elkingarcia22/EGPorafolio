@@ -4,6 +4,7 @@ import { useState, useEffect, useLayoutEffect } from 'react'
 import { Navbar } from '@/components/navbar'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import { SectionSkeleton } from '@/components/section-skeleton'
+import { EmailModal } from '@/components/ui/email-modal'
 import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
 import { useSectionLoading } from '@/hooks/useSectionLoading'
@@ -14,6 +15,7 @@ function HomePageContent() {
   const { t, language } = useLanguage()
   const { loading, mounted, markSectionLoaded } = useSectionLoading()
   const designTokens = useDesignTokens()
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
   
   console.log('🏠 HomePageContent renderizado - mounted:', mounted, 'loading:', loading)
   
@@ -450,22 +452,24 @@ function HomePageContent() {
                 </div>
               </a>
 
-              {/* Ubicación Card */}
-              <div className="group cursor-pointer">
+              {/* Email Card */}
+              <div 
+                className="group cursor-pointer"
+                onClick={() => setIsEmailModalOpen(true)}
+              >
                 <div className="bg-transparent border-2 border-white rounded-2xl p-8 hover:border-white/80 transition-all duration-300 group-hover:scale-105">
                   <div className="text-center">
                     {/* Icono */}
                     <div className="flex justify-center mb-6">
                       <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     </div>
                     
                     {/* Contenido */}
-                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.location')}</h3>
-                    <p className="text-lg font-normal text-white/90 mb-4">{content.contactInfo.location}</p>
-                    <p className="text-sm text-white/80 mb-6">{t('contact.remoteWork')}</p>
+                    <h3 className="text-2xl font-normal text-white mb-3">{t('contact.email')}</h3>
+                    <p className="text-lg font-normal text-white/90 mb-4">elkin@ejemplo.com</p>
+                    <p className="text-sm text-white/80 mb-6">{t('contact.sendEmail')}</p>
                     
                     {/* Línea blanca suave */}
                     <div className="w-16 h-0.5 mx-auto group-hover:w-24 transition-all duration-300 bg-white/60"></div>
@@ -479,11 +483,8 @@ function HomePageContent() {
           {/* Información adicional */}
           <div className="text-center mt-20">
             <div className="max-w-2xl mx-auto">
-              <p className="text-xl font-normal text-white/90 mb-4">
+              <p className="text-xl font-normal text-white/90 mb-8">
                 {t('contact.availableForProjects')}
-              </p>
-              <p className="text-lg text-white/80 mb-8">
-                {t('contact.responseTime')}
               </p>
               <div className="w-24 h-0.5 mx-auto bg-white/60"></div>
             </div>
@@ -491,6 +492,12 @@ function HomePageContent() {
         </div>
         </section>
       )}
+
+      {/* Modal de Email */}
+      <EmailModal 
+        isOpen={isEmailModalOpen} 
+        onClose={() => setIsEmailModalOpen(false)} 
+      />
     </div>
   )
 }
