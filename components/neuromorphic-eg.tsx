@@ -80,9 +80,8 @@ export const NeuromorphicEG = () => {
           {/* Letra E */}
           <div className="relative">
             <span 
-              className="font-black select-none"
+              className="font-black select-none text-[8rem] md:text-[25rem] lg:text-[50rem]"
               style={{
-                fontSize: 'clamp(25rem, 60vw, 50rem)', // Más pequeño en mobile
                 lineHeight: '0.8',
                 fontFamily: 'system-ui, -apple-system, sans-serif',
                 backgroundImage: getTextGradient(),
@@ -104,9 +103,8 @@ export const NeuromorphicEG = () => {
           {/* Letra G */}
           <div className="relative">
             <span 
-              className="font-black select-none"
+              className="font-black select-none text-[8rem] md:text-[25rem] lg:text-[50rem]"
               style={{
-                fontSize: 'clamp(25rem, 60vw, 50rem)', // Más pequeño en mobile
                 lineHeight: '0.8',
                 fontFamily: 'system-ui, -apple-system, sans-serif',
                 backgroundImage: getTextGradient(),
