@@ -81,15 +81,6 @@ function HomePageContent() {
              <div className="py-32">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
-                   <div className="relative">
-                     <div className="absolute -left-20">
-                       <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
-                         {t('about.title')}
-                       </span>
-                       {/* Línea degradada que baja hacia la sección */}
-                       <div className="absolute w-1 h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
-                     </div>
-                   </div>
                  </div>
                </div>
              </div>
@@ -101,6 +92,14 @@ function HomePageContent() {
            ) : (
         <section id="acerca" className="py-24">
         {console.log('📄 Renderizando sección Acerca de mí')}
+        
+        {/* Título "Acerca de mí" - Solo visible en mobile */}
+        <div className="md:hidden text-center mb-8">
+          <h2 className="text-2xl font-normal text-gray-600 dark:text-white">
+            {t('about.title')}
+          </h2>
+        </div>
+        
         <div className="px-8">
           <div className="max-w-7xl mx-auto">
             {/* Layout: Foto + Grid de 2x2 */}
@@ -371,15 +370,6 @@ function HomePageContent() {
              <div className="py-40">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
-                   <div className="relative">
-                     <div className="absolute right-0">
-                       <span className="text-2xl md:text-3xl font-normal text-gray-600 dark:text-white">
-                         {t('contact.title')}
-                       </span>
-                         {/* Línea degradada que baja hacia la sección */}
-                         <div className="absolute w-1 h-40" style={{left: '-13px', top: '2px', background: designTokens.colors.primary.gradient}}></div>
-                     </div>
-                   </div>
                  </div>
                </div>
              </div>
@@ -390,6 +380,14 @@ function HomePageContent() {
              <SectionSkeleton type="contact" />
            ) : (
         <section id="contacto" className="py-20" style={{background: designTokens.colors.primary.gradient}}>
+        
+        {/* Título "Contacto" - Solo visible en mobile */}
+        <div className="md:hidden text-center mb-8">
+          <h2 className="text-2xl font-normal text-white">
+            {t('contact.title')}
+          </h2>
+        </div>
+        
         <div className="px-8">
 
           {/* Cards horizontales limpias */}
