@@ -47,7 +47,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
         `Saludos cordiales.`
       )
       
-      const mailtoLink = `mailto:elkin@ejemplo.com?subject=${subject}&body=${body}`
+      const mailtoLink = `mailto:garcia.elkin.salazar@gmail.com?subject=${subject}&body=${body}`
       
       // Abrir el cliente de email
       window.open(mailtoLink, '_blank')
@@ -62,6 +62,42 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
       }, 2000)
       
     } catch (error) {
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDirectSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setSubmitStatus('success')
+        // Limpiar el formulario después de un momento
+        setTimeout(() => {
+          setFormData({ name: '', email: '', subject: '', message: '' })
+          setSubmitStatus('idle')
+          onClose()
+        }, 2000)
+      } else {
+        setSubmitStatus('error')
+      }
+      
+    } catch (error) {
+      console.error('Error enviando email:', error)
       setSubmitStatus('error')
     } finally {
       setIsSubmitting(false)
@@ -195,15 +231,27 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 px-4 rounded-lg font-medium text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: designTokens.colors.primary.gradient }}
-              >
-                {isSubmitting ? t('contact.sending') : t('contact.sendEmail')}
-              </button>
+              {/* Submit Buttons */}
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={handleDirectSubmit}
+                  disabled={isSubmitting}
+                  className="w-full py-3 px-4 rounded-lg font-medium text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: designTokens.colors.primary.gradient }}
+                >
+                  {isSubmitting ? t('contact.sending') : 'Enviar directamente'}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full py-3 px-4 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Abrir mi cliente de email
+                </button>
+              </div>
             </form>
           </motion.div>
         </motion.div>

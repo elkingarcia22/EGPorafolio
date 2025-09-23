@@ -468,7 +468,7 @@ function HomePageContent() {
                     
                     {/* Contenido */}
                     <h3 className="text-2xl font-normal text-white mb-3">{t('contact.email')}</h3>
-                    <p className="text-lg font-normal text-white/90 mb-4">elkin@ejemplo.com</p>
+                    <p className="text-lg font-normal text-white/90 mb-4">garcia.elkin.salazar@gmail.com</p>
                     <p className="text-sm text-white/80 mb-6">{t('contact.sendEmail')}</p>
                     
                     {/* Línea blanca suave */}
