@@ -141,7 +141,7 @@ export const NeuromorphicEG = () => {
         <div className="md:hidden text-center mt-4">
           <TypewriterText 
             words={content.typewriterTexts}
-            className="text-xl font-normal text-gray-600 dark:text-white"
+            className="text-2xl font-normal text-gray-600 dark:text-white"
             typingSpeed={80}
             deletingSpeed={40}
             pauseTime={2500}
@@ -186,14 +186,14 @@ export const NeuromorphicEG = () => {
         </div>
         
         {/* Título "Mi trabajo" - Solo visible en mobile */}
-        <div className="md:hidden text-center mt-12 mb-8">
+        <div className="md:hidden text-center mt-12 mb-4">
           <h2 className="text-2xl font-normal text-gray-600 dark:text-white">
             {t('home.myWork')}
           </h2>
         </div>
 
         {/* Sección de proyectos - Grid responsivo */}
-        <div id="proyectos" className="mt-8 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8">
+        <div id="proyectos" className="mt-4 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8">
           {/* Proyecto 1 - UX Research */}
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}

@@ -81,10 +81,11 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
     >
       {currentText}
       <span 
-        className="typewriter-cursor"
+        className="typewriter-cursor text-sm"
         style={{
           color: '#2563eb',
-          animation: 'cursor-blink 0.8s infinite reverse'
+          animation: 'cursor-blink 0.8s infinite reverse',
+          fontSize: '0.7em'
         }}
       >
         |
