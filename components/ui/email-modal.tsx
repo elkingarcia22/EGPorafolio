@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDesignTokens } from '@/hooks/useDesignTokens'
 import { useLanguage } from '@/contexts/language-context'
+import { useNotificationHelpers } from '@/components/ui/notification-system'
 
 interface EmailModalProps {
   isOpen: boolean
@@ -11,6 +12,10 @@ interface EmailModalProps {
 }
 
 export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage()
+  const designTokens = useDesignTokens()
+  const { showNotification } = useNotificationHelpers()
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,9 +24,6 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  
-  const designTokens = useDesignTokens()
-  const { t } = useLanguage()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
