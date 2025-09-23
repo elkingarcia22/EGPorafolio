@@ -486,7 +486,7 @@ function HomePageContent() {
           <div className="text-center mt-20">
             <div className="max-w-2xl mx-auto">
               <p className="text-xl font-normal text-white/90 mb-4">
-                Bogotá, Colombia para el mundo
+                {t('contact.locationText')}
               </p>
               <p className="text-xl font-normal text-white/90 mb-8">
                 {t('contact.availableForProjects')}
