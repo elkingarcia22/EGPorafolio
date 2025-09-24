@@ -1312,8 +1312,12 @@ export default function AdminPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y" style={{ borderColor: designTokens.colors.background.gray[200] }}>
-                    {data.projects.map((item) => (
+                  <tbody className="divide-y" style={{ borderColor: designTokens.background.gray[200] }}>
+                    {(() => {
+                      console.log('🔍 Admin - data.projects:', data.projects);
+                      console.log('🔍 Admin - data.projects.length:', data.projects?.length || 0);
+                      console.log('🔍 Admin - data:', data);
+                      return data.projects.map((item) => (
                       <tr key={item.id}>
                         <td 
                           className="px-6 py-4 whitespace-nowrap text-sm"
@@ -1401,7 +1405,8 @@ export default function AdminPage() {
                           </NeoButton>
                         </td>
                       </tr>
-                    ))}
+                    ));
+                    })()}
                   </tbody>
                 </table>
                           </NeoCard>
