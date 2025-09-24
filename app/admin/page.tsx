@@ -51,7 +51,20 @@ const getTextColorForGradient = (gradientCss: string) => {
 
 interface AdminData {
   typewriterTexts: Array<{ id: string; text_content: string; order_index: number }>
-  projects: Array<{ id: string; title: string; description: string; cover_image_url?: string; order_index: number }>
+  projects: Array<{ 
+    id: string; 
+    title: string; 
+    title_es?: string;
+    title_en?: string;
+    description: string; 
+    description_es?: string;
+    description_en?: string;
+    cover_image_url?: string; 
+    order_index: number;
+    status?: string;
+    featured?: boolean;
+    slug?: string;
+  }>
   aboutInfo: Array<{ 
     id: string; 
     title: string; 
