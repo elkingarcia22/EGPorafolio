@@ -173,7 +173,7 @@ export default function ProjectPage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
       <Navbar onAdminClick={() => {}} />
       
-      {/* Hero Section - Banner Impactante de Lado a Lado */}
+      {/* Hero Section - Solo Banner de Imagen */}
       <section className="pt-24 pb-0 relative overflow-hidden">
         {/* Background con imagen de banner */}
         <div className="absolute inset-0">
@@ -182,13 +182,12 @@ export default function ProjectPage() {
             alt="Hero Background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40"></div>
-          <div className="absolute inset-0" style={{background: `linear-gradient(135deg, ${designTokens.colors.primary.gradient.replace('linear-gradient(135deg, ', '').replace(' 0%,', '').replace(' 100%)', '')} 0%, transparent 70%)`}}></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-          {/* Breadcrumb mejorado */}
-          <nav className="mb-12">
+          {/* Breadcrumb */}
+          <nav className="mb-8">
             <div className="flex items-center space-x-2 text-sm text-white/80">
               <a href="/" className="hover:text-white transition-colors">Inicio</a>
               <span>/</span>
@@ -198,60 +197,68 @@ export default function ProjectPage() {
             </div>
           </nav>
 
-          {/* Hero Content - Banner de lado a lado */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[600px]">
-            {/* Text Content - Lado izquierdo */}
+          {/* Solo el título del proyecto en el banner */}
+          <div className="text-center">
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight text-white mb-8">
+              {project.title}
+            </h1>
+            <div className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium shadow-lg bg-white/20 backdrop-blur-sm border border-white/30">
+              <span className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></span>
+              <span className="text-white">{project.project_type || 'Proyecto'}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Información del Proyecto */}
+      <section className="py-24 bg-white dark:bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Información del proyecto */}
             <div className="space-y-8">
-              {/* Project Type Badge */}
-              <div className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium shadow-lg bg-white/20 backdrop-blur-sm border border-white/30">
-                <span className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></span>
-                <span className="text-white">{project.project_type || 'Proyecto'}</span>
+              {/* Descripción */}
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                  Sobre el Proyecto
+                </h2>
+                <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {project.description}
+                </p>
               </div>
-
-              {/* Main Title */}
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white">
-                {project.title}
-              </h1>
-
-              {/* Description */}
-              <p className="text-xl md:text-2xl text-white/90 leading-relaxed font-light">
-                {project.description}
-              </p>
               
-              {/* Project Metadata */}
-              <div className="grid grid-cols-2 gap-6 pt-8">
+              {/* Metadatos del proyecto */}
+              <div className="grid grid-cols-2 gap-6">
                 <div className="group">
-                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Cliente</h3>
-                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.client_name || 'Confidencial'}</p>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Cliente</h3>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.client_name || 'Confidencial'}</p>
                 </div>
                 <div className="group">
-                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Duración</h3>
-                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.duration || '3 meses'}</p>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Duración</h3>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.duration || '3 meses'}</p>
                 </div>
                 <div className="group">
-                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Equipo</h3>
-                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.team_size || '4 personas'}</p>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Equipo</h3>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.team_size || '4 personas'}</p>
                 </div>
                 <div className="group">
-                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Categoría</h3>
-                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.project_type || 'UX/UI Design'}</p>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Categoría</h3>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.project_type || 'UX/UI Design'}</p>
                 </div>
               </div>
               
-              {/* Action Buttons */}
+              {/* Botones de acción */}
               <div className="flex flex-wrap gap-6 pt-8">
-                <button className="px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30">
+                <button className="px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl" style={{background: designTokens.colors.primary.gradient}}>
                   Ver Proyecto Completo
                 </button>
-                <button className="px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105 border-2 border-white/50 hover:border-white hover:bg-white/10">
+                <button className="px-8 py-4 rounded-xl font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105">
                   Ver Código
                 </button>
               </div>
             </div>
 
-            {/* Hero Image - Lado derecho */}
+            {/* Imagen del proyecto */}
             <div className="relative">
-              {/* Imagen principal del proyecto */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <img 
                   src={project.cover_image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop'} 
@@ -262,8 +269,8 @@ export default function ProjectPage() {
               </div>
               
               {/* Elementos decorativos */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-30 animate-pulse bg-white"></div>
-              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full opacity-40 animate-pulse bg-white"></div>
+              <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-20 animate-pulse" style={{background: designTokens.colors.primary.gradient}}></div>
+              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full opacity-30 animate-pulse" style={{background: designTokens.colors.primary.gradient}}></div>
             </div>
           </div>
         </div>
