@@ -42,7 +42,7 @@ export function ProjectParagraph({ content }: ProjectParagraphProps) {
   }
 
   return (
-    <p className={`${getSizeClasses()} ${getAlignmentClasses()} ${getColorClasses()} leading-relaxed`}>
+    <p className={`${getSizeClasses()} ${getAlignmentClasses()} ${getColorClasses()} leading-relaxed mb-6`}>
       {text}
     </p>
   )

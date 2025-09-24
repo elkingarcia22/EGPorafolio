@@ -16,7 +16,7 @@ export function ProjectHeading({ content }: ProjectHeadingProps) {
   const { text, level = 2, style = 'default', alignment = 'left' } = content
 
   const getHeadingClasses = () => {
-    const baseClasses = 'font-bold text-gray-900 dark:text-white'
+    const baseClasses = 'font-bold text-gray-900 dark:text-white leading-tight'
     const alignmentClasses = {
       left: 'text-left',
       center: 'text-center',
@@ -24,17 +24,17 @@ export function ProjectHeading({ content }: ProjectHeadingProps) {
     }
 
     const sizeClasses = {
-      1: 'text-4xl md:text-5xl lg:text-6xl',
-      2: 'text-3xl md:text-4xl lg:text-5xl',
-      3: 'text-2xl md:text-3xl lg:text-4xl',
-      4: 'text-xl md:text-2xl lg:text-3xl',
-      5: 'text-lg md:text-xl lg:text-2xl',
-      6: 'text-base md:text-lg lg:text-xl'
+      1: 'text-4xl md:text-5xl lg:text-6xl mb-8',
+      2: 'text-3xl md:text-4xl lg:text-5xl mb-6',
+      3: 'text-2xl md:text-3xl lg:text-4xl mb-4',
+      4: 'text-xl md:text-2xl lg:text-3xl mb-4',
+      5: 'text-lg md:text-xl lg:text-2xl mb-3',
+      6: 'text-base md:text-lg lg:text-xl mb-3'
     }
 
     const styleClasses = {
       default: '',
-      hero: 'text-5xl md:text-6xl lg:text-7xl font-extrabold',
+      hero: 'text-5xl md:text-6xl lg:text-7xl font-extrabold mb-8',
       gradient: 'bg-clip-text text-transparent',
       outline: 'text-transparent bg-clip-text'
     }
