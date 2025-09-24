@@ -173,116 +173,97 @@ export default function ProjectPage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
       <Navbar onAdminClick={() => {}} />
       
-      {/* Hero Section - Estilo Behance Impactante */}
-      <section className="pt-24 pb-0 relative overflow-hidden min-h-screen flex items-center">
-        {/* Background dinámico con múltiples capas */}
+      {/* Hero Section - Banner Impactante de Lado a Lado */}
+      <section className="pt-24 pb-0 relative overflow-hidden">
+        {/* Background con imagen de banner */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-[#0a0a0a] dark:to-gray-800"></div>
-          <div className="absolute inset-0 opacity-30" style={{background: `radial-gradient(circle at 20% 80%, #16A2FF 0%, transparent 50%)`}}></div>
-          <div className="absolute inset-0 opacity-20" style={{background: `radial-gradient(circle at 80% 20%, #35D07F 0%, transparent 50%)`}}></div>
+          <img 
+            src="https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1920&h=1080&fit=crop"
+            alt="Hero Background"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40"></div>
+          <div className="absolute inset-0" style={{background: `linear-gradient(135deg, ${designTokens.colors.primary.gradient.replace('linear-gradient(135deg, ', '').replace(' 0%,', '').replace(' 100%)', '')} 0%, transparent 70%)`}}></div>
         </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
           {/* Breadcrumb mejorado */}
           <nav className="mb-12">
-            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-              <a href="/" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Inicio</a>
+            <div className="flex items-center space-x-2 text-sm text-white/80">
+              <a href="/" className="hover:text-white transition-colors">Inicio</a>
               <span>/</span>
-              <span className="text-gray-700 dark:text-gray-300">Proyectos</span>
+              <span className="text-white/60">Proyectos</span>
               <span>/</span>
-              <span className="font-medium" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>{project.title}</span>
+              <span className="font-medium text-white">{project.title}</span>
             </div>
           </nav>
 
-          {/* Hero Content - Layout de lado a lado impactante */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Hero Content - Banner de lado a lado */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[600px]">
             {/* Text Content - Lado izquierdo */}
-            <div className="space-y-10">
-              {/* Project Type Badge mejorado */}
-              <div className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium shadow-lg" style={{background: designTokens.colors.primary.gradient, color: 'white'}}>
+            <div className="space-y-8">
+              {/* Project Type Badge */}
+              <div className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium shadow-lg bg-white/20 backdrop-blur-sm border border-white/30">
                 <span className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></span>
-                {project.project_type || 'Proyecto'}
+                <span className="text-white">{project.project_type || 'Proyecto'}</span>
               </div>
 
-              {/* Main Title con efecto visual */}
-              <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight text-gray-900 dark:text-white">
-                <span className="block">{project.title}</span>
-                <span className="block text-4xl md:text-5xl lg:text-6xl mt-4 opacity-60" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
-                  {project.project_type || 'UX/UI Design'}
-                </span>
+              {/* Main Title */}
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white">
+                {project.title}
               </h1>
 
-              {/* Description mejorada */}
-              <p className="text-2xl md:text-3xl text-gray-600 dark:text-gray-300 leading-relaxed font-light">
+              {/* Description */}
+              <p className="text-xl md:text-2xl text-white/90 leading-relaxed font-light">
                 {project.description}
               </p>
               
-              {/* Project Metadata en grid mejorado */}
-              <div className="grid grid-cols-2 gap-8 pt-12">
+              {/* Project Metadata */}
+              <div className="grid grid-cols-2 gap-6 pt-8">
                 <div className="group">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Cliente</h3>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.client_name || 'Confidencial'}</p>
+                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Cliente</h3>
+                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.client_name || 'Confidencial'}</p>
                 </div>
                 <div className="group">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Duración</h3>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.duration || '3 meses'}</p>
+                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Duración</h3>
+                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.duration || '3 meses'}</p>
                 </div>
                 <div className="group">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Equipo</h3>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.team_size || '4 personas'}</p>
+                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Equipo</h3>
+                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.team_size || '4 personas'}</p>
                 </div>
                 <div className="group">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Categoría</h3>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.project_type || 'UX/UI Design'}</p>
+                  <h3 className="text-sm font-medium text-white/70 uppercase tracking-wider mb-2">Categoría</h3>
+                  <p className="text-lg font-semibold text-white group-hover:scale-105 transition-transform">{project.project_type || 'UX/UI Design'}</p>
                 </div>
               </div>
               
-              {/* Action Buttons mejorados */}
-              <div className="flex flex-wrap gap-6 pt-12">
-                <button className="px-10 py-5 rounded-2xl font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl text-lg" style={{background: designTokens.colors.primary.gradient}}>
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-6 pt-8">
+                <button className="px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30">
                   Ver Proyecto Completo
                 </button>
-                <button className="px-10 py-5 rounded-2xl font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105 text-lg">
+                <button className="px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105 border-2 border-white/50 hover:border-white hover:bg-white/10">
                   Ver Código
                 </button>
               </div>
             </div>
 
-            {/* Hero Image - Lado derecho con múltiples imágenes */}
+            {/* Hero Image - Lado derecho */}
             <div className="relative">
-              {/* Imagen principal */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-700">
+              {/* Imagen principal del proyecto */}
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <img 
                   src={project.cover_image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop'} 
                   alt={project.title}
-                  className="w-full h-[600px] md:h-[700px] object-cover"
+                  className="w-full h-[500px] md:h-[600px] object-cover"
                 />
-                {/* Gradient Overlay mejorado */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/20"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
               </div>
               
-              {/* Imágenes secundarias flotantes */}
-              <div className="absolute -top-8 -right-8 w-32 h-32 rounded-2xl overflow-hidden shadow-xl transform rotate-12 hover:rotate-0 transition-transform duration-500">
-                <img 
-                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop" 
-                  alt="Wireframes"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-2xl overflow-hidden shadow-xl transform -rotate-12 hover:rotate-0 transition-transform duration-500">
-                <img 
-                  src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=400&fit=crop" 
-                  alt="Prototipo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              {/* Elementos decorativos mejorados */}
-              <div className="absolute -top-4 -right-4 w-32 h-32 rounded-full opacity-20 animate-pulse" style={{background: designTokens.colors.primary.gradient}}></div>
-              <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full opacity-30 animate-pulse" style={{background: designTokens.colors.primary.gradient}}></div>
-              <div className="absolute top-1/2 -right-12 w-16 h-16 rounded-full opacity-25 animate-bounce" style={{background: designTokens.colors.primary.gradient}}></div>
+              {/* Elementos decorativos */}
+              <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-30 animate-pulse bg-white"></div>
+              <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full opacity-40 animate-pulse bg-white"></div>
             </div>
           </div>
         </div>
@@ -293,10 +274,22 @@ export default function ProjectPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {sections.map((section, index) => {
             const sectionElements = getElementsForSection(section.id)
-            const isEven = index % 2 === 0
+            
+            // Diferentes layouts para cada sección
+            const getSectionLayout = (index: number) => {
+              switch (index % 4) {
+                case 0: return 'hero' // Layout hero con imagen grande
+                case 1: return 'split' // Layout dividido en dos columnas
+                case 2: return 'masonry' // Layout tipo masonry
+                case 3: return 'centered' // Layout centrado
+                default: return 'hero'
+              }
+            }
+            
+            const layout = getSectionLayout(index)
             
             return (
-              <div key={section.id} className={`mb-32 ${isEven ? '' : 'bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-12'}`}>
+              <div key={section.id} className={`mb-32 ${index % 2 === 1 ? 'bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-12' : ''}`}>
                 {/* Título de la sección con estilo */}
                 {section.title && (
                   <div className="mb-16">
@@ -312,117 +305,182 @@ export default function ProjectPage() {
                   </div>
                 )}
 
-                {/* Elementos de la sección con layout mejorado */}
-                <div className="space-y-12">
-                  {sectionElements.length > 0 ? (
-                    sectionElements.map((element, elementIndex) => (
+                {/* Contenido con diferentes layouts */}
+                {sectionElements.length > 0 ? (
+                  <div className="space-y-12">
+                    {sectionElements.map((element, elementIndex) => (
                       <div key={element.id} className="relative">
-                        {/* Número de elemento (opcional) */}
-                        {elementIndex > 0 && (
-                          <div className="absolute -left-8 top-0 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400">
-                            {elementIndex}
-                          </div>
-                        )}
-                        
-                        <ProjectElementRenderer 
-                          element={element} 
-                        />
+                        <ProjectElementRenderer element={element} />
                       </div>
-                    ))
-                  ) : (
-                    /* Contenido por defecto cuando no hay elementos - Con imágenes dinámicas */
-                    <div className="space-y-12">
-                      {/* Texto principal */}
-                      <div className="prose prose-lg max-w-none dark:prose-invert">
-                        <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
-                          Contenido de la sección <strong>{section.title}</strong>. Este es un texto de ejemplo que demuestra cómo se ve el contenido en la página del proyecto. El diseño estilo Behance permite mostrar información de manera clara y atractiva.
-                        </p>
-                        <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
-                          Aquí se puede agregar más información detallada sobre esta sección del proyecto, incluyendo descripciones, resultados, procesos, o cualquier otro contenido relevante.
-                        </p>
-                      </div>
-
-                      {/* Galería de imágenes dinámica */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {/* Imagen principal de la sección */}
-                        <div className="md:col-span-2 lg:col-span-2">
-                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-                            <img 
-                              src={`https://images.unsplash.com/photo-${1556742049 + index * 100}?w=800&h=500&fit=crop`}
-                              alt={`${section.title} - Imagen principal`}
-                              className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          </div>
-                        </div>
-
-                        {/* Imagen secundaria */}
-                        <div className="md:col-span-1 lg:col-span-1">
-                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-                            <img 
-                              src={`https://images.unsplash.com/photo-${1460925895 + index * 50}?w=400&h=400&fit=crop`}
-                              alt={`${section.title} - Detalle`}
-                              className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          </div>
-                        </div>
-
-                        {/* Imagen adicional */}
-                        <div className="md:col-span-1 lg:col-span-1">
-                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-                            <img 
-                              src={`https://images.unsplash.com/photo-${1551650975 + index * 75}?w=400&h=400&fit=crop`}
-                              alt={`${section.title} - Proceso`}
-                              className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          </div>
-                        </div>
-
-                        {/* Imagen de proceso */}
-                        <div className="md:col-span-2 lg:col-span-1">
-                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
-                            <img 
-                              src={`https://images.unsplash.com/photo-${1551650975 + index * 25}?w=400&h=300&fit=crop`}
-                              alt={`${section.title} - Resultado`}
-                              className="w-full h-[300px] object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Estadísticas o métricas */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
-                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
-                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
-                            {85 + index * 5}%
-                          </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">Satisfacción</div>
-                        </div>
-                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
-                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
-                            {index + 1}5
-                          </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">Días</div>
-                        </div>
-                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
-                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
-                            {3 + index}
-                          </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">Iteraciones</div>
-                        </div>
-                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
-                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
-                            {index + 1}00%
-                          </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">Éxito</div>
-                        </div>
-                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-12">
+                    {/* Texto principal */}
+                    <div className="prose prose-lg max-w-none dark:prose-invert">
+                      <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Contenido de la sección <strong>{section.title}</strong>. Este es un texto de ejemplo que demuestra cómo se ve el contenido en la página del proyecto. El diseño estilo Behance permite mostrar información de manera clara y atractiva.
+                      </p>
+                      <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
+                        Aquí se puede agregar más información detallada sobre esta sección del proyecto, incluyendo descripciones, resultados, procesos, o cualquier otro contenido relevante.
+                      </p>
                     </div>
-                  )}
-                </div>
+
+                    {/* Layouts diferentes según el índice */}
+                    {layout === 'hero' && (
+                      /* Layout Hero - Imagen grande centrada */
+                      <div className="space-y-8">
+                        <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                          <img 
+                            src={`https://images.unsplash.com/photo-${1556742049 + index * 100}?w=1200&h=600&fit=crop`}
+                            alt={`${section.title} - Hero`}
+                            className="w-full h-[500px] object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                          {[1,2,3,4].map((i) => (
+                            <div key={i} className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                              <div className="text-2xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                                {85 + i * 5}%
+                              </div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">Métrica {i}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {layout === 'split' && (
+                      /* Layout Split - Dos columnas */
+                      <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="space-y-6">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1460925895 + index * 50}?w=600&h=400&fit=crop`}
+                              alt={`${section.title} - Split 1`}
+                              className="w-full h-[300px] object-cover"
+                            />
+                          </div>
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1551650975 + index * 75}?w=600&h=300&fit=crop`}
+                              alt={`${section.title} - Split 2`}
+                              className="w-full h-[250px] object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-6">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1551650975 + index * 25}?w=600&h=400&fit=crop`}
+                              alt={`${section.title} - Split 3`}
+                              className="w-full h-[400px] object-cover"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                              <div className="text-xl font-bold" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                                {90 + index * 2}%
+                              </div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">Éxito</div>
+                            </div>
+                            <div className="text-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+                              <div className="text-xl font-bold" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                                {index + 1}5
+                              </div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">Días</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {layout === 'masonry' && (
+                      /* Layout Masonry - Grid irregular */
+                      <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+                        <div className="break-inside-avoid">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl mb-8">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1556742049 + index * 100}?w=400&h=600&fit=crop`}
+                              alt={`${section.title} - Masonry 1`}
+                              className="w-full h-[400px] object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="break-inside-avoid">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl mb-8">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1460925895 + index * 50}?w=400&h=300&fit=crop`}
+                              alt={`${section.title} - Masonry 2`}
+                              className="w-full h-[250px] object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="break-inside-avoid">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl mb-8">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1551650975 + index * 75}?w=400&h=500&fit=crop`}
+                              alt={`${section.title} - Masonry 3`}
+                              className="w-full h-[350px] object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="break-inside-avoid">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl mb-8">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1551650975 + index * 25}?w=400&h=400&fit=crop`}
+                              alt={`${section.title} - Masonry 4`}
+                              className="w-full h-[300px] object-cover"
+                            />
+                          </div>
+                        </div>
+                        <div className="break-inside-avoid">
+                          <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 mb-8">
+                            <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                              {95 + index}%
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Satisfacción</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {layout === 'centered' && (
+                      /* Layout Centered - Contenido centrado */
+                      <div className="max-w-4xl mx-auto text-center space-y-12">
+                        <div className="relative rounded-3xl overflow-hidden shadow-2xl mx-auto max-w-2xl">
+                          <img 
+                            src={`https://images.unsplash.com/photo-${1556742049 + index * 100}?w=800&h=500&fit=crop`}
+                            alt={`${section.title} - Centered`}
+                            className="w-full h-[400px] object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-8">
+                          <div className="text-center">
+                            <div className="text-4xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                              {85 + index * 5}%
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Satisfacción</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-4xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                              {index + 1}5
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Días</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-4xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                              {3 + index}
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Iteraciones</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )
           })}
