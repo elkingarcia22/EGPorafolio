@@ -494,6 +494,124 @@ export default function ProjectPage() {
         </div>
       </section>
 
+      {/* Proceso de Desarrollo */}
+      <section className="py-24 bg-white dark:bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="flex items-center justify-center mb-8">
+              <div className="w-12 h-1 rounded-full mr-4" style={{background: designTokens.colors.primary.gradient}}></div>
+              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+                Proceso de Desarrollo
+              </h3>
+              <div className="w-12 h-1 rounded-full ml-4" style={{background: designTokens.colors.primary.gradient}}></div>
+            </div>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Un vistazo al flujo de trabajo y metodología utilizada para crear este proyecto
+            </p>
+          </div>
+
+          {/* Flujo de Proceso */}
+          <div className="relative">
+            {/* Línea conectora */}
+            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-700 transform -translate-y-1/2 hidden lg:block"></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Paso 1: Investigación */}
+              <div className="relative">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-xl" style={{background: designTokens.colors.primary.gradient}}>
+                    1
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
+                      <div className="w-3 h-3 rounded-full" style={{background: designTokens.colors.primary.gradient}}></div>
+                    </div>
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Investigación</h4>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    Análisis del mercado, usuarios y competencia para definir la estrategia del proyecto
+                  </p>
+                </div>
+              </div>
+
+              {/* Paso 2: Diseño */}
+              <div className="relative">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-xl" style={{background: designTokens.colors.primary.gradient}}>
+                    2
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
+                      <div className="w-3 h-3 rounded-full" style={{background: designTokens.colors.primary.gradient}}></div>
+                    </div>
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Diseño</h4>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    Creación de wireframes, prototipos y diseño visual basado en los hallazgos de la investigación
+                  </p>
+                </div>
+              </div>
+
+              {/* Paso 3: Desarrollo */}
+              <div className="relative">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-xl" style={{background: designTokens.colors.primary.gradient}}>
+                    3
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
+                      <div className="w-3 h-3 rounded-full" style={{background: designTokens.colors.primary.gradient}}></div>
+                    </div>
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Desarrollo</h4>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    Implementación del diseño con las mejores prácticas y tecnologías modernas
+                  </p>
+                </div>
+              </div>
+
+              {/* Paso 4: Testing */}
+              <div className="relative">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-xl" style={{background: designTokens.colors.primary.gradient}}>
+                    4
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center">
+                      <div className="w-3 h-3 rounded-full" style={{background: designTokens.colors.primary.gradient}}></div>
+                    </div>
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Testing</h4>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                    Pruebas de usabilidad, rendimiento y calidad para asegurar la mejor experiencia
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Métricas del Proceso */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+              <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                15
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Días de investigación</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+              <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                8
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Iteraciones de diseño</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+              <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                30
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Días de desarrollo</div>
+            </div>
+            <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+              <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                95%
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Satisfacción del cliente</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer del proyecto - Estilo Behance */}
       <section className="py-24 bg-gray-50 dark:bg-gray-900/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
