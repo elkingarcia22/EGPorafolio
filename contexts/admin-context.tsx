@@ -33,9 +33,9 @@ interface AdminContextType {
 
 const defaultContent: AdminContent = {
   typewriterTexts: mockData.typewriterTexts.map(item => item.text_content),
-  projects: mockData.projects, // Incluir los objetos completos de proyectos
-  projectTitles: mockData.projects.map(item => item.title),
-  projectDescriptions: mockData.projects.map(item => item.description),
+  projects: [], // Inicializar vacío, se cargará desde Supabase
+  projectTitles: [],
+  projectDescriptions: [],
   aboutTitle: mockData.aboutInfo[0]?.title || 'Acerca de mí',
   aboutDescription: mockData.aboutInfo[0]?.description || 'Soy un diseñador UX/UI con más de 5 años de experiencia creando experiencias digitales excepcionales.',
   aboutInfo: mockData.aboutInfo, // Incluir los objetos completos de aboutInfo
@@ -83,18 +83,24 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           console.log('✅ Typewriter data:', typewriterData)
         }
 
-        // Fetch projects (sin filtrar por idioma para compartir imágenes)
+        // Fetch projects (nueva estructura)
         const { data: projectsData, error: projectsError } = await supabase
           .from('projects')
           .select('*')
-          .eq('is_active', true)
-          .eq('language', language)
+          .eq('status', 'published')
           .order('order_index')
         
         if (projectsError) {
           console.error('❌ Error projects:', projectsError)
         } else {
           console.log('✅ Projects data:', projectsData)
+          // Actualizar el estado con los proyectos cargados
+          setContent(prev => ({
+            ...prev,
+            projects: projectsData || [],
+            projectTitles: (projectsData || []).map(project => project.title),
+            projectDescriptions: (projectsData || []).map(project => project.description)
+          }))
         }
 
         // Fetch about info
@@ -181,6 +187,11 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const updateProjectContent = (index: number, title: string, description: string) => {
     setContent(prev => ({
       ...prev,
+      projects: prev.projects.map((project, i) => 
+        i === index 
+          ? { ...project, title, description }
+          : project
+      ),
       projectTitles: prev.projectTitles.map((t, i) => i === index ? title : t),
       projectDescriptions: prev.projectDescriptions.map((d, i) => i === index ? description : d)
     }))
