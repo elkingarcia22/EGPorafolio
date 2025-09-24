@@ -3,104 +3,89 @@
 import { useDesignTokens } from '@/hooks/useDesignTokens'
 
 interface ProjectButtonProps {
-  text: string
-  href?: string
-  onClick?: () => void
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
-  size?: 'sm' | 'md' | 'lg'
-  alignment?: 'left' | 'center' | 'right'
-  styling?: {
-    backgroundColor?: string
-    textColor?: string
-    borderRadius?: string
-    padding?: string
-    marginTop?: string
-    marginBottom?: string
+  content: {
+    text: string
+    url?: string
+    variant?: 'primary' | 'secondary' | 'outline'
+    size?: 'sm' | 'md' | 'lg'
+    alignment?: 'left' | 'center' | 'right'
+    target?: '_blank' | '_self'
   }
-  className?: string
-  disabled?: boolean
 }
 
-export function ProjectButton({ 
-  text, 
-  href,
-  onClick,
-  variant = 'primary',
-  size = 'md',
-  alignment = 'center', 
-  styling = {},
-  className = '',
-  disabled = false
-}: ProjectButtonProps) {
+export function ProjectButton({ content }: ProjectButtonProps) {
   const designTokens = useDesignTokens()
-  
-  const alignmentClasses = {
-    left: 'mx-0 mr-auto',
-    center: 'mx-auto',
-    right: 'mx-0 ml-auto'
+  const { 
+    text, 
+    url, 
+    variant = 'primary', 
+    size = 'md', 
+    alignment = 'center',
+    target = '_self'
+  } = content
+
+  const getSizeClasses = () => {
+    const sizeClasses = {
+      sm: 'px-4 py-2 text-sm',
+      md: 'px-6 py-3 text-base',
+      lg: 'px-8 py-4 text-lg'
+    }
+    return sizeClasses[size]
   }
-  
-  const sizeClasses = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg'
+
+  const getAlignmentClasses = () => {
+    const alignmentClasses = {
+      left: 'mr-auto',
+      center: 'mx-auto',
+      right: 'ml-auto'
+    }
+    return alignmentClasses[alignment]
   }
-  
-  const variantClasses = {
-    primary: 'text-white border-0',
-    secondary: 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border-0',
-    outline: 'text-gray-700 dark:text-gray-300 bg-transparent border-2 border-gray-300 dark:border-gray-600',
-    ghost: 'text-gray-700 dark:text-gray-300 bg-transparent border-0'
+
+  const getVariantClasses = () => {
+    const variantClasses = {
+      primary: 'text-white font-medium transition-all duration-300 hover:shadow-lg',
+      secondary: 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 font-medium transition-all duration-300 hover:bg-gray-200 dark:hover:bg-gray-700',
+      outline: 'text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 font-medium transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+    }
+    return variantClasses[variant]
   }
-  
-  const customStyles = {
-    ...(styling.backgroundColor && { backgroundColor: styling.backgroundColor }),
-    ...(styling.textColor && { color: styling.textColor }),
-    ...(styling.borderRadius && { borderRadius: styling.borderRadius }),
-    ...(styling.padding && { padding: styling.padding }),
-    ...(styling.marginTop && { marginTop: styling.marginTop }),
-    ...(styling.marginBottom && { marginBottom: styling.marginBottom }),
-    ...(variant === 'primary' && !styling.backgroundColor && { 
-      background: designTokens.colors.primary.gradient 
-    })
+
+  const getVariantStyle = () => {
+    if (variant === 'primary') {
+      return {
+        background: designTokens.colors.primary.gradient
+      }
+    }
+    return {}
   }
-  
-  const buttonClasses = `
-    ${sizeClasses[size]}
-    ${variantClasses[variant]}
-    ${alignmentClasses[alignment]}
-    font-medium
-    rounded-lg
-    transition-all duration-300 ease-in-out
-    hover:scale-105
-    hover:shadow-lg
-    focus:outline-none focus:ring-2 focus:ring-offset-2
-    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-    ${className}
-  `
-  
-  if (href) {
+
+  const buttonClasses = `inline-block rounded-lg ${getSizeClasses()} ${getAlignmentClasses()} ${getVariantClasses()}`
+
+  if (url) {
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={buttonClasses}
-        style={customStyles}
-      >
-        {text}
-      </a>
+      <div className="flex justify-center">
+        <a 
+          href={url}
+          target={target}
+          rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+          className={buttonClasses}
+          style={getVariantStyle()}
+        >
+          {text}
+        </a>
+      </div>
     )
   }
-  
+
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={buttonClasses}
-      style={customStyles}
-    >
-      {text}
-    </button>
+    <div className="flex justify-center">
+      <button 
+        className={buttonClasses}
+        style={getVariantStyle()}
+      >
+        {text}
+      </button>
+    </div>
   )
 }

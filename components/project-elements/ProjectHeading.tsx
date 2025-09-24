@@ -3,85 +3,64 @@
 import { useDesignTokens } from '@/hooks/useDesignTokens'
 
 interface ProjectHeadingProps {
-  level: 1 | 2 | 3 | 4 | 5 | 6
-  text: string
-  alignment?: 'left' | 'center' | 'right'
-  styling?: {
-    fontSize?: string
-    fontWeight?: string
-    color?: string
-    marginTop?: string
-    marginBottom?: string
+  content: {
+    text: string
+    level?: number
+    style?: string
+    alignment?: 'left' | 'center' | 'right'
   }
-  className?: string
 }
 
-export function ProjectHeading({ 
-  level, 
-  text, 
-  alignment = 'left', 
-  styling = {},
-  className = ''
-}: ProjectHeadingProps) {
+export function ProjectHeading({ content }: ProjectHeadingProps) {
   const designTokens = useDesignTokens()
-  
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements
-  
-  const alignmentClasses = {
-    left: 'text-left',
-    center: 'text-center',
-    right: 'text-right'
+  const { text, level = 2, style = 'default', alignment = 'left' } = content
+
+  const getHeadingClasses = () => {
+    const baseClasses = 'font-bold text-gray-900 dark:text-white'
+    const alignmentClasses = {
+      left: 'text-left',
+      center: 'text-center',
+      right: 'text-right'
+    }
+
+    const sizeClasses = {
+      1: 'text-4xl md:text-5xl lg:text-6xl',
+      2: 'text-3xl md:text-4xl lg:text-5xl',
+      3: 'text-2xl md:text-3xl lg:text-4xl',
+      4: 'text-xl md:text-2xl lg:text-3xl',
+      5: 'text-lg md:text-xl lg:text-2xl',
+      6: 'text-base md:text-lg lg:text-xl'
+    }
+
+    const styleClasses = {
+      default: '',
+      hero: 'text-5xl md:text-6xl lg:text-7xl font-extrabold',
+      gradient: 'bg-clip-text text-transparent',
+      outline: 'text-transparent bg-clip-text'
+    }
+
+    return `${baseClasses} ${sizeClasses[level as keyof typeof sizeClasses] || sizeClasses[2]} ${alignmentClasses[alignment]} ${styleClasses[style as keyof typeof styleClasses] || styleClasses.default}`
   }
-  
-  const sizeClasses = {
-    1: 'text-4xl md:text-5xl lg:text-6xl',
-    2: 'text-3xl md:text-4xl lg:text-5xl',
-    3: 'text-2xl md:text-3xl lg:text-4xl',
-    4: 'text-xl md:text-2xl lg:text-3xl',
-    5: 'text-lg md:text-xl lg:text-2xl',
-    6: 'text-base md:text-lg lg:text-xl'
+
+  const getHeadingStyle = () => {
+    if (style === 'gradient') {
+      return {
+        background: designTokens.colors.primary.gradient,
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent'
+      }
+    }
+    return {}
   }
-  
-  const weightClasses = {
-    light: 'font-light',
-    normal: 'font-normal',
-    medium: 'font-medium',
-    semibold: 'font-semibold',
-    bold: 'font-bold'
-  }
-  
-  const customStyles = {
-    ...(styling.fontSize && { fontSize: styling.fontSize }),
-    ...(styling.color && { color: styling.color }),
-    ...(styling.marginTop && { marginTop: styling.marginTop }),
-    ...(styling.marginBottom && { marginBottom: styling.marginBottom })
-  }
-  
-  const fontWeightClass = styling.fontWeight 
-    ? weightClasses[styling.fontWeight as keyof typeof weightClasses] || 'font-normal'
-    : 'font-normal'
-  
+
+  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements
+
   return (
-    <Tag 
-      className={`
-        ${sizeClasses[level]}
-        ${fontWeightClass}
-        ${alignmentClasses[alignment]}
-        text-gray-900 dark:text-white
-        leading-tight
-        ${className}
-      `}
-      style={{
-        ...customStyles,
-        ...(styling.color ? {} : { 
-          background: designTokens.colors.primary.gradient,
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
-        })
-      }}
+    <HeadingTag 
+      className={getHeadingClasses()}
+      style={getHeadingStyle()}
     >
       {text}
-    </Tag>
+    </HeadingTag>
   )
 }

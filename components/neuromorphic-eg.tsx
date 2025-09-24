@@ -197,7 +197,10 @@ export const NeuromorphicEG = () => {
         {/* Sección de proyectos - Grid responsivo */}
         <div id="proyectos" className="mt-4 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen w-screen -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-16 xl:-mx-24">
           {/* Proyecto 1 - UX Research */}
-          <div className="group cursor-pointer relative overflow-hidden w-full h-full transition-all duration-300 hover:brightness-110 hover:shadow-2xl">
+          <div 
+            className="group cursor-pointer relative overflow-hidden w-full h-full transition-all duration-300 hover:brightness-110 hover:shadow-2xl"
+            onClick={() => window.location.href = '/proyecto/diseno-ux-ui-plataforma-ecommerce'}
+          >
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[0]?.cover_image_url ? (

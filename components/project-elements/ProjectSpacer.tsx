@@ -1,31 +1,42 @@
 'use client'
 
 interface ProjectSpacerProps {
-  height?: number
-  styling?: {
-    backgroundColor?: string
-    marginTop?: string
-    marginBottom?: string
+  content: {
+    height?: 'sm' | 'md' | 'lg' | 'xl' | 'custom'
+    customHeight?: string
   }
-  className?: string
 }
 
-export function ProjectSpacer({ 
-  height = 40,
-  styling = {},
-  className = ''
-}: ProjectSpacerProps) {
-  const customStyles = {
-    height: `${height}px`,
-    ...(styling.backgroundColor && { backgroundColor: styling.backgroundColor }),
-    ...(styling.marginTop && { marginTop: styling.marginTop }),
-    ...(styling.marginBottom && { marginBottom: styling.marginBottom })
+export function ProjectSpacer({ content }: ProjectSpacerProps) {
+  const { height = 'md', customHeight } = content
+
+  const getHeightClasses = () => {
+    if (height === 'custom' && customHeight) {
+      return ''
+    }
+
+    const heightClasses = {
+      sm: 'h-8',
+      md: 'h-16',
+      lg: 'h-24',
+      xl: 'h-32'
+    }
+    return heightClasses[height]
   }
-  
+
+  const getCustomStyle = () => {
+    if (height === 'custom' && customHeight) {
+      return {
+        height: customHeight
+      }
+    }
+    return {}
+  }
+
   return (
     <div 
-      className={`w-full ${className}`}
-      style={customStyles}
+      className={getHeightClasses()}
+      style={getCustomStyle()}
     />
   )
 }
