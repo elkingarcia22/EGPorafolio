@@ -83,17 +83,17 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           console.log('✅ Typewriter data:', typewriterData)
         }
 
-        // Fetch projects (nueva estructura)
+        // Fetch projects (nueva estructura) - En admin mostramos todos los proyectos
         const { data: projectsData, error: projectsError } = await supabase
           .from('projects')
           .select('*')
-          .eq('status', 'published')
           .order('order_index')
         
         if (projectsError) {
           console.error('❌ Error projects:', projectsError)
         } else {
           console.log('✅ Projects data:', projectsData)
+          console.log('📊 Cantidad de proyectos cargados:', projectsData?.length || 0)
           // Actualizar el estado con los proyectos cargados
           setContent(prev => ({
             ...prev,
@@ -101,6 +101,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
             projectTitles: (projectsData || []).map(project => project.title),
             projectDescriptions: (projectsData || []).map(project => project.description)
           }))
+          console.log('🔄 Estado actualizado con proyectos:', projectsData?.length || 0)
         }
 
         // Fetch about info
