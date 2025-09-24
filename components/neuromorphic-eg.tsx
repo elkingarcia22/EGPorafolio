@@ -195,19 +195,19 @@ export const NeuromorphicEG = () => {
         </div>
 
         {/* Sección de proyectos - Grid responsivo */}
-        <div id="proyectos" className="mt-4 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8 w-full">
+        <div id="proyectos" className="mt-4 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen w-full">
           {/* Proyecto 1 - UX Research */}
-          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[0]?.cover_image_url ? (
                 <img 
                   src={projects[0].cover_image_url} 
                   alt={projects[0].title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
+                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 transition-transform duration-500 group-hover:scale-110"></div>
               )}
             </div>
             {/* Overlay oscuro para contraste */}
@@ -215,7 +215,7 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full transition-transform duration-300 group-hover:-translate-y-2">
               <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[0] ? projects[0].title : 'Proyecto UX/UI'}
               </h3>
@@ -226,17 +226,17 @@ export const NeuromorphicEG = () => {
           </div>
           
           {/* Proyecto 2 - UI Design */}
-          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[1]?.cover_image_url ? (
                 <img 
                   src={projects[1].cover_image_url} 
                   alt={projects[1].title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
+                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 transition-transform duration-500 group-hover:scale-110"></div>
               )}
             </div>
             {/* Overlay oscuro para contraste */}
@@ -244,7 +244,7 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full transition-transform duration-300 group-hover:-translate-y-2">
               <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[1] ? projects[1].title : 'Diseño de Interfaz'}
               </h3>
@@ -255,17 +255,17 @@ export const NeuromorphicEG = () => {
           </div>
           
           {/* Proyecto 3 - Estrategia Digital */}
-          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[2]?.cover_image_url ? (
                 <img 
                   src={projects[2].cover_image_url} 
                   alt={projects[2].title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
+                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 transition-transform duration-500 group-hover:scale-110"></div>
               )}
             </div>
             {/* Overlay oscuro para contraste */}
@@ -273,7 +273,7 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full transition-transform duration-300 group-hover:-translate-y-2">
               <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[2] ? projects[2].title : 'Estrategia Digital'}
               </h3>
@@ -284,17 +284,17 @@ export const NeuromorphicEG = () => {
           </div>
           
           {/* Proyecto 4 - Diseño con IA */}
-          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[3]?.cover_image_url ? (
                 <img 
                   src={projects[3].cover_image_url} 
                   alt={projects[3].title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600"></div>
+                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 transition-transform duration-500 group-hover:scale-110"></div>
               )}
             </div>
             {/* Overlay oscuro para contraste */}
@@ -302,7 +302,7 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full transition-transform duration-300 group-hover:-translate-y-2">
               <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[3] ? projects[3].title : 'Diseño con IA'}
               </h3>
