@@ -195,9 +195,9 @@ export const NeuromorphicEG = () => {
         </div>
 
         {/* Sección de proyectos - Grid responsivo */}
-        <div id="proyectos" className="mt-4 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8">
+        <div id="proyectos" className="mt-4 md:mt-16 lg:mt-48 grid grid-cols-1 sm:grid-cols-2 h-auto sm:h-screen -mx-4 sm:-mx-6 md:-mx-8 w-full">
           {/* Proyecto 1 - UX Research */}
-          <div className="group cursor-pointer relative overflow-hidden">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[0]?.cover_image_url ? (
@@ -215,18 +215,18 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[0] ? projects[0].title : 'Proyecto UX/UI'}
               </h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 break-words">
                 {projects && projects[0] ? projects[0].description : 'Diseño de experiencia de usuario e interfaz para aplicaciones web modernas.'}
               </p>
             </div>
           </div>
           
           {/* Proyecto 2 - UI Design */}
-          <div className="group cursor-pointer relative overflow-hidden">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[1]?.cover_image_url ? (
@@ -244,18 +244,18 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[1] ? projects[1].title : 'Diseño de Interfaz'}
               </h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 break-words">
                 {projects && projects[1] ? projects[1].description : 'Creación de interfaces intuitivas y atractivas que mejoran la experiencia del usuario.'}
               </p>
             </div>
           </div>
           
           {/* Proyecto 3 - Estrategia Digital */}
-          <div className="group cursor-pointer relative overflow-hidden">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[2]?.cover_image_url ? (
@@ -273,18 +273,18 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[2] ? projects[2].title : 'Estrategia Digital'}
               </h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 break-words">
                 {projects && projects[2] ? projects[2].description : 'Desarrollo de estrategias digitales integrales para maximizar el impacto online.'}
               </p>
             </div>
           </div>
           
           {/* Proyecto 4 - Diseño con IA */}
-          <div className="group cursor-pointer relative overflow-hidden">
+          <div className="group cursor-pointer relative overflow-hidden w-full h-full">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
               {projects && projects[3]?.cover_image_url ? (
@@ -302,11 +302,11 @@ export const NeuromorphicEG = () => {
             {/* Gradación encima del overlay oscuro */}
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
-            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+            <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px] w-full">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 break-words">
                 {projects && projects[3] ? projects[3].title : 'Diseño con IA'}
               </h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 break-words">
                 {projects && projects[3] ? projects[3].description : 'Integración de inteligencia artificial en procesos de diseño para optimizar resultados.'}
               </p>
             </div>
