@@ -58,7 +58,7 @@ export default function AcercaDeMi3Page() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <h3 className="text-lg font-bold mb-3 text-left" style={{color: designTokens.colors.primary.DEFAULT}}>
+              <h3 className="text-lg font-bold mb-3 text-left" style={{color: designTokens.colors.primary.gradient}}>
                 Del output al outcome: diseño que entrega resultados reales.
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm text-left">

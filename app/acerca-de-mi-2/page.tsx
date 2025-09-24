@@ -44,7 +44,7 @@ export default function AcercaDeMi2Page() {
 
           {/* Contenido principal */}
           <div className="px-8 py-8">
-            <h2 className="text-xl font-bold text-center mb-6" style={{color: designTokens.colors.primary.DEFAULT}}>
+            <h2 className="text-xl font-bold text-center mb-6" style={{color: designTokens.colors.primary.gradient}}>
               {t('about.mainTitle')}
             </h2>
             

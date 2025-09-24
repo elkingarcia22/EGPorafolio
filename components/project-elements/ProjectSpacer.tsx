@@ -21,7 +21,7 @@ export function ProjectSpacer({ content }: ProjectSpacerProps) {
       lg: 'h-24',
       xl: 'h-32'
     }
-    return heightClasses[height]
+    return heightClasses[height as keyof typeof heightClasses]
   }
 
   const getCustomStyle = () => {

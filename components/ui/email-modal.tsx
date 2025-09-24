@@ -174,7 +174,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose }) => {
         serviceId,
         templateId,
         publicKey: publicKey.substring(0, 10) + '...',
-        error: error.message || error
+        error: error instanceof Error ? error.message : String(error)
       })
       
       // Fallback: intentar con API route

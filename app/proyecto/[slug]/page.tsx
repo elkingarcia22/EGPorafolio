@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase-client'
 import { useDesignTokens } from '@/hooks/useDesignTokens'
@@ -64,11 +64,7 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadProject()
-  }, [slug])
-
-  const loadProject = async () => {
+  const loadProject = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -94,7 +90,6 @@ export default function ProjectPage() {
         .from('project_sections')
         .select('*')
         .eq('project_id', projectData.id)
-        .eq('is_active', true)
         .order('order_index')
 
       if (sectionsError) {
@@ -105,7 +100,7 @@ export default function ProjectPage() {
 
       setSections(sectionsData || [])
 
-      // 3. Cargar los elementos de todas las secciones
+      // 3. Cargar los elementos de todas las secciones (opcional)
       if (sectionsData && sectionsData.length > 0) {
         const sectionIds = sectionsData.map(s => s.id)
         
@@ -113,13 +108,11 @@ export default function ProjectPage() {
           .from('project_elements')
           .select('*')
           .in('section_id', sectionIds)
-          .eq('is_active', true)
           .order('order_index')
 
         if (elementsError) {
-          console.error('Error cargando elementos:', elementsError)
-          setError('Error cargando elementos del proyecto')
-          return
+          console.log('⚠️ No se pudieron cargar elementos (opcional):', elementsError.message)
+          // No es crítico, continuar sin elementos
         }
 
         setElements(elementsData || [])
@@ -131,7 +124,11 @@ export default function ProjectPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [slug])
+
+  useEffect(() => {
+    loadProject()
+  }, [slug, loadProject])
 
   const getElementsForSection = (sectionId: string) => {
     return elements.filter(element => element.section_id === sectionId)
@@ -140,7 +137,7 @@ export default function ProjectPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-        <Navbar />
+        <Navbar onAdminClick={() => {}} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{borderColor: designTokens.colors.primary.gradient}}></div>
@@ -154,7 +151,7 @@ export default function ProjectPage() {
   if (error || !project) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-        <Navbar />
+        <Navbar onAdminClick={() => {}} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Proyecto no encontrado</h1>
@@ -174,7 +171,7 @@ export default function ProjectPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
-      <Navbar />
+      <Navbar onAdminClick={() => {}} />
       
       {/* Hero Section - Estilo Behance */}
       <section className="pt-24 pb-0 relative overflow-hidden">
@@ -320,20 +317,34 @@ export default function ProjectPage() {
 
                 {/* Elementos de la sección con layout mejorado */}
                 <div className="space-y-12">
-                  {sectionElements.map((element, elementIndex) => (
-                    <div key={element.id} className="relative">
-                      {/* Número de elemento (opcional) */}
-                      {elementIndex > 0 && (
-                        <div className="absolute -left-8 top-0 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400">
-                          {elementIndex}
-                        </div>
-                      )}
-                      
-                      <ProjectElementRenderer 
-                        element={element} 
-                      />
+                  {sectionElements.length > 0 ? (
+                    sectionElements.map((element, elementIndex) => (
+                      <div key={element.id} className="relative">
+                        {/* Número de elemento (opcional) */}
+                        {elementIndex > 0 && (
+                          <div className="absolute -left-8 top-0 w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-500 dark:text-gray-400">
+                            {elementIndex}
+                          </div>
+                        )}
+                        
+                        <ProjectElementRenderer 
+                          element={element} 
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    /* Contenido por defecto cuando no hay elementos */
+                    <div className="space-y-8">
+                      <div className="prose prose-lg max-w-none dark:prose-invert">
+                        <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+                          Contenido de la sección <strong>{section.title}</strong>. Este es un texto de ejemplo que demuestra cómo se ve el contenido en la página del proyecto. El diseño estilo Behance permite mostrar información de manera clara y atractiva.
+                        </p>
+                        <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
+                          Aquí se puede agregar más información detallada sobre esta sección del proyecto, incluyendo descripciones, resultados, procesos, o cualquier otro contenido relevante.
+                        </p>
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             )

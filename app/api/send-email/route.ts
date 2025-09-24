@@ -70,7 +70,7 @@ Enviado desde el portafolio de Elkin García
       console.log('📧 Variables de entorno no configuradas, usando mailto como fallback')
       
       // Crear mailto link como fallback
-      const subject = encodeURIComponent(subject || 'Contacto desde portafolio')
+      const encodedSubject = encodeURIComponent(subject || 'Contacto desde portafolio')
       const body = encodeURIComponent(
         `Hola Elkin,\n\n` +
         `Mi nombre es: ${name}\n` +
@@ -83,7 +83,7 @@ Enviado desde el portafolio de Elkin García
         { 
           success: true, 
           message: 'Variables de entorno no configuradas. Usa la opción de cliente de email.',
-          mailto: `mailto:garcia.elkin.salazar@gmail.com?subject=${subject}&body=${body}`,
+          mailto: `mailto:garcia.elkin.salazar@gmail.com?subject=${encodedSubject}&body=${body}`,
           fallback: true
         },
         { status: 200 }

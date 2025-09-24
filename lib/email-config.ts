@@ -55,7 +55,7 @@ export const sendEmailWithEmailJS = async (formData: {
     return { success: true, result }
   } catch (error) {
     console.error('Error enviando email con EmailJS:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 
@@ -69,7 +69,7 @@ export const sendEmailWithNodemailer = async (formData: {
   try {
     const nodemailer = await import('nodemailer')
     
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: emailConfig.gmail.user,
@@ -123,6 +123,6 @@ Enviado desde el portafolio de Elkin García
     return { success: true, result }
   } catch (error) {
     console.error('Error enviando email con Nodemailer:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }

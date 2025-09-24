@@ -56,7 +56,7 @@ const createSupabaseClient = () => {
   
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    key,
+    key!,
     isDevelopment ? {
       auth: {
         autoRefreshToken: false,
@@ -160,13 +160,13 @@ export const ColorsProvider = ({ children }: { children: ReactNode }) => {
       console.error('❌ Error en loadColors:', error)
       
       // Si es un error de tabla no encontrada, usar fallback silenciosamente
-      if (error.message === 'TABLE_NOT_FOUND') {
+      if (error instanceof Error && error.message === 'TABLE_NOT_FOUND') {
         console.log('💡 Usando gradiente por defecto (tabla no encontrada)')
       } else {
         console.error('📊 Error completo:', {
-          message: error.message || 'Sin mensaje',
-          stack: error.stack || 'Sin stack',
-          name: error.name || 'Sin nombre'
+          message: error instanceof Error ? error.message : 'Sin mensaje',
+          stack: error instanceof Error ? error.stack : 'Sin stack',
+          name: error instanceof Error ? error.name : 'Sin nombre'
         })
       }
       

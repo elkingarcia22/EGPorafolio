@@ -2073,7 +2073,7 @@ export default function AdminPage() {
                                 
                                 // Si contiene múltiples declaraciones background, buscar la mejor
                                 if (processedGradient.includes(';')) {
-                                  const declarations = processedGradient.split(';').map(d => d.trim()).filter(d => d)
+                                  const declarations = processedGradient.split(';').map((d: string) => d.trim()).filter((d: string) => d)
                                   console.log('🎨 [TABLA] Declaraciones encontradas:', declarations)
                                   
                                   // Priorizar linear-gradient sobre -webkit-linear-gradient
@@ -2953,12 +2953,12 @@ export default function AdminPage() {
                             
                             // Si contiene múltiples declaraciones background, buscar la mejor
                             if (processedGradient.includes(';')) {
-                              const declarations = processedGradient.split(';').map(d => d.trim()).filter(d => d)
+                              const declarations = processedGradient.split(';').map((d: string) => d.trim()).filter((d: string) => d)
                               console.log('🎨 Declaraciones encontradas:', declarations)
                               
                               // Priorizar linear-gradient sobre -webkit-linear-gradient
-                              const standardGradient = declarations.find(d => d.includes('linear-gradient') && !d.includes('-webkit-'))
-                              const webkitGradient = declarations.find(d => d.includes('-webkit-linear-gradient'))
+                              const standardGradient = declarations.find((d: string) => d.includes('linear-gradient') && !d.includes('-webkit-'))
+                              const webkitGradient = declarations.find((d: string) => d.includes('-webkit-linear-gradient'))
                               
                               console.log('🎨 Gradiente estándar:', standardGradient)
                               console.log('🎨 Gradiente webkit:', webkitGradient)

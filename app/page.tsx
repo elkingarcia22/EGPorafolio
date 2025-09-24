@@ -101,7 +101,6 @@ function HomePageContent() {
              <SectionSkeleton type="about" />
            ) : (
         <section id="acerca" className="py-12">
-        {console.log('📄 Renderizando sección Acerca de mí')}
         
         {/* Título "Acerca de mí" - Solo visible en mobile */}
         <div className="md:hidden text-center mb-8">

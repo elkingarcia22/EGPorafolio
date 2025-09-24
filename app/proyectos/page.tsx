@@ -7,20 +7,20 @@ import { Navbar } from '@/components/navbar'
 import { NeoCard } from '@/components/ui/neo-card'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoInput } from '@/components/ui/neo-input'
-import { useAdmin } from '@/contexts/admin-context'
+// import { useAdmin } from '@/contexts/admin-context'
 import Image from 'next/image'
 
 
 const categories = ['all', 'web', 'mobile', 'design']
 
 export default function ProjectsPage() {
-  const { data } = useAdmin()
+  // const { content } = useAdmin()
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedProject, setSelectedProject] = useState<any>(null)
   
-  // Usar datos reales de Supabase o fallback a mock data
-  const projects = data.projects.length > 0 ? data.projects : [
+  // Usar datos mock por ahora
+  const projects = [
     {
       id: 1,
       title: 'E-commerce Mobile App',
@@ -124,7 +124,7 @@ export default function ProjectsPage() {
                       </p>
                       
                       <div className="flex flex-wrap gap-2">
-                        {project.technologies.slice(0, 3).map((tech) => (
+                        {project.technologies.slice(0, 3).map((tech: string) => (
                           <span
                             key={tech}
                             className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs rounded-lg"
@@ -222,7 +222,7 @@ export default function ProjectsPage() {
                         </p>
                         
                         <div className="flex flex-wrap gap-2">
-                          {project.technologies.slice(0, 2).map((tech) => (
+                          {project.technologies.slice(0, 2).map((tech: string) => (
                             <span
                               key={tech}
                               className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs rounded-lg"
@@ -308,7 +308,7 @@ export default function ProjectsPage() {
                   <div>
                     <h3 className="font-semibold text-lg text-foreground mb-3">Tecnologías</h3>
                     <div className="flex flex-wrap gap-2">
-                      {selectedProject.technologies.map((tech) => (
+                      {selectedProject.technologies.map((tech: string) => (
                         <span
                           key={tech}
                           className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-sm rounded-lg"
