@@ -245,7 +245,6 @@ export default function AdminPage() {
       const { data: projectsData } = await supabase
         .from('projects')
         .select('*')
-        .eq('is_active', true)
         .order('order_index')
 
       // Cargar información personal
@@ -1312,7 +1311,7 @@ export default function AdminPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y" style={{ borderColor: designTokens.background.gray[200] }}>
+                  <tbody className="divide-y" style={{ borderColor: designTokens.colors.background.gray[200] }}>
                     {(() => {
                       console.log('🔍 Admin - data.projects:', data.projects);
                       console.log('🔍 Admin - data.projects.length:', data.projects?.length || 0);

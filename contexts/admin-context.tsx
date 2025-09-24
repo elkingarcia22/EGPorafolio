@@ -221,7 +221,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
     try {
       const [typewriterRes, projectsRes, aboutRes, contactRes] = await Promise.all([
         supabase.from('typewriter_texts').select('*').eq('is_active', true).eq('language', language).order('order_index'),
-        supabase.from('projects').select('*').eq('is_active', true).order('order_index'),
+        supabase.from('projects').select('*').order('order_index'),
         supabase.from('about_info').select('*').eq('is_active', true),
         supabase.from('contact_info').select('*').eq('is_active', true).order('order_index')
       ])
