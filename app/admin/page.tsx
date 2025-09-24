@@ -524,6 +524,13 @@ export default function AdminPage() {
         tableName = 'about_info'
       }
 
+      console.log('🔍 Debug handleSave:')
+      console.log('  - type:', type)
+      console.log('  - tableName:', tableName)
+      console.log('  - editingItem:', editingItem)
+      console.log('  - itemData:', itemData)
+      console.log('  - editingItem.id:', editingItem?.id)
+
       let result
       if (editingItem.id && editingItem.id !== '') {
         // Actualizar
