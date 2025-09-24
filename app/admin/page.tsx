@@ -680,11 +680,7 @@ export default function AdminPage() {
         break
       case 'projects':
         newItem.title = ''
-        newItem.title_es = ''
-        newItem.title_en = ''
         newItem.description = ''
-        newItem.description_es = ''
-        newItem.description_en = ''
         newItem.cover_image_url = ''
         newItem.order_index = data.projects.length + 1
         newItem.status = 'published'
@@ -1273,7 +1269,7 @@ export default function AdminPage() {
                           fontWeight: designTokens.typography.fontWeight.medium
                         }}
                       >
-                        Título (ES)
+                        Título
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -1283,27 +1279,7 @@ export default function AdminPage() {
                           fontWeight: designTokens.typography.fontWeight.medium
                         }}
                       >
-                        Título (EN)
-                      </th>
-                      <th 
-                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                        style={{ 
-                          color: designTokens.colors.text.secondary,
-                          fontSize: designTokens.typography.fontSize.xs,
-                          fontWeight: designTokens.typography.fontWeight.medium
-                        }}
-                      >
-                        Descripción (ES)
-                      </th>
-                      <th 
-                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                        style={{ 
-                          color: designTokens.colors.text.secondary,
-                          fontSize: designTokens.typography.fontSize.xs,
-                          fontWeight: designTokens.typography.fontWeight.medium
-                        }}
-                      >
-                        Descripción (EN)
+                        Descripción
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -1350,16 +1326,7 @@ export default function AdminPage() {
                             fontSize: designTokens.typography.fontSize.sm
                           }}
                         >
-                          {item.title_es || item.title}
-                        </td>
-                        <td 
-                          className="px-6 py-4 text-sm font-medium"
-                          style={{ 
-                            color: designTokens.colors.text.primary,
-                            fontSize: designTokens.typography.fontSize.sm
-                          }}
-                        >
-                          {item.title_en || 'Sin traducir'}
+                          {item.title}
                         </td>
                         <td 
                           className="px-6 py-4 text-sm max-w-xs truncate"
@@ -1368,16 +1335,7 @@ export default function AdminPage() {
                             fontSize: designTokens.typography.fontSize.sm
                           }}
                         >
-                          {item.description_es || item.description}
-                        </td>
-                        <td 
-                          className="px-6 py-4 text-sm max-w-xs truncate"
-                          style={{ 
-                            color: designTokens.colors.text.primary,
-                            fontSize: designTokens.typography.fontSize.sm
-                          }}
-                        >
-                          {item.description_en || 'Sin traducir'}
+                          {item.description}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           {item.cover_image_url ? (
@@ -2272,15 +2230,15 @@ export default function AdminPage() {
                         fontWeight: designTokens.typography.fontWeight.medium
                       }}
                     >
-                      Título (Español)
+                      Título
                     </label>
-                    <NeoInput
+                          <NeoInput
                       type="text"
-                      value={editingItem.title_es || editingItem.title || ''}
-                      onChange={(e) => setEditingItem({ ...editingItem, title_es: e.target.value })}
-                      placeholder="Título del proyecto en español"
-                    />
-                  </div>
+                      value={editingItem.title || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                      placeholder="Título del proyecto"
+                          />
+                        </div>
                   <div>
                     <label 
                       className="block text-sm font-medium mb-2"
@@ -2290,51 +2248,15 @@ export default function AdminPage() {
                         fontWeight: designTokens.typography.fontWeight.medium
                       }}
                     >
-                      Título (English)
-                    </label>
-                    <NeoInput
-                      type="text"
-                      value={editingItem.title_en || ''}
-                      onChange={(e) => setEditingItem({ ...editingItem, title_en: e.target.value })}
-                      placeholder="Project title in English"
-                    />
-                  </div>
-                  <div>
-                    <label 
-                      className="block text-sm font-medium mb-2"
-                      style={{ 
-                        color: designTokens.colors.text.primary,
-                        fontSize: designTokens.typography.fontSize.sm,
-                        fontWeight: designTokens.typography.fontWeight.medium
-                      }}
-                    >
-                      Descripción (Español)
-                    </label>
+                            Descripción
+                          </label>
                     <NeoTextarea
-                      value={editingItem.description_es || editingItem.description || ''}
-                      onChange={(e) => setEditingItem({ ...editingItem, description_es: e.target.value })}
-                      placeholder="Descripción del proyecto en español"
+                      value={editingItem.description || ''}
+                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                      placeholder="Descripción del proyecto"
                       rows={4}
-                    />
-                  </div>
-                  <div>
-                    <label 
-                      className="block text-sm font-medium mb-2"
-                      style={{ 
-                        color: designTokens.colors.text.primary,
-                        fontSize: designTokens.typography.fontSize.sm,
-                        fontWeight: designTokens.typography.fontWeight.medium
-                      }}
-                    >
-                      Descripción (English)
-                    </label>
-                    <NeoTextarea
-                      value={editingItem.description_en || ''}
-                      onChange={(e) => setEditingItem({ ...editingItem, description_en: e.target.value })}
-                      placeholder="Project description in English"
-                      rows={4}
-                    />
-                  </div>
+                          />
+                        </div>
                   <div>
                     <label 
                       className="block text-sm font-medium mb-2"
