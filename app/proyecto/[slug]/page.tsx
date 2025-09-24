@@ -173,120 +173,117 @@ export default function ProjectPage() {
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
       <Navbar onAdminClick={() => {}} />
       
-      {/* Hero Section - Estilo Behance */}
-      <section className="pt-24 pb-0 relative overflow-hidden">
-        {/* Background con gradiente */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-[#0a0a0a] dark:to-gray-800"></div>
+      {/* Hero Section - Estilo Behance Impactante */}
+      <section className="pt-24 pb-0 relative overflow-hidden min-h-screen flex items-center">
+        {/* Background dinámico con múltiples capas */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-[#0a0a0a] dark:to-gray-800"></div>
+          <div className="absolute inset-0 opacity-30" style={{background: `radial-gradient(circle at 20% 80%, #16A2FF 0%, transparent 50%)`}}></div>
+          <div className="absolute inset-0 opacity-20" style={{background: `radial-gradient(circle at 80% 20%, #35D07F 0%, transparent 50%)`}}></div>
+        </div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
-          <nav className="mb-8">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          {/* Breadcrumb mejorado */}
+          <nav className="mb-12">
             <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
               <a href="/" className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Inicio</a>
               <span>/</span>
               <span className="text-gray-700 dark:text-gray-300">Proyectos</span>
               <span>/</span>
-              <span className="font-medium" style={{color: designTokens.colors.primary.gradient}}>{project.title}</span>
+              <span className="font-medium" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>{project.title}</span>
             </div>
           </nav>
 
-          {/* Hero Content */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-            {/* Texto del Hero */}
-            <div className="space-y-8">
-              {/* Badge del tipo de proyecto */}
-              {project.project_type && (
-                <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium text-white" style={{background: designTokens.colors.primary.gradient}}>
-                  {project.project_type}
-                </div>
-              )}
-              
-              {/* Título principal */}
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                <span className="block text-gray-900 dark:text-white">{project.title}</span>
+          {/* Hero Content - Layout de lado a lado impactante */}
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Text Content - Lado izquierdo */}
+            <div className="space-y-10">
+              {/* Project Type Badge mejorado */}
+              <div className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium shadow-lg" style={{background: designTokens.colors.primary.gradient, color: 'white'}}>
+                <span className="w-2 h-2 bg-white rounded-full mr-3 animate-pulse"></span>
+                {project.project_type || 'Proyecto'}
+              </div>
+
+              {/* Main Title con efecto visual */}
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight text-gray-900 dark:text-white">
+                <span className="block">{project.title}</span>
+                <span className="block text-4xl md:text-5xl lg:text-6xl mt-4 opacity-60" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                  {project.project_type || 'UX/UI Design'}
+                </span>
               </h1>
-              
-              {/* Descripción */}
-              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed">
+
+              {/* Description mejorada */}
+              <p className="text-2xl md:text-3xl text-gray-600 dark:text-gray-300 leading-relaxed font-light">
                 {project.description}
               </p>
               
-              {/* Metadatos en grid */}
-              <div className="grid grid-cols-2 gap-6">
-                {project.client_name && (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Cliente</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{project.client_name}</p>
-                  </div>
-                )}
-                {project.duration && (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Duración</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{project.duration}</p>
-                  </div>
-                )}
-                {project.team_size && (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Equipo</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{project.team_size} personas</p>
-                  </div>
-                )}
-                {project.project_type && (
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Categoría</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{project.project_type}</p>
-                  </div>
-                )}
+              {/* Project Metadata en grid mejorado */}
+              <div className="grid grid-cols-2 gap-8 pt-12">
+                <div className="group">
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Cliente</h3>
+                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.client_name || 'Confidencial'}</p>
+                </div>
+                <div className="group">
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Duración</h3>
+                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.duration || '3 meses'}</p>
+                </div>
+                <div className="group">
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Equipo</h3>
+                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.team_size || '4 personas'}</p>
+                </div>
+                <div className="group">
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Categoría</h3>
+                  <p className="text-xl font-semibold text-gray-900 dark:text-white group-hover:scale-105 transition-transform">{project.project_type || 'UX/UI Design'}</p>
+                </div>
               </div>
               
-              {/* Botones de acción */}
-              <div className="flex flex-wrap gap-4">
-                {project.project_url && (
-                  <a 
-                    href={project.project_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-8 py-4 rounded-xl text-white font-semibold transition-all duration-300 hover:shadow-xl hover:scale-105"
-                    style={{background: designTokens.colors.primary.gradient}}
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Ver Proyecto
-                  </a>
-                )}
-                {project.github_url && (
-                  <a 
-                    href={project.github_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-8 py-4 rounded-xl border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold transition-all duration-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                    </svg>
-                    Ver Código
-                  </a>
-                )}
+              {/* Action Buttons mejorados */}
+              <div className="flex flex-wrap gap-6 pt-12">
+                <button className="px-10 py-5 rounded-2xl font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl text-lg" style={{background: designTokens.colors.primary.gradient}}>
+                  Ver Proyecto Completo
+                </button>
+                <button className="px-10 py-5 rounded-2xl font-semibold border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105 text-lg">
+                  Ver Código
+                </button>
               </div>
             </div>
-            
-            {/* Imagen del Hero */}
-            {project.cover_image_url && (
-              <div className="relative">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                  <img 
-                    src={project.cover_image_url} 
-                    alt={project.title}
-                    className="w-full h-[500px] md:h-[600px] object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                </div>
-                {/* Elementos decorativos */}
-                <div className="absolute -top-4 -right-4 w-24 h-24 rounded-full opacity-20" style={{background: designTokens.colors.primary.gradient}}></div>
-                <div className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full opacity-30" style={{background: designTokens.colors.primary.gradient}}></div>
+
+            {/* Hero Image - Lado derecho con múltiples imágenes */}
+            <div className="relative">
+              {/* Imagen principal */}
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-700">
+                <img 
+                  src={project.cover_image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop'} 
+                  alt={project.title}
+                  className="w-full h-[600px] md:h-[700px] object-cover"
+                />
+                {/* Gradient Overlay mejorado */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/20"></div>
               </div>
-            )}
+              
+              {/* Imágenes secundarias flotantes */}
+              <div className="absolute -top-8 -right-8 w-32 h-32 rounded-2xl overflow-hidden shadow-xl transform rotate-12 hover:rotate-0 transition-transform duration-500">
+                <img 
+                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=400&fit=crop" 
+                  alt="Wireframes"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-2xl overflow-hidden shadow-xl transform -rotate-12 hover:rotate-0 transition-transform duration-500">
+                <img 
+                  src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=400&fit=crop" 
+                  alt="Prototipo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* Elementos decorativos mejorados */}
+              <div className="absolute -top-4 -right-4 w-32 h-32 rounded-full opacity-20 animate-pulse" style={{background: designTokens.colors.primary.gradient}}></div>
+              <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full opacity-30 animate-pulse" style={{background: designTokens.colors.primary.gradient}}></div>
+              <div className="absolute top-1/2 -right-12 w-16 h-16 rounded-full opacity-25 animate-bounce" style={{background: designTokens.colors.primary.gradient}}></div>
+            </div>
           </div>
         </div>
       </section>
@@ -333,8 +330,9 @@ export default function ProjectPage() {
                       </div>
                     ))
                   ) : (
-                    /* Contenido por defecto cuando no hay elementos */
-                    <div className="space-y-8">
+                    /* Contenido por defecto cuando no hay elementos - Con imágenes dinámicas */
+                    <div className="space-y-12">
+                      {/* Texto principal */}
                       <div className="prose prose-lg max-w-none dark:prose-invert">
                         <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
                           Contenido de la sección <strong>{section.title}</strong>. Este es un texto de ejemplo que demuestra cómo se ve el contenido en la página del proyecto. El diseño estilo Behance permite mostrar información de manera clara y atractiva.
@@ -342,6 +340,85 @@ export default function ProjectPage() {
                         <p className="text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
                           Aquí se puede agregar más información detallada sobre esta sección del proyecto, incluyendo descripciones, resultados, procesos, o cualquier otro contenido relevante.
                         </p>
+                      </div>
+
+                      {/* Galería de imágenes dinámica */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* Imagen principal de la sección */}
+                        <div className="md:col-span-2 lg:col-span-2">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1556742049 + index * 100}?w=800&h=500&fit=crop`}
+                              alt={`${section.title} - Imagen principal`}
+                              className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          </div>
+                        </div>
+
+                        {/* Imagen secundaria */}
+                        <div className="md:col-span-1 lg:col-span-1">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1460925895 + index * 50}?w=400&h=400&fit=crop`}
+                              alt={`${section.title} - Detalle`}
+                              className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          </div>
+                        </div>
+
+                        {/* Imagen adicional */}
+                        <div className="md:col-span-1 lg:col-span-1">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1551650975 + index * 75}?w=400&h=400&fit=crop`}
+                              alt={`${section.title} - Proceso`}
+                              className="w-full h-[400px] object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          </div>
+                        </div>
+
+                        {/* Imagen de proceso */}
+                        <div className="md:col-span-2 lg:col-span-1">
+                          <div className="relative rounded-2xl overflow-hidden shadow-xl group">
+                            <img 
+                              src={`https://images.unsplash.com/photo-${1551650975 + index * 25}?w=400&h=300&fit=crop`}
+                              alt={`${section.title} - Resultado`}
+                              className="w-full h-[300px] object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Estadísticas o métricas */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8">
+                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                            {85 + index * 5}%
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Satisfacción</div>
+                        </div>
+                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                            {index + 1}5
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Días</div>
+                        </div>
+                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                            {3 + index}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Iteraciones</div>
+                        </div>
+                        <div className="text-center p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                          <div className="text-3xl font-bold mb-2" style={{background: designTokens.colors.primary.gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'}}>
+                            {index + 1}00%
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Éxito</div>
+                        </div>
                       </div>
                     </div>
                   )}
