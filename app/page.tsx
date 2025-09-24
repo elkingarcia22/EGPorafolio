@@ -78,7 +78,7 @@ function HomePageContent() {
 
            {/* Título de sección Acerca de mí */}
            {!loading.home && (
-             <div className="pt-32 pb-20">
+             <div className="pt-32 pb-20 hidden md:block">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
                    <div className="relative">
@@ -206,7 +206,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Experiencia */}
-                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                <div className="bg-transparent rounded-xl border border-gray-250 dark:border-gray-650 p-6 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-8 h-8 rounded-lg mr-3 flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -285,7 +285,7 @@ function HomePageContent() {
                 </div>
 
                 {/* Especialidades */}
-                <div className="bg-transparent rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex flex-col">
+                <div className="bg-transparent rounded-xl border border-gray-250 dark:border-gray-650 p-6 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="w-8 h-8 rounded-lg mr-3 flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
                       <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -377,7 +377,7 @@ function HomePageContent() {
 
            {/* Título de sección Contacto */}
            {!loading.home && (
-             <div className="pt-32 pb-28">
+             <div className="pt-32 pb-28 hidden md:block">
                <div className="px-8">
                  <div className="max-w-6xl mx-auto">
                    <div className="relative">

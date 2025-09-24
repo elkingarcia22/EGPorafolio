@@ -124,7 +124,7 @@ export const NeuromorphicEG = () => {
             
             {/* Texto typewriter dentro del espacio de la G - Solo visible en desktop */}
             <div 
-              className="hidden md:block absolute w-full max-w-none left-[calc(100%-200px)] sm:left-[calc(100%-240px)] md:left-[calc(100%-280px)] top-[calc(33.333%+20px)] sm:top-[calc(33.333%+30px)] md:top-[calc(33.333%+35px)]"
+              className="hidden md:block absolute w-full max-w-none left-[calc(100%-200px)] sm:left-[calc(100%-240px)] md:left-[calc(100%-280px)] top-[calc(33.333%+29px)] sm:top-[calc(33.333%+39px)] md:top-[calc(33.333%+44px)]"
             >
               <TypewriterText 
                 words={content.typewriterTexts}
