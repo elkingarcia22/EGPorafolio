@@ -6,12 +6,14 @@ import { useEffect, useState } from 'react'
 import { useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
 import { useDesignTokens } from '@/hooks/useDesignTokens'
+import { useProjects } from '@/hooks/useProjects'
 
 export const NeuromorphicEG = () => {
   const { theme } = useTheme()
   const { content } = useAdmin()
   const { t } = useLanguage()
   const designTokens = useDesignTokens()
+  const { projects, loading: projectsLoading } = useProjects()
   const [mounted, setMounted] = useState(false)
 
   // Función para procesar el gradiente para efectos de texto
@@ -198,10 +200,10 @@ export const NeuromorphicEG = () => {
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {content.projects && content.projects[0]?.cover_image_url ? (
+              {projects && projects[0]?.cover_image_url ? (
                 <img 
-                  src={content.projects[0].cover_image_url} 
-                  alt={content.projectTitles[0]}
+                  src={projects[0].cover_image_url} 
+                  alt={projects[0].title}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -214,8 +216,12 @@ export const NeuromorphicEG = () => {
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[0]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[0]}</p>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                {projects && projects[0] ? projects[0].title : 'Proyecto UX/UI'}
+              </h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+                {projects && projects[0] ? projects[0].description : 'Diseño de experiencia de usuario e interfaz para aplicaciones web modernas.'}
+              </p>
             </div>
           </div>
           
@@ -223,10 +229,10 @@ export const NeuromorphicEG = () => {
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {content.projects && content.projects[1]?.cover_image_url ? (
+              {projects && projects[1]?.cover_image_url ? (
                 <img 
-                  src={content.projects[1].cover_image_url} 
-                  alt={content.projectTitles[1]}
+                  src={projects[1].cover_image_url} 
+                  alt={projects[1].title}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -239,8 +245,12 @@ export const NeuromorphicEG = () => {
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[1]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[1]}</p>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                {projects && projects[1] ? projects[1].title : 'Diseño de Interfaz'}
+              </h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+                {projects && projects[1] ? projects[1].description : 'Creación de interfaces intuitivas y atractivas que mejoran la experiencia del usuario.'}
+              </p>
             </div>
           </div>
           
@@ -248,10 +258,10 @@ export const NeuromorphicEG = () => {
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {content.projects && content.projects[2]?.cover_image_url ? (
+              {projects && projects[2]?.cover_image_url ? (
                 <img 
-                  src={content.projects[2].cover_image_url} 
-                  alt={content.projectTitles[2]}
+                  src={projects[2].cover_image_url} 
+                  alt={projects[2].title}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -264,8 +274,12 @@ export const NeuromorphicEG = () => {
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[2]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[2]}</p>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                {projects && projects[2] ? projects[2].title : 'Estrategia Digital'}
+              </h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+                {projects && projects[2] ? projects[2].description : 'Desarrollo de estrategias digitales integrales para maximizar el impacto online.'}
+              </p>
             </div>
           </div>
           
@@ -273,10 +287,10 @@ export const NeuromorphicEG = () => {
           <div className="group cursor-pointer relative overflow-hidden">
             {/* Imagen de portada */}
             <div className="absolute inset-0 bg-gray-300 dark:bg-gray-700">
-              {content.projects && content.projects[3]?.cover_image_url ? (
+              {projects && projects[3]?.cover_image_url ? (
                 <img 
-                  src={content.projects[3].cover_image_url} 
-                  alt={content.projectTitles[3]}
+                  src={projects[3].cover_image_url} 
+                  alt={projects[3].title}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -289,8 +303,12 @@ export const NeuromorphicEG = () => {
             <div className="absolute inset-0" style={{background: designTokens.colors.primary.gradient, opacity: 0.3}}></div>
             {/* Contenido de texto */}
             <div className="relative z-10 p-6 sm:p-8 md:p-12 h-full flex flex-col justify-end min-h-[300px] sm:min-h-[400px] md:min-h-[500px]">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">{content.projectTitles[3]}</h3>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">{content.projectDescriptions[3]}</p>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
+                {projects && projects[3] ? projects[3].title : 'Diseño con IA'}
+              </h3>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90">
+                {projects && projects[3] ? projects[3].description : 'Integración de inteligencia artificial en procesos de diseño para optimizar resultados.'}
+              </p>
             </div>
           </div>
         </div>
