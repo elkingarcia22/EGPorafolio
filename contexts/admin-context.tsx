@@ -95,13 +95,17 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
           console.log('✅ Projects data:', projectsData)
           console.log('📊 Cantidad de proyectos cargados:', projectsData?.length || 0)
           // Actualizar el estado con los proyectos cargados
-          setContent(prev => ({
-            ...prev,
-            projects: projectsData || [],
-            projectTitles: (projectsData || []).map(project => project.title),
-            projectDescriptions: (projectsData || []).map(project => project.description)
-          }))
-          console.log('🔄 Estado actualizado con proyectos:', projectsData?.length || 0)
+          setContent(prev => {
+            const newContent = {
+              ...prev,
+              projects: projectsData || [],
+              projectTitles: (projectsData || []).map(project => project.title),
+              projectDescriptions: (projectsData || []).map(project => project.description)
+            }
+            console.log('🔄 Estado actualizado con proyectos:', projectsData?.length || 0)
+            console.log('📊 Nuevo estado projects:', newContent.projects)
+            return newContent
+          })
         }
 
         // Fetch about info
