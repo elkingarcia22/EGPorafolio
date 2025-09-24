@@ -512,11 +512,19 @@ export default function AdminPage() {
   }
 
   const handleSave = async () => {
-    if (!editingItem) return
+    console.log('🚀 handleSave iniciado')
+    console.log('🔍 editingItem:', editingItem)
+    
+    if (!editingItem) {
+      console.log('❌ No hay editingItem, saliendo')
+      return
+    }
 
     try {
+      console.log('🔄 Procesando editingItem...')
       const { type, ...itemData } = editingItem
       delete itemData.type
+      console.log('✅ itemData procesado:', itemData)
 
       // Mapear los nuevos tipos a las tablas de la base de datos
       let tableName = type
@@ -566,6 +574,7 @@ export default function AdminPage() {
       console.log('✅ Datos recargados exitosamente')
     } catch (error: any) {
       console.error('❌ Error saving:', error)
+      console.error('🔍 Error completo:', JSON.stringify(error, null, 2))
       console.error('📊 Detalles del error:', {
         message: error?.message,
         details: error?.details,
