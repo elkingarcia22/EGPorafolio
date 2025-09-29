@@ -33,8 +33,14 @@ module.exports = {
         },
         background: {
           light: '#FFFFFF',
-          dark: '#0A0A0A',
+          dark: '#121212',
         },
+        // Material Design Dark Theme Colors
+        'dark-surface': '#121212',
+        'dark-surface-variant': '#1e1e1e',
+        'dark-surface-container': '#2c2c2c',
+        'dark-surface-container-high': '#363636',
+        'dark-hover': '#4a4a4a',
         state: {
           success: '#10B981',
           warning: '#F59E0B',

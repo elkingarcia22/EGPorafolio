@@ -26,6 +26,7 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
     
     const handleScroll = () => {
       const scrollTop = window.scrollY
+      console.log('🔄 Scroll detectado:', scrollTop)
       setIsScrolled(scrollTop > 50)
     }
 
@@ -39,10 +40,12 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
 
   const isDark = theme === 'dark'
 
+  console.log('🎯 Navbar renderizado - isScrolled:', isScrolled)
+
   return (
-    <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    <div className={`fixed top-0 left-0 right-0 z-50 ${
       isScrolled 
-        ? 'bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm' 
+        ? 'bg-white/80 dark:bg-dark-surface-variant backdrop-blur-sm' 
         : 'bg-transparent'
     }`}>
       <div className="flex items-center justify-between px-8 py-4">
@@ -53,7 +56,7 @@ export const Navbar = ({ onAdminClick }: NavbarProps) => {
           <Tooltip content={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
             <button 
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group relative"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-lg transition-all duration-200 group relative"
             >
               {isDark ? (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

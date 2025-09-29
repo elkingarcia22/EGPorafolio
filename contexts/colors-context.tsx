@@ -38,8 +38,13 @@ const isSupabaseConfigured = () => {
   return !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 }
 
+// Instancia singleton de Supabase
+let supabaseClient: any = null
+
 // Función para crear cliente de Supabase
 const createSupabaseClient = () => {
+  if (supabaseClient) return supabaseClient
+  
   if (!isSupabaseConfigured()) return null
   
   const isDevelopment = process.env.NODE_ENV === 'development'
@@ -54,7 +59,7 @@ const createSupabaseClient = () => {
     isDevelopment
   })
   
-  return createClient(
+  supabaseClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     key!,
     isDevelopment ? {
@@ -64,6 +69,8 @@ const createSupabaseClient = () => {
       }
     } : undefined
   )
+  
+  return supabaseClient
 }
 
 // Gradiente por defecto

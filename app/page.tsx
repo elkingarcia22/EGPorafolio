@@ -21,6 +21,26 @@ function HomePageContent() {
   
   console.log('🏠 HomePageContent renderizado - mounted:', mounted, 'loading:', loading)
   
+  // Log para verificar estilos
+  useEffect(() => {
+    console.log('🎨 HomePage - Verificando estilos:')
+    console.log('🎨 HomePage - Tema actual:', typeof window !== 'undefined' ? document.documentElement.className : 'SSR')
+    console.log('🎨 HomePage - Clases aplicadas:', {
+      'bg-white dark:bg-dark-surface': 'bg-white dark:bg-dark-surface',
+      'bg-gradient-to-br from-gray-900-pure via-white to-gray-900-pure dark:from-dark-surface dark:via-dark-surface dark:to-dark-surface': 'bg-gradient-to-br from-gray-900-pure via-white to-gray-900-pure dark:from-dark-surface dark:via-dark-surface dark:to-dark-surface'
+    })
+    
+    // Verificar si las clases CSS están disponibles
+    if (typeof window !== 'undefined') {
+      const testElement = document.createElement('div')
+      testElement.className = 'bg-dark-surface'
+      document.body.appendChild(testElement)
+      const computedStyle = window.getComputedStyle(testElement)
+      console.log('🎨 HomePage - bg-dark-surface computed:', computedStyle.backgroundColor)
+      document.body.removeChild(testElement)
+    }
+  }, [mounted])
+  
   // Función para generar overlay dinámico basado en el gradiente actual
   const getDynamicOverlay = () => {
     const gradient = designTokens.colors.primary.gradient
@@ -49,15 +69,29 @@ function HomePageContent() {
       console.log('🎯 Asegurando que la página inicie en el Home...')
       console.log('📍 Posición actual del scroll:', window.scrollY)
       
-      // Limpiar cualquier hash de la URL que pueda causar scroll automático
+      // Manejar hash de la URL para navegación a secciones
       if (window.location.hash) {
-        console.log('🧹 Limpiando hash de la URL:', window.location.hash)
-        window.history.replaceState(null, '', window.location.pathname)
+        const targetId = window.location.hash.substring(1) // Remover '#'
+        console.log('🎯 Navegando a sección:', targetId)
+        
+        // Esperar un poco para que el contenido se renderice
+        setTimeout(() => {
+          const targetElement = document.getElementById(targetId)
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' })
+            console.log('✅ Scroll a sección ejecutado:', targetId)
+          } else {
+            console.log('❌ Sección no encontrada:', targetId)
+            // Si no se encuentra la sección, ir al inicio
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }
+        }, 100)
+      } else {
+        // Si no hay hash, ir al inicio
+        window.scrollTo({ top: 0, behavior: 'auto' })
+        console.log('✅ Scroll al Home ejecutado (sin animación)')
       }
       
-      // Forzar scroll inmediato al Home sin animación
-      window.scrollTo({ top: 0, behavior: 'auto' })
-      console.log('✅ Scroll al Home ejecutado (sin animación)')
       console.log('📍 Posición después del scroll:', window.scrollY)
     } else {
       console.log('⏳ Componente no montado aún, esperando...')
@@ -67,7 +101,7 @@ function HomePageContent() {
   console.log('🏠 HomePage renderizado')
   
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-dark-surface-variant transition-colors duration-300">
         <Navbar onAdminClick={handleAdminClick} />
 
       

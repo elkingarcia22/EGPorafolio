@@ -136,7 +136,7 @@ export default function ProjectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+      <div className="min-h-screen bg-white dark:bg-dark-surface-variant transition-colors duration-300">
         <Navbar onAdminClick={() => {}} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -150,7 +150,7 @@ export default function ProjectPage() {
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+      <div className="min-h-screen bg-white dark:bg-dark-surface-variant transition-colors duration-300">
         <Navbar onAdminClick={() => {}} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center">
@@ -170,7 +170,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-dark-surface transition-colors duration-300">
       <Navbar onAdminClick={() => {}} />
       
       {/* Hero Section - Solo Banner de Imagen */}
@@ -211,7 +211,7 @@ export default function ProjectPage() {
       </section>
 
       {/* Información del Proyecto */}
-      <section className="py-24 bg-white dark:bg-[#0a0a0a]">
+      <section className="py-24 bg-white dark:bg-dark-surface">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Información del proyecto */}
@@ -495,7 +495,7 @@ export default function ProjectPage() {
       </section>
 
       {/* Proceso de Desarrollo */}
-      <section className="py-24 bg-white dark:bg-[#0a0a0a]">
+      <section className="py-24 bg-white dark:bg-dark-surface">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="flex items-center justify-center mb-8">

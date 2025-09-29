@@ -106,15 +106,15 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const getArrowClasses = () => {
     switch (position) {
       case 'top':
-        return 'top-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent border-t-gray-800 dark:border-t-gray-200'
+        return 'top-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-b-transparent border-t-gray-800-pure'
       case 'bottom':
-        return 'bottom-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-gray-800 dark:border-b-gray-200'
+        return 'bottom-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-gray-800-pure'
       case 'left':
-        return 'left-full top-1/2 transform -translate-y-1/2 border-t-transparent border-b-transparent border-r-transparent border-l-gray-800 dark:border-l-gray-200'
+        return 'left-full top-1/2 transform -translate-y-1/2 border-t-transparent border-b-transparent border-r-transparent border-l-gray-800-pure'
       case 'right':
-        return 'right-full top-1/2 transform -translate-y-1/2 border-t-transparent border-b-transparent border-l-transparent border-r-gray-800 dark:border-r-gray-200'
+        return 'right-full top-1/2 transform -translate-y-1/2 border-t-transparent border-b-transparent border-l-transparent border-r-gray-800-pure'
       default:
-        return 'bottom-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-gray-800 dark:border-b-gray-200'
+        return 'bottom-full left-1/2 transform -translate-x-1/2 border-l-transparent border-r-transparent border-t-transparent border-b-gray-800-pure'
     }
   }
 
@@ -143,7 +143,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                 left: tooltipPosition.left
               }}
             >
-              <div className="bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap">
+              <div className="bg-gray-800-pure text-white dark:text-gray-200 text-xs font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap border-gray-800-pure">
                 {content}
               </div>
             </motion.div>

@@ -30,7 +30,9 @@
     "check-colors": "node scripts/check-colors-table.js",
     "fix-colors-structure": "node scripts/fix-colors-table-structure.js",
     "fix-colors-rls-complete": "node scripts/fix-colors-rls-complete.js",
-    "test-colors-admin": "node scripts/test-colors-admin.js"
+    "test-colors-admin": "node scripts/test-colors-admin.js",
+    "setup-cv-storage": "node scripts/setup-cv-storage.js",
+    "check-cv-table": "node scripts/check-cv-table.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

@@ -31,7 +31,7 @@ export const ThemeToggle: React.FC = () => {
         className="flex items-center justify-center"
         initial={false}
         animate={{ rotate: isDark ? 180 : 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.1, ease: "easeOut" }}
       >
         {isDark ? (
           <Sun className="h-4 w-4" />

@@ -40,7 +40,7 @@ export const PageLoader: React.FC<PageLoaderProps> = ({ onComplete }) => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-gray-900"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-dark-surface-variant"
         >
           <div className="w-full max-w-md px-8">
             {/* Logo o título */}

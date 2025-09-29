@@ -34,7 +34,7 @@ export const AccessibilityToolbar: React.FC = () => {
       <Tooltip content="Herramientas de accesibilidad">
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group relative"
+          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-lg transition-all duration-200 group relative"
         >
           <motion.div
             className="flex items-center justify-center"
@@ -54,7 +54,7 @@ export const AccessibilityToolbar: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 top-full mt-2 w-80 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4 z-50"
+            className="absolute right-0 top-full mt-2 w-80 bg-white/95 dark:bg-dark-surface-variant/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200/50 dark:border-gray-700/50 p-4 z-50"
           >
             <div className="space-y-4">
               {/* Título */}

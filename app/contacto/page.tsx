@@ -11,7 +11,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-dark-surface-variant transition-colors duration-300">
       <Navbar onAdminClick={handleAdminClick} />
       
       <div className="pt-24 px-8">
@@ -31,7 +31,7 @@ export default function ContactPage() {
             
             {/* WhatsApp Card */}
             <div className="group cursor-pointer">
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+              <div className="bg-white dark:bg-dark-surface-container rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                 <div className="text-center">
                   {/* Icono con degradado */}
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
@@ -53,7 +53,7 @@ export default function ContactPage() {
 
             {/* LinkedIn Card */}
             <div className="group cursor-pointer">
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+              <div className="bg-white dark:bg-dark-surface-container rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                 <div className="text-center">
                   {/* Icono con degradado */}
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>
@@ -75,7 +75,7 @@ export default function ContactPage() {
 
             {/* Ubicación Card */}
             <div className="group cursor-pointer">
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+              <div className="bg-white dark:bg-dark-surface-container rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                 <div className="text-center">
                   {/* Icono con degradado */}
                   <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center" style={{background: designTokens.colors.primary.gradient}}>

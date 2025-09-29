@@ -41,19 +41,18 @@ export default function RootLayout({
             <svg width="0" height="0" style={{ position: 'absolute' }}>
               <defs>
                 <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3498db" />
-                  <stop offset="20%" stopColor="#5dade2" />
-                  <stop offset="40%" stopColor="#1abc9c" />
-                  <stop offset="60%" stopColor="#2ecc71" />
-                  <stop offset="100%" stopColor="#3498db" />
+                  <stop offset="0%" stopColor="#16A2FF" />
+                  <stop offset="100%" stopColor="#35D07F" />
                 </linearGradient>
               </defs>
             </svg>
             <ThemeProvider
               attribute="class"
-              defaultTheme="light"
-              enableSystem
-              disableTransitionOnChange
+              defaultTheme="system"
+              enableSystem={true}
+              disableTransitionOnChange={false}
+              storageKey="theme"
+              transitionDuration={100}
             >
               <LanguageProvider>
                 <ColorsProvider>

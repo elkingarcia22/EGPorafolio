@@ -24,7 +24,7 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
     { name: t('home.myWork'), href: '/#proyectos' },
     { name: t('nav.about'), href: '/#acerca' },
     { name: t('nav.contact'), href: '/#contacto' },
-    { name: 'CV', href: '/cv' },
+    { name: t('nav.cv'), href: '/cv' },
     { name: t('nav.admin'), href: '/admin', isAdmin: true }
   ], [t, language])
 
@@ -102,7 +102,7 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
       <Tooltip content={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}>
         <button 
           onClick={toggleMenu}
-          className="flex items-center justify-center w-8 h-8 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 z-50 group relative"
+          className="flex items-center justify-center w-8 h-8 p-2 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-lg transition-all duration-200 z-50 group relative"
         >
         {showCloseButton ? (
           // Botón X después de 3 segundos
@@ -129,7 +129,7 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
       {/* Menú expandible horizontal - se activa con hover o click */}
       <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
         isMenuOpen 
-          ? 'max-w-[600px] opacity-100 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg' 
+          ? 'max-w-[600px] opacity-100 bg-white/90 dark:bg-dark-surface-variant backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg' 
           : 'max-w-0 opacity-0'
       }`}>
         <div className={`flex items-center space-x-4 ${isMenuOpen ? 'pl-0' : 'pl-4'}`}>
@@ -157,13 +157,20 @@ export const MinimalMenu = ({ onAdminClick }: MinimalMenuProps) => {
                   // Cerrar el menú
                   closeMenu()
                   
-                  // Si es un enlace interno con hash, hacer scroll suave
+                  // Si es un enlace interno con hash, manejar navegación
                   if (item.href.startsWith('/#')) {
                     e.preventDefault()
                     const targetId = item.href.substring(2) // Remover '/#'
-                    const targetElement = document.getElementById(targetId)
-                    if (targetElement) {
-                      targetElement.scrollIntoView({ behavior: 'smooth' })
+                    
+                    // Si estamos en la página principal, hacer scroll suave
+                    if (window.location.pathname === '/') {
+                      const targetElement = document.getElementById(targetId)
+                      if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' })
+                      }
+                    } else {
+                      // Si estamos en otra página, navegar a la principal con hash
+                      window.location.href = `/#${targetId}`
                     }
                   }
                 }}

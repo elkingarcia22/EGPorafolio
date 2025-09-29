@@ -89,7 +89,7 @@ export default function AdminPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [activeTab, setActiveTab] = useState<'typewriter' | 'projects' | 'about' | 'contact' | 'images' | 'colors'>('typewriter')
+  const [activeTab, setActiveTab] = useState<'typewriter' | 'projects' | 'about' | 'contact' | 'images' | 'colors' | 'cv'>('typewriter')
   const [data, setData] = useState<AdminData>({
     typewriterTexts: [],
     projects: [],
@@ -758,12 +758,18 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div 
-        className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900"
+        id="admin-modal-background"
+        className="min-h-screen flex items-center justify-center p-4 bg-gray-50"
         style={{ 
-          fontFamily: designTokens.typography.fontFamily.sans 
+          fontFamily: designTokens.typography.fontFamily.sans,
+          backgroundColor: '#2d2d2d' // gris oscuro sin tinte azul
         }}
       >
-        <NeoCard className="w-full max-w-md p-8">
+        <NeoCard 
+          id="admin-modal-card"
+          className="w-full max-w-md p-8"
+          style={{ backgroundColor: '#4a4a4a' }} // gris más claro sin tinte azul
+        >
           <div className="text-center mb-6">
             <div className="flex items-center justify-center mb-4">
               <svg 
@@ -772,14 +778,14 @@ export default function AdminPage() {
                 stroke="currentColor" 
                 viewBox="0 0 24 24" 
                 strokeWidth={2}
-                style={{ color: designTokens.colors.text.secondary }}
+                style={{ color: '#ffffff' }} // blanco para mejor contraste
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               <h1 
                 className="text-3xl font-bold"
                 style={{ 
-                  color: designTokens.colors.text.primary,
+                  color: '#ffffff', // blanco para mejor contraste
                   fontSize: designTokens.typography.fontSize['3xl'],
                   fontWeight: designTokens.typography.fontWeight.bold
                 }}
@@ -790,7 +796,7 @@ export default function AdminPage() {
             <p 
               className="text-sm"
               style={{ 
-                color: designTokens.colors.text.secondary,
+                color: '#e5e5e5', // gris claro para mejor contraste
                 fontSize: designTokens.typography.fontSize.sm
               }}
             >
@@ -802,6 +808,7 @@ export default function AdminPage() {
             <div>
               <div className="relative">
               <NeoInput
+                  id="admin-password-input"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -813,7 +820,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  style={{ color: designTokens.colors.text.tertiary }}
+                  style={{ color: '#ffffff' }} // blanco para mejor contraste
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -860,6 +867,7 @@ export default function AdminPage() {
               variant="ghost"
               onClick={() => router.push('/')}
               className="flex items-center justify-center space-x-2 mx-auto"
+              style={{ color: '#ffffff' }} // blanco para mejor contraste
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -874,7 +882,7 @@ export default function AdminPage() {
 
   return (
     <div 
-      className="min-h-screen bg-gray-50 dark:bg-gray-900"
+      className="min-h-screen bg-gray-50 dark:bg-dark-surface-variant"
       style={{ 
         fontFamily: designTokens.typography.fontFamily.sans 
       }}
@@ -1071,6 +1079,15 @@ export default function AdminPage() {
                   icon: (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                    </svg>
+                  )
+                },
+                { 
+                  key: 'cv', 
+                  label: 'Gestión de CV', 
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   )
                 }
@@ -1451,7 +1468,7 @@ export default function AdminPage() {
                   
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-900">
+                    <thead className="bg-gray-50 dark:bg-dark-surface-container">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1526,7 +1543,7 @@ export default function AdminPage() {
                 
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-900">
+                    <thead className="bg-gray-50 dark:bg-dark-surface-container">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1607,7 +1624,7 @@ export default function AdminPage() {
                 
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-900">
+                    <thead className="bg-gray-50 dark:bg-dark-surface-container">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1688,7 +1705,7 @@ export default function AdminPage() {
                   
                 <div className="overflow-hidden">
                   <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-900">
+                    <thead className="bg-gray-50 dark:bg-dark-surface-container">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Idioma
@@ -1781,7 +1798,7 @@ export default function AdminPage() {
                   </div>
               <div className="bg-white dark:bg-black rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-900">
+                  <thead className="bg-gray-50 dark:bg-dark-surface-container">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Tipo
@@ -1870,7 +1887,7 @@ export default function AdminPage() {
                             </div>
               <div className="bg-white dark:bg-black rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-900">
+                  <thead className="bg-gray-50 dark:bg-dark-surface-container">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Nombre
@@ -2025,7 +2042,7 @@ export default function AdminPage() {
 
               <div className="bg-white dark:bg-black rounded-lg shadow overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-900">
+                  <thead className="bg-gray-50 dark:bg-dark-surface-container">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Nombre
@@ -2159,6 +2176,184 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'cv' && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 
+                    className="text-xl font-semibold"
+                    style={{ 
+                      color: designTokens.colors.text.primary,
+                      fontSize: designTokens.typography.fontSize.xl,
+                      fontWeight: designTokens.typography.fontWeight.semibold
+                    }}
+                  >
+                    Gestión de CV
+                  </h2>
+                  <p 
+                    className="text-sm mt-1"
+                    style={{ 
+                      color: designTokens.colors.text.secondary,
+                      fontSize: designTokens.typography.fontSize.sm
+                    }}
+                  >
+                    Administra los documentos de hoja de vida
+                  </p>
+                </div>
+                <NeoButton
+                  variant="primary"
+                  onClick={() => window.open('/admin/cv', '_blank')}
+                  className="flex items-center space-x-2"
+                  style={{ 
+                    background: designTokens.colors.primary.gradient,
+                    fontSize: designTokens.typography.fontSize.sm,
+                    fontWeight: designTokens.typography.fontWeight.medium
+                  }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  <span>Abrir Administrador de CV</span>
+                </NeoButton>
+              </div>
+
+              <NeoCard className="p-6">
+                <div className="text-center py-12">
+                  <svg 
+                    className="w-16 h-16 mx-auto mb-4" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth={1.5}
+                    style={{ color: designTokens.colors.text.tertiary }}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <h3 
+                    className="text-lg font-medium mb-2"
+                    style={{ 
+                      color: designTokens.colors.text.primary,
+                      fontSize: designTokens.typography.fontSize.lg,
+                      fontWeight: designTokens.typography.fontWeight.medium
+                    }}
+                  >
+                    Módulo de CV Completo
+                  </h3>
+                  <p 
+                    className="text-sm mb-6 max-w-md mx-auto"
+                    style={{ 
+                      color: designTokens.colors.text.secondary,
+                      fontSize: designTokens.typography.fontSize.sm
+                    }}
+                  >
+                    El módulo de CV tiene su propia interfaz de administración con todas las funcionalidades para gestionar documentos PDF, metadatos y configuraciones avanzadas.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-6">
+                    <div 
+                      className="p-4 rounded-lg"
+                      style={{ 
+                        background: designTokens.colors.background.gray[50],
+                        borderRadius: designTokens.borderRadius.lg
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <h4 
+                          className="font-medium"
+                          style={{ 
+                            color: designTokens.colors.text.primary,
+                            fontWeight: designTokens.typography.fontWeight.medium
+                          }}
+                        >
+                          Crear y Editar CVs
+                        </h4>
+                      </div>
+                      <p 
+                        className="text-sm"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.sm
+                        }}
+                      >
+                        Sube archivos PDF, configura metadatos, idiomas y versiones
+                      </p>
+                    </div>
+                    
+                    <div 
+                      className="p-4 rounded-lg"
+                      style={{ 
+                        background: designTokens.colors.background.gray[50],
+                        borderRadius: designTokens.borderRadius.lg
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <h4 
+                          className="font-medium"
+                          style={{ 
+                            color: designTokens.colors.text.primary,
+                            fontWeight: designTokens.typography.fontWeight.medium
+                          }}
+                        >
+                          Vista Previa
+                        </h4>
+                      </div>
+                      <p 
+                        className="text-sm"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.sm
+                        }}
+                      >
+                        Visualiza los CVs directamente en el navegador
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <NeoButton
+                      variant="primary"
+                      onClick={() => window.open('/admin/cv', '_blank')}
+                      className="flex items-center space-x-2"
+                      style={{ 
+                        background: designTokens.colors.primary.gradient,
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      <span>Administrador de CV</span>
+                    </NeoButton>
+                    
+                    <NeoButton
+                      variant="ghost"
+                      onClick={() => window.open('/cv', '_blank')}
+                      className="flex items-center space-x-2"
+                      style={{ 
+                        fontSize: designTokens.typography.fontSize.sm,
+                        fontWeight: designTokens.typography.fontWeight.medium
+                      }}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span>Ver CV Público</span>
+                    </NeoButton>
+                  </div>
+                </div>
+              </NeoCard>
             </div>
           )}
         </div>

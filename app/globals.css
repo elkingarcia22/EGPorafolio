@@ -554,12 +554,12 @@
 }
 
 .dark .typewriter-cursor {
-  color: #2563eb; /* Mismo azul para consistencia */
+  color: #16A2FF; /* Color del sistema de diseño */
 }
 
-/* Degradado azul estático para otros elementos */
+/* Degradado del sistema de diseño para otros elementos */
 .blue-gradient-static {
-  background: linear-gradient(135deg, #3498db 0%, #5dade2 20%, #1abc9c 40%, #2ecc71 60%, #3498db 100%);
+  background: linear-gradient(135deg, #16A2FF 0%, #35D07F 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -568,7 +568,7 @@
 
 /* Versión para fondos */
 .blue-gradient-bg {
-  background: linear-gradient(135deg, #3498db 0%, #5dade2 20%, #1abc9c 40%, #2ecc71 60%, #3498db 100%);
+  background: linear-gradient(135deg, #16A2FF 0%, #35D07F 100%);
 }
 
 /* Degradado para iconos SVG - Solo contorno */
@@ -680,16 +680,212 @@
 @layer base {
   * {
     @apply border-gray-200 dark:border-gray-700;
+    transition: background-color 0.1s ease-out, 
+                color 0.1s ease-out, 
+                border-color 0.1s ease-out,
+                box-shadow 0.1s ease-out;
   }
+
+  /* Optimización de hardware para elementos que no son fixed - TEMPORALMENTE DESHABILITADO */
+  /* *:not([class*="fixed"]):not([class*="sticky"]) {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  } */
   
   body {
     @apply text-gray-900 font-sans;
     background: #ffffff;
     font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.1s ease-out;
+    will-change: background-color;
   }
   
   html {
     /* scroll-behavior: smooth; */ /* Temporalmente deshabilitado para debug */
+  }
+}
+
+@layer utilities {
+  /* Transiciones suaves para cambio de tema */
+  .theme-transition {
+    transition: background-color 0.1s ease-out, 
+                color 0.1s ease-out, 
+                border-color 0.1s ease-out,
+                box-shadow 0.1s ease-out,
+                fill 0.1s ease-out,
+                stroke 0.1s ease-out;
+    will-change: background-color, color, border-color, box-shadow;
+  }
+
+  /* Optimización para elementos que cambian de tema */
+  .dark, .light {
+    will-change: background-color, color, border-color, box-shadow;
+  }
+
+  /* Asegurar que el navbar mantenga su comportamiento fixed */
+  .fixed {
+    position: fixed !important;
+  }
+
+  /* Regla específica para el navbar */
+  [class*="fixed"][class*="top-0"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  /* Regla específica para el contenedor del navbar */
+  .fixed.top-0.left-0.right-0.z-50 {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  /* Regla de emergencia para navbar */
+  div[class*="fixed"][class*="top-0"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 50 !important;
+  }
+
+  /* Clases para modo oscuro según Material Design */
+  .bg-dark-surface {
+    background-color: #121212 !important; /* Material Design dark surface */
+  }
+  
+  .dark .bg-dark-surface {
+    background-color: #121212 !important;
+  }
+  
+  .bg-dark-surface-variant {
+    background-color: #1e1e1e !important; /* Material Design dark surface variant */
+  }
+  
+  .dark .bg-dark-surface-variant {
+    background-color: #1e1e1e !important;
+  }
+  
+  .bg-dark-surface-container {
+    background-color: #2c2c2c !important; /* Material Design surface container */
+  }
+  
+  .dark .bg-dark-surface-container {
+    background-color: #2c2c2c !important;
+  }
+  
+  .bg-dark-surface-container-high {
+    background-color: #363636 !important; /* Material Design surface container high */
+  }
+  
+  .dark .bg-dark-surface-container-high {
+    background-color: #363636 !important;
+  }
+  
+  .bg-dark-hover {
+    background-color: #4a4a4a !important; /* Color de hover para botones en modo dark */
+  }
+  
+  .dark .bg-dark-hover {
+    background-color: #4a4a4a !important;
+  }
+  
+  /* Hover específico para botones del menú */
+  .dark button:hover.bg-dark-hover,
+  .dark .hover\\:bg-dark-hover:hover {
+    background-color: #4a4a4a !important;
+  }
+  
+  /* Clases para reemplazar grises con tinte azul */
+  .bg-gray-800-pure {
+    background-color: #1f2937;
+  }
+  
+  .dark .bg-gray-800-pure {
+    background-color: #2c2c2c !important;
+  }
+  
+  .bg-gray-900-pure {
+    background-color: #111827;
+  }
+  
+  .dark .bg-gray-900-pure {
+    background-color: #1e1e1e !important;
+  }
+  
+  .text-gray-800-pure {
+    color: #1f2937;
+  }
+  
+  .dark .text-gray-800-pure {
+    color: #e5e7eb !important;
+  }
+  
+  .text-gray-900-pure {
+    color: #111827;
+  }
+  
+  .dark .text-gray-900-pure {
+    color: #f9fafb !important;
+  }
+  
+  .text-gray-700-pure {
+    color: #374151;
+  }
+  
+  .dark .text-gray-700-pure {
+    color: #e5e7eb !important;
+  }
+  
+  .text-gray-600-pure {
+    color: #4b5563;
+  }
+  
+  .dark .text-gray-600-pure {
+    color: #d1d5db !important;
+  }
+  
+  .text-gray-500-pure {
+    color: #6b7280;
+  }
+  
+  .dark .text-gray-500-pure {
+    color: #9ca3af !important;
+  }
+  
+  .border-gray-800-pure {
+    border-color: #1f2937;
+  }
+  
+  .dark .border-gray-800-pure {
+    border-color: #2c2c2c !important;
+  }
+  
+  /* Hover suave para botones en modo oscuro según Material Design */
+  .hover-gray-800-soft {
+    transition: background-color 0.2s ease;
+  }
+  
+  .hover-gray-800-soft:hover {
+    background-color: #1f2937;
+  }
+  
+  .dark .hover-gray-800-soft:hover {
+    background-color: #4a4a4a !important; /* Color de hover personalizado */
+  }
+  
+  /* Hover para elementos elevados */
+  .hover-dark-surface-container {
+    transition: background-color 0.2s ease;
+  }
+  
+  .dark .hover-dark-surface-container:hover {
+    background-color: #363636 !important; /* Material Design surface container high */
   }
 }
 
@@ -918,15 +1114,116 @@
 /* Dark Mode Styles */
 @layer base {
   .dark body {
-    background: #000000;
+    background: #1e1e1e !important;
     color: #ffffff;
+  }
+  
+  .dark .min-h-screen {
+    background-color: #1e1e1e !important;
+  }
+  
+  .dark .bg-dark-surface-variant {
+    background-color: #1e1e1e !important;
+  }
+  
+  /* Modal de administrador - fondo gris oscuro sin tinte azul */
+  .dark .bg-gray-800 {
+    background-color: #2d3748 !important; /* gray-700 - más oscuro que el fondo de la página */
+  }
+  
+  /* Regla específica para el modal de admin - sobrescribe todo */
+  div[style*="backgroundColor: '#2d2d2d'"] {
+    background-color: #2d2d2d !important; /* gris oscuro sin tinte azul */
+  }
+  
+  /* Regla específica para la tarjeta del modal de admin */
+  div[style*="backgroundColor: '#4a4a4a'"] {
+    background-color: #4a4a4a !important; /* gris más claro sin tinte azul */
+  }
+  
+  /* Regla específica para NeoCard en modal de admin */
+  .dark div[style*="backgroundColor: '#4a4a4a'"] {
+    background-color: #4a4a4a !important; /* gris más claro sin tinte azul */
+  }
+  
+  /* Regla de emergencia para modal de admin - sobrescribe TODO */
+  .dark .min-h-screen.flex.items-center.justify-center.p-4 {
+    background-color: #2d2d2d !important; /* gris oscuro sin tinte azul */
+  }
+  
+  /* Regla de emergencia para tarjeta del modal de admin */
+  .dark .min-h-screen.flex.items-center.justify-center.p-4 .w-full.max-w-md.p-8 {
+    background-color: #4a4a4a !important; /* gris más claro sin tinte azul */
+  }
+  
+  /* Regla ultra específica para el modal de admin */
+  body.dark div[class*="min-h-screen"][class*="flex"][class*="items-center"] {
+    background-color: #2d2d2d !important; /* gris oscuro sin tinte azul */
+  }
+  
+  /* Regla ultra específica para la tarjeta del modal de admin */
+  body.dark div[class*="min-h-screen"][class*="flex"][class*="items-center"] div[class*="w-full"][class*="max-w-md"] {
+    background-color: #4a4a4a !important; /* gris más claro sin tinte azul */
+  }
+  
+  /* Reglas por ID - máxima especificidad */
+  #admin-modal-background {
+    background-color: #2d2d2d !important; /* gris oscuro sin tinte azul */
+  }
+  
+  #admin-modal-card {
+    background-color: #4a4a4a !important; /* gris más claro sin tinte azul */
+  }
+  
+  .dark #admin-modal-background {
+    background-color: #2d2d2d !important; /* gris oscuro sin tinte azul */
+  }
+  
+  .dark #admin-modal-card {
+    background-color: #4a4a4a !important; /* gris más claro sin tinte azul */
+  }
+  
+  /* Mejorar contraste de elementos dentro del modal de admin */
+  #admin-modal-card h1,
+  #admin-modal-card .text-3xl {
+    color: #ffffff !important; /* blanco para mejor contraste */
+  }
+  
+  #admin-modal-card p,
+  #admin-modal-card .text-sm {
+    color: #e5e5e5 !important; /* gris claro para mejor contraste */
+  }
+  
+  #admin-modal-card svg {
+    color: #ffffff !important; /* blanco para iconos */
+  }
+  
+  #admin-modal-card button {
+    color: #ffffff !important; /* blanco para botones */
+  }
+  
+  /* Input de contraseña del modal de admin */
+  #admin-password-input {
+    background-color: #4a4a4a !important; /* mismo color que el fondo del modal */
+    border-color: #666666 !important; /* borde gris más claro */
+    color: #ffffff !important; /* texto blanco */
+  }
+  
+  #admin-password-input::placeholder {
+    color: #cccccc !important; /* placeholder gris claro */
+  }
+  
+  #admin-password-input:focus {
+    background-color: #4a4a4a !important; /* mantener el mismo fondo al enfocar */
+    border-color: #888888 !important; /* borde más claro al enfocar */
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important; /* sombra sutil */
   }
 }
 
 @layer components {
   /* Dark Mode Neumorphic Navigation */
   .dark .neumorphic-nav-container {
-    background: #000000;
+    background: #1e1e1e;
     border-bottom: 1px solid #1a1a1a;
   }
 
@@ -996,31 +1293,38 @@
   /* Dark Mode Text Colors */
   .dark .text-gray-800 {
     color: #ffffff;
+    transition: color 0.1s ease-out;
   }
 
   .dark .text-gray-700 {
     color: #e5e5e5;
+    transition: color 0.1s ease-out;
   }
 
   .dark .text-gray-600 {
     color: #a3a3a3;
+    transition: color 0.1s ease-out;
   }
 
   .dark .text-gray-500 {
     color: #737373;
+    transition: color 0.1s ease-out;
   }
 
   /* Dark Mode Background Colors */
   .dark .bg-white {
-    background-color: #000000;
+    background-color: #1e1e1e;
+    transition: background-color 0.1s ease-out;
   }
 
   .dark .bg-gray-50 {
     background-color: #1a1a1a;
+    transition: background-color 0.1s ease-out;
   }
 
   .dark .bg-gray-100 {
     background-color: #262626;
+    transition: background-color 0.1s ease-out;
   }
 
   /* Dark Mode Geometric Background */

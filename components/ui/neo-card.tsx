@@ -9,6 +9,7 @@ interface NeoCardProps {
   className?: string
   hover?: boolean
   onClick?: () => void
+  style?: React.CSSProperties
   variant?: 'default' | 'inset' | 'outset'
   size?: 'sm' | 'md' | 'lg'
 }
@@ -18,6 +19,7 @@ export const NeoCard: React.FC<NeoCardProps> = ({
   className,
   hover = true,
   onClick,
+  style,
   variant = 'default',
   size = 'md',
 }) => {
@@ -48,6 +50,7 @@ export const NeoCard: React.FC<NeoCardProps> = ({
         hoverClasses,
         className
       )}
+      style={style}
       onClick={onClick}
       whileHover={hover ? { scale: 1.02 } : {}}
       whileTap={{ scale: 0.98 }}

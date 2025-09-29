@@ -1,0 +1,6 @@
+{
+  "bds-components": {
+    "command": "/Users/elkinmac/.npm-global/bin/mcp-bds-components",
+    "args": ["--bds-path", "/Users/elkinmac/frontend/bds-components/packages"]
+  }
+}
