@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase-client'
 import { useDesignTokens } from '@/hooks/useDesignTokens'
-import { Navbar } from '@/components/navbar'
+import { MinimalVisibleNavbar } from '@/components/minimal-visible-navbar'
 import { ProjectElementRenderer } from '@/components/project-elements/ProjectElementRenderer'
 
 interface Project {
@@ -137,7 +137,7 @@ export default function ProjectPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-dark-surface-variant transition-colors duration-300">
-        <Navbar onAdminClick={() => {}} />
+        <MinimalVisibleNavbar onAdminClick={() => {}} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{borderColor: designTokens.colors.primary.gradient}}></div>
@@ -151,7 +151,7 @@ export default function ProjectPage() {
   if (error || !project) {
     return (
       <div className="min-h-screen bg-white dark:bg-dark-surface-variant transition-colors duration-300">
-        <Navbar onAdminClick={() => {}} />
+        <MinimalVisibleNavbar onAdminClick={() => {}} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Proyecto no encontrado</h1>
@@ -171,7 +171,7 @@ export default function ProjectPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-dark-surface transition-colors duration-300">
-      <Navbar onAdminClick={() => {}} />
+      <MinimalVisibleNavbar onAdminClick={() => {}} />
       
       {/* Hero Section - Solo Banner de Imagen */}
       <section className="pt-24 pb-0 relative overflow-hidden">

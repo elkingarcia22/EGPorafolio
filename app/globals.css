@@ -1327,6 +1327,27 @@
     transition: background-color 0.1s ease-out;
   }
 
+  /* Admin Modal Specific Styles - Override global dark mode */
+  #admin-modal-background {
+    background-color: white !important;
+  }
+  
+  .dark #admin-modal-background {
+    background-color: #1e1e1e !important;
+  }
+  
+  #admin-password-input {
+    background-color: #f9fafb !important;
+    border-color: #d1d5db !important;
+    color: #111827 !important;
+  }
+  
+  .dark #admin-password-input {
+    background-color: #1a1a1a !important;
+    border-color: #4b5563 !important;
+    color: #f9fafb !important;
+  }
+
   /* Dark Mode Geometric Background */
   .dark .geometric-shape {
     background: #1a1a1a !important;

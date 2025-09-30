@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useLayoutEffect } from 'react'
-import { Navbar } from '@/components/navbar'
+import { MinimalVisibleNavbar } from '@/components/minimal-visible-navbar'
 import { NeuromorphicEG } from '@/components/neuromorphic-eg'
 import { SectionSkeleton } from '@/components/section-skeleton'
 import { EmailModal } from '@/components/ui/email-modal'
@@ -10,14 +10,44 @@ import { AdminProvider, useAdmin } from '@/contexts/admin-context'
 import { useLanguage } from '@/contexts/language-context'
 import { useSectionLoading } from '@/hooks/useSectionLoading'
 import { useDesignTokens } from '@/hooks/useDesignTokens'
+import { useTheme } from 'next-themes'
 
 function HomePageContent() {
   const { content, refreshContent } = useAdmin()
   const { t, language } = useLanguage()
   const { loading, mounted, markSectionLoaded } = useSectionLoading()
   const designTokens = useDesignTokens()
+  const { theme } = useTheme()
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
   const [showPageLoader, setShowPageLoader] = useState(true)
+
+  // Función para obtener el título correcto según el idioma
+  const getProjectTitle = (project: any) => {
+    if (language === 'es' && project.title_es) {
+      return project.title_es
+    } else if (language === 'en' && project.title_en) {
+      return project.title_en
+    }
+    return project.title || 'Proyecto'
+  }
+
+  // Función para obtener la descripción correcta según el idioma
+  const getProjectDescription = (project: any) => {
+    if (language === 'es' && project.description_es) {
+      return project.description_es
+    } else if (language === 'en' && project.description_en) {
+      return project.description_en
+    }
+    return project.description || 'Descripción del proyecto'
+  }
+  
+  // Verificar si el loader ya se mostró en esta sesión
+  useEffect(() => {
+    const hasShownLoader = sessionStorage.getItem('hasShownPageLoader')
+    if (hasShownLoader === 'true') {
+      setShowPageLoader(false)
+    }
+  }, [])
   
   console.log('🏠 HomePageContent renderizado - mounted:', mounted, 'loading:', loading)
   
@@ -102,29 +132,159 @@ function HomePageContent() {
   
   return (
     <div className="min-h-screen bg-white dark:bg-dark-surface-variant transition-colors duration-300">
-        <Navbar onAdminClick={handleAdminClick} />
+        <MinimalVisibleNavbar onAdminClick={handleAdminClick} />
 
       
       {/* Sección Home - EG neuromórfico */}
-      <section id="home" className="pt-24">
+      <section id="home" className="pt-24 pb-24">
         <NeuromorphicEG />
+      </section>
+
+      {/* Sección Proyectos - Mi trabajo */}
+      <section id="proyectos" className="-mt-24 pt-0 pb-24">
+        <div className="w-full max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-3xl font-bold text-gray-700 dark:text-gray-300">
+              Mi trabajo
+            </h2>
+            <div 
+              className="w-24 h-0.5 mx-auto mt-4"
+              style={{background: designTokens.colors.primary.gradient}}
+            ></div>
+          </div>
+          
+          {/* Grid responsivo de proyectos - Cards más grandes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 h-auto">
+            {content.projects.slice(0, 4).map((project: any) => (
+              <div key={project.id} className="group h-full">
+                <div 
+                  className="relative overflow-hidden rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 h-full flex flex-col"
+                  style={{ 
+                    backgroundColor: theme === 'dark' ? '#1a1a1a' : '#1a1a1a',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  {/* Imagen del proyecto - Más grande */}
+                  <div 
+                    className="relative overflow-hidden flex-shrink-0"
+                    style={{
+                      height: '280px',
+                      background: theme === 'dark' 
+                        ? 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)'
+                        : 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%)'
+                    }}
+                  >
+                    {project.cover_image_url ? (
+                      <img 
+                        src={project.cover_image_url} 
+                        alt={getProjectTitle(project)}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div 
+                          className="w-24 h-24 rounded-2xl flex items-center justify-center"
+                          style={{
+                            backgroundColor: theme === 'dark' ? '#3a3a3a' : '#3a3a3a'
+                          }}
+                        >
+                          <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#ffffff' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Overlay con gradiente más sutil */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Badge de categoría */}
+                    <div className="absolute top-4 left-4">
+                      <span 
+                        className="px-3 py-1 rounded-full text-xs font-semibold"
+                        style={{
+                          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                          color: '#ffffff',
+                          backdropFilter: 'blur(10px)'
+                        }}
+                      >
+                        UX/UI Design
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Contenido del proyecto - Más espacioso */}
+                  <div className="p-8 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-2xl md:text-3xl font-bold mb-4 transition-colors" style={{ color: '#ffffff' }}>
+                        {getProjectTitle(project)}
+                      </h3>
+                      <p className="text-lg leading-relaxed mb-6" style={{ color: '#e5e5e5' }}>
+                        {getProjectDescription(project)}
+                      </p>
+                      
+                      {/* Tags de tecnologías */}
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {['Figma', 'React', 'TypeScript'].map((tech, index) => (
+                          <span 
+                            key={index}
+                            className="px-3 py-1 rounded-lg text-sm font-medium"
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                              color: '#ffffff'
+                            }}
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Botón de ver más - Más prominente */}
+                    <div className="mt-6">
+                      <a 
+                        href={`/proyecto/${project.slug}`}
+                        className="inline-flex items-center justify-center w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 group/link"
+                        style={{ 
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          color: '#ffffff',
+                          border: '1px solid rgba(255, 255, 255, 0.2)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                        }}
+                      >
+                        Ver proyecto completo
+                        <svg className="ml-3 w-5 h-5 group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
            {/* Título de sección Acerca de mí */}
            {!loading.home && (
-             <div className="pt-32 pb-20 hidden md:block">
+             <div className="pt-8 pb-8">
                <div className="px-8">
-                 <div className="max-w-6xl mx-auto">
-                   <div className="relative">
-                     {/* "Acerca de mí" más a la izquierda y más arriba */}
-                     <div className="absolute left-1/4 -top-8" style={{left: '-5%'}}>
-                       <span className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
-                         {t('about.title')}
-                       </span>
-                       {/* Línea degradada al lado derecho del texto "Acerca de mí" */}
-                       <div className="absolute w-1 h-80 lg:h-96" style={{right: '-13px', top: '8px', background: designTokens.colors.primary.gradient}}></div>
-                     </div>
-                   </div>
+                 <div className="max-w-6xl mx-auto text-center">
+                   <h2 className="text-3xl font-bold text-gray-700 dark:text-gray-300">
+                     {t('about.title')}
+                   </h2>
+                   <div 
+                     className="w-24 h-0.5 mx-auto mt-4"
+                     style={{background: designTokens.colors.primary.gradient}}
+                   ></div>
                  </div>
                </div>
              </div>
@@ -134,14 +294,8 @@ function HomePageContent() {
            {loading.about ? (
              <SectionSkeleton type="about" />
            ) : (
-        <section id="acerca" className="py-12">
+        <section id="acerca" className="pt-24 pb-24">
         
-        {/* Título "Acerca de mí" - Solo visible en mobile */}
-        <div className="md:hidden text-center mb-8">
-          <h2 className="text-2xl font-normal text-gray-600 dark:text-white">
-            {t('about.title')}
-          </h2>
-        </div>
         
         <div className="px-8">
           <div className="max-w-7xl mx-auto">
@@ -212,7 +366,7 @@ function HomePageContent() {
                     return (
                       <>
                         <h3 
-                          className="mb-6 text-left text-gray-700 dark:text-white"
+                          className="mb-6 text-left text-gray-700 dark:text-gray-300"
                           style={{
                             fontSize: designTokens.typography.fontSize['2xl'],
                             fontWeight: designTokens.typography.fontWeight.bold,
@@ -223,7 +377,7 @@ function HomePageContent() {
                           {mainInfo?.title || t('about.newTitle')}
                         </h3>
                         <p 
-                          className="text-left leading-relaxed text-gray-700 dark:text-white"
+                          className="text-left leading-relaxed text-gray-700 dark:text-gray-300"
                           style={{
                             fontSize: designTokens.typography.fontSize.lg,
                             fontWeight: designTokens.typography.fontWeight.normal,
@@ -247,7 +401,7 @@ function HomePageContent() {
                       </svg>
                     </div>
                     <h2 
-                      className="text-gray-700 dark:text-white"
+                      className="text-gray-700 dark:text-gray-300"
                       style={{
                         fontSize: designTokens.typography.fontSize.xl,
                         fontWeight: designTokens.typography.fontWeight.bold,
@@ -289,7 +443,7 @@ function HomePageContent() {
                         <div className="absolute left-1 top-5 w-0.5 h-8 bg-gray-200 dark:bg-gray-600"></div>
                         <div>
                           <p 
-                            className="text-gray-700 dark:text-white mt-1"
+                            className="text-gray-700 dark:text-gray-300 mt-1"
                             style={{
                               fontSize: designTokens.typography.fontSize.lg,
                               fontWeight: designTokens.typography.fontWeight.semibold,
@@ -300,7 +454,7 @@ function HomePageContent() {
                             {experience.title || experience.title}
                           </p>
                           <p 
-                            className="text-gray-700 dark:text-white mt-1"
+                            className="text-gray-700 dark:text-gray-300 mt-1"
                             style={{
                               fontSize: designTokens.typography.fontSize.base,
                               fontWeight: designTokens.typography.fontWeight.normal,
@@ -326,7 +480,7 @@ function HomePageContent() {
                       </svg>
                     </div>
                     <h2 
-                      className="text-gray-700 dark:text-white"
+                      className="text-gray-700 dark:text-gray-300"
                       style={{
                         fontSize: designTokens.typography.fontSize.xl,
                         fontWeight: designTokens.typography.fontWeight.bold,
@@ -372,7 +526,7 @@ function HomePageContent() {
                           </div>
                           <div>
                             <h3 
-                              className="text-gray-700 dark:text-white"
+                              className="text-gray-700 dark:text-gray-300"
                               style={{
                                 fontSize: designTokens.typography.fontSize.lg,
                                 fontWeight: designTokens.typography.fontWeight.semibold,
@@ -383,7 +537,7 @@ function HomePageContent() {
                               {specialty.title}
                             </h3>
                             <p 
-                              className="text-gray-700 dark:text-white mt-1"
+                              className="text-gray-700 dark:text-gray-300 mt-1"
                               style={{
                                 fontSize: designTokens.typography.fontSize.base,
                                 fontWeight: designTokens.typography.fontWeight.normal,
@@ -408,38 +562,24 @@ function HomePageContent() {
       )}
 
 
-           {/* Título de sección Contacto */}
-           {!loading.home && (
-             <div className="pt-32 pb-28 hidden md:block">
-               <div className="px-8">
-                 <div className="max-w-6xl mx-auto">
-                   <div className="relative">
-                     {/* "Contacto" más a la derecha y más arriba */}
-                     <div className="absolute right-1/4 -top-8" style={{right: 'calc(22% - 170px)'}}>
-                       <span className="text-2xl lg:text-3xl font-normal text-gray-600 dark:text-white">
-                         {t('contact.title')}
-                       </span>
-                     </div>
-                     {/* Línea degradada al lado derecho del texto "Contacto" - fuera del contenedor del título */}
-                     <div className="absolute w-1 h-24 lg:h-32" style={{right: 'calc(22% - 170px - 13px)', top: 'calc(-8px - 8px)', background: designTokens.colors.primary.gradient}}></div>
-                   </div>
-                 </div>
-               </div>
-             </div>
-           )}
-
            {/* Sección Contacto */}
            {loading.contact ? (
              <SectionSkeleton type="contact" />
            ) : (
-        <section id="contacto" className="py-12" style={{background: designTokens.colors.primary.gradient}}>
+        <section id="contacto" className="pt-24 pb-24" style={{backgroundColor: '#2a2a2a'}}>
         
-        {/* Título "Contacto" - Solo visible en mobile */}
-        <div className="md:hidden text-center mb-8">
-          <h2 className="text-2xl font-normal text-white">
-            {t('contact.title')}
-          </h2>
+        {/* Título de sección Contacto */}
+        <div className="pb-8">
+          <div className="px-8">
+            <div className="max-w-6xl mx-auto text-center">
+              <h2 className="text-3xl font-bold text-white">
+                {t('contact.title')}
+              </h2>
+              <div className="w-24 h-0.5 mx-auto mt-4 bg-white/60"></div>
+            </div>
+          </div>
         </div>
+        
         
         <div className="px-8">
 
@@ -556,9 +696,14 @@ function HomePageContent() {
       />
       
       {/* Page Loader */}
-      <PageLoader 
-        onComplete={() => setShowPageLoader(false)}
-      />
+      {showPageLoader && (
+        <PageLoader 
+          onComplete={() => {
+            setShowPageLoader(false)
+            sessionStorage.setItem('hasShownPageLoader', 'true')
+          }}
+        />
+      )}
     </div>
   )
 }

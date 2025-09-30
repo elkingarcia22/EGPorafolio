@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Navbar } from '@/components/navbar'
+import { MinimalVisibleNavbar } from '@/components/minimal-visible-navbar'
 import { useCV } from '@/hooks/useCV'
 import { useDesignTokens } from '@/hooks/useDesignTokens'
 import { useLanguage } from '@/contexts/language-context'
@@ -14,6 +14,17 @@ export default function CVPage() {
   const designTokens = useDesignTokens()
   const { t } = useLanguage()
   const { theme } = useTheme()
+
+  // Función para manejar el clic del botón de administrador
+  const handleAdminClick = () => {
+    console.log('🔧 Admin click detected from CV page - redirecting to admin page')
+    console.log('🔧 Current location:', window.location.href)
+    try {
+      window.location.href = '/admin'
+    } catch (error) {
+      console.error('🔧 Error redirecting to admin:', error)
+    }
+  }
 
   // Log para debug
   useEffect(() => {
@@ -48,12 +59,12 @@ Elkin Garcia
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-dark-surface-variant">
-        <Navbar onAdminClick={() => {}} />
+        <MinimalVisibleNavbar onAdminClick={handleAdminClick} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" 
                  style={{borderColor: designTokens.colors.primary.blue}}></div>
-            <p className="text-gray-600-pure dark:text-gray-300">{t('cv.loading')}</p>
+            <p className="text-gray-700 dark:text-gray-300">{t('cv.loading')}</p>
           </div>
         </div>
       </div>
@@ -63,14 +74,14 @@ Elkin Garcia
   if (error || !activeCV) {
     return (
       <div className="min-h-screen bg-white dark:bg-dark-surface-variant">
-        <Navbar onAdminClick={() => {}} />
+        <MinimalVisibleNavbar onAdminClick={handleAdminClick} />
         <div className="pt-24 flex items-center justify-center min-h-screen">
           <div className="text-center max-w-md mx-auto p-8">
             <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800-pure dark:text-white mb-2">
+            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">
               {t('cv.notAvailable')}
             </h2>
-            <p className="text-gray-600-pure dark:text-gray-300 mb-6">
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
               {error || t('cv.notFound')}
             </p>
             <button 
@@ -89,10 +100,10 @@ Elkin Garcia
   return (
     <div className="min-h-screen bg-white dark:bg-dark-surface-variant">
       {/* Navbar superior */}
-      <Navbar onAdminClick={() => {}} />
+      <MinimalVisibleNavbar onAdminClick={handleAdminClick} />
 
       {/* Header con información del CV */}
-      <div className="bg-white dark:bg-dark-surface-container shadow-lg border-b border-gray-200 border-gray-800-pure pt-16">
+      <div className="bg-white dark:bg-dark-surface-container shadow-lg border-b border-gray-100 dark:border-gray-700 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             {/* Información del CV */}
@@ -100,19 +111,19 @@ Elkin Garcia
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-3xl font-bold text-gray-800-pure dark:text-gray-200 mb-2"
+                className="text-3xl font-bold text-gray-700 dark:text-gray-300 mb-2"
               >
                 {activeCV.title}
               </motion.h1>
               
               {activeCV.description && (
-                <p className="text-gray-600-pure dark:text-gray-300 mb-4">
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
                   {activeCV.description}
                 </p>
               )}
 
               {/* Metadatos */}
-              <div className="flex flex-wrap gap-4 text-sm text-gray-500-pure dark:text-gray-400">
+              <div className="flex flex-wrap gap-4 text-sm text-gray-700 dark:text-gray-300">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>{t('cv.lastUpdated')}: {new Date(activeCV.updated_at).toLocaleDateString()}</span>
@@ -132,7 +143,7 @@ Elkin Garcia
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => shareCV(activeCV)}
-                  className="flex items-center gap-2 px-4 py-2 dark:bg-dark-surface-container dark:border dark:border-gray-800-pure rounded-lg text-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 dark:bg-dark-surface-container dark:border dark:border-gray-800-pure rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
                 >
                   <Share2 className="h-4 w-4" />
                   {t('cv.share')}
@@ -142,7 +153,7 @@ Elkin Garcia
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={sendCVByEmail}
-                  className="flex items-center gap-2 px-4 py-2 dark:bg-dark-surface-container dark:border dark:border-gray-800-pure rounded-lg text-gray-600 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 dark:bg-dark-surface-container dark:border dark:border-gray-800-pure rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors"
                 >
                   <Mail className="h-4 w-4" />
                   {t('cv.email')}
@@ -198,19 +209,19 @@ Elkin Garcia
             transition={{ delay: 0.4 }}
             className="mt-8 bg-white dark:bg-dark-surface-container rounded-2xl shadow-lg p-6"
           >
-            <h3 className="text-xl font-semibold text-gray-900-pure dark:text-white mb-4">
+            <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
               {t('cv.additionalInfo')}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeCV.metadata.skills && (
                 <div>
-                  <h4 className="font-medium text-gray-700-pure dark:text-gray-300 mb-2">{t('cv.skills')}</h4>
+                  <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">{t('cv.skills')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {activeCV.metadata.skills.map((skill: string, index: number) => (
                       <span
                         key={index}
-                        className="px-3 py-1 bg-gray-100 dark:bg-dark-surface-container-high text-gray-700-pure dark:text-gray-300 rounded-full text-sm"
+                        className="px-3 py-1 bg-gray-100 dark:bg-dark-surface-container-high text-gray-700 dark:text-gray-300 rounded-full text-sm"
                       >
                         {skill}
                       </span>
@@ -221,8 +232,8 @@ Elkin Garcia
               
               {activeCV.metadata.experience_years && (
                 <div>
-                  <h4 className="font-medium text-gray-700-pure dark:text-gray-300 mb-2">{t('cv.experience')}</h4>
-                  <p className="text-gray-600-pure dark:text-gray-400">
+                  <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">{t('cv.experience')}</h4>
+                  <p className="text-gray-700 dark:text-gray-300">
                     {activeCV.metadata.experience_years} {t('cv.yearsExperience')}
                   </p>
                 </div>

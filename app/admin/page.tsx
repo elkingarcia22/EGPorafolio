@@ -64,6 +64,7 @@ interface AdminData {
     status?: string;
     featured?: boolean;
     slug?: string;
+    is_active?: boolean;
   }>
   aboutInfo: Array<{ 
     id: string; 
@@ -241,11 +242,27 @@ export default function AdminPage() {
         .eq('is_active', true)
         .order('order_index')
 
-      // Cargar proyectos
-      const { data: projectsData } = await supabase
+      // Cargar proyectos (en admin mostramos todos, activos e inactivos)
+      let { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select('*')
         .order('order_index')
+
+      // Si hay error por columna is_active no existe, intentar sin filtro
+      if (projectsError && projectsError.message.includes('column "is_active" does not exist')) {
+        console.log('⚠️ Columna is_active no existe en projects, cargando todos los proyectos...')
+        const { data: allProjectsData, error: allProjectsError } = await supabase
+          .from('projects')
+          .select('*')
+          .order('order_index')
+        
+        projectsData = allProjectsData
+        projectsError = allProjectsError
+      }
+
+      if (projectsError) {
+        console.error('❌ Error cargando proyectos:', projectsError)
+      }
 
       // Cargar información personal
       const { data: aboutData } = await supabase
@@ -579,9 +596,7 @@ export default function AdminPage() {
         message: error?.message,
         details: error?.details,
         hint: error?.hint,
-        code: error?.code,
-        status: error?.status,
-        statusText: error?.statusText
+        code: error?.code
       })
       console.error('🔍 Configuración de Supabase:', {
         url: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Configurado' : 'No configurado',
@@ -603,26 +618,252 @@ export default function AdminPage() {
     }
   }
 
-  const handleDelete = async (id: string, type: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este elemento?')) return
+  const handleDeactivate = async (id: string, type: string) => {
+    if (!confirm('¿Estás seguro de que quieres desactivar este elemento? (Se puede reactivar después)')) return
 
     try {
+      console.log(`🗑️ Eliminando ${type} con ID:`, id)
+      
       // Mapear los nuevos tipos a las tablas de la base de datos
       let tableName = type
       if (type.startsWith('about_')) {
         tableName = 'about_info'
       }
 
-      const result = await supabase
+      // Verificar que el elemento existe antes de eliminarlo
+      const { data: existingItem, error: checkError } = await supabase
+        .from(tableName)
+        .select('id, title')
+        .eq('id', id)
+        .single()
+
+      if (checkError) {
+        console.error('❌ Error verificando elemento:', checkError)
+        throw new Error(`No se pudo verificar el elemento: ${checkError.message}`)
+      }
+
+      if (!existingItem) {
+        throw new Error('El elemento no existe')
+      }
+
+      console.log('✅ Elemento encontrado:', existingItem)
+
+      // Actualizar el estado a inactivo
+      // Intentar actualizar is_active primero
+      let { data, error } = await supabase
         .from(tableName)
         .update({ is_active: false })
         .eq('id', id)
+        .select()
 
-      if (result.error) throw result.error
+      // Si falla porque la columna no existe, intentar con status
+      if (error && error.message.includes('column "is_active" does not exist')) {
+        console.log('⚠️ Columna is_active no existe, intentando con status...')
+        
+        // Para proyectos, usar status = 'archived'
+        if (tableName === 'projects') {
+          const { data: statusData, error: statusError } = await supabase
+            .from(tableName)
+            .update({ status: 'archived' })
+            .eq('id', id)
+            .select()
+          
+          data = statusData
+          error = statusError
+        } else {
+          // Para otras tablas, mostrar error más claro
+          throw new Error(`La tabla ${tableName} no tiene la columna 'is_active'. Contacta al administrador de la base de datos para ejecutar la migración.`)
+        }
+      }
 
+      if (error) {
+        console.error('❌ Error actualizando elemento:', error)
+        throw new Error(`Error al desactivar: ${error.message}`)
+      }
+
+      console.log('✅ Elemento desactivado exitosamente:', data)
+      
+      // Mostrar mensaje de éxito
+      success('Elemento desactivado', `El ${type === 'projects' ? 'proyecto' : 'elemento'} ha sido desactivado exitosamente`)
+      
+      // Recargar datos
       await loadData()
-    } catch (error) {
-      console.error('Error deleting:', error)
+      
+    } catch (error: any) {
+      console.error('❌ Error deactivating:', error)
+      const errorMessage = error?.message || 'Error desconocido al desactivar'
+      showError('Error al desactivar', errorMessage)
+    }
+  }
+
+  const handleReactivate = async (id: string, type: string) => {
+    if (!confirm('¿Estás seguro de que quieres reactivar este elemento?')) return
+
+    try {
+      console.log(`🔄 Reactivando ${type} con ID:`, id)
+      
+      // Mapear los nuevos tipos a las tablas de la base de datos
+      let tableName = type
+      if (type.startsWith('about_')) {
+        tableName = 'about_info'
+      }
+
+      console.log(`🔍 Tabla de destino: ${tableName}`)
+
+      // Verificar que el elemento existe antes de reactivarlo
+      const { data: existingItem, error: checkError } = await supabase
+        .from(tableName)
+        .select('id, title, is_active')
+        .eq('id', id)
+        .single()
+
+      if (checkError) {
+        console.error('❌ Error verificando elemento:', checkError)
+        console.error('🔍 Detalles del error:', {
+          message: checkError.message,
+          details: checkError.details,
+          hint: checkError.hint,
+          code: checkError.code
+        })
+        throw new Error(`No se pudo verificar el elemento: ${checkError.message}`)
+      }
+
+      if (!existingItem) {
+        throw new Error('El elemento no existe')
+      }
+
+      console.log('✅ Elemento encontrado:', existingItem)
+      console.log(`🔍 Estado actual is_active: ${existingItem.is_active}`)
+
+      // Intentar actualizar is_active primero
+      console.log(`🔄 Intentando actualizar ${tableName} con ID ${id} a is_active = true`)
+      let { data, error } = await supabase
+        .from(tableName)
+        .update({ is_active: true })
+        .eq('id', id)
+        .select()
+
+      // Si falla porque la columna no existe, intentar con status
+      if (error && error.message.includes('column "is_active" does not exist')) {
+        console.log('⚠️ Columna is_active no existe, intentando con status...')
+        
+        // Para proyectos, usar status = 'published'
+        if (tableName === 'projects') {
+          const { data: statusData, error: statusError } = await supabase
+            .from(tableName)
+            .update({ status: 'published' })
+            .eq('id', id)
+            .select()
+          
+          data = statusData
+          error = statusError
+        } else {
+          // Para otras tablas, intentar crear la columna dinámicamente
+          console.log('🔧 Intentando crear columna is_active dinámicamente...')
+          
+          // Esto requeriría permisos de administrador de base de datos
+          // Por ahora, solo mostrar un error más claro
+          throw new Error(`La tabla ${tableName} no tiene la columna 'is_active'. Contacta al administrador de la base de datos para ejecutar la migración.`)
+        }
+      }
+
+      if (error) {
+        console.error('❌ Error actualizando elemento:', error)
+        console.error('🔍 Detalles del error de actualización:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        throw new Error(`Error al reactivar: ${error.message}`)
+      }
+
+      console.log('✅ Elemento reactivado exitosamente:', data)
+      
+      // Mostrar mensaje de éxito
+      success('Elemento reactivado', `El ${type === 'projects' ? 'proyecto' : 'elemento'} ha sido reactivado exitosamente`)
+      
+      // Recargar datos
+      await loadData()
+      
+    } catch (error: any) {
+      console.error('❌ Error reactivating:', error)
+      const errorMessage = error?.message || 'Error desconocido al reactivar'
+      showError('Error al reactivar', errorMessage)
+    }
+  }
+
+  const handlePermanentDelete = async (id: string, type: string) => {
+    const confirmMessage = `⚠️ ELIMINACIÓN PERMANENTE ⚠️
+
+¿Estás SEGURO de que quieres eliminar PERMANENTEMENTE este ${type === 'projects' ? 'proyecto' : 'elemento'}?
+
+🚨 ESTA ACCIÓN NO SE PUEDE DESHACER 🚨
+
+El elemento será eliminado completamente de la base de datos y no podrá ser recuperado.
+
+Escribe "ELIMINAR" para confirmar:`
+
+    const userInput = prompt(confirmMessage)
+    
+    if (userInput !== 'ELIMINAR') {
+      console.log('❌ Eliminación cancelada por el usuario')
+      return
+    }
+
+    try {
+      console.log(`🗑️ Eliminando PERMANENTEMENTE ${type} con ID:`, id)
+      
+      // Mapear los tipos a las tablas de la base de datos
+      let tableName = type
+      if (type.startsWith('about_')) {
+        tableName = 'about_info'
+      }
+
+      console.log(`🔍 Tabla de destino: ${tableName}`)
+
+      // Verificar que el elemento existe antes de eliminarlo
+      const { data: existingItem, error: checkError } = await supabase
+        .from(tableName)
+        .select('id, title')
+        .eq('id', id)
+        .single()
+
+      if (checkError) {
+        console.error('❌ Error verificando elemento:', checkError)
+        throw new Error(`No se pudo verificar el elemento: ${checkError.message}`)
+      }
+
+      if (!existingItem) {
+        throw new Error('El elemento no existe')
+      }
+
+      console.log('✅ Elemento encontrado:', existingItem)
+
+      // Eliminar permanentemente de la base de datos
+      console.log(`🗑️ Eliminando permanentemente ${tableName} con ID ${id}`)
+      const { error } = await supabase
+        .from(tableName)
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('❌ Error eliminando elemento:', error)
+        throw new Error(`Error al eliminar permanentemente: ${error.message}`)
+      }
+
+      console.log('✅ Elemento eliminado permanentemente')
+      
+      // Mostrar mensaje de éxito
+      success('Elemento eliminado', `El ${type === 'projects' ? 'proyecto' : 'elemento'} ha sido eliminado permanentemente`)
+      
+      // Recargar datos
+      await loadData()
+      
+    } catch (error: any) {
+      console.error('❌ Error permanent deleting:', error)
+      const errorMessage = error?.message || 'Error desconocido al eliminar permanentemente'
+      showError('Error al eliminar', errorMessage)
     }
   }
 
@@ -759,33 +1000,28 @@ export default function AdminPage() {
     return (
       <div 
         id="admin-modal-background"
-        className="min-h-screen flex items-center justify-center p-4 bg-gray-50"
+        className="min-h-screen flex items-center justify-center p-4"
         style={{ 
-          fontFamily: designTokens.typography.fontFamily.sans,
-          backgroundColor: '#2d2d2d' // gris oscuro sin tinte azul
+          fontFamily: designTokens.typography.fontFamily.sans
         }}
       >
         <NeoCard 
-          id="admin-modal-card"
-          className="w-full max-w-md p-8"
-          style={{ backgroundColor: '#4a4a4a' }} // gris más claro sin tinte azul
+          className="w-full max-w-md p-8 bg-white dark:bg-dark-surface-container"
         >
           <div className="text-center mb-6">
             <div className="flex items-center justify-center mb-4">
               <svg 
-                className="w-8 h-8 mr-3" 
+                className="w-8 h-8 mr-3 text-gray-800 dark:text-white" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24" 
                 strokeWidth={2}
-                style={{ color: '#ffffff' }} // blanco para mejor contraste
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
               <h1 
-                className="text-3xl font-bold"
+                className="text-3xl font-bold text-gray-800 dark:text-white"
                 style={{ 
-                  color: '#ffffff', // blanco para mejor contraste
                   fontSize: designTokens.typography.fontSize['3xl'],
                   fontWeight: designTokens.typography.fontWeight.bold
                 }}
@@ -794,9 +1030,8 @@ export default function AdminPage() {
               </h1>
             </div>
             <p 
-              className="text-sm"
+              className="text-sm text-gray-600 dark:text-gray-300"
               style={{ 
-                color: '#e5e5e5', // gris claro para mejor contraste
                 fontSize: designTokens.typography.fontSize.sm
               }}
             >
@@ -807,20 +1042,19 @@ export default function AdminPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <div className="relative">
-              <NeoInput
+                <input
                   id="admin-password-input"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Contraseña"
-                required
-                  className="pr-12"
+                  required
+                  className="w-full px-4 py-3 pr-12 border rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 shadow-sm focus:shadow-md"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  style={{ color: '#ffffff' }} // blanco para mejor contraste
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -866,8 +1100,7 @@ export default function AdminPage() {
             <NeoButton
               variant="ghost"
               onClick={() => router.push('/')}
-              className="flex items-center justify-center space-x-2 mx-auto"
-              style={{ color: '#ffffff' }} // blanco para mejor contraste
+              className="flex items-center justify-center space-x-2 mx-auto text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -1228,7 +1461,7 @@ export default function AdminPage() {
                           <NeoButton
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(item.id, 'typewriter_texts')}
+                            onClick={() => handleDeactivate(item.id, 'typewriter_texts')}
                             style={{ color: designTokens.colors.state.error }}
                           >
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -1341,6 +1574,16 @@ export default function AdminPage() {
                           fontWeight: designTokens.typography.fontWeight.medium
                         }}
                       >
+                        Estado
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                        style={{ 
+                          color: designTokens.colors.text.secondary,
+                          fontSize: designTokens.typography.fontSize.xs,
+                          fontWeight: designTokens.typography.fontWeight.medium
+                        }}
+                      >
                         Acciones
                       </th>
                     </tr>
@@ -1413,6 +1656,15 @@ export default function AdminPage() {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            (item.is_active === true || item.status === 'published') 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          }`}>
+                            {(item.is_active === true || item.status === 'published') ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <NeoButton
                             variant="ghost"
                             size="sm"
@@ -1425,17 +1677,63 @@ export default function AdminPage() {
                             </svg>
                             Editar
                           </NeoButton>
-                          <NeoButton
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(item.id, 'projects')}
-                            style={{ color: designTokens.colors.state.error }}
-                          >
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Eliminar
-                          </NeoButton>
+                          <div className="flex flex-col space-y-1">
+                            {(item.is_active === true || item.status === 'published') ? (
+                              <>
+                                <NeoButton
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeactivate(item.id, 'projects')}
+                                  style={{ color: designTokens.colors.state.warning }}
+                                  className="text-xs"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                                  </svg>
+                                  Desactivar
+                                </NeoButton>
+                                <NeoButton
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handlePermanentDelete(item.id, 'projects')}
+                                  style={{ color: designTokens.colors.state.error }}
+                                  className="text-xs"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  Eliminar
+                                </NeoButton>
+                              </>
+                            ) : (
+                              <>
+                                <NeoButton
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleReactivate(item.id, 'projects')}
+                                  style={{ color: designTokens.colors.state.success }}
+                                  className="text-xs"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                  Reactivar
+                                </NeoButton>
+                                <NeoButton
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handlePermanentDelete(item.id, 'projects')}
+                                  style={{ color: designTokens.colors.state.error }}
+                                  className="text-xs"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  Eliminar
+                                </NeoButton>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ));
@@ -1508,7 +1806,7 @@ export default function AdminPage() {
                               Editar
                             </NeoButton>
                             <NeoButton
-                              onClick={() => handleDelete(item.id, 'about_main')}
+                              onClick={() => handleDeactivate(item.id, 'about_main')}
                               variant="ghost"
                               size="sm"
                               className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -1589,7 +1887,7 @@ export default function AdminPage() {
                               Editar
                             </NeoButton>
                             <NeoButton
-                              onClick={() => handleDelete(item.id, 'about_experience')}
+                              onClick={() => handleDeactivate(item.id, 'about_experience')}
                               variant="ghost"
                               size="sm"
                               className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -1670,7 +1968,7 @@ export default function AdminPage() {
                               Editar
                             </NeoButton>
                             <NeoButton
-                              onClick={() => handleDelete(item.id, 'about_specialties')}
+                              onClick={() => handleDeactivate(item.id, 'about_specialties')}
                               variant="ghost"
                               size="sm"
                               className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -1757,7 +2055,7 @@ export default function AdminPage() {
                               Editar
                             </NeoButton>
                             <NeoButton
-                              onClick={() => handleDelete(item.id, 'about_photo')}
+                              onClick={() => handleDeactivate(item.id, 'about_photo')}
                               variant="ghost"
                               size="sm"
                               className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
@@ -1857,7 +2155,7 @@ export default function AdminPage() {
                               Editar
                           </button>
                           <button
-                            onClick={() => handleDelete(item.id, 'contact_info')}
+                            onClick={() => handleDeactivate(item.id, 'contact_info')}
                             className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                           >
                               Eliminar
@@ -1923,7 +2221,7 @@ export default function AdminPage() {
                             Editar
                           </button>
                           <button
-                            onClick={() => handleDelete(item.id, 'site_images')}
+                            onClick={() => handleDeactivate(item.id, 'site_images')}
                             className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                           >
                             Eliminar
@@ -2156,7 +2454,7 @@ export default function AdminPage() {
                           </button>
                           {!item.is_default && (
                             <button
-                              onClick={() => handleDelete(item.id, 'colors')}
+                              onClick={() => handleDeactivate(item.id, 'colors')}
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-3"
                             >
                               Eliminar

@@ -42,14 +42,14 @@ export const NeoInput: React.FC<NeoInputProps> = ({
       transition={{ duration: 0.3 }}
     >
       {label && (
-        <label className="block text-sm font-medium text-foreground">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
         </label>
       )}
       
       <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
             {icon}
           </div>
         )}
@@ -72,7 +72,7 @@ export const NeoInput: React.FC<NeoInputProps> = ({
         {isPassword && (
           <button
             type="button"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

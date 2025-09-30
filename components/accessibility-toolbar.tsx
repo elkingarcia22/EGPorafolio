@@ -34,14 +34,14 @@ export const AccessibilityToolbar: React.FC = () => {
       <Tooltip content="Herramientas de accesibilidad">
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-hover rounded-lg transition-all duration-200 group relative"
+          className="p-2 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 group relative"
         >
           <motion.div
             className="flex items-center justify-center"
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Accessibility className="h-6 w-6" />
+            <Accessibility className="w-5 h-5" />
           </motion.div>
         </button>
       </Tooltip>

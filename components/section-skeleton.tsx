@@ -105,7 +105,7 @@ export const SectionSkeleton = ({ type }: SectionSkeletonProps) => {
 
   if (type === 'contact') {
     return (
-      <section className="py-20" style={{background: designTokens.colors.primary.gradient}}>
+      <section className="py-20" style={{backgroundColor: '#2a2a2a'}}>
         <div className="px-8">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
