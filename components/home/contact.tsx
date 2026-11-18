@@ -108,7 +108,15 @@ export function Contact() {
     },
     { icon: 'phone', label: COPY.contact.call, value: PROFILE.phoneDisplay, href: `tel:+${PROFILE.phone}` },
     ...(PROFILE.linkedin
-      ? [{ icon: 'linkedin' as const, label: COPY.contact.linkedin, value: 'LinkedIn', href: PROFILE.linkedin, external: true }]
+      ? [
+          {
+            icon: 'linkedin' as const,
+            label: COPY.contact.linkedin,
+            value: PROFILE.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\//, ''),
+            href: PROFILE.linkedin,
+            external: true,
+          },
+        ]
       : []),
   ]
 

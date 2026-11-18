@@ -52,7 +52,7 @@ export const PROFILE = {
   phone: '573202172738',
   phoneDisplay: '+57 320 217 2738',
   /** URL completa del perfil de LinkedIn; si está vacía, no se muestra */
-  linkedin: '',
+  linkedin: 'https://www.linkedin.com/in/elikingarciaux',
   location: { es: 'Bogotá, Colombia', en: 'Bogotá, Colombia' } satisfies L,
   role: { es: 'Diseñador UX/UI Specialist', en: 'UX/UI Design Specialist' } satisfies L,
   startYear: 2011,
@@ -69,7 +69,10 @@ export const JOBS: readonly Job[] = [
     company: 'UBITS',
     location: { es: 'Colombia · Híbrido', en: 'Colombia · Hybrid' },
     period: '2021 — 2026',
-    roles: [{ title: { es: 'Diseñador UX/UI Senior Specialist', en: 'Senior UX/UI Design Specialist' }, period: 'jun 2021 — hoy' }],
+    roles: [
+      { title: { es: 'Diseñador UX/UI Senior Specialist', en: 'Senior UX/UI Design Specialist' }, period: '2023 — hoy' },
+      { title: { es: 'Diseñador UX/UI Senior', en: 'Senior UX/UI Designer' }, period: 'jun 2021 — 2023' },
+    ],
     summary: {
       es: 'Lidero proyectos digitales de principio a fin en software de Recursos Humanos: objetivos, encuestas y matriz de talento. Combino investigación, diseño visual y sistemas de diseño, y uso IA para acelerar la ideación y la validación; cada decisión se conecta con adopción, engagement y outcomes de producto.',
       en: 'I lead digital projects end to end in HR software: goals, surveys and talent matrix. I combine research, visual design and design systems, and use AI to speed up ideation and validation; every decision ties back to adoption, engagement and product outcomes.',
@@ -149,8 +152,24 @@ export const EARLY_JOBS: readonly EarlyJob[] = [
       en: 'Advertising and design for the Augustinian organization, Emisora Mariana and Universidad Agustiniana.',
     },
   },
-  { title: { es: 'Diseñador gráfico', en: 'Graphic Designer' }, company: 'AYZ Publicidad', period: '2012' },
-  { title: { es: 'Practicante de diseño gráfico', en: 'Graphic Design Intern' }, company: 'Policía Nacional de Colombia', period: '2011' },
+  {
+    title: { es: 'Diseñador gráfico', en: 'Graphic Designer' },
+    company: 'AYZ Publicidad',
+    period: '2012',
+    summary: {
+      es: 'Piezas impresas y digitales para campañas de clientes locales: avisos, material POP y redes sociales.',
+      en: 'Print and digital pieces for local clients’ campaigns: ads, point-of-sale material and social media.',
+    },
+  },
+  {
+    title: { es: 'Practicante de diseño gráfico', en: 'Graphic Design Intern' },
+    company: 'Policía Nacional de Colombia',
+    period: '2011',
+    summary: {
+      es: 'Apoyo al área de comunicaciones: piezas institucionales, campañas internas y material gráfico para eventos.',
+      en: 'Support for the communications team: institutional pieces, internal campaigns and event graphics.',
+    },
+  },
 ]
 
 export const STUDIES: readonly Study[] = [

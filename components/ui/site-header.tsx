@@ -19,16 +19,27 @@ const NAV = [
 /** A partir de cuántos px de scroll el header toma fondo */
 const SOLID_AFTER_PX = 40
 
-/** true cuando la página ya se desplazó: el header necesita fondo propio. */
+/** Línea (px desde arriba) donde se mira qué sección queda bajo el header */
+const HEADER_PROBE_PX = 64
+
+/** ¿Hay bajo el header una sección que pide header transparente (el hero)? */
+function isOverClearSection(): boolean {
+  return Array.from(document.querySelectorAll<HTMLElement>('[data-header-clear]')).some((el) => {
+    const rect = el.getBoundingClientRect()
+    return rect.top <= HEADER_PROBE_PX && rect.bottom > HEADER_PROBE_PX
+  })
+}
+
+/**
+ * true cuando el header necesita fondo propio: la página ya se desplazó y
+ * lo que hay debajo no es el hero (ahí el fondo cortaría la estática).
+ */
 function useScrolled(): boolean {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
-    const trigger = ScrollTrigger.create({
-      start: 0,
-      end: 'max',
-      onUpdate: (self) => setScrolled(self.scroll() > SOLID_AFTER_PX),
-    })
-    setScrolled(window.scrollY > SOLID_AFTER_PX)
+    const check = () => setScrolled(window.scrollY > SOLID_AFTER_PX && !isOverClearSection())
+    const trigger = ScrollTrigger.create({ start: 0, end: 'max', onUpdate: check })
+    check()
     return () => trigger.kill()
   }, [])
   return scrolled

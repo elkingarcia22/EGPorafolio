@@ -164,7 +164,7 @@ export function Hero() {
       <noscript>
         <style>{'[data-boot]{opacity:1!important}'}</style>
       </noscript>
-      <div ref={sectionRef} className="relative h-[320vh]">
+      <div ref={sectionRef} data-header-clear className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
             <SignalField
