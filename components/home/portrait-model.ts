@@ -1,15 +1,16 @@
 /**
- * Zonas del retrato base (foto 400×400) que siempre son la persona.
+ * Zona del retrato base (foto 400×400) que siempre es la persona.
  * Sirven para que el borrado de la pared no se "cuele" en la cara por
  * los brillos de la piel (frente, nariz) que tocan el borde de la cabeza.
  * Medidas en píxeles de la foto original.
  */
 const PHOTO_SIZE = 400
 
-/** Cara y frente (un poco hacia adentro del contorno de la cabeza) */
-const FACE = { cx: 182, cy: 108, rx: 52, ry: 70 }
-/** Barba y mentón */
-const BEARD = { cx: 172, cy: 165, rx: 34, ry: 38 }
+/**
+ * Centro del rostro: frente y nariz, donde están los brillos. Bien adentro
+ * del contorno para no proteger la pared que hay a los costados de la cara.
+ */
+const FACE_CENTER = { cx: 188, cy: 100, rx: 30, ry: 46 }
 
 function inEllipse(x: number, y: number, e: { cx: number; cy: number; rx: number; ry: number }): boolean {
   const dx = (x - e.cx) / e.rx
@@ -21,5 +22,5 @@ function inEllipse(x: number, y: number, e: { cx: number; cy: number; rx: number
 export function portraitKeep(u: number, v: number): boolean {
   const x = u * PHOTO_SIZE
   const y = v * PHOTO_SIZE
-  return inEllipse(x, y, FACE) || inEllipse(x, y, BEARD)
+  return inEllipse(x, y, FACE_CENTER)
 }
