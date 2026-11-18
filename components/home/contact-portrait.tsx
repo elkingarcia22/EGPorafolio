@@ -5,10 +5,11 @@ import { SignalField, type ShapeLoader } from '@/components/signal/signal-field'
 import { sampleImage } from '@/components/signal/sample-image'
 import { ScrollTrigger } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { portraitKeep } from './portrait-model'
 
 const PORTRAIT_SRC = '/images/elkin-portrait.jpg'
-const loadPortrait: ShapeLoader = (count, worldWidth) => sampleImage(PORTRAIT_SRC, count, worldWidth, portraitKeep)
+/** Silueta generada con segmentación de personas (blanco = persona) */
+const PORTRAIT_MASK_SRC = '/images/elkin-portrait-mask.png'
+const loadPortrait: ShapeLoader = (count, worldWidth) => sampleImage(PORTRAIT_SRC, count, worldWidth, PORTRAIT_MASK_SRC)
 const PORTRAIT_PARTICLES = { desktop: 20000, mobile: 9000 }
 
 /**

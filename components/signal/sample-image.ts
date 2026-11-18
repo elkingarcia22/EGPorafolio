@@ -97,10 +97,13 @@ export async function sampleImage(
   src: string,
   count: number,
   worldWidth: number,
-  /** Zonas (u, v normalizados en la foto) que nunca son fondo: p. ej. la cara */
-  keep?: (u: number, v: number) => boolean,
+  /**
+   * Máscara de la persona (blanco = persona), del mismo tamaño que la foto.
+   * Si se da, reemplaza la detección de la pared por color.
+   */
+  maskSrc?: string,
 ): Promise<ShapeSample> {
-  const img = await loadImage(src)
+  const [img, maskImg] = await Promise.all([loadImage(src), maskSrc ? loadImage(maskSrc) : null])
   const canvas = document.createElement('canvas')
   canvas.width = GRID
   canvas.height = GRID
@@ -110,6 +113,14 @@ export async function sampleImage(
   const h = img.naturalHeight
   ctx.drawImage(img, CROP.x * w, CROP.y * h, CROP.size * w, CROP.size * h, 0, 0, GRID, GRID)
   const { data } = ctx.getImageData(0, 0, GRID, GRID)
+
+  // Máscara con el mismo encuadre que la foto.
+  let matte: Uint8ClampedArray | null = null
+  if (maskImg) {
+    ctx.clearRect(0, 0, GRID, GRID)
+    ctx.drawImage(maskImg, CROP.x * maskImg.naturalWidth, CROP.y * maskImg.naturalHeight, CROP.size * maskImg.naturalWidth, CROP.size * maskImg.naturalHeight, 0, 0, GRID, GRID)
+    matte = ctx.getImageData(0, 0, GRID, GRID).data
+  }
 
   const center = GRID / 2
   const lum = new Float32Array(GRID * GRID)
@@ -133,16 +144,19 @@ export async function sampleImage(
       const insideCircle = u * u + v * v <= CIRCLE_RADIUS * CIRCLE_RADIUS
       lum[i] = l
       inCircle[i] = insideCircle ? 1 : 0
-      // La cara nunca cuenta como pared, aunque sus brillos lo parezcan.
-      const protectedArea = keep?.(u + 0.5, v + 0.5) ?? false
-      wallLike[i] = !protectedArea && saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE ? 1 : 0
+      wallLike[i] = saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE ? 1 : 0
     }
   }
 
   // Fondo = solo lo que tiene color de pared Y está conectado con el borde
   // de la foto. Así los brillos de la piel (frente, nariz) no se vuelven huecos.
-  const background = floodFromEdges(wallLike, inCircle, GRID)
-  for (let i = 0; i < mask.length; i++) mask[i] = inCircle[i] === 1 && background[i] === 0 ? 1 : 0
+  if (matte) {
+    // Segmentación precisa: la silueta completa, sin huecos ni restos de pared.
+    for (let i = 0; i < mask.length; i++) mask[i] = inCircle[i] === 1 && matte[i * 4] > 128 ? 1 : 0
+  } else {
+    const background = floodFromEdges(wallLike, inCircle, GRID)
+    for (let i = 0; i < mask.length; i++) mask[i] = inCircle[i] === 1 && background[i] === 0 ? 1 : 0
+  }
 
   // Volumen: la silueta suavizada funciona como mapa de profundidad.
   let height: Float32Array = mask
