@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { fragmentShader, vertexShader } from './shaders'
+import { portraitFragmentShader, portraitVertexShader } from './shaders-portrait'
 import { sampleGlyph, type ShapeSample } from './sample-glyph'
 
 /** Función que devuelve la figura a formar con `count` partículas. */
@@ -23,6 +24,8 @@ interface SignalFieldProps {
   particles?: { desktop: number; mobile: number }
   /** Ocupación máxima del alto visible (0–1) */
   fitHeight?: number
+  /** Estética: "signal" (EG, estática blanca) o "portrait" (escaneo 3D azul) */
+  look?: 'signal' | 'portrait'
 }
 
 const loadGlyph: ShapeLoader = (count, worldWidth) => sampleGlyph('EG', count, worldWidth)
@@ -59,6 +62,7 @@ export function SignalField({
   offsetY = 0.1,
   particles = DEFAULT_PARTICLES,
   fitHeight = 1,
+  look = 'signal',
 }: SignalFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const hoverCallback = useRef(onHoverChange)
@@ -83,24 +87,37 @@ export function SignalField({
     const group = new THREE.Group()
     scene.add(group)
 
+    const isPortrait = look === 'portrait'
+    const small = window.innerWidth < 768
     const uniforms = {
       uProgress: { value: 0 },
       uTime: { value: 0 },
-      uSize: { value: window.innerWidth < 768 ? 2.2 : 3.2 },
+      uSize: { value: isPortrait ? (small ? 1.6 : 2.1) : small ? 2.2 : 3.2 },
       uPixelRatio: { value: renderer.getPixelRatio() },
       uHover: { value: 0 },
       uNoiseColor: { value: new THREE.Color('#8a8d93') },
       uSignalColor: { value: new THREE.Color('#f1f0ec') },
       uAccent: { value: new THREE.Color('#4060ff') },
+      // Retrato tipo escaneo
+      uBase: { value: new THREE.Color('#2b4dff') },
+      uHighlight: { value: new THREE.Color('#b9c8ff') },
+      uFringeA: { value: new THREE.Color('#3dffb0') },
+      uFringeB: { value: new THREE.Color('#ff4d6d') },
+      uHalfHeight: { value: GLYPH_WORLD_WIDTH / 2 },
+      uCameraZ: { value: CAMERA_Z },
     }
 
     const material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
+      vertexShader: isPortrait ? portraitVertexShader : vertexShader,
+      fragmentShader: isPortrait ? portraitFragmentShader : fragmentShader,
       uniforms,
       transparent: true,
       depthWrite: false,
+      // El retrato suma luz (brillo de escaneo); el EG mezcla normal.
+      blending: isPortrait ? THREE.AdditiveBlending : THREE.NormalBlending,
     })
+    // Parallax del retrato: sigue suavemente al cursor.
+    const tilt = { x: 0, y: 0, tx: 0, ty: 0 }
     const geometry = new THREE.BufferGeometry()
     let points: THREE.Points | null = null
     let glyph: ShapeSample | null = null
@@ -136,6 +153,8 @@ export function SignalField({
       const rect = container.getBoundingClientRect()
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1
       const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1
+      tilt.tx = Math.max(-1, Math.min(1, nx))
+      tilt.ty = Math.max(-1, Math.min(1, ny))
       // Coordenadas locales del grupo (descuenta su escala y desplazamiento vertical).
       const x = (nx * view.width) / 2 / groupScale
       const y = ((ny * view.height) / 2 - group.position.y) / groupScale
@@ -152,8 +171,18 @@ export function SignalField({
       if (uniforms.uProgress.value <= HOVER_MIN_PROGRESS && hovering) setHovering(false)
       uniforms.uHover.value += (hoverTarget - uniforms.uHover.value) * HOVER_EASE
       // Leve giro de la escena según el progreso: sensación de profundidad.
-      group.rotation.y = (1 - uniforms.uProgress.value) * 0.35
-      group.rotation.x = (1 - uniforms.uProgress.value) * -0.12
+      const unformed = 1 - uniforms.uProgress.value
+      if (isPortrait) {
+        // Busto: giro lento continuo + parallax con el cursor.
+        tilt.x += (tilt.tx - tilt.x) * 0.05
+        tilt.y += (tilt.ty - tilt.y) * 0.05
+        const time = uniforms.uTime.value
+        group.rotation.y = unformed * 0.6 + Math.sin(time * 0.25) * 0.12 + tilt.x * 0.2
+        group.rotation.x = unformed * -0.2 - tilt.y * 0.1
+      } else {
+        group.rotation.y = unformed * 0.35
+        group.rotation.x = unformed * -0.12
+      }
       renderer.render(scene, camera)
     }
     const loop = () => {
@@ -186,6 +215,8 @@ export function SignalField({
       geometry.setAttribute('aNoise', new THREE.BufferAttribute(noise, 3))
       geometry.setAttribute('aRand', new THREE.BufferAttribute(rand, 1))
       geometry.setAttribute('aBright', new THREE.BufferAttribute(sample.brightness ?? new Float32Array(count).fill(1), 1))
+      geometry.setAttribute('aRim', new THREE.BufferAttribute(sample.rim ?? new Float32Array(count), 1))
+      uniforms.uHalfHeight.value = sample.height / 2
       points = new THREE.Points(geometry, material)
       points.frustumCulled = false
       group.add(points)

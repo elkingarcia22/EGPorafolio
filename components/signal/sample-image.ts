@@ -1,17 +1,21 @@
 import type { ShapeSample } from './sample-glyph'
 
-const GRID = 220
-/** Radio del recorte circular, en fracción del lado de la imagen */
+const GRID = 260
+/** Encuadre: cabeza y hombros (fracciones de la foto original) */
+const CROP = { x: 0.2, y: 0.06, size: 0.6 }
+/** Radio útil de la foto (es circular), en fracción del lado */
 const CIRCLE_RADIUS = 0.47
-/** Ajuste de contraste del brillo (valores bajo LOW → 0, sobre HIGH → 1) */
-const LOW = 0.12
-const HIGH = 0.92
-const MAX_TRIES_PER_POINT = 60
 /** Fondo de la foto: gris claro y poco saturado (la pared) */
 const BG_MAX_SATURATION = 0.14
 const BG_MIN_LUMINANCE = 0.62
-/** Probabilidad de conservar un punto del fondo (textura sutil) */
-const BG_KEEP = 0.03
+/** Suavizado de la silueta para inventar volumen (radio y pasadas) */
+const BLUR_RADIUS = 7
+const BLUR_PASSES = 3
+/** Profundidad máxima del relieve, en fracción del ancho */
+const DEPTH = 0.28
+/** Dirección de la luz principal (arriba a la derecha), normalizada */
+const LIGHT = { x: 0.6, y: -0.8 }
+const MAX_TRIES_PER_POINT = 80
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -23,9 +27,32 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
+function boxBlur(src: Float32Array, size: number, radius: number): Float32Array {
+  const tmp = new Float32Array(src.length)
+  const out = new Float32Array(src.length)
+  const span = radius * 2 + 1
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      let sum = 0
+      for (let k = -radius; k <= radius; k++) sum += src[y * size + Math.min(size - 1, Math.max(0, x + k))]
+      tmp[y * size + x] = sum / span
+    }
+  }
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      let sum = 0
+      for (let k = -radius; k <= radius; k++) sum += tmp[Math.min(size - 1, Math.max(0, y + k)) * size + x]
+      out[y * size + x] = sum / span
+    }
+  }
+  return out
+}
+
 /**
- * Convierte una foto (recortada en círculo) en partículas tipo semitono:
- * las zonas claras reciben más puntos y más grandes; las oscuras, menos.
+ * Convierte la foto en una nube de puntos 3D sin fondo:
+ * 1. separa a la persona de la pared,
+ * 2. inventa volumen suavizando la silueta (relieve tipo busto),
+ * 3. marca los bordes iluminados (luz arriba a la derecha) para el brillo.
  */
 export async function sampleImage(src: string, count: number, worldWidth: number): Promise<ShapeSample> {
   const img = await loadImage(src)
@@ -34,59 +61,85 @@ export async function sampleImage(src: string, count: number, worldWidth: number
   canvas.height = GRID
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
   if (!ctx) throw new Error('Canvas 2D no disponible')
-  ctx.drawImage(img, 0, 0, GRID, GRID)
+  const w = img.naturalWidth
+  const h = img.naturalHeight
+  ctx.drawImage(img, CROP.x * w, CROP.y * h, CROP.size * w, CROP.size * h, 0, 0, GRID, GRID)
   const { data } = ctx.getImageData(0, 0, GRID, GRID)
 
   const center = GRID / 2
-  const radius = GRID * CIRCLE_RADIUS
-  /** Brillo ajustado de la persona; -1 si el píxel es fondo (pared). */
-  const sampleAt = (x: number, y: number): number => {
-    const i = (y * GRID + x) * 4
-    const r = data[i] / 255
-    const g = data[i + 1] / 255
-    const b = data[i + 2] / 255
-    const l = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    const max = Math.max(r, g, b)
-    const saturation = max === 0 ? 0 : (max - Math.min(r, g, b)) / max
-    if (saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE) return -1
-    return Math.min(1, Math.max(0, (l - LOW) / (HIGH - LOW)))
+  const lum = new Float32Array(GRID * GRID)
+  const mask = new Float32Array(GRID * GRID)
+
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      const i = y * GRID + x
+      const r = data[i * 4] / 255
+      const g = data[i * 4 + 1] / 255
+      const b = data[i * 4 + 2] / 255
+      const l = 0.2126 * r + 0.7152 * g + 0.0722 * b
+      const max = Math.max(r, g, b)
+      const saturation = max === 0 ? 0 : (max - Math.min(r, g, b)) / max
+      // El recorte circular de la foto original, llevado al encuadre.
+      const u = CROP.x + (x / GRID) * CROP.size - 0.5
+      const v = CROP.y + (y / GRID) * CROP.size - 0.5
+      const insideCircle = u * u + v * v <= CIRCLE_RADIUS * CIRCLE_RADIUS
+      const wall = saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE
+      lum[i] = l
+      mask[i] = insideCircle && !wall ? 1 : 0
+    }
   }
-  const inside = (x: number, y: number) => (x - center) ** 2 + (y - center) ** 2 <= radius ** 2
+
+  // Volumen: la silueta suavizada funciona como mapa de profundidad.
+  let height: Float32Array = mask
+  for (let p = 0; p < BLUR_PASSES; p++) height = boxBlur(height, GRID, BLUR_RADIUS)
+
+  const at = (arr: Float32Array, x: number, y: number) =>
+    arr[Math.min(GRID - 1, Math.max(0, y)) * GRID + Math.min(GRID - 1, Math.max(0, x))]
 
   const scale = worldWidth / GRID
   const points = new Float32Array(count * 3)
   const brightness = new Float32Array(count)
+  const rim = new Float32Array(count)
 
   for (let i = 0; i < count; i++) {
     let px = center
     let py = center
-    let b = 0
-    // Muestreo por rechazo: los píxeles claros se aceptan más a menudo.
     for (let tries = 0; tries < MAX_TRIES_PER_POINT; tries++) {
       px = Math.random() * GRID
       py = Math.random() * GRID
-      if (!inside(px, py)) continue
-      const v = sampleAt(Math.floor(px), Math.floor(py))
-      if (v < 0) {
-        // Pared: casi siempre se descarta; unos pocos puntos tenues dan textura.
-        b = 0.15
-        if (Math.random() < BG_KEEP) break
-        continue
-      }
-      b = v
-      // La persona: zonas claras (piel) más densas; oscuras (pelo, barba) más tenues.
-      if (Math.random() < 0.25 + b * 0.75) break
+      const ix = Math.floor(px)
+      const iy = Math.floor(py)
+      if (mask[iy * GRID + ix] === 0) continue
+      // La densidad sigue la luz de la foto: así se marcan ojos, gafas y barba.
+      const accept = 0.06 + 0.94 * Math.pow(lum[iy * GRID + ix], 1.6)
+      if (Math.random() < accept) break
     }
+    const ix = Math.floor(px)
+    const iy = Math.floor(py)
+    const h = at(height, ix, iy)
+    // Normal aproximada del relieve → borde iluminado por la luz principal.
+    const gx = at(height, ix + 2, iy) - at(height, ix - 2, iy)
+    const gy = at(height, ix, iy + 2) - at(height, ix, iy - 2)
+    const slope = Math.min(1, Math.hypot(gx, gy) * 4)
+    const facing = Math.max(0, (-gx * LIGHT.x - gy * LIGHT.y) / (Math.hypot(gx, gy) + 1e-4))
+
     points[i * 3] = (px - center) * scale
     points[i * 3 + 1] = -(py - center) * scale
-    points[i * 3 + 2] = (b - 0.5) * 0.4
-    brightness[i] = b
+    // Centrado en z = 0: la mitad del relieve sale hacia la cámara.
+    points[i * 3 + 2] = (Math.pow(h, 0.6) * DEPTH * GRID + lum[iy * GRID + ix] * 6 - DEPTH * GRID * 0.5) * scale
+    brightness[i] = lum[iy * GRID + ix]
+    rim[i] = slope * facing
   }
 
   const contains = (x: number, y: number, padding = 0): boolean => {
-    const r = radius * scale + padding
-    return x * x + y * y <= r * r
+    const step = padding / scale
+    const test = (dx: number, dy: number) => {
+      const gx = Math.floor(x / scale + center + dx)
+      const gy = Math.floor(-y / scale + center + dy)
+      return gx >= 0 && gy >= 0 && gx < GRID && gy < GRID && mask[gy * GRID + gx] === 1
+    }
+    return test(0, 0) || (step > 0 && (test(step, 0) || test(-step, 0) || test(0, step) || test(0, -step)))
   }
 
-  return { points, width: worldWidth, height: worldWidth, contains, brightness }
+  return { points, width: worldWidth, height: worldWidth, contains, brightness, rim }
 }

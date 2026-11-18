@@ -8,7 +8,7 @@ import { useA11y } from '@/lib/a11y'
 
 const PORTRAIT_SRC = '/images/elkin-portrait.jpg'
 const loadPortrait: ShapeLoader = (count, worldWidth) => sampleImage(PORTRAIT_SRC, count, worldWidth)
-const PORTRAIT_PARTICLES = { desktop: 14000, mobile: 6000 }
+const PORTRAIT_PARTICLES = { desktop: 26000, mobile: 11000 }
 
 /**
  * Retrato en partículas: al entrar en pantalla la estática se ordena
@@ -27,8 +27,8 @@ export function ContactPortrait({ label }: { label: string }) {
     }
     const trigger = ScrollTrigger.create({
       trigger: el,
-      start: 'top 90%',
-      end: 'center 55%',
+      start: 'top 95%',
+      end: 'top 25%',
       scrub: 0.8,
       onUpdate: (self) => {
         progress.current = self.progress
@@ -38,13 +38,23 @@ export function ContactPortrait({ label }: { label: string }) {
   }, [reducedMotion])
 
   return (
-    <div ref={ref} role="img" aria-label={label} className="relative aspect-square w-full">
+    <div
+      ref={ref}
+      role="img"
+      aria-label={label}
+      className="relative aspect-[4/5] w-full [mask-image:radial-gradient(ellipse_at_50%_45%,#000_45%,transparent_78%)]"
+      style={{
+        background:
+          'radial-gradient(ellipse at 55% 35%, rgb(28 58 160 / 0.9) 0%, rgb(14 32 104 / 0.85) 38%, rgb(8 18 60 / 0.6) 62%, transparent 85%)',
+      }}
+    >
       <SignalField
+        look="portrait"
         progress={progress}
         reducedMotion={reducedMotion}
         shape={loadPortrait}
         offsetY={0}
-        fitHeight={0.92}
+        fitHeight={1.05}
         particles={PORTRAIT_PARTICLES}
         className="absolute inset-0"
       />

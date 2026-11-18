@@ -11,6 +11,8 @@ export interface ShapeSample {
   contains: (x: number, y: number, padding?: number) => boolean
   /** Brillo 0–1 por partícula (solo imágenes); sin él, todas brillan igual */
   brightness?: Float32Array
+  /** Intensidad del borde iluminado 0–1 por partícula (solo retratos) */
+  rim?: Float32Array
 }
 
 /** Resolución de la máscara de las letras (1 celda = MASK_CELL px del canvas). */
