@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { fragmentShader, vertexShader } from './shaders'
+import { fragmentShader, lineFragmentShader, lineVertexShader, vertexShader } from './shaders'
 import { sampleGlyph, type ShapeSample } from './sample-glyph'
 
 /** Función que devuelve la figura a formar con `count` partículas. */
@@ -28,7 +28,7 @@ interface SignalFieldProps {
 }
 
 const loadGlyph: ShapeLoader = (count, worldWidth) => sampleGlyph('EG', count, worldWidth)
-const DEFAULT_PARTICLES = { desktop: 9000, mobile: 3800 }
+const DEFAULT_PARTICLES = { desktop: 3600, mobile: 1800 }
 
 const GLYPH_WORLD_WIDTH = 8
 const CAMERA_Z = 10
@@ -38,6 +38,9 @@ const HIT_PADDING = 0.06
 /** Desde qué progreso el EG cuenta como "formado" para el hover */
 const HOVER_MIN_PROGRESS = 0.8
 const HOVER_EASE = 0.1
+/** Nodos de la red (escritorio / móvil) y reglas de conexión */
+/** Separación entre nodos de la malla, en unidades del monograma */
+const LATTICE_SPACING = { desktop: 0.22, mobile: 0.3 }
 
 function particleCount(particles: { desktop: number; mobile: number }): number {
   return window.innerWidth < 768 ? particles.mobile : particles.desktop
@@ -94,6 +97,7 @@ export function SignalField({
       uSize: { value: isPortrait ? (small ? 1.5 : 2) : small ? 2.2 : 3.2 },
       uPixelRatio: { value: renderer.getPixelRatio() },
       uHover: { value: 0 },
+      uMouse: { value: new THREE.Vector2(99, 99) },
       uNoiseColor: { value: new THREE.Color('#8a8d93') },
       uSignalColor: { value: new THREE.Color('#f1f0ec') },
       uAccent: { value: new THREE.Color('#4060ff') },
@@ -110,6 +114,14 @@ export function SignalField({
     })
     // Parallax del retrato: sigue suavemente al cursor.
     const tilt = { x: 0, y: 0, tx: 0, ty: 0 }
+    const lineMaterial = new THREE.ShaderMaterial({
+      vertexShader: lineVertexShader,
+      fragmentShader: lineFragmentShader,
+      uniforms,
+      transparent: true,
+      depthWrite: false,
+    })
+    const lineGeometry = new THREE.BufferGeometry()
     const geometry = new THREE.BufferGeometry()
     let points: THREE.Points | null = null
     let glyph: ShapeSample | null = null
@@ -151,16 +163,21 @@ export function SignalField({
       const outside = e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom
       if (outside || !visible) {
         setHovering(false)
+        uniforms.uMouse.value.set(99, 99)
         return
       }
       // Coordenadas locales del grupo (descuenta su escala y desplazamiento vertical).
       const x = (nx * view.width) / 2 / groupScale
       const y = ((ny * view.height) / 2 - group.position.y) / groupScale
+      uniforms.uMouse.value.set(x, y)
       const formed = (reducedMotion ? 1 : progress.current) > HOVER_MIN_PROGRESS
       // Solo cuenta si el cursor está sobre el trazo de las letras, no sobre el fondo.
       setHovering(formed && glyph !== null && glyph.contains(x, y, HIT_PADDING))
     }
-    const onLeave = () => setHovering(false)
+    const onLeave = () => {
+      setHovering(false)
+      uniforms.uMouse.value.set(99, 99)
+    }
 
     const clock = new THREE.Clock()
     const render = () => {
@@ -201,6 +218,27 @@ export function SignalField({
       if (disposed) return
       glyph = sample
       resize()
+      // Red con patrón: los nodos forman una malla triangular regular dentro
+      // de las letras y cada uno se une con sus vecinos de malla.
+      const spacing = small ? LATTICE_SPACING.mobile : LATTICE_SPACING.desktop
+      const rowHeight = spacing * 0.866
+      const halfW = sample.width / 2
+      const halfH = sample.height / 2
+      const cols = Math.ceil(sample.width / spacing) + 1
+      const rows = Math.ceil(sample.height / rowHeight) + 1
+      const gridIndex = new Int32Array(cols * rows).fill(-1)
+      const lattice: number[] = []
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x = -halfW + c * spacing + (r % 2 ? spacing / 2 : 0)
+          const y = halfH - r * rowHeight
+          if (lattice.length / 2 >= count || !sample.contains(x, y)) continue
+          gridIndex[r * cols + c] = lattice.length / 2
+          lattice.push(x, y)
+        }
+      }
+      const nodeCount = lattice.length / 2
+
       const noise = new Float32Array(count * 3)
       const rand = new Float32Array(count)
       for (let i = 0; i < count; i++) {
@@ -208,14 +246,62 @@ export function SignalField({
         noise[i * 3 + 1] = (Math.random() - 0.5) * view.height * 1.3 / groupScale
         noise[i * 3 + 2] = (Math.random() - 0.5) * 6
         rand[i] = Math.random()
+        if (i < nodeCount) {
+          sample.points[i * 3] = lattice[i * 2]
+          sample.points[i * 3 + 1] = lattice[i * 2 + 1]
+          sample.points[i * 3 + 2] = 0
+          // La señal se encuentra en barrido de izquierda a derecha, no al azar.
+          rand[i] = Math.min(1, ((lattice[i * 2] + halfW) / sample.width) * 0.9 + Math.random() * 0.1)
+        }
       }
       geometry.setAttribute('position', new THREE.BufferAttribute(sample.points.slice(), 3))
       geometry.setAttribute('aTarget', new THREE.BufferAttribute(sample.points, 3))
       geometry.setAttribute('aNoise', new THREE.BufferAttribute(noise, 3))
       geometry.setAttribute('aRand', new THREE.BufferAttribute(rand, 1))
-      geometry.setAttribute('aBright', new THREE.BufferAttribute(sample.brightness ?? new Float32Array(count).fill(1), 1))
-      geometry.setAttribute('aRim', new THREE.BufferAttribute(sample.rim ?? new Float32Array(count), 1))
-      uniforms.uHalfHeight.value = sample.height / 2
+      const isNode = new Float32Array(count)
+      isNode.fill(1, 0, nodeCount)
+      geometry.setAttribute('aNode', new THREE.BufferAttribute(isNode, 1))
+
+      const target: number[] = []
+      const noiseL: number[] = []
+      const randL: number[] = []
+      const side: number[] = []
+      const seed: number[] = []
+      const pushVertex = (i: number, s: number, lineSeed: number) => {
+        target.push(sample.points[i * 3], sample.points[i * 3 + 1], sample.points[i * 3 + 2])
+        noiseL.push(noise[i * 3], noise[i * 3 + 1], noise[i * 3 + 2])
+        randL.push(rand[i])
+        side.push(s)
+        seed.push(lineSeed)
+      }
+      const link = (a: number, r: number, c: number) => {
+        if (r >= rows || c < 0 || c >= cols) return
+        const b = gridIndex[r * cols + c]
+        if (b < 0) return
+        // La semilla sigue la posición: los pulsos avanzan como una onda.
+        const lineSeed = (sample.points[a * 3] + halfW) / sample.width + Math.random() * 0.03
+        pushVertex(a, 0, lineSeed)
+        pushVertex(b, 1, lineSeed)
+      }
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const a = gridIndex[r * cols + c]
+          if (a < 0) continue
+          link(a, r, c + 1) // derecha
+          link(a, r + 1, c) // abajo (un lado)
+          link(a, r + 1, r % 2 ? c + 1 : c - 1) // abajo (el otro lado)
+        }
+      }
+      lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(target, 3))
+      lineGeometry.setAttribute('aTarget', new THREE.Float32BufferAttribute(target, 3))
+      lineGeometry.setAttribute('aNoise', new THREE.Float32BufferAttribute(noiseL, 3))
+      lineGeometry.setAttribute('aRand', new THREE.Float32BufferAttribute(randL, 1))
+      lineGeometry.setAttribute('aSide', new THREE.Float32BufferAttribute(side, 1))
+      lineGeometry.setAttribute('aSeed', new THREE.Float32BufferAttribute(seed, 1))
+      const lines = new THREE.LineSegments(lineGeometry, lineMaterial)
+      lines.frustumCulled = false
+      group.add(lines)
+
       points = new THREE.Points(geometry, material)
       points.frustumCulled = false
       group.add(points)
@@ -241,6 +327,8 @@ export function SignalField({
       container.removeEventListener('pointerleave', onLeave)
       geometry.dispose()
       material.dispose()
+      lineGeometry.dispose()
+      lineMaterial.dispose()
       renderer.dispose()
       renderer.domElement.remove()
     }
