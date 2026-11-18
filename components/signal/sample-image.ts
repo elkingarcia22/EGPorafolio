@@ -1,41 +1,8 @@
 import type { ShapeSample } from './sample-glyph'
 
-const GRID = 240
-
-/** Rectángulo en fracciones (0–1) de la foto original */
-export interface CropRect {
-  x: number
-  y: number
-  w: number
-  h: number
-}
-
-export interface ImageSampleOptions {
-  /** Encuadre dentro de la foto */
-  crop: CropRect
-  /**
-   * Silueta de la persona en coordenadas normalizadas de la foto original.
-   * Si se da, todo lo de adentro es la persona (sin huecos por brillos).
-   * Si no, se detecta la pared gris por color y conexión con el borde.
-   */
-  mask?: (u: number, v: number) => boolean
-  /** Tope de brillo para la densidad (evita que destellos dominen) */
-  maxLuminance?: number
-  /**
-   * 0 = densidad uniforme (forma sólida, como el EG); 1 = la densidad
-   * sigue por completo la luz de la foto (semitono). Por defecto 1.
-   */
-  tonalDensity?: number
-  /** Rango del brillo que se pasa al shader [mín, máx] (sombreado suave) */
-  shadeRange?: readonly [number, number]
-  /**
-   * Profundidad de un modelo 3D (en píxeles de la foto) para el punto
-   * (u, v). Si se da, reemplaza el relieve inventado desde la silueta.
-   */
-  depth?: (u: number, v: number) => number
-}
-
-const DEFAULT_OPTIONS: ImageSampleOptions = { crop: { x: 0.2, y: 0.06, w: 0.6, h: 0.6 } }
+const GRID = 260
+/** Encuadre: cabeza y hombros (fracciones de la foto original) */
+const CROP = { x: 0.2, y: 0.06, size: 0.6 }
 /** Radio útil de la foto (es circular), en fracción del lado */
 const CIRCLE_RADIUS = 0.47
 /** Fondo de la foto: gris claro y poco saturado (la pared) */
@@ -60,46 +27,33 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
-function boxBlur(src: Float32Array, width: number, height: number, radius: number): Float32Array {
+function boxBlur(src: Float32Array, size: number, radius: number): Float32Array {
   const tmp = new Float32Array(src.length)
   const out = new Float32Array(src.length)
   const span = radius * 2 + 1
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
       let sum = 0
-      for (let k = -radius; k <= radius; k++) sum += src[y * width + Math.min(width - 1, Math.max(0, x + k))]
-      tmp[y * width + x] = sum / span
+      for (let k = -radius; k <= radius; k++) sum += src[y * size + Math.min(size - 1, Math.max(0, x + k))]
+      tmp[y * size + x] = sum / span
     }
   }
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
       let sum = 0
-      for (let k = -radius; k <= radius; k++) sum += tmp[Math.min(height - 1, Math.max(0, y + k)) * width + x]
-      out[y * width + x] = sum / span
+      for (let k = -radius; k <= radius; k++) sum += tmp[Math.min(size - 1, Math.max(0, y + k)) * size + x]
+      out[y * size + x] = sum / span
     }
   }
   return out
-}
-
-/** Estira (in situ) el brillo de los píxeles de la máscara a 0–1 por percentiles. */
-function stretchInsideMask(lum: Float32Array, mask: Float32Array): void {
-  const values: number[] = []
-  for (let i = 0; i < lum.length; i++) if (mask[i] === 1) values.push(lum[i])
-  if (values.length < 10) return
-  values.sort((a, b) => a - b)
-  const low = values[Math.floor(values.length * 0.05)]
-  const high = values[Math.floor(values.length * 0.95)]
-  const range = Math.max(0.05, high - low)
-  for (let i = 0; i < lum.length; i++) lum[i] = Math.min(1, Math.max(0, (lum[i] - low) / range))
 }
 
 /**
  * Marca como fondo los píxeles con color de pared alcanzables desde el
  * borde del encuadre o desde fuera del círculo de la foto (relleno por inundación).
  */
-function floodFromEdges(wallLike: Uint8Array, inCircle: Uint8Array, width: number, height: number): Uint8Array {
-  const size = width
-  const background = new Uint8Array(width * height)
+function floodFromEdges(wallLike: Uint8Array, inCircle: Uint8Array, size: number): Uint8Array {
+  const background = new Uint8Array(size * size)
   const queue: number[] = []
   const seed = (i: number) => {
     if (wallLike[i] === 1 && background[i] === 0) {
@@ -107,28 +61,28 @@ function floodFromEdges(wallLike: Uint8Array, inCircle: Uint8Array, width: numbe
       queue.push(i)
     }
   }
-  for (let x = 0; x < width; x++) seed(x) // arriba
-  for (let y = 0; y < height; y++) {
-    seed(y * width) // izquierda
-    seed(y * width + width - 1) // derecha
+  for (let i = 0; i < size; i++) {
+    seed(i) // arriba
+    seed(i * size) // izquierda
+    seed(i * size + size - 1) // derecha
   }
   // Pared junto al borde del círculo original.
-  for (let i = 0; i < width * height; i++) {
+  for (let i = 0; i < size * size; i++) {
     if (inCircle[i] === 0) continue
-    const x = i % width
-    const y = (i - x) / width
+    const x = i % size
+    const y = (i - x) / size
     const nearOutside =
-      (x > 0 && inCircle[i - 1] === 0) || (x < width - 1 && inCircle[i + 1] === 0) ||
-      (y > 0 && inCircle[i - size] === 0) || (y < height - 1 && inCircle[i + size] === 0)
+      (x > 0 && inCircle[i - 1] === 0) || (x < size - 1 && inCircle[i + 1] === 0) ||
+      (y > 0 && inCircle[i - size] === 0) || (y < size - 1 && inCircle[i + size] === 0)
     if (nearOutside) seed(i)
   }
   for (let head = 0; head < queue.length; head++) {
     const i = queue[head]
-    const x = i % width
+    const x = i % size
     if (x > 0) seed(i - 1)
-    if (x < width - 1) seed(i + 1)
-    if (i >= width) seed(i - width)
-    if (i < width * (height - 1)) seed(i + width)
+    if (x < size - 1) seed(i + 1)
+    if (i >= size) seed(i - size)
+    if (i < size * (size - 1)) seed(i + size)
   }
   return background
 }
@@ -143,90 +97,76 @@ export async function sampleImage(
   src: string,
   count: number,
   worldWidth: number,
-  options: ImageSampleOptions = DEFAULT_OPTIONS,
+  /** Zonas (u, v normalizados en la foto) que nunca son fondo: p. ej. la cara */
+  keep?: (u: number, v: number) => boolean,
 ): Promise<ShapeSample> {
   const img = await loadImage(src)
-  const w = img.naturalWidth
-  const h = img.naturalHeight
-  const { crop } = options
-  const GW = GRID
-  const GH = Math.round((GRID * crop.h * h) / (crop.w * w))
   const canvas = document.createElement('canvas')
-  canvas.width = GW
-  canvas.height = GH
+  canvas.width = GRID
+  canvas.height = GRID
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
   if (!ctx) throw new Error('Canvas 2D no disponible')
-  ctx.drawImage(img, crop.x * w, crop.y * h, crop.w * w, crop.h * h, 0, 0, GW, GH)
-  const { data } = ctx.getImageData(0, 0, GW, GH)
+  const w = img.naturalWidth
+  const h = img.naturalHeight
+  ctx.drawImage(img, CROP.x * w, CROP.y * h, CROP.size * w, CROP.size * h, 0, 0, GRID, GRID)
+  const { data } = ctx.getImageData(0, 0, GRID, GRID)
 
-  const centerX = GW / 2
-  const centerY = GH / 2
-  const total = GW * GH
-  const lum = new Float32Array(total)
-  const mask = new Float32Array(total)
+  const center = GRID / 2
+  const lum = new Float32Array(GRID * GRID)
+  const mask = new Float32Array(GRID * GRID)
   /** Píxel con color de pared (gris claro); todavía no sabemos si es fondo */
-  const wallLike = new Uint8Array(total)
-  const inCircle = new Uint8Array(total)
-  const toPhoto = (x: number, y: number) => ({ u: crop.x + (x / GW) * crop.w, v: crop.y + (y / GH) * crop.h })
+  const wallLike = new Uint8Array(GRID * GRID)
+  const inCircle = new Uint8Array(GRID * GRID)
 
-  for (let y = 0; y < GH; y++) {
-    for (let x = 0; x < GW; x++) {
-      const i = y * GW + x
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      const i = y * GRID + x
       const r = data[i * 4] / 255
       const g = data[i * 4 + 1] / 255
       const b = data[i * 4 + 2] / 255
       const l = 0.2126 * r + 0.7152 * g + 0.0722 * b
       const max = Math.max(r, g, b)
       const saturation = max === 0 ? 0 : (max - Math.min(r, g, b)) / max
-      const { u, v } = toPhoto(x, y)
-      lum[i] = Math.min(options.maxLuminance ?? 1, l)
-      if (options.mask) {
-        mask[i] = options.mask(u, v) ? 1 : 0
-      } else {
-        // Foto circular: el recorte original, llevado al encuadre.
-        const cu = u - 0.5
-        const cv = v - 0.5
-        inCircle[i] = cu * cu + cv * cv <= CIRCLE_RADIUS * CIRCLE_RADIUS ? 1 : 0
-        wallLike[i] = saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE ? 1 : 0
-      }
+      // El recorte circular de la foto original, llevado al encuadre.
+      const u = CROP.x + (x / GRID) * CROP.size - 0.5
+      const v = CROP.y + (y / GRID) * CROP.size - 0.5
+      const insideCircle = u * u + v * v <= CIRCLE_RADIUS * CIRCLE_RADIUS
+      lum[i] = l
+      inCircle[i] = insideCircle ? 1 : 0
+      // La cara nunca cuenta como pared, aunque sus brillos lo parezcan.
+      const protectedArea = keep?.(u + 0.5, v + 0.5) ?? false
+      wallLike[i] = !protectedArea && saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE ? 1 : 0
     }
   }
 
-  if (!options.mask) {
-    // Fondo = color de pared conectado con el borde de la foto: los brillos
-    // de la piel (frente, nariz) no se vuelven huecos.
-    const background = floodFromEdges(wallLike, inCircle, GW, GH)
-    for (let i = 0; i < total; i++) mask[i] = inCircle[i] === 1 && background[i] === 0 ? 1 : 0
-  }
-
-  // Contraste: se estira el brillo de la persona entre sus percentiles 5 y 95,
-  // para que ojos, gafas, nariz y barba se marquen aunque la foto sea plana.
-  stretchInsideMask(lum, mask)
+  // Fondo = solo lo que tiene color de pared Y está conectado con el borde
+  // de la foto. Así los brillos de la piel (frente, nariz) no se vuelven huecos.
+  const background = floodFromEdges(wallLike, inCircle, GRID)
+  for (let i = 0; i < mask.length; i++) mask[i] = inCircle[i] === 1 && background[i] === 0 ? 1 : 0
 
   // Volumen: la silueta suavizada funciona como mapa de profundidad.
   let height: Float32Array = mask
-  for (let p = 0; p < BLUR_PASSES; p++) height = boxBlur(height, GW, GH, BLUR_RADIUS)
+  for (let p = 0; p < BLUR_PASSES; p++) height = boxBlur(height, GRID, BLUR_RADIUS)
 
   const at = (arr: Float32Array, x: number, y: number) =>
-    arr[Math.min(GH - 1, Math.max(0, y)) * GW + Math.min(GW - 1, Math.max(0, x))]
+    arr[Math.min(GRID - 1, Math.max(0, y)) * GRID + Math.min(GRID - 1, Math.max(0, x))]
 
-  const scale = worldWidth / GW
+  const scale = worldWidth / GRID
   const points = new Float32Array(count * 3)
   const brightness = new Float32Array(count)
   const rim = new Float32Array(count)
 
   for (let i = 0; i < count; i++) {
-    let px = centerX
-    let py = centerY
+    let px = center
+    let py = center
     for (let tries = 0; tries < MAX_TRIES_PER_POINT; tries++) {
-      px = Math.random() * GW
-      py = Math.random() * GH
+      px = Math.random() * GRID
+      py = Math.random() * GRID
       const ix = Math.floor(px)
       const iy = Math.floor(py)
-      if (mask[iy * GW + ix] === 0) continue
-      // Densidad: mezcla entre forma sólida y semitono según tonalDensity.
-      const tonal = options.tonalDensity ?? 1
-      const accept = (1 - tonal) + tonal * (0.03 + 0.97 * Math.pow(lum[iy * GW + ix], 1.8))
+      if (mask[iy * GRID + ix] === 0) continue
+      // La densidad sigue la luz de la foto: así se marcan ojos, gafas y barba.
+      const accept = 0.06 + 0.94 * Math.pow(lum[iy * GRID + ix], 1.6)
       if (Math.random() < accept) break
     }
     const ix = Math.floor(px)
@@ -238,30 +178,23 @@ export async function sampleImage(
     const slope = Math.min(1, Math.hypot(gx, gy) * 4)
     const facing = Math.max(0, (-gx * LIGHT.x - gy * LIGHT.y) / (Math.hypot(gx, gy) + 1e-4))
 
-    points[i * 3] = (px - centerX) * scale
-    points[i * 3 + 1] = -(py - centerY) * scale
-    if (options.depth) {
-      // Modelo 3D: píxeles de la foto → unidades de mundo.
-      const { u, v } = toPhoto(px, py)
-      points[i * 3 + 2] = options.depth(u, v) * (worldWidth / (crop.w * w)) + (lum[iy * GW + ix] - 0.5) * 2 * scale
-    } else {
-      // Centrado en z = 0: la mitad del relieve sale hacia la cámara.
-      points[i * 3 + 2] = (Math.pow(h, 0.6) * DEPTH * GRID + lum[iy * GW + ix] * 6 - DEPTH * GRID * 0.5) * scale
-    }
-    const [shadeMin, shadeMax] = options.shadeRange ?? [0, 1]
-    brightness[i] = shadeMin + (shadeMax - shadeMin) * lum[iy * GW + ix]
+    points[i * 3] = (px - center) * scale
+    points[i * 3 + 1] = -(py - center) * scale
+    // Centrado en z = 0: la mitad del relieve sale hacia la cámara.
+    points[i * 3 + 2] = (Math.pow(h, 0.6) * DEPTH * GRID + lum[iy * GRID + ix] * 6 - DEPTH * GRID * 0.5) * scale
+    brightness[i] = lum[iy * GRID + ix]
     rim[i] = slope * facing
   }
 
   const contains = (x: number, y: number, padding = 0): boolean => {
     const step = padding / scale
     const test = (dx: number, dy: number) => {
-      const gx = Math.floor(x / scale + centerX + dx)
-      const gy = Math.floor(-y / scale + centerY + dy)
-      return gx >= 0 && gy >= 0 && gx < GW && gy < GH && mask[gy * GW + gx] === 1
+      const gx = Math.floor(x / scale + center + dx)
+      const gy = Math.floor(-y / scale + center + dy)
+      return gx >= 0 && gy >= 0 && gx < GRID && gy < GRID && mask[gy * GRID + gx] === 1
     }
     return test(0, 0) || (step > 0 && (test(step, 0) || test(-step, 0) || test(0, step) || test(0, -step)))
   }
 
-  return { points, width: worldWidth, height: GH * scale, contains, brightness, rim }
+  return { points, width: worldWidth, height: worldWidth, contains, brightness, rim }
 }
