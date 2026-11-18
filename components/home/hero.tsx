@@ -33,7 +33,7 @@ const BOOT_HIDDEN = 'opacity-0'
 
 /**
  * Arranque: no hay pantalla de carga aparte. La estática aparece en
- * negro mientras carga, el titular "Todo producto empieza como ideas desconectadas"
+ * negro mientras carga, el titular "Todo producto nace de una conexión…"
  * se descifra desde caracteres de ruido y luego aparece la invitación
  * a deslizar. Encabezado y contador se integran en la misma escena.
  */
@@ -116,8 +116,8 @@ function useBoot(
 
 /**
  * Hero en tres tiempos, controlados por el scroll:
- * 1. "Todo producto empieza como ideas desconectadas."  (estática)
- * 2. "Mi trabajo es encontrar las conexiones…"  (la red se arma)
+ * 1. "Todo producto nace de una conexión entre lo que somos y lo que necesitamos."
+ * 2. "Mi trabajo es diseñar el puente entre las dos."  (la red se arma)
  * 3. Firma: elkin / GARCIA, como en la hoja de vida.
  */
 export function Hero() {
@@ -249,7 +249,7 @@ export function Hero() {
           <div data-phase="noise" className="pointer-events-none absolute inset-0 flex items-end px-[var(--gutter)] pb-[26vh] md:pb-[22vh]">
             <p
               data-boot="text"
-              className={`max-w-[14ch] text-[clamp(2.5rem,1rem+6vw,6.5rem)] font-light leading-[0.95] tracking-tight ${BOOT_HIDDEN}`}
+              className={`max-w-[22ch] text-[clamp(2rem,0.9rem+3.8vw,4.6rem)] font-light leading-[1] tracking-tight ${BOOT_HIDDEN}`}
             >
               <span data-boot-text>{headline}</span>
             </p>

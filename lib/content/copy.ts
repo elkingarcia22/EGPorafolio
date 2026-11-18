@@ -11,8 +11,11 @@ export const COPY = {
     contact: { es: 'Contacto', en: 'Contact' },
   },
   hero: {
-    noise: { es: 'Todo producto empieza como ideas desconectadas.', en: 'Every product starts as disconnected ideas.' },
-    signal: { es: 'Mi trabajo es encontrar las conexiones que les dan forma.', en: 'My job is to find the connections that give them shape.' },
+    noise: {
+      es: 'Todo producto nace de una conexión entre lo que somos y lo que necesitamos.',
+      en: 'Every product is born from a connection between who we are and what we need.',
+    },
+    signal: { es: 'Mi trabajo es diseñar el puente entre las dos.', en: 'My job is to design the bridge between the two.' },
     scroll: { es: 'Desliza para conectar', en: 'Scroll to connect' },
     scrollHint: { es: 'De ideas a producto', en: 'From ideas to product' },
     keepTuning: { es: 'Desliza para seguir conectando', en: 'Scroll to keep connecting' },
