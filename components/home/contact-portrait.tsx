@@ -6,14 +6,14 @@ import { sampleImage } from '@/components/signal/sample-image'
 import { ScrollTrigger } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 
-const PORTRAIT_SRC = '/images/elkin-portrait.jpg'
+const PORTRAIT_SRC = '/images/elkin-portrait-2.jpg'
 /** Silueta generada con segmentación de personas (blanco = persona) */
-const PORTRAIT_MASK_SRC = '/images/elkin-portrait-mask.png'
-/** Pelo en la foto: parte alta de la cabeza y el costado izquierdo (recogido). */
-const hairZone = (u: number, v: number): boolean => v < 0.225 || (u < 0.35 && v < 0.4)
+const PORTRAIT_MASK_SRC = '/images/elkin-portrait-2-mask.png'
+/** En esta foto todo lo oscuro es pelo, barba o chaqueta: se dibuja en gris tenue. */
+const hairZone = (): boolean => true
 const loadPortrait: ShapeLoader = (count, worldWidth) =>
   sampleImage(PORTRAIT_SRC, count, worldWidth, PORTRAIT_MASK_SRC, hairZone)
-const PORTRAIT_PARTICLES = { desktop: 20000, mobile: 9000 }
+const PORTRAIT_PARTICLES = { desktop: 28000, mobile: 12000 }
 
 /**
  * Retrato en partículas: al entrar en pantalla la estática se ordena

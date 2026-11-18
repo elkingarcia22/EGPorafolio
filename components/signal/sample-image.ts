@@ -18,9 +18,9 @@ const LIGHT = { x: 0.6, y: -0.8 }
 /** Por debajo de este brillo, dentro de la zona de pelo, se considera pelo */
 const HAIR_MAX_LUMINANCE = 0.42
 /** Densidad de partículas del pelo (probabilidad de aceptar un punto) */
-const HAIR_DENSITY = 0.3
+const HAIR_DENSITY = 0.1
 /** Brillo del pelo: tenue, para que contraste con la piel y se vea la línea del pelo */
-const HAIR_BRIGHTNESS = 0.2
+const HAIR_BRIGHTNESS = 0.22
 const MAX_TRIES_PER_POINT = 80
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -171,6 +171,19 @@ export async function sampleImage(
   } else {
     const background = floodFromEdges(wallLike, inCircle, GRID)
     for (let i = 0; i < mask.length; i++) mask[i] = inCircle[i] === 1 && background[i] === 0 ? 1 : 0
+  }
+
+  // Contraste de la piel: se estira su brillo entre los percentiles 8 y 97
+  // para que ojos, gafas, nariz y boca se marquen aunque la luz sea pareja.
+  const skin: number[] = []
+  for (let i = 0; i < lum.length; i++) if (mask[i] === 1 && hair[i] === 0) skin.push(lum[i])
+  if (skin.length > 50) {
+    skin.sort((a, b) => a - b)
+    const low = skin[Math.floor(skin.length * 0.08)]
+    const range = Math.max(0.05, skin[Math.floor(skin.length * 0.97)] - low)
+    for (let i = 0; i < lum.length; i++) {
+      if (hair[i] === 0) lum[i] = Math.min(1, Math.max(0, (lum[i] - low) / range))
+    }
   }
 
   // Volumen: la silueta suavizada funciona como mapa de profundidad.
