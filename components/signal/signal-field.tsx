@@ -40,7 +40,15 @@ const HOVER_MIN_PROGRESS = 0.8
 const HOVER_EASE = 0.1
 /** Nodos de la red (escritorio / móvil) y reglas de conexión */
 /** Separación entre nodos de la malla, en unidades del monograma */
-const LATTICE_SPACING = { desktop: 0.22, mobile: 0.3 }
+const LATTICE_SPACING = { desktop: 0.2, mobile: 0.28 }
+/** Desorden de cada nodo respecto a la malla (fracción de la separación) */
+const LATTICE_JITTER = 0.42
+/** Proporción de nodos y de conexiones que se omiten: red orgánica, no cuadrícula */
+const NODE_DROP = 0.1
+/** Cada nodo se une con sus vecinos más cercanos (hasta este número) */
+const LINKS_PER_NODE = 3
+/** Distancia máxima de una conexión, en separaciones de malla */
+const LINK_REACH = 2.4
 
 function particleCount(particles: { desktop: number; mobile: number }): number {
   return window.innerWidth < 768 ? particles.mobile : particles.desktop
@@ -230,9 +238,16 @@ export function SignalField({
       const lattice: number[] = []
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          const x = -halfW + c * spacing + (r % 2 ? spacing / 2 : 0)
-          const y = halfH - r * rowHeight
-          if (lattice.length / 2 >= count || !sample.contains(x, y)) continue
+          if (Math.random() < NODE_DROP) continue
+          const baseX = -halfW + c * spacing + (r % 2 ? spacing / 2 : 0)
+          const baseY = halfH - r * rowHeight
+          if (lattice.length / 2 >= count || !sample.contains(baseX, baseY)) continue
+          // Se desordena; si el desorden lo saca de la letra, queda en su sitio.
+          const jx = baseX + (Math.random() - 0.5) * 2 * LATTICE_JITTER * spacing
+          const jy = baseY + (Math.random() - 0.5) * 2 * LATTICE_JITTER * spacing
+          const keep = sample.contains(jx, jy)
+          const x = keep ? jx : baseX
+          const y = keep ? jy : baseY
           gridIndex[r * cols + c] = lattice.length / 2
           lattice.push(x, y)
         }
@@ -274,22 +289,35 @@ export function SignalField({
         side.push(s)
         seed.push(lineSeed)
       }
-      const link = (a: number, r: number, c: number) => {
-        if (r >= rows || c < 0 || c >= cols) return
-        const b = gridIndex[r * cols + c]
-        if (b < 0) return
-        // La semilla sigue la posición: los pulsos avanzan como una onda.
-        const lineSeed = (sample.points[a * 3] + halfW) / sample.width + Math.random() * 0.03
-        pushVertex(a, 0, lineSeed)
-        pushVertex(b, 1, lineSeed)
-      }
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const a = gridIndex[r * cols + c]
-          if (a < 0) continue
-          link(a, r, c + 1) // derecha
-          link(a, r + 1, c) // abajo (un lado)
-          link(a, r + 1, r % 2 ? c + 1 : c - 1) // abajo (el otro lado)
+      // Conexiones por cercanía: cada nodo con sus vecinos más próximos,
+      // siempre por dentro del trazo (no cruza huecos ni une letras).
+      const reach = spacing * LINK_REACH
+      const linked = new Set<number>()
+      for (let a = 0; a < nodeCount; a++) {
+        const ax = lattice[a * 2]
+        const ay = lattice[a * 2 + 1]
+        const near: { b: number; d: number }[] = []
+        for (let b = 0; b < nodeCount; b++) {
+          if (b === a) continue
+          const d = Math.hypot(lattice[b * 2] - ax, lattice[b * 2 + 1] - ay)
+          if (d < reach) near.push({ b, d })
+        }
+        near.sort((p, q) => p.d - q.d)
+        // Los más cercanos y, a veces, uno más lejano (conexión larga).
+        const picks = near.slice(0, LINKS_PER_NODE)
+        if (near.length > LINKS_PER_NODE + 2 && Math.random() < 0.35) picks.push(near[near.length - 1])
+        for (const { b } of picks) {
+          const key = Math.min(a, b) * nodeCount + Math.max(a, b)
+          if (linked.has(key)) continue
+          const bx = lattice[b * 2]
+          const by = lattice[b * 2 + 1]
+          const inside = [0.25, 0.5, 0.75].every((k) => sample.contains(ax + (bx - ax) * k, ay + (by - ay) * k, HIT_PADDING))
+          if (!inside) continue
+          linked.add(key)
+          // La semilla sigue la posición: los pulsos avanzan como una onda.
+          const lineSeed = (ax + halfW) / sample.width + Math.random() * 0.03
+          pushVertex(a, 0, lineSeed)
+          pushVertex(b, 1, lineSeed)
         }
       }
       lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(target, 3))
