@@ -5,13 +5,18 @@ import { SignalField } from '@/components/signal/signal-field'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
-import { gsap, scrambleText } from '@/lib/motion'
+import { decodeFrame, gsap, scrambleText, shuffledIndices } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PROFILE } from '@/lib/content/profile'
 
-const BOOT_MIN_S = 1.6
+/** Duración mínima de la carga (el texto central se descifra en este tiempo) */
+const LOAD_S = 2
+/** Pausa con "Cargando señal" ya legible antes de disolverse */
+const LOAD_HOLD_S = 0.3
+/** Momento en que empieza a escribirse el titular */
+const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
 
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
@@ -22,7 +27,12 @@ const BOOT_HIDDEN = 'opacity-0'
  * se descifra desde caracteres de ruido y luego aparece la invitación
  * a deslizar. Encabezado y contador se integran en la misma escena.
  */
-function useBoot(root: React.RefObject<HTMLDivElement | null>, headline: string, reducedMotion: boolean) {
+function useBoot(
+  root: React.RefObject<HTMLDivElement | null>,
+  headline: string,
+  loadingText: string,
+  reducedMotion: boolean,
+) {
   useEffect(() => {
     const el = root.current
     if (!el) return
@@ -37,28 +47,46 @@ function useBoot(root: React.RefObject<HTMLDivElement | null>, headline: string,
     }
 
     const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
+    const wordEl = q('[data-boot-word]')[0] as HTMLElement | undefined
     const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
     const counter = { v: 0 }
+    const dissolve = { v: 0 }
+    const order = shuffledIndices(loadingText.length)
+    const paintWord = (revealedRatio: number) => {
+      if (wordEl) wordEl.textContent = decodeFrame(loadingText, Math.round(loadingText.length * revealedRatio), order)
+    }
+    paintWord(0)
     let cancelScramble: (() => void) | null = null
     if (header) gsap.set(header, { opacity: 0 })
 
     const tl = gsap.timeline({ paused: true })
-    tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 2.2, ease: 'power2.out' }, 0)
+    // 1 · Carga: en el centro, "Cargando señal" cambia sin parar y se va
+    //     descifrando a medida que sube el porcentaje.
+    tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 2.4, ease: 'power2.out' }, 0)
       .to(counter, {
         v: 100,
-        duration: BOOT_MIN_S,
-        ease: 'power2.inOut',
+        duration: LOAD_S,
+        ease: 'power1.inOut',
         onUpdate: () => {
           if (counterEl) counterEl.textContent = String(Math.round(counter.v)).padStart(3, '0')
+          paintWord(counter.v / 100)
         },
       }, 0)
-      .to(q('[data-boot-counter]'), { autoAlpha: 0, y: -10, duration: 0.4 }, BOOT_MIN_S)
-      .set(q('[data-boot="text"]'), { opacity: 1 }, BOOT_MIN_S - 0.4)
+      // 2 · Se vuelve a disolver en ruido y desaparece.
+      .to(dissolve, {
+        v: 1,
+        duration: 0.4,
+        ease: 'power2.in',
+        onUpdate: () => paintWord(1 - dissolve.v),
+      }, LOAD_S + LOAD_HOLD_S)
+      .to(q('[data-boot-counter]'), { autoAlpha: 0, filter: 'blur(8px)', scale: 0.96, duration: 0.4 }, LOAD_S + LOAD_HOLD_S + 0.15)
+      // 3 · Empieza a escribirse el titular.
+      .set(q('[data-boot="text"]'), { opacity: 1 }, HEADLINE_AT)
       .call(() => {
         if (textEl) cancelScramble = scrambleText(textEl, headline, 1100)
-      }, undefined, BOOT_MIN_S - 0.4)
-      .to(header ? [header] : [], { opacity: 1, duration: 0.8 }, BOOT_MIN_S + 0.4)
-      .fromTo(q('[data-boot="cue"]'), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, BOOT_MIN_S + 0.7)
+      }, undefined, HEADLINE_AT)
+      .to(header ? [header] : [], { opacity: 1, duration: 0.8 }, HEADLINE_AT + 0.9)
+      .fromTo(q('[data-boot="cue"]'), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, HEADLINE_AT + 1.2)
 
     // Espera a las fuentes para que el titular se descifre ya con su tipografía.
     let started = false
@@ -76,7 +104,7 @@ function useBoot(root: React.RefObject<HTMLDivElement | null>, headline: string,
       tl.kill()
       if (header) gsap.set(header, { opacity: 1 })
     }
-  }, [root, headline, reducedMotion])
+  }, [root, headline, loadingText, reducedMotion])
 }
 
 /**
@@ -93,7 +121,7 @@ export function Hero() {
   const [hoveringEg, setHoveringEg] = useState(false)
   const headline = t(COPY.hero.noise)
 
-  useBoot(sectionRef, headline, reducedMotion)
+  useBoot(sectionRef, headline, t(COPY.hero.loading), reducedMotion)
 
   useEffect(() => {
     const section = sectionRef.current
@@ -148,9 +176,19 @@ export function Hero() {
           </div>
 
           {/* Contador de arranque (se integra en la escena, sin pantalla aparte) */}
-          <p data-boot-counter aria-hidden="true" className="mono-label absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 tabular-nums opacity-70">
-            {t(COPY.hero.loading)} <span data-boot-count>000</span>%
-          </p>
+          <div data-boot-counter aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-[var(--gutter)]">
+            <span
+              data-boot-word
+              className="whitespace-pre text-center text-[clamp(1.5rem,0.9rem+2.6vw,3.2rem)] font-light uppercase tracking-[0.28em]"
+            >
+              {t(COPY.hero.loading)}
+            </span>
+            <span className="mono-label flex items-center gap-3 tabular-nums opacity-60">
+              <span className="h-px w-8 bg-current" />
+              <span><span data-boot-count>000</span>%</span>
+              <span className="h-px w-8 bg-current" />
+            </span>
+          </div>
 
           {/* 1 · Ruido */}
           <div data-phase="noise" className="pointer-events-none absolute inset-0 flex items-end px-[var(--gutter)] pb-[26vh] md:pb-[22vh]">
