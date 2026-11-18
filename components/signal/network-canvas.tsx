@@ -96,6 +96,8 @@ export function NetworkCanvas({
       seed: Math.random() * 100,
     }))
     const pulses: Pulse[] = []
+    /** Cursor en coordenadas de pantalla; se pasa al lienzo en cada cuadro */
+    const pointer = { x: -9999, y: -9999, active: false }
     const mouse = { x: -9999, y: -9999 }
     let width = 0
     let height = 0
@@ -125,24 +127,31 @@ export function NetworkCanvas({
     }
 
     const onMove = (e: PointerEvent) => {
-      const rect = wrap.getBoundingClientRect()
-      const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom
-      if (!inside || !visible) {
-        mouse.x = -9999
-        setHovering(false)
-        return
-      }
-      mouse.x = e.clientX - rect.left
-      mouse.y = e.clientY - rect.top
-      // El hover se decide en cada cuadro (draw): depende de los nodos ya formados.
+      pointer.x = e.clientX
+      pointer.y = e.clientY
+      pointer.active = true
     }
     const onLeave = () => {
-      mouse.x = -9999
-      setHovering(false)
+      pointer.active = false
+    }
+
+    /**
+     * Pasa el cursor a coordenadas del lienzo con la posición ACTUAL del
+     * lienzo: si la página se desplaza sin mover el ratón, el cursor sigue
+     * en su sitio real (no donde estaba antes del scroll).
+     */
+    const updateMouse = () => {
+      const rect = wrap.getBoundingClientRect()
+      const inside =
+        pointer.active && pointer.x >= rect.left && pointer.x <= rect.right && pointer.y >= rect.top && pointer.y <= rect.bottom
+      mouse.x = inside ? pointer.x - rect.left : -9999
+      mouse.y = inside ? pointer.y - rect.top : -9999
+      return inside
     }
 
     const draw = (time: number) => {
       const p = reducedMotion ? 1 : progress.current
+      const pointerInside = updateMouse()
       ctx.clearRect(0, 0, width, height)
       const radius = box.h * cursorRadius
 
@@ -179,7 +188,7 @@ export function NetworkCanvas({
       if (hoverCallback.current) {
         const bx = (mouse.x - box.x) / box.w
         const by = (mouse.y - box.y) / box.h
-        const onShape = p > HOVER_MIN_PROGRESS && !!graph.contains?.(bx, by)
+        const onShape = pointerInside && p > HOVER_MIN_PROGRESS && !!graph.contains?.(bx, by)
         const reach = box.h * 0.12
         setHovering(onShape && pos.some((q) => q.t > 0.95 && Math.hypot(q.x - mouse.x, q.y - mouse.y) < reach))
       }
@@ -261,7 +270,7 @@ export function NetworkCanvas({
     observer.observe(wrap)
     window.addEventListener('resize', resize)
     window.addEventListener('pointermove', onMove)
-    wrap.addEventListener('pointerleave', onLeave)
+    document.documentElement.addEventListener('pointerleave', onLeave)
     if (reducedMotion) draw(0)
     else frame = requestAnimationFrame(loop)
 
@@ -270,7 +279,7 @@ export function NetworkCanvas({
       observer.disconnect()
       window.removeEventListener('resize', resize)
       window.removeEventListener('pointermove', onMove)
-      wrap.removeEventListener('pointerleave', onLeave)
+      document.documentElement.removeEventListener('pointerleave', onLeave)
       setHovering(false)
     }
     // fit y opciones se fijan al montar; el grafo y el movimiento sí reinician la escena.
