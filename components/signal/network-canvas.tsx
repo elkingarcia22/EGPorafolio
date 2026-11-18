@@ -41,6 +41,8 @@ const DEFAULT_FIT: NetworkFit = { width: 1, height: 1, centerY: 0.5 }
 const MAX_PULSES = 18
 const PULSE_SPAWN_CHANCE = 0.08
 const HOVER_MIN_PROGRESS = 0.8
+/** Duración de la transformación entre dos figuras */
+const MORPH_MS = 1300
 
 interface Pulse {
   from: number
@@ -73,12 +75,21 @@ export function NetworkCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const hoverCallback = useRef(onHoverChange)
   hoverCallback.current = onHoverChange
+  // Se actualiza en el render: la escena lo lee al montarse.
+  const graphRef = useRef(graph)
+  graphRef.current = graph
+  /** La escena registra aquí cómo transformarse hacia otra figura */
+  const morphRef = useRef<((next: NetworkGraph) => void) | null>(null)
+  const nodeCount = graph?.nodes.length ?? 0
 
   useEffect(() => {
     const wrap = wrapRef.current
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
-    if (!wrap || !canvas || !ctx || !graph) return
+    const initial = graphRef.current
+    if (!wrap || !canvas || !ctx || !initial) return
+    /** Figura actual (cambia al transformarse) */
+    let graph: NetworkGraph = initial
 
     const paper = rgbVar('--paper')
     const signal = rgbVar('--signal')
@@ -105,6 +116,20 @@ export function NetworkCanvas({
     let visible = true
     let hovering = false
     let frame = 0
+    // Transformación: de dónde viene cada nodo (coordenadas de caja) y qué conexiones se apagan.
+    let morphFrom: { x: number; y: number }[] | null = null
+    let morphLinks: readonly (readonly [number, number])[] = []
+    let morphStart = 0
+    let boxNodes = graph.nodes.map((node) => ({ x: node.x, y: node.y }))
+
+    morphRef.current = (next) => {
+      if (next === graph || next.nodes.length !== n) return
+      morphFrom = boxNodes.map((node) => ({ ...node }))
+      morphLinks = graph.links
+      morphStart = performance.now()
+      graph = next
+      pulses.length = 0
+    }
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio, 2)
@@ -169,8 +194,19 @@ export function NetworkCanvas({
         }
       }
 
+      // Transformación en curso: 0 → 1 con aceleración suave.
+      const rawMorph = morphFrom ? Math.min(1, (performance.now() - morphStart) / MORPH_MS) : 1
+      const morph = rawMorph < 0.5 ? 4 * rawMorph ** 3 : 1 - (-2 * rawMorph + 2) ** 3 / 2
+      if (morphFrom && rawMorph >= 1) morphFrom = null
+      const from = morphFrom
+      boxNodes = graph.nodes.map((node, i) =>
+        from ? { x: from[i].x + (node.x - from[i].x) * morph, y: from[i].y + (node.y - from[i].y) * morph } : node,
+      )
+      // Mientras viajan, los nodos se encienden como un impulso.
+      const travelGlow = from ? 0.7 * Math.sin(Math.PI * rawMorph) : 0
+
       // Posición de cada nodo: del ruido a su lugar en la red.
-      const pos = graph.nodes.map((node, i) => {
+      const pos = boxNodes.map((node, i) => {
         const raw = Math.min(1, Math.max(0, (p - delay[i]) / (1 - (sweep ? 0.53 : 0.25))))
         const t = raw * raw * (3 - 2 * raw)
         const tx = box.x + node.x * box.w
@@ -179,7 +215,7 @@ export function NetworkCanvas({
         const x = start[i].x * width + (tx - start[i].x * width) * t + Math.sin(time * 0.0007 + phases[i]) * drift
         const y = start[i].y * height + (ty - start[i].y * height) * t + Math.cos(time * 0.0006 + phases[i]) * drift
         const near = radius > 0 ? Math.max(0, 1 - Math.hypot(x - mouse.x, y - mouse.y) / radius) : 0
-        glow[i] = Math.max(glow[i] * 0.94, near * t)
+        glow[i] = Math.max(glow[i] * 0.94, near * t, travelGlow * t)
         return { x, y, t }
       })
 
@@ -193,10 +229,19 @@ export function NetworkCanvas({
         setHovering(onShape && pos.some((q) => q.t > 0.95 && Math.hypot(q.x - mouse.x, q.y - mouse.y) < reach))
       }
 
-      // Conexiones: aparecen cuando sus dos nodos ya llegaron.
+      // Conexiones: aparecen cuando sus dos nodos ya llegaron. Al transformarse,
+      // las de la figura anterior se apagan y las nuevas se encienden.
       let formedLinks = 0
-      for (const [a, b] of graph.links) {
-        const alpha = Math.max(0, (Math.min(pos[a].t, pos[b].t) - 0.55) / 0.45)
+      const linkSets: [readonly (readonly [number, number])[], number][] = from
+        ? [
+            [morphLinks, Math.max(0, 1 - rawMorph * 2.2)],
+            [graph.links, Math.max(0, (rawMorph - 0.45) / 0.55)],
+          ]
+        : [[graph.links, 1]]
+      for (const [links, setAlpha] of linkSets) {
+       if (setAlpha <= 0) continue
+       for (const [a, b] of links) {
+        const alpha = Math.max(0, (Math.min(pos[a].t, pos[b].t) - 0.55) / 0.45) * setAlpha
         if (alpha <= 0) continue
         formedLinks++
         const g = Math.max(glow[a], glow[b])
@@ -206,10 +251,11 @@ export function NetworkCanvas({
         ctx.moveTo(pos[a].x, pos[a].y)
         ctx.lineTo(pos[b].x, pos[b].y)
         ctx.stroke()
+       }
       }
 
       // Impulsos: viajan de nodo a nodo y encienden el nodo al que llegan.
-      if (!reducedMotion && formedLinks > graph.links.length * 0.6 && pulses.length < MAX_PULSES && Math.random() < PULSE_SPAWN_CHANCE) {
+      if (!reducedMotion && !from && formedLinks > graph.links.length * 0.6 && pulses.length < MAX_PULSES && Math.random() < PULSE_SPAWN_CHANCE) {
         const [a, b] = graph.links[Math.floor(Math.random() * graph.links.length)]
         const forward = Math.random() < 0.5
         pulses.push({ from: forward ? a : b, to: forward ? b : a, t: 0, speed: 0.014 + Math.random() * 0.016 })
@@ -275,6 +321,7 @@ export function NetworkCanvas({
     else frame = requestAnimationFrame(loop)
 
     return () => {
+      morphRef.current = null
       cancelAnimationFrame(frame)
       observer.disconnect()
       window.removeEventListener('resize', resize)
@@ -282,9 +329,15 @@ export function NetworkCanvas({
       document.documentElement.removeEventListener('pointerleave', onLeave)
       setHovering(false)
     }
-    // fit y opciones se fijan al montar; el grafo y el movimiento sí reinician la escena.
+    // fit y opciones se fijan al montar. Un grafo con otro número de nodos
+    // reinicia la escena; uno con el mismo número se transforma (ver abajo).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graph, reducedMotion, progress])
+  }, [nodeCount, reducedMotion, progress])
+
+  // Cambio de figura con el mismo número de nodos: transformación animada.
+  useEffect(() => {
+    if (graph) morphRef.current?.(graph)
+  }, [graph])
 
   return (
     <div ref={wrapRef} className={className}>

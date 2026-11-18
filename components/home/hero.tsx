@@ -6,6 +6,7 @@ import { buildGlyphGraph } from '@/components/signal/glyph-graph'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
+import { useMonogramCycle } from './use-monogram-cycle'
 import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
@@ -122,27 +123,12 @@ function useBoot(
  */
 export function Hero() {
   const { reducedMotion } = useA11y()
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
   const sectionRef = useRef<HTMLDivElement>(null)
   const progress = useRef(0)
-  const [hoveringEg, setHoveringEg] = useState(false)
   const [heroInView, setHeroInView] = useState(true)
-  const [egGraph, setEgGraph] = useState<NetworkGraph | null>(null)
-
-  // El EG como red: nodos dentro de las letras y líneas que arman la forma.
-  useEffect(() => {
-    let cancelled = false
-    buildGlyphGraph('EG', window.innerWidth < 768)
-      .then((graph) => {
-        if (!cancelled) setEgGraph(graph)
-      })
-      .catch(() => {
-        // Sin canvas el hero sigue funcionando con su tipografía.
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  // El EG como red, que se transforma en UX, UI, CX… y vuelve al EG.
+  const monogram = useMonogramCycle(locale, progress, heroInView, reducedMotion)
   const headline = t(COPY.hero.noise)
 
   const loaderProgress = useRef(0)
@@ -216,14 +202,14 @@ export function Hero() {
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
             <NetworkCanvas
-              graph={egGraph}
+              graph={monogram.graph}
               progress={progress}
               reducedMotion={reducedMotion}
               fit={{ width: 0.62, height: 0.42, centerY: 0.38 }}
               noiseDots={1600}
               sweep
               cursorRadius={0.32}
-              onHoverChange={setHoveringEg}
+              onHoverChange={monogram.onHoverChange}
               className="absolute inset-0"
             />
           </div>
@@ -281,7 +267,7 @@ export function Hero() {
             </div>
           </div>
 
-          <HoverTuneLabel visible={hoveringEg && heroInView} />
+          <HoverTuneLabel visible={monogram.hovering && heroInView} />
 
           <div data-hint-wrap className="pointer-events-none absolute inset-0">
             <div data-boot="cue" className={`absolute inset-0 [&>button]:pointer-events-auto ${BOOT_HIDDEN}`}>
