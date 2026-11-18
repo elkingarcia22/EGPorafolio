@@ -87,7 +87,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 text-fg transition-colors duration-700">
+    <header data-site-header className="fixed inset-x-0 top-0 z-50 text-fg transition-colors duration-700">
       <div className="flex items-center justify-between gap-6 px-[var(--gutter)] py-4">
         <TransitionLink href="/" aria-label="Elkin Garcia — inicio" transitionLabel="EG">
           <Monogram />

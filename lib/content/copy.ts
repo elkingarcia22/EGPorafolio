@@ -10,17 +10,12 @@ export const COPY = {
     agent: { es: 'Agente', en: 'Agent' },
     contact: { es: 'Contacto', en: 'Contact' },
   },
-  intro: {
-    searching: { es: 'Sintonizando', en: 'Tuning in' },
-    noise: { es: 'Ruido', en: 'Noise' },
-    signal: { es: 'Señal', en: 'Signal' },
-    skip: { es: 'Saltar intro', en: 'Skip intro' },
-    hint: { es: 'Todo producto empieza como ruido', en: 'Every product starts as noise' },
-  },
   hero: {
     noise: { es: 'Todo producto empieza como ruido.', en: 'Every product starts as noise.' },
     signal: { es: 'Mi trabajo es encontrar la señal.', en: 'My job is to find the signal.' },
     scroll: { es: 'Desliza para sintonizar', en: 'Scroll to tune in' },
+    scrollHint: { es: 'Del ruido a la señal', en: 'From noise to signal' },
+    loading: { es: 'Cargando señal', en: 'Loading signal' },
     tagline: {
       es: 'Diseño productos de punta a punta — de la investigación a la interfaz — y hoy también los construyo con IA.',
       en: 'I design products end to end — from research to interface — and today I also build them with AI.',

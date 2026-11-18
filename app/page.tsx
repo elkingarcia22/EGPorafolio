@@ -1,4 +1,3 @@
-import { IntroGate } from '@/components/intro/intro-gate'
 import { Hero } from '@/components/home/hero'
 import { Manifesto } from '@/components/home/manifesto'
 import { Process } from '@/components/home/process'
@@ -15,7 +14,6 @@ export default async function HomePage() {
   const { projects } = await listProjects()
   return (
     <>
-      <IntroGate />
       <Hero />
       <Manifesto />
       <WorkList projects={projects} />
