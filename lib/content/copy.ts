@@ -11,12 +11,12 @@ export const COPY = {
     contact: { es: 'Contacto', en: 'Contact' },
   },
   hero: {
-    noise: { es: 'Todo producto empieza como ruido.', en: 'Every product starts as noise.' },
-    signal: { es: 'Mi trabajo es encontrar la señal.', en: 'My job is to find the signal.' },
-    scroll: { es: 'Desliza para sintonizar', en: 'Scroll to tune in' },
-    scrollHint: { es: 'Del ruido a la señal', en: 'From noise to signal' },
-    keepTuning: { es: 'Desliza para seguir sintonizando', en: 'Scroll to keep tuning in' },
-    loading: { es: 'Cargando señal', en: 'Loading signal' },
+    noise: { es: 'Todo producto empieza como puntos sueltos.', en: 'Every product starts as scattered dots.' },
+    signal: { es: 'Mi trabajo es encontrar las conexiones que les dan forma.', en: 'My job is to find the connections that give them shape.' },
+    scroll: { es: 'Desliza para conectar', en: 'Scroll to connect' },
+    scrollHint: { es: 'De puntos sueltos a producto', en: 'From scattered dots to product' },
+    keepTuning: { es: 'Desliza para seguir conectando', en: 'Scroll to keep connecting' },
+    loading: { es: 'Conectando puntos', en: 'Connecting dots' },
     tagline: {
       es: 'Diseño productos de punta a punta — de la investigación a la interfaz — y hoy también los construyo con IA.',
       en: 'I design products end to end — from research to interface — and today I also build them with AI.',
@@ -26,16 +26,16 @@ export const COPY = {
     label: { es: 'Manifiesto', en: 'Manifesto' },
     // [[x]] marca un chip con ícono dentro de la frase
     text: {
-      es: 'Escucho a las personas [[research]] hasta que el ruido tiene forma. Lo ordeno en sistemas [[system]] que escalan. Y uso la IA [[ai]] para pasar de la idea al producto en días, no en meses.',
-      en: 'I listen to people [[research]] until the noise takes shape. I organize it into systems [[system]] that scale. And I use AI [[ai]] to go from idea to product in days, not months.',
+      es: 'Escucho a las personas [[research]] hasta encontrar los puntos que importan. Los conecto en sistemas [[system]] que escalan. Y uso la IA [[ai]] para pasar de la idea al producto en días, no en meses.',
+      en: 'I listen to people [[research]] until I find the dots that matter. I connect them into systems [[system]] that scale. And I use AI [[ai]] to go from idea to product in days, not months.',
     },
   },
   process: {
     label: { es: 'Proceso', en: 'Process' },
-    title: { es: 'Del ruido a la señal', en: 'From noise to signal' },
+    title: { es: 'De puntos a conexiones', en: 'From dots to connections' },
   },
   work: {
-    label: { es: 'Frecuencias', en: 'Frequencies' },
+    label: { es: 'Nodos', en: 'Nodes' },
     title: { es: 'Proyectos seleccionados', en: 'Selected work' },
     open: { es: 'Ver caso', en: 'View case' },
     placeholder: { es: 'Casos de ejemplo · contenido provisional', en: 'Sample cases · placeholder content' },
@@ -52,7 +52,7 @@ export const COPY = {
   },
   agent: {
     label: { es: 'Agente', en: 'Agent' },
-    title: { es: 'Sintoniza conmigo', en: 'Tune in with me' },
+    title: { es: 'Conectemos', en: 'Let’s connect' },
     intro: {
       es: 'Pregúntale a mi agente sobre mi experiencia, proceso o proyectos.',
       en: 'Ask my agent about my experience, process or projects.',
@@ -69,8 +69,8 @@ export const COPY = {
     label: { es: 'Contacto', en: 'Contact' },
     title: { es: 'Hablemos', en: 'Let’s talk' },
     body: {
-      es: '¿Tienes ruido que necesita convertirse en producto? Escríbeme.',
-      en: 'Got noise that needs to become a product? Write to me.',
+      es: '¿Tienes puntos sueltos que necesitan convertirse en producto? Escríbeme.',
+      en: 'Got scattered dots that need to become a product? Write to me.',
     },
     copy: { es: 'Copiar correo', en: 'Copy email' },
     copied: { es: 'Copiado', en: 'Copied' },
@@ -83,7 +83,7 @@ export const COPY = {
       es: 'Hola Elkin, vi tu portafolio y me gustaría hablar contigo.',
       en: 'Hi Elkin, I saw your portfolio and I’d like to talk with you.',
     },
-    networkAlt: { es: 'Red de conexiones animada: señales que viajan entre nodos', en: 'Animated network: signals travelling between nodes' },
+    networkAlt: { es: 'Red de conexiones animada: impulsos que viajan entre nodos', en: 'Animated network: impulses travelling between nodes' },
     available: { es: 'Disponible para nuevos proyectos', en: 'Open to new projects' },
   },
   a11y: {
@@ -100,6 +100,7 @@ export const COPY = {
     close: { es: 'Cerrar', en: 'Close' },
   },
   language: { es: 'Idioma', en: 'Language' },
+  connections: { es: 'conexiones', en: 'connections' },
   case: {
     back: { es: 'Todos los proyectos', en: 'All work' },
     role: { es: 'Rol', en: 'Role' },
@@ -112,13 +113,13 @@ export const COPY = {
       en: 'Sample case with placeholder content — it shows the process structure.',
     },
     chapters: {
-      problem: { es: 'El ruido', en: 'The noise' },
-      research: { es: 'Frecuencia', en: 'Frequency' },
+      problem: { es: 'Los puntos', en: 'The dots' },
+      research: { es: 'Patrones', en: 'Patterns' },
       idea: { es: 'La idea', en: 'The idea' },
       sketches: { es: 'Bocetos', en: 'Sketches' },
       form: { es: 'Forma', en: 'Form' },
       ai: { es: 'IA en el proceso', en: 'AI in the process' },
-      results: { es: 'Transmisión', en: 'Broadcast' },
+      results: { es: 'Impacto', en: 'Impact' },
     },
     voices: { es: 'Lo que escuchamos', en: 'What we heard' },
     insights: { es: 'Hallazgos', en: 'Insights' },
@@ -127,7 +128,7 @@ export const COPY = {
     ui: { es: 'Interfaz', en: 'Interface' },
     drag: { es: 'Arrastra o usa las flechas', en: 'Drag or use arrow keys' },
     learnings: { es: 'Aprendizajes', en: 'Learnings' },
-    next: { es: 'Siguiente frecuencia', en: 'Next frequency' },
+    next: { es: 'Siguiente proyecto', en: 'Next project' },
   },
   footer: {
     built: {

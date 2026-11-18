@@ -10,7 +10,7 @@ const OFFSET_Y = 18
 
 /**
  * Etiqueta que acompaña al cursor mientras está sobre el EG:
- * "Desliza para seguir sintonizando". Se abre con un barrido y
+ * "Desliza para seguir conectando". Se abre con un barrido y
  * se oculta al salir del monograma.
  */
 export function HoverTuneLabel({ visible }: { visible: boolean }) {

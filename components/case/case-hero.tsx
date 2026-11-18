@@ -51,7 +51,7 @@ export function CaseHero({ project }: { project: Project }) {
             ← {t(COPY.case.back)}
           </TransitionLink>
           <span className="mono-label opacity-60">
-            FM {project.frequency} · {project.client}
+            N° {project.frequency} · {project.client}
           </span>
         </div>
 

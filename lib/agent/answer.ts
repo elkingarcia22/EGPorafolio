@@ -45,8 +45,8 @@ const INTENTS: readonly Intent[] = [
     keys: ['proceso', 'process', 'metodo', 'método', 'como trabaja', 'how do', 'how does'],
     answer: (l) =>
       pick({
-        es: 'Su proceso va del ruido a la señal: 1) Ruido — escuchar el problema sin filtros; 2) Frecuencia — encontrar el patrón y el insight; 3) Forma — bocetos, wireframes y sistema de diseño; 4) Transmisión — lanzar y medir adopción y outcomes.',
-        en: 'His process goes from noise to signal: 1) Noise — listen to the problem unfiltered; 2) Frequency — find the pattern and the insight; 3) Form — sketches, wireframes and design system; 4) Broadcast — ship and measure adoption and outcomes.',
+        es: 'Su proceso va de puntos sueltos a conexiones: 1) Puntos — escuchar el problema sin filtros; 2) Patrones — encontrar qué se repite y el insight; 3) Forma — bocetos, wireframes y sistema de diseño; 4) Impacto — lanzar y medir adopción y outcomes.',
+        en: 'His process goes from scattered dots to connections: 1) Dots — listen to the problem unfiltered; 2) Patterns — find what repeats and the insight; 3) Form — sketches, wireframes and design system; 4) Impact — ship and measure adoption and outcomes.',
       }, l),
   },
   {

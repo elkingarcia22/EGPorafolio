@@ -134,10 +134,7 @@ export function NetworkCanvas({
       }
       mouse.x = e.clientX - rect.left
       mouse.y = e.clientY - rect.top
-      const formed = (reducedMotion ? 1 : progress.current) > HOVER_MIN_PROGRESS
-      const bx = (mouse.x - box.x) / box.w
-      const by = (mouse.y - box.y) / box.h
-      setHovering(formed && !!graph.contains?.(bx, by))
+      // El hover se decide en cada cuadro (draw): depende de los nodos ya formados.
     }
     const onLeave = () => {
       mouse.x = -9999
@@ -176,6 +173,16 @@ export function NetworkCanvas({
         glow[i] = Math.max(glow[i] * 0.94, near * t)
         return { x, y, t }
       })
+
+      // Hover: solo sobre la figura Y cerca de nodos que ya están en su sitio
+      // (mientras la red se arma no hay nada que señalar).
+      if (hoverCallback.current) {
+        const bx = (mouse.x - box.x) / box.w
+        const by = (mouse.y - box.y) / box.h
+        const onShape = p > HOVER_MIN_PROGRESS && !!graph.contains?.(bx, by)
+        const reach = box.h * 0.12
+        setHovering(onShape && pos.some((q) => q.t > 0.95 && Math.hypot(q.x - mouse.x, q.y - mouse.y) < reach))
+      }
 
       // Conexiones: aparecen cuando sus dos nodos ya llegaron.
       let formedLinks = 0

@@ -45,22 +45,27 @@ function useScrolled(): boolean {
   return scrolled
 }
 
-/** Lectura tipo radio: el scroll de la página recorre 88.0 → 108.0 MHz. */
-function FrequencyReadout() {
+/** Total de conexiones que se van "encontrando" al recorrer la página */
+const TOTAL_CONNECTIONS = 248
+
+/** Contador: a medida que se recorre la página se encuentran más conexiones. */
+function ConnectionsReadout() {
+  const { t } = useLocale()
   const ref = useRef<HTMLSpanElement>(null)
   useEffect(() => {
     const trigger = ScrollTrigger.create({
       start: 0,
       end: 'max',
       onUpdate: (self) => {
-        if (ref.current) ref.current.textContent = (88 + self.progress * 20).toFixed(1)
+        if (ref.current) ref.current.textContent = String(Math.round(self.progress * TOTAL_CONNECTIONS)).padStart(3, '0')
       },
     })
     return () => trigger.kill()
   }, [])
   return (
-    <span className="mono-label hidden tabular-nums opacity-60 lg:inline" aria-hidden="true">
-      FM <span ref={ref}>88.0</span>
+    <span className="mono-label hidden items-center gap-2 tabular-nums opacity-60 lg:inline-flex" aria-hidden="true">
+      <span className="h-1.5 w-1.5 rounded-full bg-signal" />
+      <span ref={ref}>000</span> {t(COPY.connections)}
     </span>
   )
 }
@@ -146,7 +151,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-5">
-          <FrequencyReadout />
+          <ConnectionsReadout />
           <LanguageToggle />
           <button
             ref={a11yButton}

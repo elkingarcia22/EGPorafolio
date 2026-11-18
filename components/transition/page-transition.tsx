@@ -93,7 +93,7 @@ export function TransitionOverlay() {
 
 interface TransitionLinkProps extends Omit<React.ComponentProps<typeof Link>, 'href'> {
   href: string
-  /** Texto que se ve durante la transición (ej. "Sintonizando 01.24") */
+  /** Texto que se ve durante la transición (ej. "N° 01.24 · Proyecto") */
   transitionLabel?: string
 }
 

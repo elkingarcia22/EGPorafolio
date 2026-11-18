@@ -14,7 +14,7 @@ import { PROFILE } from '@/lib/content/profile'
 
 /** Duración mínima de la carga (el texto central se descifra en este tiempo) */
 const LOAD_S = 2
-/** Pausa con "Cargando señal" ya legible antes de disolverse */
+/** Pausa con "Conectando puntos" ya legible antes de disolverse */
 const LOAD_HOLD_S = 0.3
 /** Momento en que empieza a escribirse el titular */
 const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
@@ -24,7 +24,7 @@ const BOOT_HIDDEN = 'opacity-0'
 
 /**
  * Arranque: no hay pantalla de carga aparte. La estática aparece en
- * negro mientras carga, el titular "Todo producto empieza como ruido"
+ * negro mientras carga, el titular "Todo producto empieza como puntos sueltos"
  * se descifra desde caracteres de ruido y luego aparece la invitación
  * a deslizar. Encabezado y contador se integran en la misma escena.
  */
@@ -61,7 +61,7 @@ function useBoot(
     if (header) gsap.set(header, { opacity: 0 })
 
     const tl = gsap.timeline({ paused: true })
-    // 1 · Carga: en el centro, "Cargando señal" cambia sin parar y se va
+    // 1 · Carga: en el centro, "Conectando puntos" cambia sin parar y se va
     //     descifrando a medida que sube el porcentaje.
     tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 2.4, ease: 'power2.out' }, 0)
       .to(counter, {
@@ -110,8 +110,8 @@ function useBoot(
 
 /**
  * Hero en tres tiempos, controlados por el scroll:
- * 1. "Todo producto empieza como ruido."  (estática)
- * 2. "Mi trabajo es encontrar la señal."   (las partículas se ordenan)
+ * 1. "Todo producto empieza como puntos sueltos."  (estática)
+ * 2. "Mi trabajo es encontrar las conexiones…"  (la red se arma)
  * 3. Firma: elkin / GARCIA, como en la hoja de vida.
  */
 export function Hero() {
@@ -233,8 +233,8 @@ export function Hero() {
           </div>
 
           {/* 2 · Señal */}
-          <div data-phase="signal" className="pointer-events-none invisible absolute inset-0 flex items-end justify-end px-[var(--gutter)] pb-[18vh] text-right">
-            <p className="max-w-[16ch] text-[clamp(2.5rem,1rem+6vw,6.5rem)] font-light leading-[0.95] tracking-tight">
+          <div data-phase="signal" className="pointer-events-none invisible absolute inset-0 flex items-end justify-end px-[var(--gutter)] pb-[7vh] text-right">
+            <p className="max-w-[18ch] text-[clamp(2.1rem,1rem+4.2vw,5rem)] font-light leading-[0.98] tracking-tight">
               {t(COPY.hero.signal).replace(/\.$/, '')}
               <span className="text-signal">.</span>
             </p>

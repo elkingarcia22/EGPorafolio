@@ -26,7 +26,7 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Elkin Garcia — Diseñador UX/UI que construye con IA',
   description:
-    'Portafolio de Elkin Garcia: Senior Product & UX/UI Designer. Del ruido a la señal: investigación, diseño, sistemas y productos construidos con IA.',
+    'Portafolio de Elkin Garcia: Senior Product & UX/UI Designer. De puntos sueltos a producto: investigación, diseño, sistemas y productos construidos con IA.',
   authors: [{ name: 'Elkin Garcia' }],
 }
 

@@ -20,17 +20,17 @@ interface Stage {
 const STAGES: readonly Stage[] = [
   {
     key: 'noise',
-    title: { es: 'Ruido', en: 'Noise' },
+    title: { es: 'Puntos', en: 'Dots' },
     body: {
-      es: 'Escucho el problema sin filtros: entrevistas, datos, soporte, observación. Todavía no hay forma, solo señales sueltas.',
-      en: 'I listen to the problem unfiltered: interviews, data, support, observation. No shape yet, only scattered signals.',
+      es: 'Escucho el problema sin filtros: entrevistas, datos, soporte, observación. Todavía no hay forma, solo puntos sueltos.',
+      en: 'I listen to the problem unfiltered: interviews, data, support, observation. No shape yet, only scattered dots.',
     },
     ai: { es: 'La IA agrupa cientos de notas en minutos.', en: 'AI clusters hundreds of notes in minutes.' },
     Visual: NoiseVisual,
   },
   {
     key: 'frequency',
-    title: { es: 'Frecuencia', en: 'Frequency' },
+    title: { es: 'Patrones', en: 'Patterns' },
     body: {
       es: 'Encuentro el patrón que se repite: el insight que explica el dolor y la oportunidad que vale la pena.',
       en: 'I find the pattern that repeats: the insight behind the pain and the opportunity worth pursuing.',
@@ -50,10 +50,10 @@ const STAGES: readonly Stage[] = [
   },
   {
     key: 'broadcast',
-    title: { es: 'Transmisión', en: 'Broadcast' },
+    title: { es: 'Impacto', en: 'Impact' },
     body: {
-      es: 'El producto sale al mundo y se mide: adopción, engagement, outcomes. La señal se vuelve impacto.',
-      en: 'The product ships and gets measured: adoption, engagement, outcomes. The signal becomes impact.',
+      es: 'El producto sale al mundo y se mide: adopción, engagement, outcomes. Las conexiones se vuelven impacto.',
+      en: 'The product ships and gets measured: adoption, engagement, outcomes. The connections become impact.',
     },
     ai: { es: 'Construyo herramientas que hoy usan miles de personas.', en: 'I build tools used today by thousands of people.' },
     Visual: BroadcastVisual,

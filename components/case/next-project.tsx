@@ -14,13 +14,13 @@ export function NextProject({ project }: { project: Project }) {
     <ToneSection tone="dark" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
       <TransitionLink
         href={`/proyectos/${project.slug}`}
-        transitionLabel={`FM ${project.frequency} · ${title}`}
+        transitionLabel={`N° ${project.frequency} · ${title}`}
         data-cursor={t(COPY.work.open)}
         className="group grid items-end gap-10 md:grid-cols-12"
       >
         <div className="md:col-span-7">
           <p className="mono-label mb-6 opacity-50">
-            {t(COPY.case.next)} · FM {project.frequency}
+            {t(COPY.case.next)} · N° {project.frequency}
           </p>
           <p className="text-[clamp(2.8rem,1rem+6vw,7.5rem)] font-light leading-[0.9] tracking-tight transition-transform duration-700 ease-expo group-hover:translate-x-3">
             {title} <span className="text-signal">↗</span>

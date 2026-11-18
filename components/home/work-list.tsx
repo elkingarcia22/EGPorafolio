@@ -26,7 +26,7 @@ function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project 
     <li className="border-t border-fg/15 last:border-b">
       <TransitionLink
         href={`/proyectos/${project.slug}`}
-        transitionLabel={`FM ${project.frequency} · ${title}`}
+        transitionLabel={`N° ${project.frequency} · ${title}`}
         data-cursor={t(COPY.work.open)}
         onMouseEnter={enter}
         onMouseLeave={() => onHover(null)}
@@ -34,7 +34,7 @@ function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project 
         onBlur={() => onHover(null)}
         className="group grid grid-cols-12 items-baseline gap-4 py-7 transition-[padding] duration-500 ease-expo md:py-9 md:hover:pl-6"
       >
-        <span className="mono-label col-span-12 opacity-50 md:col-span-2">FM {project.frequency}</span>
+        <span className="mono-label col-span-12 opacity-50 md:col-span-2">N° {project.frequency}</span>
         <span
           ref={titleRef}
           className="col-span-12 text-[clamp(1.8rem,1rem+3vw,3.8rem)] font-light leading-none tracking-tight md:col-span-6"
@@ -57,7 +57,7 @@ function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project 
   )
 }
 
-/** Lista de proyectos como "frecuencias" con vista previa que sigue al cursor. */
+/** Lista de proyectos como "nodos" con vista previa que sigue al cursor. */
 export function WorkList({ projects }: { projects: readonly Project[] }) {
   const { t } = useLocale()
   const [active, setActive] = useState<Project | null>(null)
@@ -112,7 +112,7 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
           <div className="bg-void p-2 shadow-2xl">
             <MockScreen kind={active.mock} mode="ui" accent={active.accent} />
             <div className="flex items-center justify-between px-1 pt-2 text-paper">
-              <span className="mono-label">FM {active.frequency}</span>
+              <span className="mono-label">N° {active.frequency}</span>
               <span className="h-2 w-2 rounded-full" style={{ background: `rgb(${active.accent})` }} />
             </div>
           </div>
