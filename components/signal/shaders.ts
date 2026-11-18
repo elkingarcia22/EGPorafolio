@@ -16,6 +16,7 @@ export const vertexShader = /* glsl */ `
 
   varying float vMix;
   varying float vRand;
+  varying float vNoise;
 
   float easeInOutCubic(float t) {
     return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;
@@ -42,19 +43,26 @@ export const vertexShader = /* glsl */ `
     // Respiración sutil cuando la señal ya está formada.
     pos.z += sin(uTime * 1.4 + aTarget.x * 1.3 + aTarget.y) * 0.05 * t;
 
-    // Microinteracción: el cursor desplaza las partículas (interferencia).
-    vec2 d = pos.xy - uMouse;
-    float dist = length(d);
-    float force = smoothstep(1.1, 0.0, dist) * t;
-    pos.xy += normalize(d + 0.0001) * force * 0.45;
-    pos.z += force * 0.6;
+    // Microinteracción: cerca del cursor la señal vuelve a ser ruido.
+    // Las partículas vibran en su sitio (temblor de alta frecuencia),
+    // sin desplazarse: como interferencia en una antena.
+    float dist = length(pos.xy - uMouse);
+    float force = smoothstep(1.3, 0.0, dist) * t;
+    float tick = floor(uTime * 40.0);
+    vec3 shake = vec3(
+      fract(sin(aRand * 127.1 + tick * 1.7) * 43758.5453) - 0.5,
+      fract(sin(aRand * 311.7 + tick * 2.3) * 43758.5453) - 0.5,
+      fract(sin(aRand * 74.7 + tick * 3.1) * 43758.5453) - 0.5
+    );
+    pos += shake * force * vec3(0.32, 0.32, 0.8);
 
     vec4 mv = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = uSize * uPixelRatio * (1.0 + (1.0 - t) * aRand * 1.4) * (10.0 / -mv.z);
+    gl_PointSize = uSize * uPixelRatio * (1.0 + (1.0 - t) * aRand * 1.4 + force * aRand) * (10.0 / -mv.z);
 
     vMix = t;
     vRand = aRand;
+    vNoise = force;
   }
 `
 
@@ -66,14 +74,20 @@ export const fragmentShader = /* glsl */ `
 
   varying float vMix;
   varying float vRand;
+  varying float vNoise;
 
   void main() {
-    // Parpadeo de estática mientras es ruido.
+    // Parpadeo de estática mientras es ruido (y donde el cursor interfiere).
     float flicker = step(0.45, fract(sin(vRand * 913.0 + floor(uTime * 18.0)) * 43758.5453));
+    float fastFlicker = step(0.5, fract(sin(vRand * 531.0 + floor(uTime * 40.0)) * 43758.5453));
     float alpha = mix(0.25 + 0.55 * flicker, 0.95, vMix);
+    alpha = mix(alpha, 0.3 + 0.7 * fastFlicker, vNoise);
     vec3 color = mix(uNoiseColor, uSignalColor, vMix);
     // Unas pocas partículas toman el color de la señal.
     color = mix(color, uAccent, step(0.94, vRand) * vMix);
+    // Interferencia: vuelve al gris de la estática con chispas de color.
+    color = mix(color, uNoiseColor, vNoise * 0.7);
+    color = mix(color, uAccent, vNoise * step(0.8, vRand));
     gl_FragColor = vec4(color, alpha);
   }
 `

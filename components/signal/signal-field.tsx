@@ -93,7 +93,11 @@ export function SignalField({ progress, reducedMotion, className }: SignalFieldP
       const rect = container.getBoundingClientRect()
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1
       const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1
-      uniforms.uMouse.value.set((nx * view.width) / 2 / groupScale, (ny * view.height) / 2 / groupScale)
+      // Coordenadas locales del grupo (descuenta su escala y desplazamiento vertical).
+      uniforms.uMouse.value.set(
+        (nx * view.width) / 2 / groupScale,
+        ((ny * view.height) / 2 - group.position.y) / groupScale,
+      )
     }
     const onLeave = () => uniforms.uMouse.value.set(99, 99)
 

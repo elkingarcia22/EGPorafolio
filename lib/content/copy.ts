@@ -11,9 +11,10 @@ export const COPY = {
     contact: { es: 'Contacto', en: 'Contact' },
   },
   intro: {
-    searching: { es: 'Buscando señal', en: 'Searching for signal' },
-    years: { es: 'Años en frecuencia', en: 'Years on air' },
-    tune: { es: 'Sintonizar', en: 'Tune in' },
+    searching: { es: 'Sintonizando', en: 'Tuning in' },
+    noise: { es: 'Ruido', en: 'Noise' },
+    signal: { es: 'Señal', en: 'Signal' },
+    skip: { es: 'Saltar intro', en: 'Skip intro' },
     hint: { es: 'Todo producto empieza como ruido', en: 'Every product starts as noise' },
   },
   hero: {
