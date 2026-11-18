@@ -1,0 +1,64 @@
+'use client'
+
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type Lenis from 'lenis'
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
+
+export { gsap, ScrollTrigger }
+
+export const EASE_EXPO = 'expo.out'
+
+/** Instancia única de Lenis (la crea <SmoothScroll>). */
+let lenisInstance: Lenis | null = null
+
+export function setLenis(instance: Lenis | null): void {
+  lenisInstance = instance
+}
+
+export function getLenis(): Lenis | null {
+  return lenisInstance
+}
+
+export function scrollToTop(): void {
+  if (lenisInstance) lenisInstance.scrollTo(0, { immediate: true })
+  else window.scrollTo(0, 0)
+}
+
+export function scrollToTarget(target: string | HTMLElement): void {
+  if (lenisInstance) {
+    lenisInstance.scrollTo(target, { offset: -40, duration: 1.4 })
+    return
+  }
+  const el = typeof target === 'string' ? document.querySelector(target) : target
+  el?.scrollIntoView({ behavior: 'smooth' })
+}
+
+const SCRAMBLE_CHARS = '▮▯░▒▓/\\_-=+*<>#01'
+
+/**
+ * Efecto "sintonizar": el texto pasa por caracteres de ruido antes
+ * de asentarse. Devuelve una función para cancelarlo.
+ */
+export function scrambleText(el: HTMLElement, finalText: string, duration = 600): () => void {
+  const start = performance.now()
+  let frame = 0
+  const tick = (now: number) => {
+    const progress = Math.min(1, (now - start) / duration)
+    const settled = Math.floor(finalText.length * progress)
+    let out = finalText.slice(0, settled)
+    for (let i = settled; i < finalText.length; i++) {
+      out += finalText[i] === ' ' ? ' ' : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)]
+    }
+    el.textContent = out
+    if (progress < 1) frame = requestAnimationFrame(tick)
+  }
+  frame = requestAnimationFrame(tick)
+  return () => {
+    cancelAnimationFrame(frame)
+    el.textContent = finalText
+  }
+}

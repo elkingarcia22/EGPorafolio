@@ -46,3 +46,5 @@ logs
 
 # Supabase
 .supabase/
+.next-build/
+.claude/
