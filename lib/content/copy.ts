@@ -47,6 +47,8 @@ export const COPY = {
     education: { es: 'Educación', en: 'Education' },
     skills: { es: 'Habilidades', en: 'Skills' },
     tools: { es: 'Tecnología', en: 'Tools' },
+    earlier: { es: 'Antes del producto digital', en: 'Before digital product' },
+    certifications: { es: 'Certificaciones', en: 'Certifications' },
   },
   agent: {
     label: { es: 'Agente', en: 'Agent' },
@@ -72,6 +74,17 @@ export const COPY = {
     },
     copy: { es: 'Copiar correo', en: 'Copy email' },
     copied: { es: 'Copiado', en: 'Copied' },
+    email: { es: 'Escríbeme un correo', en: 'Send me an email' },
+    call: { es: 'Llámame', en: 'Call me' },
+    whatsapp: { es: 'Escríbeme por WhatsApp', en: 'Message me on WhatsApp' },
+    linkedin: { es: 'Conectemos en LinkedIn', en: 'Connect on LinkedIn' },
+    mailSubject: { es: 'Hola Elkin — vi tu portafolio', en: 'Hi Elkin — I saw your portfolio' },
+    waMessage: {
+      es: 'Hola Elkin, vi tu portafolio y me gustaría hablar contigo.',
+      en: 'Hi Elkin, I saw your portfolio and I’d like to talk with you.',
+    },
+    portraitAlt: { es: 'Retrato de Elkin Garcia formado por partículas', en: 'Portrait of Elkin Garcia made of particles' },
+    available: { es: 'Disponible para nuevos proyectos', en: 'Open to new projects' },
   },
   a11y: {
     open: { es: 'Accesibilidad', en: 'Accessibility' },

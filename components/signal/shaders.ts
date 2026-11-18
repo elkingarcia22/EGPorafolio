@@ -7,6 +7,7 @@ export const vertexShader = /* glsl */ `
   attribute vec3 aTarget;
   attribute vec3 aNoise;
   attribute float aRand;
+  attribute float aBright;
 
   uniform float uProgress;
   uniform float uTime;
@@ -17,6 +18,7 @@ export const vertexShader = /* glsl */ `
   varying float vMix;
   varying float vRand;
   varying float vNoise;
+  varying float vBright;
 
   float easeInOutCubic(float t) {
     return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;
@@ -57,11 +59,14 @@ export const vertexShader = /* glsl */ `
 
     vec4 mv = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mv;
-    gl_PointSize = uSize * uPixelRatio * (1.0 + (1.0 - t) * aRand * 1.4 + force * aRand) * (10.0 / -mv.z);
+    // En retratos el tamaño sigue al brillo de la foto (efecto semitono).
+    float tone = mix(1.0, 0.35 + 0.9 * aBright, t);
+    gl_PointSize = uSize * uPixelRatio * tone * (1.0 + (1.0 - t) * aRand * 1.4 + force * aRand) * (10.0 / -mv.z);
 
     vMix = t;
     vRand = aRand;
     vNoise = force;
+    vBright = aBright;
   }
 `
 
@@ -74,6 +79,7 @@ export const fragmentShader = /* glsl */ `
   varying float vMix;
   varying float vRand;
   varying float vNoise;
+  varying float vBright;
 
   void main() {
     // Parpadeo de estática mientras es ruido (y donde el cursor interfiere).
@@ -81,7 +87,7 @@ export const fragmentShader = /* glsl */ `
     float fastFlicker = step(0.5, fract(sin(vRand * 531.0 + floor(uTime * 40.0)) * 43758.5453));
     float alpha = mix(0.25 + 0.55 * flicker, 0.95, vMix);
     alpha = mix(alpha, 0.3 + 0.7 * fastFlicker, vNoise);
-    vec3 color = mix(uNoiseColor, uSignalColor, vMix);
+    vec3 color = mix(uNoiseColor, uSignalColor * (0.4 + 0.6 * vBright), vMix);
     // Unas pocas partículas toman el color de la señal.
     color = mix(color, uAccent, step(0.94, vRand) * vMix);
     // Interferencia: vuelve al gris de la estática con chispas de color.

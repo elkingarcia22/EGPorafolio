@@ -1,4 +1,5 @@
-export interface GlyphSample {
+/** Figura muestreada en partículas (texto o imagen). */
+export interface ShapeSample {
   /** posiciones xyz consecutivas en unidades de mundo */
   points: Float32Array
   width: number
@@ -8,6 +9,8 @@ export interface GlyphSample {
    * de mundo) da un pequeño margen para que el hover no sea tan exigente.
    */
   contains: (x: number, y: number, padding?: number) => boolean
+  /** Brillo 0–1 por partícula (solo imágenes); sin él, todas brillan igual */
+  brightness?: Float32Array
 }
 
 /** Resolución de la máscara de las letras (1 celda = MASK_CELL px del canvas). */
@@ -25,7 +28,7 @@ function resolveDisplayFamily(): string {
  * Dibuja el texto en un canvas oculto y devuelve `count` puntos dentro
  * de las letras, centrados y escalados a `worldWidth` unidades.
  */
-export async function sampleGlyph(text: string, count: number, worldWidth: number): Promise<GlyphSample> {
+export async function sampleGlyph(text: string, count: number, worldWidth: number): Promise<ShapeSample> {
   const family = resolveDisplayFamily()
   try {
     await document.fonts.load(`600 100px ${family}`)

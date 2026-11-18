@@ -111,7 +111,7 @@ export function SiteHeader() {
       {/* Fondo que toma el tono de la sección (oscuro/papel) y desenfoca lo de atrás */}
       <div
         aria-hidden="true"
-        className={`pointer-events-none absolute inset-0 border-b border-fg/10 bg-bg/75 backdrop-blur-md transition-opacity duration-500 ${solid ? 'opacity-100' : 'opacity-0'}`}
+        className={`pointer-events-none absolute inset-0 bg-bg/75 backdrop-blur-md transition-opacity duration-500 ${solid ? 'opacity-100' : 'opacity-0'}`}
       />
       <div className="relative flex items-center justify-between gap-6 px-[var(--gutter)] py-4">
         <TransitionLink href="/" aria-label="Elkin Garcia — inicio" transitionLabel="EG">

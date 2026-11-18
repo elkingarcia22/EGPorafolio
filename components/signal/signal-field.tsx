@@ -3,16 +3,30 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { fragmentShader, vertexShader } from './shaders'
-import { sampleGlyph, type GlyphSample } from './sample-glyph'
+import { sampleGlyph, type ShapeSample } from './sample-glyph'
+
+/** Función que devuelve la figura a formar con `count` partículas. */
+export type ShapeLoader = (count: number, worldWidth: number) => Promise<ShapeSample>
 
 interface SignalFieldProps {
-  /** Progreso 0–1 (ruido → señal); lo escribe el scroll del hero */
+  /** Progreso 0–1 (ruido → señal); lo escribe el scroll */
   progress: React.MutableRefObject<number>
   reducedMotion: boolean
   className?: string
-  /** Avisa cuando el cursor entra o sale del monograma ya formado */
+  /** Avisa cuando el cursor entra o sale de la figura ya formada */
   onHoverChange?: (hovering: boolean) => void
+  /** Figura a formar (por defecto, el monograma EG) */
+  shape?: ShapeLoader
+  /** Desplazamiento vertical de la figura, en fracción del alto visible */
+  offsetY?: number
+  /** Partículas en escritorio / móvil */
+  particles?: { desktop: number; mobile: number }
+  /** Ocupación máxima del alto visible (0–1) */
+  fitHeight?: number
 }
+
+const loadGlyph: ShapeLoader = (count, worldWidth) => sampleGlyph('EG', count, worldWidth)
+const DEFAULT_PARTICLES = { desktop: 9000, mobile: 3800 }
 
 const GLYPH_WORLD_WIDTH = 8
 const CAMERA_Z = 10
@@ -23,9 +37,8 @@ const HIT_PADDING = 0.06
 const HOVER_MIN_PROGRESS = 0.8
 const HOVER_EASE = 0.1
 
-function particleCount(): number {
-  const small = window.innerWidth < 768
-  return small ? 3800 : 9000
+function particleCount(particles: { desktop: number; mobile: number }): number {
+  return window.innerWidth < 768 ? particles.mobile : particles.desktop
 }
 
 function visibleSize(aspect: number) {
@@ -34,10 +47,19 @@ function visibleSize(aspect: number) {
 }
 
 /**
- * Escena WebGL del hero: miles de partículas de estática que se ordenan
- * en el monograma EG a medida que el usuario hace scroll.
+ * Escena WebGL: miles de partículas de estática que se ordenan en una
+ * figura (el monograma EG, un retrato…) a medida que el usuario hace scroll.
  */
-export function SignalField({ progress, reducedMotion, className, onHoverChange }: SignalFieldProps) {
+export function SignalField({
+  progress,
+  reducedMotion,
+  className,
+  onHoverChange,
+  shape = loadGlyph,
+  offsetY = 0.1,
+  particles = DEFAULT_PARTICLES,
+  fitHeight = 1,
+}: SignalFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const hoverCallback = useRef(onHoverChange)
   hoverCallback.current = onHoverChange
@@ -81,7 +103,7 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
     })
     const geometry = new THREE.BufferGeometry()
     let points: THREE.Points | null = null
-    let glyph: GlyphSample | null = null
+    let glyph: ShapeSample | null = null
     let groupScale = 1
     let view = { width: 1, height: 1 }
 
@@ -93,10 +115,11 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
       camera.aspect = w / Math.max(h, 1)
       camera.updateProjectionMatrix()
       view = visibleSize(camera.aspect)
-      groupScale = Math.min(1, (view.width * 0.86) / GLYPH_WORLD_WIDTH)
+      const shapeHeight = glyph?.height ?? GLYPH_WORLD_WIDTH
+      groupScale = Math.min(1, (view.width * 0.86) / GLYPH_WORLD_WIDTH, (view.height * fitHeight) / shapeHeight)
       group.scale.setScalar(groupScale)
-      // El monograma queda en el tercio superior: deja aire a la firma de abajo.
-      group.position.y = view.height * 0.1
+      // En el hero la figura sube un poco: deja aire a la firma de abajo.
+      group.position.y = view.height * offsetY
     }
 
     // Hover sobre el monograma: todo el EG entra en interferencia.
@@ -145,8 +168,8 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
     observer.observe(container)
 
     const init = async () => {
-      const count = particleCount()
-      const sample = await sampleGlyph('EG', count, GLYPH_WORLD_WIDTH)
+      const count = particleCount(particles)
+      const sample = await shape(count, GLYPH_WORLD_WIDTH)
       if (disposed) return
       glyph = sample
       resize()
@@ -162,6 +185,7 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
       geometry.setAttribute('aTarget', new THREE.BufferAttribute(sample.points, 3))
       geometry.setAttribute('aNoise', new THREE.BufferAttribute(noise, 3))
       geometry.setAttribute('aRand', new THREE.BufferAttribute(rand, 1))
+      geometry.setAttribute('aBright', new THREE.BufferAttribute(sample.brightness ?? new Float32Array(count).fill(1), 1))
       points = new THREE.Points(geometry, material)
       points.frustumCulled = false
       group.add(points)
@@ -190,6 +214,8 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
       renderer.dispose()
       renderer.domElement.remove()
     }
+    // Las opciones de figura se fijan al montar; no se recrea la escena por ellas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, reducedMotion])
 
   return <div ref={containerRef} className={className} />

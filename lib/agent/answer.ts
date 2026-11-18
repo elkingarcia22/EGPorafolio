@@ -34,7 +34,7 @@ const INTENTS: readonly Intent[] = [
   {
     keys: ['experiencia', 'experience', 'trabajo', 'work', 'años', 'years', 'carrera', 'career', 'ubits', 'siigo'],
     answer: (l) => {
-      const jobs = JOBS.map((j) => `${j.company} (${j.period}) — ${pick(j.role, l)}`).join('; ')
+      const jobs = JOBS.map((j) => `${j.company} (${j.period}) — ${pick(j.roles[0].title, l)}`).join('; ')
       return pick({
         es: `Más de 10 años de experiencia: ${jobs}.`,
         en: `10+ years of experience: ${jobs}.`,
@@ -65,19 +65,19 @@ const INTENTS: readonly Intent[] = [
       pick({ es: `Sus herramientas: ${TOOLS.join(', ')}.`, en: `His tools: ${TOOLS.join(', ')}.` }, l),
   },
   {
-    keys: ['contacto', 'contact', 'correo', 'email', 'mail', 'contratar', 'hire', 'disponible', 'available'],
+    keys: ['contacto', 'contact', 'correo', 'email', 'mail', 'contratar', 'hire', 'disponible', 'available', 'whatsapp', 'telefono', 'phone', 'llamar', 'call'],
     answer: (l) =>
       pick({
-        es: `Puedes escribirle a ${PROFILE.email}. Está en ${PROFILE.location.es}.`,
-        en: `You can reach him at ${PROFILE.email}. He’s based in ${PROFILE.location.en}.`,
+        es: `Puedes escribirle a ${PROFILE.email}, llamarlo o escribirle por WhatsApp al ${PROFILE.phoneDisplay}. Está en ${PROFILE.location.es}.`,
+        en: `You can email him at ${PROFILE.email}, or call or WhatsApp him at ${PROFILE.phoneDisplay}. He’s based in ${PROFILE.location.en}.`,
       }, l),
   },
   {
     keys: ['estudio', 'educa', 'study', 'education', 'platzi', 'universidad', 'university'],
     answer: (l) =>
       pick({
-        es: 'Diseñador gráfico (Universidad Los Libertadores, 2014), certificado internacional de UX (UX Alliance) y carreras de diseño UI, UX y de producto en Platzi.',
-        en: 'Graphic designer (Universidad Los Libertadores, 2014), International UX Certificate (UX Alliance) and UI, UX and product design tracks at Platzi.',
+        es: 'Diseñador gráfico profesional (Fundación Universitaria Los Libertadores, 2010–2014), certificación internacional UX-PM niveles 1, 2 y 3 (UXalliance, 2018) y carreras de Diseño UI, UX y de Producto en Platzi (2018–2019).',
+        en: 'Graphic designer (Fundación Universitaria Los Libertadores, 2010–2014), International UX-PM certification levels 1, 2 and 3 (UXalliance, 2018) and UI, UX and Product Design tracks at Platzi (2018–2019).',
       }, l),
   },
 ]
