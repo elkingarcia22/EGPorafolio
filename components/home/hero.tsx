@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { SignalField } from '@/components/signal/signal-field'
+import { NetworkCanvas, type NetworkGraph } from '@/components/signal/network-canvas'
+import { buildGlyphGraph } from '@/components/signal/glyph-graph'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
@@ -120,6 +121,22 @@ export function Hero() {
   const progress = useRef(0)
   const [hoveringEg, setHoveringEg] = useState(false)
   const [heroInView, setHeroInView] = useState(true)
+  const [egGraph, setEgGraph] = useState<NetworkGraph | null>(null)
+
+  // El EG como red: nodos dentro de las letras y líneas que arman la forma.
+  useEffect(() => {
+    let cancelled = false
+    buildGlyphGraph('EG', window.innerWidth < 768)
+      .then((graph) => {
+        if (!cancelled) setEgGraph(graph)
+      })
+      .catch(() => {
+        // Sin canvas el hero sigue funcionando con su tipografía.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
   const headline = t(COPY.hero.noise)
 
   useBoot(sectionRef, headline, t(COPY.hero.loading), reducedMotion)
@@ -177,9 +194,14 @@ export function Hero() {
       <div ref={sectionRef} data-header-clear className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
-            <SignalField
+            <NetworkCanvas
+              graph={egGraph}
               progress={progress}
               reducedMotion={reducedMotion}
+              fit={{ width: 0.62, height: 0.42, centerY: 0.38 }}
+              noiseDots={1600}
+              sweep
+              cursorRadius={0.32}
               onHoverChange={setHoveringEg}
               className="absolute inset-0"
             />
