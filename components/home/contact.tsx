@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
-import { ContactPortrait } from './contact-portrait'
+import { SignalNetwork } from './signal-network'
 import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PROFILE } from '@/lib/content/profile'
@@ -41,14 +41,14 @@ function ChannelRow({ channel, index }: { channel: Channel; index: number }) {
         target={channel.external ? '_blank' : undefined}
         rel={channel.external ? 'noopener noreferrer' : undefined}
         data-cursor="↗"
-        className="group relative flex items-center gap-5 overflow-hidden border-b border-fg/15 py-5 pr-2 md:py-6"
+        className="group relative flex items-center gap-4 overflow-hidden border-b border-fg/15 px-4 py-5 md:gap-5 md:px-6 md:py-6"
       >
         {/* Barrido de color en hover/focus */}
         <span
           aria-hidden="true"
-          className="absolute inset-0 origin-left scale-x-0 bg-signal transition-transform duration-500 ease-expo group-hover:scale-x-100 group-focus-visible:scale-x-100"
+          className="absolute inset-0 origin-bottom scale-y-0 bg-signal transition-transform duration-500 ease-expo group-hover:scale-y-100 group-focus-visible:scale-y-100"
         />
-        <span className="mono-label relative w-6 opacity-40 group-hover:text-paper group-hover:opacity-80">0{index + 1}</span>
+        <span className="mono-label relative w-6 shrink-0 opacity-40 transition-colors group-hover:text-paper group-hover:opacity-80">0{index + 1}</span>
         <svg
           viewBox="0 0 24 24"
           className="relative h-6 w-6 shrink-0 transition-colors group-hover:text-paper"
@@ -60,9 +60,9 @@ function ChannelRow({ channel, index }: { channel: Channel; index: number }) {
         >
           {ICONS[channel.icon]}
         </svg>
-        <span className="relative min-w-0 flex-1">
+        <span className="relative min-w-0 flex-1 transition-transform duration-500 ease-expo group-hover:translate-x-1.5">
           <span className="mono-label block opacity-60 transition-colors group-hover:text-paper group-hover:opacity-80">{t(channel.label)}</span>
-          <span className="block truncate text-[clamp(1.1rem,0.9rem+1vw,1.75rem)] font-light transition-colors group-hover:text-paper">
+          <span className="block break-all text-[clamp(1rem,0.8rem+1vw,1.75rem)] font-light leading-snug transition-colors group-hover:text-paper">
             {channel.value}
           </span>
         </span>
@@ -77,7 +77,7 @@ function ChannelRow({ channel, index }: { channel: Channel; index: number }) {
   )
 }
 
-/** Contacto: retrato en partículas + canales directos (correo, llamada, WhatsApp, LinkedIn). */
+/** Contacto: red de conexiones animada + canales directos (correo, llamada, WhatsApp, LinkedIn). */
 export function Contact() {
   const { t } = useLocale()
   const [copied, setCopied] = useState(false)
@@ -124,12 +124,12 @@ export function Contact() {
     <ToneSection tone="dark" as="footer" id="contact" className="px-[var(--gutter)] pb-10 pt-[clamp(5rem,3rem+8vw,10rem)]">
       <SectionLabel index="05" className="mb-12">{t(COPY.contact.label)}</SectionLabel>
 
-      <div className="grid items-center gap-12 md:grid-cols-12">
+      <div className="grid items-center gap-12 md:grid-cols-12 md:gap-16">
         <div className="md:col-span-5">
-          <ContactPortrait label={t(COPY.contact.portraitAlt)} />
+          <SignalNetwork label={t(COPY.contact.networkAlt)} />
         </div>
 
-        <div className="md:col-span-7">
+        <div className="min-w-0 md:col-span-7">
           <p className="mono-label mb-6 flex items-center gap-2 text-signal">
             <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
@@ -137,7 +137,7 @@ export function Contact() {
             </span>
             {t(COPY.contact.available)}
           </p>
-          <h2 className="text-[clamp(3.2rem,1rem+9vw,9.5rem)] font-medium leading-[0.85] tracking-[0.06em]">
+          <h2 className="text-[clamp(2.6rem,0.5rem+6.2vw,7rem)] font-medium leading-[0.85] tracking-[0.06em]">
             {t(COPY.contact.title).toUpperCase()}
             <span className="text-signal">.</span>
           </h2>

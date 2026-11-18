@@ -83,7 +83,7 @@ export const COPY = {
       es: 'Hola Elkin, vi tu portafolio y me gustaría hablar contigo.',
       en: 'Hi Elkin, I saw your portfolio and I’d like to talk with you.',
     },
-    portraitAlt: { es: 'Retrato de Elkin Garcia formado por partículas', en: 'Portrait of Elkin Garcia made of particles' },
+    networkAlt: { es: 'Red de conexiones animada: señales que viajan entre nodos', en: 'Animated network: signals travelling between nodes' },
     available: { es: 'Disponible para nuevos proyectos', en: 'Open to new projects' },
   },
   a11y: {
