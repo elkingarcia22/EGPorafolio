@@ -49,6 +49,45 @@ function boxBlur(src: Float32Array, size: number, radius: number): Float32Array 
 }
 
 /**
+ * Marca como fondo los píxeles con color de pared alcanzables desde el
+ * borde del encuadre o desde fuera del círculo de la foto (relleno por inundación).
+ */
+function floodFromEdges(wallLike: Uint8Array, inCircle: Uint8Array, size: number): Uint8Array {
+  const background = new Uint8Array(size * size)
+  const queue: number[] = []
+  const seed = (i: number) => {
+    if (wallLike[i] === 1 && background[i] === 0) {
+      background[i] = 1
+      queue.push(i)
+    }
+  }
+  for (let i = 0; i < size; i++) {
+    seed(i) // arriba
+    seed(i * size) // izquierda
+    seed(i * size + size - 1) // derecha
+  }
+  // Pared junto al borde del círculo original.
+  for (let i = 0; i < size * size; i++) {
+    if (inCircle[i] === 0) continue
+    const x = i % size
+    const y = (i - x) / size
+    const nearOutside =
+      (x > 0 && inCircle[i - 1] === 0) || (x < size - 1 && inCircle[i + 1] === 0) ||
+      (y > 0 && inCircle[i - size] === 0) || (y < size - 1 && inCircle[i + size] === 0)
+    if (nearOutside) seed(i)
+  }
+  for (let head = 0; head < queue.length; head++) {
+    const i = queue[head]
+    const x = i % size
+    if (x > 0) seed(i - 1)
+    if (x < size - 1) seed(i + 1)
+    if (i >= size) seed(i - size)
+    if (i < size * (size - 1)) seed(i + size)
+  }
+  return background
+}
+
+/**
  * Convierte la foto en una nube de puntos 3D sin fondo:
  * 1. separa a la persona de la pared,
  * 2. inventa volumen suavizando la silueta (relieve tipo busto),
@@ -69,6 +108,9 @@ export async function sampleImage(src: string, count: number, worldWidth: number
   const center = GRID / 2
   const lum = new Float32Array(GRID * GRID)
   const mask = new Float32Array(GRID * GRID)
+  /** Píxel con color de pared (gris claro); todavía no sabemos si es fondo */
+  const wallLike = new Uint8Array(GRID * GRID)
+  const inCircle = new Uint8Array(GRID * GRID)
 
   for (let y = 0; y < GRID; y++) {
     for (let x = 0; x < GRID; x++) {
@@ -83,11 +125,16 @@ export async function sampleImage(src: string, count: number, worldWidth: number
       const u = CROP.x + (x / GRID) * CROP.size - 0.5
       const v = CROP.y + (y / GRID) * CROP.size - 0.5
       const insideCircle = u * u + v * v <= CIRCLE_RADIUS * CIRCLE_RADIUS
-      const wall = saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE
       lum[i] = l
-      mask[i] = insideCircle && !wall ? 1 : 0
+      inCircle[i] = insideCircle ? 1 : 0
+      wallLike[i] = saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE ? 1 : 0
     }
   }
+
+  // Fondo = solo lo que tiene color de pared Y está conectado con el borde
+  // de la foto. Así los brillos de la piel (frente, nariz) no se vuelven huecos.
+  const background = floodFromEdges(wallLike, inCircle, GRID)
+  for (let i = 0; i < mask.length; i++) mask[i] = inCircle[i] === 1 && background[i] === 0 ? 1 : 0
 
   // Volumen: la silueta suavizada funciona como mapa de profundidad.
   let height: Float32Array = mask
