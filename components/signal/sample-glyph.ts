@@ -3,7 +3,15 @@ export interface GlyphSample {
   points: Float32Array
   width: number
   height: number
+  /**
+   * ¿El punto local (x, y) cae sobre las letras? `padding` (en unidades
+   * de mundo) da un pequeño margen para que el hover no sea tan exigente.
+   */
+  contains: (x: number, y: number, padding?: number) => boolean
 }
+
+/** Resolución de la máscara de las letras (1 celda = MASK_CELL px del canvas). */
+const MASK_CELL = 4
 
 const CANVAS_W = 1200
 const CANVAS_H = 560
@@ -48,6 +56,33 @@ export async function sampleGlyph(text: string, count: number, worldWidth: numbe
 
   const scale = worldWidth / CANVAS_W
   const worldHeight = CANVAS_H * scale
+
+  // Máscara reducida de la forma: sirve para saber si el cursor está sobre una letra.
+  const maskW = Math.ceil(CANVAS_W / MASK_CELL)
+  const maskH = Math.ceil(CANVAS_H / MASK_CELL)
+  const mask = new Uint8Array(maskW * maskH)
+  for (let my = 0; my < maskH; my++) {
+    for (let mx = 0; mx < maskW; mx++) {
+      const px = Math.min(CANVAS_W - 1, mx * MASK_CELL + MASK_CELL / 2)
+      const py = Math.min(CANVAS_H - 1, my * MASK_CELL + MASK_CELL / 2)
+      mask[my * maskW + mx] = data[(py * CANVAS_W + px) * 4 + 3] > 128 ? 1 : 0
+    }
+  }
+  const filled = (x: number, y: number): boolean => {
+    const mx = Math.floor((x / scale + CANVAS_W / 2) / MASK_CELL)
+    const my = Math.floor((-y / scale + CANVAS_H / 2) / MASK_CELL)
+    return mx >= 0 && my >= 0 && mx < maskW && my < maskH && mask[my * maskW + mx] === 1
+  }
+  const contains = (x: number, y: number, padding = 0): boolean => {
+    if (filled(x, y)) return true
+    if (padding <= 0) return false
+    // Revisa 8 puntos alrededor: margen de tolerancia en el borde de la letra.
+    for (let a = 0; a < 8; a++) {
+      const angle = (a / 8) * Math.PI * 2
+      if (filled(x + Math.cos(angle) * padding, y + Math.sin(angle) * padding)) return true
+    }
+    return false
+  }
   const points = new Float32Array(count * 3)
   const total = candidates.length / 2
   for (let i = 0; i < count; i++) {
@@ -58,5 +93,5 @@ export async function sampleGlyph(text: string, count: number, worldWidth: numbe
     points[i * 3 + 2] = (Math.random() - 0.5) * 0.25
   }
 
-  return { points, width: worldWidth, height: worldHeight }
+  return { points, width: worldWidth, height: worldHeight, contains }
 }

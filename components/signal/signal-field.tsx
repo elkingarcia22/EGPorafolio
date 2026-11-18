@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { fragmentShader, vertexShader } from './shaders'
-import { sampleGlyph } from './sample-glyph'
+import { sampleGlyph, type GlyphSample } from './sample-glyph'
 
 interface SignalFieldProps {
   /** Progreso 0–1 (ruido → señal); lo escribe el scroll del hero */
@@ -17,11 +17,10 @@ interface SignalFieldProps {
 const GLYPH_WORLD_WIDTH = 8
 const CAMERA_Z = 10
 const FOV = 35
-/** Zona sensible al cursor, en unidades locales del monograma */
-const HIT_HALF_WIDTH = GLYPH_WORLD_WIDTH * 0.44
-const HIT_HALF_HEIGHT = 1.55
+/** Margen alrededor del trazo de las letras que también cuenta como hover */
+const HIT_PADDING = 0.06
 /** Desde qué progreso el EG cuenta como "formado" para el hover */
-const HOVER_MIN_PROGRESS = 0.55
+const HOVER_MIN_PROGRESS = 0.8
 const HOVER_EASE = 0.1
 
 function particleCount(): number {
@@ -82,6 +81,7 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
     })
     const geometry = new THREE.BufferGeometry()
     let points: THREE.Points | null = null
+    let glyph: GlyphSample | null = null
     let groupScale = 1
     let view = { width: 1, height: 1 }
 
@@ -117,7 +117,8 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
       const x = (nx * view.width) / 2 / groupScale
       const y = ((ny * view.height) / 2 - group.position.y) / groupScale
       const formed = (reducedMotion ? 1 : progress.current) > HOVER_MIN_PROGRESS
-      setHovering(formed && Math.abs(x) < HIT_HALF_WIDTH && Math.abs(y) < HIT_HALF_HEIGHT)
+      // Solo cuenta si el cursor está sobre el trazo de las letras, no sobre el fondo.
+      setHovering(formed && glyph !== null && glyph.contains(x, y, HIT_PADDING))
     }
     const onLeave = () => setHovering(false)
 
@@ -145,8 +146,9 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
 
     const init = async () => {
       const count = particleCount()
-      const glyph = await sampleGlyph('EG', count, GLYPH_WORLD_WIDTH)
+      const sample = await sampleGlyph('EG', count, GLYPH_WORLD_WIDTH)
       if (disposed) return
+      glyph = sample
       resize()
       const noise = new Float32Array(count * 3)
       const rand = new Float32Array(count)
@@ -156,8 +158,8 @@ export function SignalField({ progress, reducedMotion, className, onHoverChange 
         noise[i * 3 + 2] = (Math.random() - 0.5) * 6
         rand[i] = Math.random()
       }
-      geometry.setAttribute('position', new THREE.BufferAttribute(glyph.points.slice(), 3))
-      geometry.setAttribute('aTarget', new THREE.BufferAttribute(glyph.points, 3))
+      geometry.setAttribute('position', new THREE.BufferAttribute(sample.points.slice(), 3))
+      geometry.setAttribute('aTarget', new THREE.BufferAttribute(sample.points, 3))
       geometry.setAttribute('aNoise', new THREE.BufferAttribute(noise, 3))
       geometry.setAttribute('aRand', new THREE.BufferAttribute(rand, 1))
       points = new THREE.Points(geometry, material)
