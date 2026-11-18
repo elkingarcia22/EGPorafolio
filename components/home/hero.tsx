@@ -6,16 +6,37 @@ import { buildGlyphGraph } from '@/components/signal/glyph-graph'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
-import { decodeFrame, gsap, scrambleText, shuffledIndices } from '@/lib/motion'
+import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PROFILE } from '@/lib/content/profile'
 
-/** Duración mínima de la carga (el texto central se descifra en este tiempo) */
-const LOAD_S = 2
-/** Pausa con "Conectando puntos" ya legible antes de disolverse */
-const LOAD_HOLD_S = 0.3
+/** Duración mínima de la carga (la red central se arma en este tiempo) */
+const LOAD_S = 2.2
+/** Pausa con la red ya formada antes de deshacerse */
+const LOAD_HOLD_S = 0.45
+/** Red de la carga: nodos en una franja horizontal */
+const LOADER_NODES = 22
+const LOADER_ASPECT = 2.6
+const LOADER_LINK = 0.2
+
+/** Red pequeña para la carga: nodos repartidos en una franja, unidos con sus vecinos. */
+function createLoaderGraph(): NetworkGraph {
+  const nodes = Array.from({ length: LOADER_NODES }, (_, i) => ({
+    x: 0.04 + (i / (LOADER_NODES - 1)) * 0.92 + (Math.random() - 0.5) * 0.05,
+    y: 0.15 + Math.random() * 0.7,
+  }))
+  const links: [number, number][] = []
+  for (let a = 0; a < nodes.length; a++) {
+    for (let b = a + 1; b < nodes.length; b++) {
+      const dx = (nodes[a].x - nodes[b].x) * LOADER_ASPECT
+      const dy = nodes[a].y - nodes[b].y
+      if (Math.hypot(dx, dy) < LOADER_LINK * LOADER_ASPECT) links.push([a, b])
+    }
+  }
+  return { nodes, links, aspect: LOADER_ASPECT }
+}
 /** Momento en que empieza a escribirse el titular */
 const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
 
@@ -24,14 +45,14 @@ const BOOT_HIDDEN = 'opacity-0'
 
 /**
  * Arranque: no hay pantalla de carga aparte. La estática aparece en
- * negro mientras carga, el titular "Todo producto empieza como puntos sueltos"
+ * negro mientras carga, el titular "Todo producto empieza como ideas desconectadas"
  * se descifra desde caracteres de ruido y luego aparece la invitación
  * a deslizar. Encabezado y contador se integran en la misma escena.
  */
 function useBoot(
   root: React.RefObject<HTMLDivElement | null>,
   headline: string,
-  loadingText: string,
+  loaderProgress: React.MutableRefObject<number>,
   reducedMotion: boolean,
 ) {
   useEffect(() => {
@@ -48,21 +69,16 @@ function useBoot(
     }
 
     const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
-    const wordEl = q('[data-boot-word]')[0] as HTMLElement | undefined
     const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
     const counter = { v: 0 }
     const dissolve = { v: 0 }
-    const order = shuffledIndices(loadingText.length)
-    const paintWord = (revealedRatio: number) => {
-      if (wordEl) wordEl.textContent = decodeFrame(loadingText, Math.round(loadingText.length * revealedRatio), order)
-    }
-    paintWord(0)
+    loaderProgress.current = 0
     let cancelScramble: (() => void) | null = null
     if (header) gsap.set(header, { opacity: 0 })
 
     const tl = gsap.timeline({ paused: true })
-    // 1 · Carga: en el centro, "Conectando puntos" cambia sin parar y se va
-    //     descifrando a medida que sube el porcentaje.
+    // 1 · Carga: en el centro una red se arma (nodos que llegan y se
+    //     conectan) al ritmo del porcentaje.
     tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 2.4, ease: 'power2.out' }, 0)
       .to(counter, {
         v: 100,
@@ -70,15 +86,17 @@ function useBoot(
         ease: 'power1.inOut',
         onUpdate: () => {
           if (counterEl) counterEl.textContent = String(Math.round(counter.v)).padStart(3, '0')
-          paintWord(counter.v / 100)
+          loaderProgress.current = counter.v / 100
         },
       }, 0)
-      // 2 · Se vuelve a disolver en ruido y desaparece.
+      // 2 · La red se deshace (los nodos vuelven a dispersarse) y desaparece.
       .to(dissolve, {
         v: 1,
-        duration: 0.4,
+        duration: 0.5,
         ease: 'power2.in',
-        onUpdate: () => paintWord(1 - dissolve.v),
+        onUpdate: () => {
+          loaderProgress.current = 1 - dissolve.v
+        },
       }, LOAD_S + LOAD_HOLD_S)
       .to(q('[data-boot-counter]'), { autoAlpha: 0, filter: 'blur(8px)', scale: 0.96, duration: 0.4 }, LOAD_S + LOAD_HOLD_S + 0.15)
       // 3 · Empieza a escribirse el titular.
@@ -105,12 +123,12 @@ function useBoot(
       tl.kill()
       if (header) gsap.set(header, { opacity: 1 })
     }
-  }, [root, headline, loadingText, reducedMotion])
+  }, [root, headline, loaderProgress, reducedMotion])
 }
 
 /**
  * Hero en tres tiempos, controlados por el scroll:
- * 1. "Todo producto empieza como puntos sueltos."  (estática)
+ * 1. "Todo producto empieza como ideas desconectadas."  (estática)
  * 2. "Mi trabajo es encontrar las conexiones…"  (la red se arma)
  * 3. Firma: elkin / GARCIA, como en la hoja de vida.
  */
@@ -139,7 +157,10 @@ export function Hero() {
   }, [])
   const headline = t(COPY.hero.noise)
 
-  useBoot(sectionRef, headline, t(COPY.hero.loading), reducedMotion)
+  const loaderProgress = useRef(0)
+  const [loaderGraph, setLoaderGraph] = useState<NetworkGraph | null>(null)
+  useEffect(() => setLoaderGraph(createLoaderGraph()), [])
+  useBoot(sectionRef, headline, loaderProgress, reducedMotion)
 
   // La etiqueta del EG nunca debe verse fuera del hero.
   useEffect(() => {
@@ -209,15 +230,16 @@ export function Hero() {
 
           {/* Contador de arranque (se integra en la escena, sin pantalla aparte) */}
           <div data-boot-counter aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-[var(--gutter)]">
-            <span
-              data-boot-word
-              className="whitespace-pre text-center text-[clamp(1.5rem,0.9rem+2.6vw,3.2rem)] font-light uppercase tracking-[0.28em]"
-            >
-              {t(COPY.hero.loading)}
-            </span>
+            <NetworkCanvas
+              graph={loaderGraph}
+              progress={loaderProgress}
+              reducedMotion={reducedMotion}
+              cursorRadius={0}
+              className="relative h-[clamp(120px,22vw,190px)] w-[min(86vw,500px)]"
+            />
             <span className="mono-label flex items-center gap-3 tabular-nums opacity-60">
               <span className="h-px w-8 bg-current" />
-              <span><span data-boot-count>000</span>%</span>
+              <span>{t(COPY.hero.loading)} · <span data-boot-count>000</span>%</span>
               <span className="h-px w-8 bg-current" />
             </span>
           </div>

@@ -169,7 +169,7 @@ export function NetworkCanvas({
         const drift = reducedMotion ? 0 : 2.2
         const x = start[i].x * width + (tx - start[i].x * width) * t + Math.sin(time * 0.0007 + phases[i]) * drift
         const y = start[i].y * height + (ty - start[i].y * height) * t + Math.cos(time * 0.0006 + phases[i]) * drift
-        const near = Math.max(0, 1 - Math.hypot(x - mouse.x, y - mouse.y) / radius)
+        const near = radius > 0 ? Math.max(0, 1 - Math.hypot(x - mouse.x, y - mouse.y) / radius) : 0
         glow[i] = Math.max(glow[i] * 0.94, near * t)
         return { x, y, t }
       })

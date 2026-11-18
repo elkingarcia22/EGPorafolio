@@ -11,12 +11,12 @@ export const COPY = {
     contact: { es: 'Contacto', en: 'Contact' },
   },
   hero: {
-    noise: { es: 'Todo producto empieza como puntos sueltos.', en: 'Every product starts as scattered dots.' },
+    noise: { es: 'Todo producto empieza como ideas desconectadas.', en: 'Every product starts as disconnected ideas.' },
     signal: { es: 'Mi trabajo es encontrar las conexiones que les dan forma.', en: 'My job is to find the connections that give them shape.' },
     scroll: { es: 'Desliza para conectar', en: 'Scroll to connect' },
-    scrollHint: { es: 'De puntos sueltos a producto', en: 'From scattered dots to product' },
+    scrollHint: { es: 'De ideas a producto', en: 'From ideas to product' },
     keepTuning: { es: 'Desliza para seguir conectando', en: 'Scroll to keep connecting' },
-    loading: { es: 'Conectando puntos', en: 'Connecting dots' },
+    loading: { es: 'Estableciendo conexiones', en: 'Making connections' },
     tagline: {
       es: 'Diseño productos de punta a punta — de la investigación a la interfaz — y hoy también los construyo con IA.',
       en: 'I design products end to end — from research to interface — and today I also build them with AI.',
@@ -69,8 +69,8 @@ export const COPY = {
     label: { es: 'Contacto', en: 'Contact' },
     title: { es: 'Hablemos', en: 'Let’s talk' },
     body: {
-      es: '¿Tienes puntos sueltos que necesitan convertirse en producto? Escríbeme.',
-      en: 'Got scattered dots that need to become a product? Write to me.',
+      es: '¿Tienes ideas que necesitan conectarse para convertirse en producto? Escríbeme.',
+      en: 'Got ideas that need connecting to become a product? Write to me.',
     },
     copy: { es: 'Copiar correo', en: 'Copy email' },
     copied: { es: 'Copiado', en: 'Copied' },

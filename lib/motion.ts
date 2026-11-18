@@ -37,30 +37,7 @@ export function scrollToTarget(target: string | HTMLElement): void {
   el?.scrollIntoView({ behavior: 'smooth' })
 }
 
-export const SCRAMBLE_CHARS = '▮▯░▒▓/\\_-=+*<>#01'
-
-/**
- * Un cuadro del efecto "descifrar": las posiciones de `order` hasta
- * `revealed` muestran el texto real; el resto, caracteres de ruido.
- */
-export function decodeFrame(target: string, revealed: number, order: readonly number[]): string {
-  const shown = new Set(order.slice(0, revealed))
-  let out = ''
-  for (let i = 0; i < target.length; i++) {
-    out += target[i] === ' ' || shown.has(i) ? target[i] : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)]
-  }
-  return out
-}
-
-/** Orden aleatorio de las posiciones de un texto (para revelar en desorden). */
-export function shuffledIndices(length: number): number[] {
-  const order = Array.from({ length }, (_, i) => i)
-  for (let i = length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[order[i], order[j]] = [order[j], order[i]]
-  }
-  return order
-}
+const SCRAMBLE_CHARS = '▮▯░▒▓/\\_-=+*<>#01'
 
 /**
  * Efecto "sintonizar": el texto pasa por caracteres de ruido antes

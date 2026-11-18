@@ -22,8 +22,8 @@ const STAGES: readonly Stage[] = [
     key: 'noise',
     title: { es: 'Puntos', en: 'Dots' },
     body: {
-      es: 'Escucho el problema sin filtros: entrevistas, datos, soporte, observación. Todavía no hay forma, solo puntos sueltos.',
-      en: 'I listen to the problem unfiltered: interviews, data, support, observation. No shape yet, only scattered dots.',
+      es: 'Escucho el problema sin filtros: entrevistas, datos, soporte, observación. Todavía no hay forma, solo ideas desconectadas.',
+      en: 'I listen to the problem unfiltered: interviews, data, support, observation. No shape yet, only disconnected ideas.',
     },
     ai: { es: 'La IA agrupa cientos de notas en minutos.', en: 'AI clusters hundreds of notes in minutes.' },
     Visual: NoiseVisual,
