@@ -8,7 +8,7 @@ import { useA11y } from '@/lib/a11y'
 
 const PORTRAIT_SRC = '/images/elkin-portrait.jpg'
 const loadPortrait: ShapeLoader = (count, worldWidth) => sampleImage(PORTRAIT_SRC, count, worldWidth)
-const PORTRAIT_PARTICLES = { desktop: 26000, mobile: 11000 }
+const PORTRAIT_PARTICLES = { desktop: 20000, mobile: 9000 }
 
 /**
  * Retrato en partículas: al entrar en pantalla la estática se ordena
@@ -38,26 +38,20 @@ export function ContactPortrait({ label }: { label: string }) {
   }, [reducedMotion])
 
   return (
-    <div
-      ref={ref}
-      role="img"
-      aria-label={label}
-      className="relative aspect-[4/5] w-full [mask-image:radial-gradient(ellipse_at_50%_45%,#000_45%,transparent_78%)]"
-      style={{
-        background:
-          'radial-gradient(ellipse at 55% 35%, rgb(28 58 160 / 0.9) 0%, rgb(14 32 104 / 0.85) 38%, rgb(8 18 60 / 0.6) 62%, transparent 85%)',
-      }}
-    >
-      <SignalField
-        look="portrait"
-        progress={progress}
-        reducedMotion={reducedMotion}
-        shape={loadPortrait}
-        offsetY={0}
-        fitHeight={1.05}
-        particles={PORTRAIT_PARTICLES}
-        className="absolute inset-0"
-      />
+    <div ref={ref} role="img" aria-label={label} className="relative aspect-[4/5] w-full">
+      {/* El lienzo desborda la columna y se desvanece en los bordes: sin recuadro visible */}
+      <div className="pointer-events-none absolute -inset-[18%] [mask-image:radial-gradient(closest-side,#000_70%,transparent)]">
+        <SignalField
+          look="portrait"
+          progress={progress}
+          reducedMotion={reducedMotion}
+          shape={loadPortrait}
+          offsetY={0.05}
+          fitHeight={0.7}
+          particles={PORTRAIT_PARTICLES}
+          className="absolute inset-0"
+        />
+      </div>
     </div>
   )
 }

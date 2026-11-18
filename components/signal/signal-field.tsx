@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { fragmentShader, vertexShader } from './shaders'
-import { portraitFragmentShader, portraitVertexShader } from './shaders-portrait'
 import { sampleGlyph, type ShapeSample } from './sample-glyph'
 
 /** Función que devuelve la figura a formar con `count` partículas. */
@@ -24,7 +23,7 @@ interface SignalFieldProps {
   particles?: { desktop: number; mobile: number }
   /** Ocupación máxima del alto visible (0–1) */
   fitHeight?: number
-  /** Estética: "signal" (EG, estática blanca) o "portrait" (escaneo 3D azul) */
+  /** "signal" (EG) o "portrait": mismo estilo, con giro suave, parallax y base desvanecida */
   look?: 'signal' | 'portrait'
 }
 
@@ -92,29 +91,22 @@ export function SignalField({
     const uniforms = {
       uProgress: { value: 0 },
       uTime: { value: 0 },
-      uSize: { value: isPortrait ? (small ? 1.6 : 2.1) : small ? 2.2 : 3.2 },
+      uSize: { value: isPortrait ? (small ? 1.5 : 2) : small ? 2.2 : 3.2 },
       uPixelRatio: { value: renderer.getPixelRatio() },
       uHover: { value: 0 },
       uNoiseColor: { value: new THREE.Color('#8a8d93') },
       uSignalColor: { value: new THREE.Color('#f1f0ec') },
       uAccent: { value: new THREE.Color('#4060ff') },
-      // Retrato tipo escaneo
-      uBase: { value: new THREE.Color('#2b4dff') },
-      uHighlight: { value: new THREE.Color('#b9c8ff') },
-      uFringeA: { value: new THREE.Color('#3dffb0') },
-      uFringeB: { value: new THREE.Color('#ff4d6d') },
       uHalfHeight: { value: GLYPH_WORLD_WIDTH / 2 },
-      uCameraZ: { value: CAMERA_Z },
+      uFadeBottom: { value: isPortrait ? 1 : 0 },
     }
 
     const material = new THREE.ShaderMaterial({
-      vertexShader: isPortrait ? portraitVertexShader : vertexShader,
-      fragmentShader: isPortrait ? portraitFragmentShader : fragmentShader,
+      vertexShader,
+      fragmentShader,
       uniforms,
       transparent: true,
       depthWrite: false,
-      // El retrato suma luz (brillo de escaneo); el EG mezcla normal.
-      blending: isPortrait ? THREE.AdditiveBlending : THREE.NormalBlending,
     })
     // Parallax del retrato: sigue suavemente al cursor.
     const tilt = { x: 0, y: 0, tx: 0, ty: 0 }
@@ -155,6 +147,12 @@ export function SignalField({
       const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1
       tilt.tx = Math.max(-1, Math.min(1, nx))
       tilt.ty = Math.max(-1, Math.min(1, ny))
+      // Fuera de la escena (p. ej. el hero ya pasó): no hay hover.
+      const outside = e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom
+      if (outside || !visible) {
+        setHovering(false)
+        return
+      }
       // Coordenadas locales del grupo (descuenta su escala y desplazamiento vertical).
       const x = (nx * view.width) / 2 / groupScale
       const y = ((ny * view.height) / 2 - group.position.y) / groupScale
@@ -177,7 +175,7 @@ export function SignalField({
         tilt.x += (tilt.tx - tilt.x) * 0.05
         tilt.y += (tilt.ty - tilt.y) * 0.05
         const time = uniforms.uTime.value
-        group.rotation.y = unformed * 0.6 + Math.sin(time * 0.25) * 0.12 + tilt.x * 0.2
+        group.rotation.y = unformed * 0.5 + Math.sin(time * 0.25) * 0.1 + tilt.x * 0.18
         group.rotation.x = unformed * -0.2 - tilt.y * 0.1
       } else {
         group.rotation.y = unformed * 0.35
@@ -193,6 +191,7 @@ export function SignalField({
 
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
+      if (!visible) setHovering(false)
     })
     observer.observe(container)
 

@@ -14,11 +14,14 @@ export const vertexShader = /* glsl */ `
   uniform float uSize;
   uniform float uPixelRatio;
   uniform float uHover;
+  uniform float uHalfHeight;
+  uniform float uFadeBottom;
 
   varying float vMix;
   varying float vRand;
   varying float vNoise;
   varying float vBright;
+  varying float vFade;
 
   float easeInOutCubic(float t) {
     return t < 0.5 ? 4.0 * t * t * t : 1.0 - pow(-2.0 * t + 2.0, 3.0) / 2.0;
@@ -67,6 +70,9 @@ export const vertexShader = /* glsl */ `
     vRand = aRand;
     vNoise = force;
     vBright = aBright;
+    // Retrato: la base (hombros) se desvanece en vez de cortarse.
+    float bottom = smoothstep(-uHalfHeight, -uHalfHeight * 0.3, aTarget.y);
+    vFade = mix(1.0, bottom, uFadeBottom * t);
   }
 `
 
@@ -80,6 +86,7 @@ export const fragmentShader = /* glsl */ `
   varying float vRand;
   varying float vNoise;
   varying float vBright;
+  varying float vFade;
 
   void main() {
     // Parpadeo de estática mientras es ruido (y donde el cursor interfiere).
@@ -93,6 +100,6 @@ export const fragmentShader = /* glsl */ `
     // Interferencia: vuelve al gris de la estática con chispas de color.
     color = mix(color, uNoiseColor, vNoise * 0.5);
     color = mix(color, uAccent, vNoise * step(0.8, vRand));
-    gl_FragColor = vec4(color, alpha);
+    gl_FragColor = vec4(color, alpha * vFade);
   }
 `
