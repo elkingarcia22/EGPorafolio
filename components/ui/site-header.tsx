@@ -172,11 +172,8 @@ export function SiteHeader() {
                 type="button"
                 onClick={openCv}
                 aria-haspopup="dialog"
-                className="mono-label group flex items-center gap-2 border border-fg/30 px-3 py-1.5 transition-colors hover:border-signal hover:bg-signal hover:text-paper"
+                className="mono-label opacity-70 transition-opacity hover:opacity-100"
               >
-                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-                  <path d="M7 3h7l4 4v14H7z M14 3v4h4 M10 12h5M10 15.5h5" strokeLinejoin="round" strokeLinecap="round" />
-                </svg>
                 {t(COPY.cv.nav)}
               </button>
             </li>
@@ -224,7 +221,7 @@ export function SiteHeader() {
             ))}
             <li className="flex items-baseline gap-4">
               <span className="mono-label opacity-40">0{NAV.length + 1}</span>
-              <button type="button" onClick={openCv} aria-haspopup="dialog" className="brand-title text-2xl text-signal">
+              <button type="button" onClick={openCv} aria-haspopup="dialog" className="brand-title text-2xl">
                 {t(COPY.cv.nav)}
               </button>
             </li>

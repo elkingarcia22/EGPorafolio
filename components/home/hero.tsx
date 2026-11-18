@@ -57,7 +57,6 @@ function useBoot(
       return
     }
 
-    const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
     const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
     const counter = { v: 0 }
     const dissolve = { v: 0 }
@@ -74,7 +73,6 @@ function useBoot(
         duration: LOAD_S,
         ease: 'power1.inOut',
         onUpdate: () => {
-          if (counterEl) counterEl.textContent = String(Math.round(counter.v)).padStart(3, '0')
           loaderProgress.current = counter.v / 100
         },
       }, 0)
@@ -224,11 +222,6 @@ export function Hero() {
               sweep
               className="relative h-[clamp(90px,14vw,150px)] w-[min(90vw,760px)]"
             />
-            <span className="mono-label flex items-center gap-3 tabular-nums opacity-60">
-              <span className="h-px w-8 bg-current" />
-              <span>{t(COPY.hero.loading)} · <span data-boot-count>000</span>%</span>
-              <span className="h-px w-8 bg-current" />
-            </span>
           </div>
 
           {/* 1 · Ruido */}

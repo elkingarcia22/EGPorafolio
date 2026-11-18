@@ -19,7 +19,6 @@ export const COPY = {
     scroll: { es: 'Desliza para conectar', en: 'Scroll to connect' },
     scrollHint: { es: 'De ideas a producto', en: 'From ideas to product' },
     keepTuning: { es: 'Desliza para seguir conectando', en: 'Scroll to keep connecting' },
-    loading: { es: 'Estableciendo conexiones', en: 'Making connections' },
     tagline: {
       es: 'Conecto investigación, diseño y tecnología para crear productos que la gente usa — y con IA, también los construyo.',
       en: 'I connect research, design and technology to create products people actually use — and with AI, I build them too.',
