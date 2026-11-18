@@ -89,6 +89,22 @@ export const COPY = {
     networkAlt: { es: 'Red de conexiones animada: impulsos que viajan entre nodos', en: 'Animated network: impulses travelling between nodes' },
     available: { es: 'Disponible para nuevos proyectos', en: 'Open to new projects' },
   },
+  cv: {
+    nav: { es: 'Hoja de vida', en: 'Résumé' },
+    title: { es: 'Hoja de vida — Elkin Garcia', en: 'Résumé — Elkin Garcia' },
+    alt: {
+      es: 'Hoja de vida de Elkin Garcia, Diseñador UX/UI: perfil, experiencia, educación, habilidades y tecnología.',
+      en: 'Elkin Garcia’s résumé, UX/UI Designer: profile, experience, education, skills and technology.',
+    },
+    zoomIn: { es: 'Ampliar', en: 'Zoom in' },
+    zoomOut: { es: 'Reducir', en: 'Zoom out' },
+    fit: { es: 'Ajustar a la pantalla', en: 'Fit to screen' },
+    share: { es: 'Compartir enlace', en: 'Share link' },
+    copied: { es: 'Enlace copiado', en: 'Link copied' },
+    download: { es: 'Descargar PDF', en: 'Download PDF' },
+    close: { es: 'Cerrar', en: 'Close' },
+    shareText: { es: 'Hoja de vida de Elkin Garcia — Diseñador UX/UI', en: 'Elkin Garcia’s résumé — UX/UI Designer' },
+  },
   a11y: {
     open: { es: 'Accesibilidad', en: 'Accessibility' },
     title: { es: 'Ajustes de accesibilidad', en: 'Accessibility settings' },

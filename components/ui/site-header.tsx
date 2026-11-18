@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { A11yPanel } from './a11y-panel'
+import { CvViewer, CV_HASH } from './cv-viewer'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { ScrollTrigger, scrollToTarget } from '@/lib/motion'
@@ -114,6 +115,25 @@ export function SiteHeader() {
   const closeA11y = useCallback(() => setA11yOpen(false), [])
   const scrolled = useScrolled()
   const solid = scrolled || menuOpen
+  const [cvOpen, setCvOpen] = useState(false)
+  const openCv = () => {
+    setMenuOpen(false)
+    setCvOpen(true)
+  }
+  const closeCv = useCallback(() => {
+    setCvOpen(false)
+    if (window.location.hash === CV_HASH) history.replaceState(null, '', window.location.pathname + window.location.search)
+  }, [])
+
+  // El enlace compartido (…/#hoja-de-vida) abre el visor directamente.
+  useEffect(() => {
+    const check = () => {
+      if (window.location.hash === CV_HASH) setCvOpen(true)
+    }
+    check()
+    window.addEventListener('hashchange', check)
+    return () => window.removeEventListener('hashchange', check)
+  }, [])
 
   const goTo = (id: string) => (event: React.MouseEvent) => {
     setMenuOpen(false)
@@ -147,6 +167,19 @@ export function SiteHeader() {
                 </TransitionLink>
               </li>
             ))}
+            <li>
+              <button
+                type="button"
+                onClick={openCv}
+                aria-haspopup="dialog"
+                className="mono-label group flex items-center gap-2 border border-fg/30 px-3 py-1.5 transition-colors hover:border-signal hover:bg-signal hover:text-paper"
+              >
+                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                  <path d="M7 3h7l4 4v14H7z M14 3v4h4 M10 12h5M10 15.5h5" strokeLinejoin="round" strokeLinecap="round" />
+                </svg>
+                {t(COPY.cv.nav)}
+              </button>
+            </li>
           </ul>
         </nav>
 
@@ -189,11 +222,18 @@ export function SiteHeader() {
                 </TransitionLink>
               </li>
             ))}
+            <li className="flex items-baseline gap-4">
+              <span className="mono-label opacity-40">0{NAV.length + 1}</span>
+              <button type="button" onClick={openCv} aria-haspopup="dialog" className="brand-title text-2xl text-signal">
+                {t(COPY.cv.nav)}
+              </button>
+            </li>
           </ul>
         </nav>
       )}
 
       <A11yPanel open={a11yOpen} onClose={closeA11y} returnFocusTo={a11yButton} />
+      <CvViewer open={cvOpen} onClose={closeCv} />
     </header>
   )
 }
