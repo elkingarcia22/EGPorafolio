@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { NetworkCanvas } from '@/components/signal/network-canvas'
+import { ConnectionSearch } from './connection-search'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
@@ -31,6 +32,7 @@ const BOOT_HIDDEN = 'opacity-0'
 function useBoot(
   root: React.RefObject<HTMLDivElement | null>,
   headline: string,
+  loaderProgress: React.MutableRefObject<number>,
   reducedMotion: boolean,
 ) {
   useEffect(() => {
@@ -49,11 +51,14 @@ function useBoot(
     const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
     const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
     const counter = { v: 0 }
+    const dissolve = { v: 0 }
+    loaderProgress.current = 0
     let cancelScramble: (() => void) | null = null
     if (header) gsap.set(header, { opacity: 0 })
 
     const tl = gsap.timeline({ paused: true })
-    // 1 · Carga: la estática de fondo aparece mientras corre el porcentaje.
+    // 1 · Carga: sobre la estática, nodos que buscan conectarse; cada vez
+    //     más lo logran al ritmo del porcentaje.
     tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0)
       .to(counter, {
         v: 100,
@@ -61,9 +66,18 @@ function useBoot(
         ease: 'power1.inOut',
         onUpdate: () => {
           if (counterEl) counterEl.textContent = String(Math.round(counter.v)).padStart(3, '0')
+          loaderProgress.current = counter.v / 100
         },
       }, 0)
-      // 2 · El contador se desvanece.
+      // 2 · Las conexiones se sueltan y la carga desaparece.
+      .to(dissolve, {
+        v: 1,
+        duration: 0.5,
+        ease: 'power2.in',
+        onUpdate: () => {
+          loaderProgress.current = 1 - dissolve.v
+        },
+      }, LOAD_S + LOAD_HOLD_S)
       .to(q('[data-boot-counter]'), { autoAlpha: 0, filter: 'blur(8px)', scale: 0.96, duration: 0.4 }, LOAD_S + LOAD_HOLD_S + 0.15)
       // 3 · Empieza a escribirse el titular.
       .set(q('[data-boot="text"]'), { opacity: 1 }, HEADLINE_AT)
@@ -89,7 +103,7 @@ function useBoot(
       tl.kill()
       if (header) gsap.set(header, { opacity: 1 })
     }
-  }, [root, headline, reducedMotion])
+  }, [root, headline, loaderProgress, reducedMotion])
 }
 
 /**
@@ -108,7 +122,8 @@ export function Hero() {
   const monogram = useMonogramCycle(locale, progress, heroInView, reducedMotion)
   const headline = t(COPY.hero.noise)
 
-  useBoot(sectionRef, headline, reducedMotion)
+  const loaderProgress = useRef(0)
+  useBoot(sectionRef, headline, loaderProgress, reducedMotion)
 
   // La etiqueta del EG nunca debe verse fuera del hero.
   useEffect(() => {
@@ -179,6 +194,7 @@ export function Hero() {
 
           {/* Contador de arranque (se integra en la escena, sin pantalla aparte) */}
           <div data-boot-counter aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-[var(--gutter)]">
+            <ConnectionSearch progress={loaderProgress} className="absolute inset-0 h-full w-full" />
             <span className="mono-label relative flex items-center gap-3 tabular-nums text-paper/70">
               <span className="h-px w-8 bg-current" />
               <span>{t(COPY.hero.loading)} · <span data-boot-count>000</span>%</span>
