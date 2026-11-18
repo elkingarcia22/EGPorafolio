@@ -15,30 +15,18 @@ import { PROFILE } from '@/lib/content/profile'
 /** Duración mínima de la carga (la red central se arma en este tiempo) */
 const LOAD_S = 2.2
 /** Pausa con la red ya formada antes de deshacerse */
-const LOAD_HOLD_S = 0.45
-/** Red de la carga: nodos en una franja horizontal */
-const LOADER_NODES = 22
-const LOADER_ASPECT = 2.6
-const LOADER_LINK = 0.2
-
-/** Red pequeña para la carga: nodos repartidos en una franja, unidos con sus vecinos. */
-function createLoaderGraph(): NetworkGraph {
-  const nodes = Array.from({ length: LOADER_NODES }, (_, i) => ({
-    x: 0.04 + (i / (LOADER_NODES - 1)) * 0.92 + (Math.random() - 0.5) * 0.05,
-    y: 0.15 + Math.random() * 0.7,
-  }))
-  const links: [number, number][] = []
-  for (let a = 0; a < nodes.length; a++) {
-    for (let b = a + 1; b < nodes.length; b++) {
-      const dx = (nodes[a].x - nodes[b].x) * LOADER_ASPECT
-      const dy = nodes[a].y - nodes[b].y
-      if (Math.hypot(dx, dy) < LOADER_LINK * LOADER_ASPECT) links.push([a, b])
-    }
-  }
-  return { nodes, links, aspect: LOADER_ASPECT }
-}
+const LOAD_HOLD_S = 0.9
 /** Momento en que empieza a escribirse el titular */
 const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
+
+/** La carga arma esta palabra con la red */
+const LOADER_WORD = 'EXPERIENCE'
+/** Letras finas: nodos más juntos y conexiones más cortas que en el EG */
+const LOADER_GRAPH = {
+  spacing: { desktop: 0.075, mobile: 0.095 },
+  reach: { desktop: 0.26, mobile: 0.3 },
+  strokePadding: 0.035,
+}
 
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
@@ -159,7 +147,19 @@ export function Hero() {
 
   const loaderProgress = useRef(0)
   const [loaderGraph, setLoaderGraph] = useState<NetworkGraph | null>(null)
-  useEffect(() => setLoaderGraph(createLoaderGraph()), [])
+  useEffect(() => {
+    let cancelled = false
+    buildGlyphGraph(LOADER_WORD, window.innerWidth < 768, LOADER_GRAPH)
+      .then((graph) => {
+        if (!cancelled) setLoaderGraph(graph)
+      })
+      .catch(() => {
+        // Sin canvas queda el contador de porcentaje.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
   useBoot(sectionRef, headline, loaderProgress, reducedMotion)
 
   // La etiqueta del EG nunca debe verse fuera del hero.
@@ -235,7 +235,8 @@ export function Hero() {
               progress={loaderProgress}
               reducedMotion={reducedMotion}
               cursorRadius={0}
-              className="relative h-[clamp(120px,22vw,190px)] w-[min(86vw,500px)]"
+              sweep
+              className="relative h-[clamp(90px,14vw,150px)] w-[min(90vw,760px)]"
             />
             <span className="mono-label flex items-center gap-3 tabular-nums opacity-60">
               <span className="h-px w-8 bg-current" />

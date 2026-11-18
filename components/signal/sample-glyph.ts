@@ -47,7 +47,10 @@ export async function sampleGlyph(text: string, count: number, worldWidth: numbe
   ctx.fillStyle = '#fff'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
+  // Las palabras largas se achican hasta caber en el lienzo (con margen).
   ctx.font = `600 470px ${family}`
+  const measured = ctx.measureText(text).width
+  if (measured > CANVAS_W * 0.94) ctx.font = `600 ${Math.floor((470 * CANVAS_W * 0.94) / measured)}px ${family}`
   ctx.fillText(text, CANVAS_W / 2, CANVAS_H / 2 + 20)
 
   const { data } = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H)
