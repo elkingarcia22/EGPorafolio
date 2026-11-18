@@ -9,7 +9,10 @@ import { useA11y } from '@/lib/a11y'
 const PORTRAIT_SRC = '/images/elkin-portrait.jpg'
 /** Silueta generada con segmentación de personas (blanco = persona) */
 const PORTRAIT_MASK_SRC = '/images/elkin-portrait-mask.png'
-const loadPortrait: ShapeLoader = (count, worldWidth) => sampleImage(PORTRAIT_SRC, count, worldWidth, PORTRAIT_MASK_SRC)
+/** Pelo en la foto: parte alta de la cabeza y el costado izquierdo (recogido). */
+const hairZone = (u: number, v: number): boolean => v < 0.225 || (u < 0.35 && v < 0.4)
+const loadPortrait: ShapeLoader = (count, worldWidth) =>
+  sampleImage(PORTRAIT_SRC, count, worldWidth, PORTRAIT_MASK_SRC, hairZone)
 const PORTRAIT_PARTICLES = { desktop: 20000, mobile: 9000 }
 
 /**

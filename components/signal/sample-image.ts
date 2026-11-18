@@ -15,6 +15,10 @@ const BLUR_PASSES = 3
 const DEPTH = 0.28
 /** Dirección de la luz principal (arriba a la derecha), normalizada */
 const LIGHT = { x: 0.6, y: -0.8 }
+/** Por debajo de este brillo, dentro de la zona de pelo, se considera pelo */
+const HAIR_MAX_LUMINANCE = 0.42
+/** Tono con el que se dibuja el pelo (0–1) */
+const HAIR_TONE = 0.5
 const MAX_TRIES_PER_POINT = 80
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -102,6 +106,11 @@ export async function sampleImage(
    * Si se da, reemplaza la detección de la pared por color.
    */
   maskSrc?: string,
+  /**
+   * Zona de pelo (u, v normalizados en la foto): ahí las partes oscuras se
+   * aclaran para que el pelo se dibuje con partículas en vez de quedar vacío.
+   */
+  hairZone?: (u: number, v: number) => boolean,
 ): Promise<ShapeSample> {
   const [img, maskImg] = await Promise.all([loadImage(src), maskSrc ? loadImage(maskSrc) : null])
   const canvas = document.createElement('canvas')
@@ -142,7 +151,9 @@ export async function sampleImage(
       const u = CROP.x + (x / GRID) * CROP.size - 0.5
       const v = CROP.y + (y / GRID) * CROP.size - 0.5
       const insideCircle = u * u + v * v <= CIRCLE_RADIUS * CIRCLE_RADIUS
-      lum[i] = l
+      // Pelo oscuro → tono medio con vetas, para que se vea como pelo.
+      const isHair = l < HAIR_MAX_LUMINANCE && (hairZone?.(u + 0.5, v + 0.5) ?? false)
+      lum[i] = isHair ? HAIR_TONE + 0.12 * Math.sin((x + y * 0.35) * 0.9) + l * 0.4 : l
       inCircle[i] = insideCircle ? 1 : 0
       wallLike[i] = saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE ? 1 : 0
     }
