@@ -6,17 +6,22 @@ import { WorkList } from '@/components/home/work-list'
 import { Trajectory } from '@/components/home/trajectory'
 import { Agent } from '@/components/home/agent'
 import { Contact } from '@/components/home/contact'
+import { listProjects } from '@/lib/data/projects-repository'
 
-export default function HomePage() {
+/** Regenera la página como máximo cada 5 min si cambia el contenido en Supabase. */
+export const revalidate = 300
+
+export default async function HomePage() {
+  const { projects } = await listProjects()
   return (
     <>
       <IntroGate />
       <Hero />
       <Manifesto />
-      <WorkList />
+      <WorkList projects={projects} />
       <Process />
       <Trajectory />
-      <Agent />
+      <Agent projects={projects} />
       <Contact />
     </>
   )

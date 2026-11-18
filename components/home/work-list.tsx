@@ -9,7 +9,7 @@ import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
-import { PROJECTS, type Project } from '@/lib/content/projects'
+import type { Project } from '@/lib/content/projects'
 
 function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project | null) => void }) {
   const { t } = useLocale()
@@ -58,7 +58,7 @@ function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project 
 }
 
 /** Lista de proyectos como "frecuencias" con vista previa que sigue al cursor. */
-export function WorkList() {
+export function WorkList({ projects }: { projects: readonly Project[] }) {
   const { t } = useLocale()
   const [active, setActive] = useState<Project | null>(null)
   const previewRef = useRef<HTMLDivElement>(null)
@@ -97,7 +97,7 @@ export function WorkList() {
       </div>
 
       <ul>
-        {PROJECTS.map((project) => (
+        {projects.map((project) => (
           <WorkRow key={project.slug} project={project} onHover={setActive} />
         ))}
       </ul>

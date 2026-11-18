@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test-supabase": "node scripts/test-supabase.js",
-    "setup-db": "node scripts/setup-database.js"
+    "db:seed-sql": "node scripts/generate-seed.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.1.0",

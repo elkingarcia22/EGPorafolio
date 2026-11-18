@@ -7,6 +7,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { answerQuestion, SUGGESTIONS } from '@/lib/agent/answer'
+import type { Project } from '@/lib/content/projects'
 
 interface Message {
   id: number
@@ -18,7 +19,7 @@ const MAX_QUESTION_LENGTH = 240
 const TYPE_SPEED_MS = 14
 
 /** Chat tipo terminal con el agente (demo local sobre la hoja de vida). */
-export function Agent() {
+export function Agent({ projects }: { projects: readonly Project[] }) {
   const { t, locale } = useLocale()
   const { reducedMotion } = useA11y()
   const [messages, setMessages] = useState<readonly Message[]>([])
@@ -35,7 +36,7 @@ export function Agent() {
     const question = raw.trim().slice(0, MAX_QUESTION_LENGTH)
     if (!question || typing) return
     const userMsg: Message = { id: nextId.current++, from: 'user', text: question }
-    const full = answerQuestion(question, locale)
+    const full = answerQuestion(question, locale, projects)
     const agentId = nextId.current++
     setDraft('')
 

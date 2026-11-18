@@ -1,28 +1,32 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { CaseStudy } from '@/components/case/case-study'
-import { getProject, PROJECTS } from '@/lib/content/projects'
+import { findProject, listProjects } from '@/lib/data/projects-repository'
 
 interface CasePageProps {
   params: Promise<{ slug: string }>
 }
 
-export function generateStaticParams() {
-  return PROJECTS.map((p) => ({ slug: p.slug }))
+export const revalidate = 300
+
+export async function generateStaticParams() {
+  const { projects } = await listProjects()
+  return projects.map((p) => ({ slug: p.slug }))
 }
 
 export async function generateMetadata({ params }: CasePageProps): Promise<Metadata> {
   const { slug } = await params
-  const project = getProject(slug)
-  if (!project) return {}
+  const found = await findProject(slug)
+  if (!found) return {}
   return {
-    title: `${project.title.es} — Elkin Garcia`,
-    description: project.tagline.es,
+    title: `${found.project.title.es} — Elkin Garcia`,
+    description: found.project.tagline.es,
   }
 }
 
 export default async function CasePage({ params }: CasePageProps) {
   const { slug } = await params
-  if (!getProject(slug)) notFound()
-  return <CaseStudy slug={slug} />
+  const found = await findProject(slug)
+  if (!found) notFound()
+  return <CaseStudy project={found.project} next={found.next} />
 }

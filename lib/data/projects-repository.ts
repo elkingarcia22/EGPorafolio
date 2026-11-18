@@ -1,0 +1,57 @@
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { PROJECTS as LOCAL_PROJECTS } from '@/lib/content/projects'
+import { isProject } from '@/lib/content/projects/validate'
+import type { Project } from '@/lib/content/projects/types'
+
+/**
+ * Fuente de los casos de estudio (solo servidor).
+ * Lee de Supabase si está configurado; si no hay variables, la consulta
+ * falla o no hay filas válidas, usa el contenido local de lib/content.
+ */
+
+export interface ProjectsResult {
+  projects: readonly Project[]
+  source: 'supabase' | 'local'
+}
+
+let client: SupabaseClient | null | undefined
+
+function getClient(): SupabaseClient | null {
+  if (client !== undefined) return client
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  client = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null
+  return client
+}
+
+const LOCAL: ProjectsResult = { projects: LOCAL_PROJECTS, source: 'local' }
+
+export async function listProjects(): Promise<ProjectsResult> {
+  const supabase = getClient()
+  if (!supabase) return LOCAL
+
+  const { data, error } = await supabase
+    .from('projects')
+    .select('content')
+    .eq('published', true)
+    .order('position', { ascending: true })
+
+  if (error) {
+    console.error('[projects] Supabase no respondió, uso contenido local:', error.message)
+    return LOCAL
+  }
+
+  const rows: unknown[] = (data ?? []).map((row) => (row as { content: unknown }).content)
+  const valid = rows.filter(isProject)
+  if (valid.length < rows.length) {
+    console.error(`[projects] ${rows.length - valid.length} fila(s) con formato inválido fueron omitidas`)
+  }
+  return valid.length > 0 ? { projects: valid, source: 'supabase' } : LOCAL
+}
+
+export async function findProject(slug: string): Promise<{ project: Project; next: Project } | null> {
+  const { projects } = await listProjects()
+  const index = projects.findIndex((p) => p.slug === slug)
+  if (index === -1) return null
+  return { project: projects[index], next: projects[(index + 1) % projects.length] }
+}

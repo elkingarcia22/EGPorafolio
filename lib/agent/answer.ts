@@ -1,5 +1,5 @@
 import type { Locale, L } from '@/lib/i18n'
-import { PROJECTS } from '@/lib/content/projects'
+import type { Project } from '@/lib/content/projects'
 import { JOBS, PROFILE, TOOLS } from '@/lib/content/profile'
 
 /**
@@ -9,7 +9,7 @@ import { JOBS, PROFILE, TOOLS } from '@/lib/content/profile'
  */
 interface Intent {
   keys: readonly string[]
-  answer: (locale: Locale) => string
+  answer: (locale: Locale, projects: readonly Project[]) => string
 }
 
 const pick = (text: L, locale: Locale) => text[locale]
@@ -51,8 +51,8 @@ const INTENTS: readonly Intent[] = [
   },
   {
     keys: ['proyecto', 'project', 'portafolio', 'portfolio', 'casos', 'case', 'barberlytics'],
-    answer: (l) => {
-      const list = PROJECTS.map((p) => `${pick(p.title, l)} (${p.client})`).join(', ')
+    answer: (l, projects) => {
+      const list = projects.map((p) => `${pick(p.title, l)} (${p.client})`).join(', ')
       return pick({
         es: `Puedes explorar: ${list}. Cada caso muestra el proceso completo, del problema a los resultados.`,
         en: `You can explore: ${list}. Each case shows the full process, from problem to results.`,
@@ -91,10 +91,10 @@ function normalize(text: string): string {
   return ` ${text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')} `
 }
 
-export function answerQuestion(question: string, locale: Locale): string {
+export function answerQuestion(question: string, locale: Locale, projects: readonly Project[]): string {
   const q = normalize(question)
   const intent = INTENTS.find((i) => i.keys.some((k) => q.includes(normalize(k).trim()) || q.includes(k)))
-  return intent ? intent.answer(locale) : pick(FALLBACK, locale)
+  return intent ? intent.answer(locale, projects) : pick(FALLBACK, locale)
 }
 
 export const SUGGESTIONS: readonly L[] = [

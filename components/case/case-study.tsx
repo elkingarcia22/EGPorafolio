@@ -12,16 +12,14 @@ import { AiLog, Results } from './ai-results'
 import { NextProject } from './next-project'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
-import { getNextProject, getProject } from '@/lib/content/projects'
+import type { Project } from '@/lib/content/projects'
 
 /**
  * Caso de estudio con la narrativa del sitio: empieza oscuro (ruido:
  * problema e investigación) y se aclara hacia la señal (idea, forma, resultados).
  */
-export function CaseStudy({ slug }: { slug: string }) {
+export function CaseStudy({ project, next }: { project: Project; next: Project }) {
   const { t } = useLocale()
-  const project = getProject(slug)
-  const next = getNextProject(slug)
   const c = COPY.case.chapters
 
   const chapters: readonly ChapterMeta[] = useMemo(
@@ -36,8 +34,6 @@ export function CaseStudy({ slug }: { slug: string }) {
     ],
     [t, c],
   )
-
-  if (!project) return null
 
   const content = [Problem, Research, Idea, Sketches, FormCompare, AiLog, Results]
 
