@@ -29,6 +29,8 @@ interface NetworkCanvasProps {
   fit?: NetworkFit
   /** puntos de estática de fondo mientras es ruido (0 = ninguno) */
   noiseDots?: number
+  /** cuánto de la estática queda cuando la red ya se formó (0 = se apaga del todo) */
+  noiseFloor?: number
   /** la red se forma de izquierda a derecha en vez de toda a la vez */
   sweep?: boolean
   /** radio de influencia del cursor, en fracción del alto de la caja */
@@ -66,6 +68,7 @@ export function NetworkCanvas({
   reducedMotion,
   fit = DEFAULT_FIT,
   noiseDots = 0,
+  noiseFloor = 0,
   sweep = false,
   cursorRadius = 0.28,
   onHoverChange,
@@ -182,7 +185,7 @@ export function NetworkCanvas({
 
       // Estática de fondo: se apaga a medida que aparece la señal.
       if (noise.length) {
-        const fade = Math.max(0, 1 - p * 1.6)
+        const fade = Math.max(noiseFloor, 1 - p * 1.6)
         if (fade > 0) {
           const tick = Math.floor(time / 55)
           for (const dot of noise) {

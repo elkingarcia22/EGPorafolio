@@ -169,6 +169,7 @@ export function Hero() {
               reducedMotion={reducedMotion}
               fit={{ width: 0.62, height: 0.42, centerY: 0.38 }}
               noiseDots={1600}
+              noiseFloor={0.75}
               sweep
               cursorRadius={0.32}
               onHoverChange={monogram.onHoverChange}
