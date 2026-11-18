@@ -18,6 +18,7 @@ export const COPY = {
     signal: { es: 'Mi trabajo es diseñar el puente entre las dos.', en: 'My job is to design the bridge between the two.' },
     scroll: { es: 'Desliza para conectar', en: 'Scroll to connect' },
     scrollHint: { es: 'De ideas a producto', en: 'From ideas to product' },
+    loading: { es: 'Cargando conexión', en: 'Loading connection' },
     keepTuning: { es: 'Desliza para seguir conectando', en: 'Scroll to keep connecting' },
     tagline: {
       es: 'Conecto investigación, diseño y tecnología para crear productos que la gente usa — y con IA, también los construyo.',

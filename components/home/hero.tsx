@@ -1,15 +1,14 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { NetworkCanvas, type NetworkGraph } from '@/components/signal/network-canvas'
-import { buildGlyphGraph } from '@/components/signal/glyph-graph'
+import { NetworkCanvas } from '@/components/signal/network-canvas'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
 import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { useLocale, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PROFILE } from '@/lib/content/profile'
 
@@ -19,15 +18,6 @@ const LOAD_S = 2.2
 const LOAD_HOLD_S = 0.9
 /** Momento en que empieza a escribirse el titular */
 const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
-
-/** La carga arma este texto con la red */
-const LOADER_TEXT: Record<Locale, string> = { es: 'CARGANDO CONEXIÓN', en: 'LOADING CONNECTION' }
-/** Letras finas: nodos más juntos y conexiones más cortas que en el EG */
-const LOADER_GRAPH = {
-  spacing: { desktop: 0.05, mobile: 0.06 },
-  reach: { desktop: 0.17, mobile: 0.2 },
-  strokePadding: 0.025,
-}
 
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
@@ -41,7 +31,6 @@ const BOOT_HIDDEN = 'opacity-0'
 function useBoot(
   root: React.RefObject<HTMLDivElement | null>,
   headline: string,
-  loaderProgress: React.MutableRefObject<number>,
   reducedMotion: boolean,
 ) {
   useEffect(() => {
@@ -60,33 +49,21 @@ function useBoot(
     const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
     const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
     const counter = { v: 0 }
-    const dissolve = { v: 0 }
-    loaderProgress.current = 0
     let cancelScramble: (() => void) | null = null
     if (header) gsap.set(header, { opacity: 0 })
 
     const tl = gsap.timeline({ paused: true })
-    // 1 · Carga: en el centro una red se arma (nodos que llegan y se
-    //     conectan) al ritmo del porcentaje.
-    tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 2.4, ease: 'power2.out' }, 0)
+    // 1 · Carga: la estática de fondo aparece mientras corre el porcentaje.
+    tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0)
       .to(counter, {
         v: 100,
         duration: LOAD_S,
         ease: 'power1.inOut',
         onUpdate: () => {
           if (counterEl) counterEl.textContent = String(Math.round(counter.v)).padStart(3, '0')
-          loaderProgress.current = counter.v / 100
         },
       }, 0)
-      // 2 · La red se deshace (los nodos vuelven a dispersarse) y desaparece.
-      .to(dissolve, {
-        v: 1,
-        duration: 0.5,
-        ease: 'power2.in',
-        onUpdate: () => {
-          loaderProgress.current = 1 - dissolve.v
-        },
-      }, LOAD_S + LOAD_HOLD_S)
+      // 2 · El contador se desvanece.
       .to(q('[data-boot-counter]'), { autoAlpha: 0, filter: 'blur(8px)', scale: 0.96, duration: 0.4 }, LOAD_S + LOAD_HOLD_S + 0.15)
       // 3 · Empieza a escribirse el titular.
       .set(q('[data-boot="text"]'), { opacity: 1 }, HEADLINE_AT)
@@ -112,7 +89,7 @@ function useBoot(
       tl.kill()
       if (header) gsap.set(header, { opacity: 1 })
     }
-  }, [root, headline, loaderProgress, reducedMotion])
+  }, [root, headline, reducedMotion])
 }
 
 /**
@@ -131,22 +108,7 @@ export function Hero() {
   const monogram = useMonogramCycle(locale, progress, heroInView, reducedMotion)
   const headline = t(COPY.hero.noise)
 
-  const loaderProgress = useRef(0)
-  const [loaderGraph, setLoaderGraph] = useState<NetworkGraph | null>(null)
-  useEffect(() => {
-    let cancelled = false
-    buildGlyphGraph(LOADER_TEXT[locale], window.innerWidth < 768, LOADER_GRAPH)
-      .then((graph) => {
-        if (!cancelled) setLoaderGraph(graph)
-      })
-      .catch(() => {
-        // Sin canvas queda el contador de porcentaje.
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [locale])
-  useBoot(sectionRef, headline, loaderProgress, reducedMotion)
+  useBoot(sectionRef, headline, reducedMotion)
 
   // La etiqueta del EG nunca debe verse fuera del hero.
   useEffect(() => {
@@ -216,16 +178,10 @@ export function Hero() {
 
           {/* Contador de arranque (se integra en la escena, sin pantalla aparte) */}
           <div data-boot-counter aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-[var(--gutter)]">
-            <NetworkCanvas
-              graph={loaderGraph}
-              progress={loaderProgress}
-              reducedMotion={reducedMotion}
-              cursorRadius={0}
-              sweep
-              className="relative h-[clamp(60px,8vw,120px)] w-[min(92vw,1100px)]"
-            />
-            <span className="mono-label tabular-nums text-paper/60">
-              <span data-boot-count>000</span>%
+            <span className="mono-label relative flex items-center gap-3 tabular-nums text-paper/70">
+              <span className="h-px w-8 bg-current" />
+              <span>{t(COPY.hero.loading)} · <span data-boot-count>000</span>%</span>
+              <span className="h-px w-8 bg-current" />
             </span>
           </div>
 
