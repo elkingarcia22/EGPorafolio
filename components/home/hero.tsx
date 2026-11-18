@@ -9,7 +9,7 @@ import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
 import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { useLocale } from '@/lib/i18n'
+import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PROFILE } from '@/lib/content/profile'
 
@@ -20,13 +20,13 @@ const LOAD_HOLD_S = 0.9
 /** Momento en que empieza a escribirse el titular */
 const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
 
-/** La carga arma esta palabra con la red */
-const LOADER_WORD = 'EXPERIENCE'
+/** La carga arma este texto con la red */
+const LOADER_TEXT: Record<Locale, string> = { es: 'CARGANDO CONEXIÓN', en: 'LOADING CONNECTION' }
 /** Letras finas: nodos más juntos y conexiones más cortas que en el EG */
 const LOADER_GRAPH = {
-  spacing: { desktop: 0.075, mobile: 0.095 },
-  reach: { desktop: 0.26, mobile: 0.3 },
-  strokePadding: 0.035,
+  spacing: { desktop: 0.05, mobile: 0.06 },
+  reach: { desktop: 0.17, mobile: 0.2 },
+  strokePadding: 0.025,
 }
 
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
@@ -58,6 +58,7 @@ function useBoot(
     }
 
     const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
+    const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
     const counter = { v: 0 }
     const dissolve = { v: 0 }
     loaderProgress.current = 0
@@ -73,6 +74,7 @@ function useBoot(
         duration: LOAD_S,
         ease: 'power1.inOut',
         onUpdate: () => {
+          if (counterEl) counterEl.textContent = String(Math.round(counter.v)).padStart(3, '0')
           loaderProgress.current = counter.v / 100
         },
       }, 0)
@@ -133,7 +135,7 @@ export function Hero() {
   const [loaderGraph, setLoaderGraph] = useState<NetworkGraph | null>(null)
   useEffect(() => {
     let cancelled = false
-    buildGlyphGraph(LOADER_WORD, window.innerWidth < 768, LOADER_GRAPH)
+    buildGlyphGraph(LOADER_TEXT[locale], window.innerWidth < 768, LOADER_GRAPH)
       .then((graph) => {
         if (!cancelled) setLoaderGraph(graph)
       })
@@ -143,7 +145,7 @@ export function Hero() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [locale])
   useBoot(sectionRef, headline, loaderProgress, reducedMotion)
 
   // La etiqueta del EG nunca debe verse fuera del hero.
@@ -220,8 +222,11 @@ export function Hero() {
               reducedMotion={reducedMotion}
               cursorRadius={0}
               sweep
-              className="relative h-[clamp(90px,14vw,150px)] w-[min(90vw,760px)]"
+              className="relative h-[clamp(60px,8vw,120px)] w-[min(92vw,1100px)]"
             />
+            <span className="mono-label tabular-nums text-paper/60">
+              <span data-boot-count>000</span>%
+            </span>
           </div>
 
           {/* 1 · Ruido */}
