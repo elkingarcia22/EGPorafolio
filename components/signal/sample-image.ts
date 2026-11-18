@@ -17,8 +17,10 @@ const DEPTH = 0.28
 const LIGHT = { x: 0.6, y: -0.8 }
 /** Por debajo de este brillo, dentro de la zona de pelo, se considera pelo */
 const HAIR_MAX_LUMINANCE = 0.42
-/** Tono con el que se dibuja el pelo (0–1) */
-const HAIR_TONE = 0.5
+/** Densidad de partículas del pelo (probabilidad de aceptar un punto) */
+const HAIR_DENSITY = 0.3
+/** Brillo del pelo: tenue, para que contraste con la piel y se vea la línea del pelo */
+const HAIR_BRIGHTNESS = 0.2
 const MAX_TRIES_PER_POINT = 80
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -133,6 +135,7 @@ export async function sampleImage(
 
   const center = GRID / 2
   const lum = new Float32Array(GRID * GRID)
+  const hair = new Uint8Array(GRID * GRID)
   const mask = new Float32Array(GRID * GRID)
   /** Píxel con color de pared (gris claro); todavía no sabemos si es fondo */
   const wallLike = new Uint8Array(GRID * GRID)
@@ -151,9 +154,10 @@ export async function sampleImage(
       const u = CROP.x + (x / GRID) * CROP.size - 0.5
       const v = CROP.y + (y / GRID) * CROP.size - 0.5
       const insideCircle = u * u + v * v <= CIRCLE_RADIUS * CIRCLE_RADIUS
-      // Pelo oscuro → tono medio con vetas, para que se vea como pelo.
+      // Pelo oscuro: se marca para dibujarlo aparte (gris tenue, no vacío).
       const isHair = l < HAIR_MAX_LUMINANCE && (hairZone?.(u + 0.5, v + 0.5) ?? false)
-      lum[i] = isHair ? HAIR_TONE + 0.12 * Math.sin((x + y * 0.35) * 0.9) + l * 0.4 : l
+      hair[i] = isHair ? 1 : 0
+      lum[i] = l
       inCircle[i] = insideCircle ? 1 : 0
       wallLike[i] = saturation < BG_MAX_SATURATION && l > BG_MIN_LUMINANCE ? 1 : 0
     }
@@ -191,7 +195,8 @@ export async function sampleImage(
       const iy = Math.floor(py)
       if (mask[iy * GRID + ix] === 0) continue
       // La densidad sigue la luz de la foto: así se marcan ojos, gafas y barba.
-      const accept = 0.06 + 0.94 * Math.pow(lum[iy * GRID + ix], 1.6)
+      // Piel: la densidad sigue la luz. Pelo: densidad media y pareja.
+      const accept = hair[iy * GRID + ix] === 1 ? HAIR_DENSITY : 0.06 + 0.94 * Math.pow(lum[iy * GRID + ix], 1.6)
       if (Math.random() < accept) break
     }
     const ix = Math.floor(px)
@@ -207,7 +212,7 @@ export async function sampleImage(
     points[i * 3 + 1] = -(py - center) * scale
     // Centrado en z = 0: la mitad del relieve sale hacia la cámara.
     points[i * 3 + 2] = (Math.pow(h, 0.6) * DEPTH * GRID + lum[iy * GRID + ix] * 6 - DEPTH * GRID * 0.5) * scale
-    brightness[i] = lum[iy * GRID + ix]
+    brightness[i] = hair[iy * GRID + ix] === 1 ? HAIR_BRIGHTNESS : lum[iy * GRID + ix]
     rim[i] = slope * facing
   }
 
