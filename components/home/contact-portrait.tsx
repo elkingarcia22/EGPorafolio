@@ -5,10 +5,19 @@ import { SignalField, type ShapeLoader } from '@/components/signal/signal-field'
 import { sampleImage } from '@/components/signal/sample-image'
 import { ScrollTrigger } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
+import { portraitDepth, portraitMask } from './portrait-model'
 
+/** Foto base (circular, 400×400) + reconstrucción 3D de cabeza y torso. */
 const PORTRAIT_SRC = '/images/elkin-portrait.jpg'
-const loadPortrait: ShapeLoader = (count, worldWidth) => sampleImage(PORTRAIT_SRC, count, worldWidth)
-const PORTRAIT_PARTICLES = { desktop: 20000, mobile: 9000 }
+const PORTRAIT_PARTICLES = { desktop: 22000, mobile: 10000 }
+
+const loadPortrait: ShapeLoader = (count, worldWidth) =>
+  sampleImage(PORTRAIT_SRC, count, worldWidth, {
+    // Cabeza y hombros
+    crop: { x: 0.11, y: 0.06, w: 0.76, h: 0.94 },
+    mask: portraitMask,
+    depth: portraitDepth,
+  })
 
 /**
  * Retrato en partículas: al entrar en pantalla la estática se ordena
