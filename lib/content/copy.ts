@@ -15,6 +15,7 @@ export const COPY = {
     signal: { es: 'Mi trabajo es encontrar la señal.', en: 'My job is to find the signal.' },
     scroll: { es: 'Desliza para sintonizar', en: 'Scroll to tune in' },
     scrollHint: { es: 'Del ruido a la señal', en: 'From noise to signal' },
+    keepTuning: { es: 'Desliza para seguir sintonizando', en: 'Scroll to keep tuning in' },
     loading: { es: 'Cargando señal', en: 'Loading signal' },
     tagline: {
       es: 'Diseño productos de punta a punta — de la investigación a la interfaz — y hoy también los construyo con IA.',

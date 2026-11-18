@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SignalField } from '@/components/signal/signal-field'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
+import { HoverTuneLabel } from './hover-tune-label'
 import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
@@ -89,6 +90,7 @@ export function Hero() {
   const { t } = useLocale()
   const sectionRef = useRef<HTMLDivElement>(null)
   const progress = useRef(0)
+  const [hoveringEg, setHoveringEg] = useState(false)
   const headline = t(COPY.hero.noise)
 
   useBoot(sectionRef, headline, reducedMotion)
@@ -137,7 +139,12 @@ export function Hero() {
       <div ref={sectionRef} className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
-            <SignalField progress={progress} reducedMotion={reducedMotion} className="absolute inset-0" />
+            <SignalField
+              progress={progress}
+              reducedMotion={reducedMotion}
+              onHoverChange={setHoveringEg}
+              className="absolute inset-0"
+            />
           </div>
 
           {/* Contador de arranque (se integra en la escena, sin pantalla aparte) */}
@@ -180,6 +187,8 @@ export function Hero() {
               <p className="max-w-md text-sm leading-relaxed opacity-70">{t(COPY.hero.tagline)}</p>
             </div>
           </div>
+
+          <HoverTuneLabel visible={hoveringEg} />
 
           <div data-hint-wrap className="pointer-events-none absolute inset-0">
             <div data-boot="cue" className={`absolute inset-0 [&>button]:pointer-events-auto ${BOOT_HIDDEN}`}>

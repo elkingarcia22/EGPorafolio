@@ -10,11 +10,19 @@ interface SignalFieldProps {
   progress: React.MutableRefObject<number>
   reducedMotion: boolean
   className?: string
+  /** Avisa cuando el cursor entra o sale del monograma ya formado */
+  onHoverChange?: (hovering: boolean) => void
 }
 
 const GLYPH_WORLD_WIDTH = 8
 const CAMERA_Z = 10
 const FOV = 35
+/** Zona sensible al cursor, en unidades locales del monograma */
+const HIT_HALF_WIDTH = GLYPH_WORLD_WIDTH * 0.44
+const HIT_HALF_HEIGHT = 1.55
+/** Desde qué progreso el EG cuenta como "formado" para el hover */
+const HOVER_MIN_PROGRESS = 0.55
+const HOVER_EASE = 0.1
 
 function particleCount(): number {
   const small = window.innerWidth < 768
@@ -30,8 +38,10 @@ function visibleSize(aspect: number) {
  * Escena WebGL del hero: miles de partículas de estática que se ordenan
  * en el monograma EG a medida que el usuario hace scroll.
  */
-export function SignalField({ progress, reducedMotion, className }: SignalFieldProps) {
+export function SignalField({ progress, reducedMotion, className, onHoverChange }: SignalFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const hoverCallback = useRef(onHoverChange)
+  hoverCallback.current = onHoverChange
 
   useEffect(() => {
     const container = containerRef.current
@@ -57,7 +67,7 @@ export function SignalField({ progress, reducedMotion, className }: SignalFieldP
       uTime: { value: 0 },
       uSize: { value: window.innerWidth < 768 ? 2.2 : 3.2 },
       uPixelRatio: { value: renderer.getPixelRatio() },
-      uMouse: { value: new THREE.Vector2(99, 99) },
+      uHover: { value: 0 },
       uNoiseColor: { value: new THREE.Color('#8a8d93') },
       uSignalColor: { value: new THREE.Color('#f1f0ec') },
       uAccent: { value: new THREE.Color('#4060ff') },
@@ -89,22 +99,34 @@ export function SignalField({ progress, reducedMotion, className }: SignalFieldP
       group.position.y = view.height * 0.1
     }
 
+    // Hover sobre el monograma: todo el EG entra en interferencia.
+    let hoverTarget = 0
+    let hovering = false
+    const setHovering = (next: boolean) => {
+      hoverTarget = next ? 1 : 0
+      if (next !== hovering) {
+        hovering = next
+        hoverCallback.current?.(next)
+      }
+    }
     const onPointer = (e: PointerEvent) => {
       const rect = container.getBoundingClientRect()
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1
       const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1
       // Coordenadas locales del grupo (descuenta su escala y desplazamiento vertical).
-      uniforms.uMouse.value.set(
-        (nx * view.width) / 2 / groupScale,
-        ((ny * view.height) / 2 - group.position.y) / groupScale,
-      )
+      const x = (nx * view.width) / 2 / groupScale
+      const y = ((ny * view.height) / 2 - group.position.y) / groupScale
+      const formed = (reducedMotion ? 1 : progress.current) > HOVER_MIN_PROGRESS
+      setHovering(formed && Math.abs(x) < HIT_HALF_WIDTH && Math.abs(y) < HIT_HALF_HEIGHT)
     }
-    const onLeave = () => uniforms.uMouse.value.set(99, 99)
+    const onLeave = () => setHovering(false)
 
     const clock = new THREE.Clock()
     const render = () => {
       uniforms.uTime.value = clock.getElapsedTime()
       uniforms.uProgress.value = reducedMotion ? 1 : progress.current
+      if (uniforms.uProgress.value <= HOVER_MIN_PROGRESS && hovering) setHovering(false)
+      uniforms.uHover.value += (hoverTarget - uniforms.uHover.value) * HOVER_EASE
       // Leve giro de la escena según el progreso: sensación de profundidad.
       group.rotation.y = (1 - uniforms.uProgress.value) * 0.35
       group.rotation.x = (1 - uniforms.uProgress.value) * -0.12

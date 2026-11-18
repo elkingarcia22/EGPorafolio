@@ -12,7 +12,7 @@ export const vertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uSize;
   uniform float uPixelRatio;
-  uniform vec2 uMouse;
+  uniform float uHover;
 
   varying float vMix;
   varying float vRand;
@@ -43,18 +43,17 @@ export const vertexShader = /* glsl */ `
     // Respiración sutil cuando la señal ya está formada.
     pos.z += sin(uTime * 1.4 + aTarget.x * 1.3 + aTarget.y) * 0.05 * t;
 
-    // Microinteracción: cerca del cursor la señal vuelve a ser ruido.
-    // Las partículas vibran en su sitio (temblor de alta frecuencia),
-    // sin desplazarse: como interferencia en una antena.
-    float dist = length(pos.xy - uMouse);
-    float force = smoothstep(1.3, 0.0, dist) * t;
+    // Microinteracción: con el cursor sobre el EG, todo el monograma
+    // entra en interferencia. Las partículas vibran en su sitio (temblor
+    // de alta frecuencia) sin perder la forma, con intensidad variable.
+    float force = uHover * t * (0.55 + 0.45 * aRand);
     float tick = floor(uTime * 40.0);
     vec3 shake = vec3(
       fract(sin(aRand * 127.1 + tick * 1.7) * 43758.5453) - 0.5,
       fract(sin(aRand * 311.7 + tick * 2.3) * 43758.5453) - 0.5,
       fract(sin(aRand * 74.7 + tick * 3.1) * 43758.5453) - 0.5
     );
-    pos += shake * force * vec3(0.32, 0.32, 0.8);
+    pos += shake * force * vec3(0.2, 0.2, 0.7);
 
     vec4 mv = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mv;
@@ -86,7 +85,7 @@ export const fragmentShader = /* glsl */ `
     // Unas pocas partículas toman el color de la señal.
     color = mix(color, uAccent, step(0.94, vRand) * vMix);
     // Interferencia: vuelve al gris de la estática con chispas de color.
-    color = mix(color, uNoiseColor, vNoise * 0.7);
+    color = mix(color, uNoiseColor, vNoise * 0.5);
     color = mix(color, uAccent, vNoise * step(0.8, vRand));
     gl_FragColor = vec4(color, alpha);
   }

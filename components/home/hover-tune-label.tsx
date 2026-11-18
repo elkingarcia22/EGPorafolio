@@ -1,0 +1,58 @@
+'use client'
+
+import { useEffect, useRef } from 'react'
+import { gsap } from '@/lib/motion'
+import { useLocale } from '@/lib/i18n'
+import { COPY } from '@/lib/content/copy'
+
+const OFFSET_X = 22
+const OFFSET_Y = 18
+
+/**
+ * Etiqueta que acompaña al cursor mientras está sobre el EG:
+ * "Desliza para seguir sintonizando". Se abre con un barrido y
+ * se oculta al salir del monograma.
+ */
+export function HoverTuneLabel({ visible }: { visible: boolean }) {
+  const { t } = useLocale()
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const xTo = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'expo' })
+    const yTo = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'expo' })
+    const move = (e: PointerEvent) => {
+      xTo(e.clientX + OFFSET_X)
+      yTo(e.clientY + OFFSET_Y)
+    }
+    window.addEventListener('pointermove', move)
+    return () => window.removeEventListener('pointermove', move)
+  }, [])
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    gsap.to(el, {
+      clipPath: visible ? 'inset(0% 0% 0% 0%)' : 'inset(0% 100% 0% 0%)',
+      autoAlpha: visible ? 1 : 0,
+      duration: visible ? 0.55 : 0.3,
+      ease: 'expo.out',
+    })
+  }, [visible])
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none fixed left-0 top-0 z-[45] hidden md:block"
+      style={{ clipPath: 'inset(0% 100% 0% 0%)', visibility: 'hidden' }}
+    >
+      <span className="flex items-center gap-2.5 bg-signal px-3.5 py-2 text-paper shadow-lg">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-paper" />
+        <span className="brand-title whitespace-nowrap text-[11px]">{t(COPY.hero.keepTuning)}</span>
+        <span className="text-xs">↓</span>
+      </span>
+    </div>
+  )
+}
