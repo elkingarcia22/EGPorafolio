@@ -16,6 +16,24 @@ const NAV = [
   { id: 'contact', label: COPY.nav.contact },
 ] as const
 
+/** A partir de cuántos px de scroll el header toma fondo */
+const SOLID_AFTER_PX = 40
+
+/** true cuando la página ya se desplazó: el header necesita fondo propio. */
+function useScrolled(): boolean {
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const trigger = ScrollTrigger.create({
+      start: 0,
+      end: 'max',
+      onUpdate: (self) => setScrolled(self.scroll() > SOLID_AFTER_PX),
+    })
+    setScrolled(window.scrollY > SOLID_AFTER_PX)
+    return () => trigger.kill()
+  }, [])
+  return scrolled
+}
+
 /** Lectura tipo radio: el scroll de la página recorre 88.0 → 108.0 MHz. */
 function FrequencyReadout() {
   const ref = useRef<HTMLSpanElement>(null)
@@ -78,6 +96,8 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
   const a11yButton = useRef<HTMLButtonElement>(null)
   const closeA11y = useCallback(() => setA11yOpen(false), [])
+  const scrolled = useScrolled()
+  const solid = scrolled || menuOpen
 
   const goTo = (id: string) => (event: React.MouseEvent) => {
     setMenuOpen(false)
@@ -88,7 +108,12 @@ export function SiteHeader() {
 
   return (
     <header data-site-header className="fixed inset-x-0 top-0 z-50 text-fg transition-colors duration-700">
-      <div className="flex items-center justify-between gap-6 px-[var(--gutter)] py-4">
+      {/* Fondo que toma el tono de la sección (oscuro/papel) y desenfoca lo de atrás */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 border-b border-fg/10 bg-bg/75 backdrop-blur-md transition-opacity duration-500 ${solid ? 'opacity-100' : 'opacity-0'}`}
+      />
+      <div className="relative flex items-center justify-between gap-6 px-[var(--gutter)] py-4">
         <TransitionLink href="/" aria-label="Elkin Garcia — inicio" transitionLabel="EG">
           <Monogram />
         </TransitionLink>
@@ -138,7 +163,7 @@ export function SiteHeader() {
       </div>
 
       {menuOpen && (
-        <nav id="mobile-menu" aria-label="Principal móvil" className="border-t border-fg/15 bg-bg px-[var(--gutter)] py-6 md:hidden">
+        <nav id="mobile-menu" aria-label="Principal móvil" className="relative border-t border-fg/15 bg-bg px-[var(--gutter)] py-6 md:hidden">
           <ul className="space-y-4">
             {NAV.map((item, i) => (
               <li key={item.id} className="flex items-baseline gap-4">
