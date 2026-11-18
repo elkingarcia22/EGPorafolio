@@ -22,6 +22,13 @@ export interface ImageSampleOptions {
   /** Tope de brillo para la densidad (evita que destellos dominen) */
   maxLuminance?: number
   /**
+   * 0 = densidad uniforme (forma sólida, como el EG); 1 = la densidad
+   * sigue por completo la luz de la foto (semitono). Por defecto 1.
+   */
+  tonalDensity?: number
+  /** Rango del brillo que se pasa al shader [mín, máx] (sombreado suave) */
+  shadeRange?: readonly [number, number]
+  /**
    * Profundidad de un modelo 3D (en píxeles de la foto) para el punto
    * (u, v). Si se da, reemplaza el relieve inventado desde la silueta.
    */
@@ -217,8 +224,9 @@ export async function sampleImage(
       const ix = Math.floor(px)
       const iy = Math.floor(py)
       if (mask[iy * GW + ix] === 0) continue
-      // La densidad sigue la luz de la foto: así se marcan ojos, gafas y barba.
-      const accept = 0.03 + 0.97 * Math.pow(lum[iy * GW + ix], 1.8)
+      // Densidad: mezcla entre forma sólida y semitono según tonalDensity.
+      const tonal = options.tonalDensity ?? 1
+      const accept = (1 - tonal) + tonal * (0.03 + 0.97 * Math.pow(lum[iy * GW + ix], 1.8))
       if (Math.random() < accept) break
     }
     const ix = Math.floor(px)
@@ -240,7 +248,8 @@ export async function sampleImage(
       // Centrado en z = 0: la mitad del relieve sale hacia la cámara.
       points[i * 3 + 2] = (Math.pow(h, 0.6) * DEPTH * GRID + lum[iy * GW + ix] * 6 - DEPTH * GRID * 0.5) * scale
     }
-    brightness[i] = lum[iy * GW + ix]
+    const [shadeMin, shadeMax] = options.shadeRange ?? [0, 1]
+    brightness[i] = shadeMin + (shadeMax - shadeMin) * lum[iy * GW + ix]
     rim[i] = slope * facing
   }
 

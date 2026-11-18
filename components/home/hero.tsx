@@ -119,9 +119,19 @@ export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const progress = useRef(0)
   const [hoveringEg, setHoveringEg] = useState(false)
+  const [heroInView, setHeroInView] = useState(true)
   const headline = t(COPY.hero.noise)
 
   useBoot(sectionRef, headline, t(COPY.hero.loading), reducedMotion)
+
+  // La etiqueta del EG nunca debe verse fuera del hero.
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const observer = new IntersectionObserver(([entry]) => setHeroInView(entry.isIntersecting))
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -226,7 +236,7 @@ export function Hero() {
             </div>
           </div>
 
-          <HoverTuneLabel visible={hoveringEg} />
+          <HoverTuneLabel visible={hoveringEg && heroInView} />
 
           <div data-hint-wrap className="pointer-events-none absolute inset-0">
             <div data-boot="cue" className={`absolute inset-0 [&>button]:pointer-events-auto ${BOOT_HIDDEN}`}>
