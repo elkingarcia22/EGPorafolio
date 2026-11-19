@@ -152,9 +152,9 @@ export function FirstContactPrep() {
         height={900}
         overlay={
           <>
-            <RealDock busy={now === 1} label={now === 0 ? 'Preparar primer contacto con Rumbo IA' : now === 1 ? 'Investigando con Rumbo IA' : 'Primer contacto listo para revisar'} done={now === 2}>
+            {!intro && <RealDock busy={now === 1} label={now === 0 ? 'Preparar primer contacto con Rumbo IA' : now === 1 ? 'Investigando con Rumbo IA' : 'Primer contacto listo para revisar'} done={now === 2}>
               <span className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-[#6b8cff] px-4 py-2 text-[13.5px] font-medium text-[#0a0a0a]"><GitBranch className="h-4 w-4" />Cambiar etapa</span>
-            </RealDock>
+            </RealDock>}
             {intro ? (
               <FakeCursor x={time < 1 ? 1000 : 768} y={time < 1 ? 700 : 858} click={time === 2} show />
             ) : (
