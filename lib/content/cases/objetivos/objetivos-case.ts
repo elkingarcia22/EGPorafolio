@@ -141,8 +141,8 @@ export const OBJ_CASE = {
 
   demo: {
     lead: {
-      es: 'El módulo real, en el staging del playground de UBITS: la vista del administrador de Objetivos con el alcance completo activado. Entra por el inicio, por la creación de un ciclo o por los resultados de uno.',
-      en: 'The real module, on UBITS’ playground staging: the Goals admin view with the full scope switched on. Enter through the home, through creating a cycle or through a cycle’s results.',
+      es: 'El módulo real, en el staging del playground de UBITS: la vista del administrador de Objetivos con el alcance completo activado, sin el resto de la plataforma. Crea un ciclo o abre los resultados de uno.',
+      en: 'The real module, on UBITS’ playground staging: the Goals admin view with the full scope switched on, without the rest of the platform. Create a cycle or open a cycle’s results.',
     } as L,
   },
 } as const
