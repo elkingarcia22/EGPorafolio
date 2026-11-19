@@ -1,44 +1,12 @@
 'use client'
 
 import { useLocale, type L } from '@/lib/i18n'
-import { LEARNINGS, RECEIPTS, type Receipt } from '@/lib/content/cases/sellup/sellup-agents'
+import { LEARNINGS } from '@/lib/content/cases/sellup/sellup-agents'
 import { BLUE, useInView } from './ui'
 import { useCountUp, usd } from './ai-hooks'
 import { project } from './impact-model'
 import { ImpactSimulator } from './impact-sim'
 
-/** Borde dentado de un recibo impreso. */
-const ZIGZAG = 'linear-gradient(-45deg,transparent 6px,#fdfdfb 0),linear-gradient(45deg,transparent 6px,#fdfdfb 0)'
-
-/** Un recibo de corrida que se «imprime» al entrar en pantalla. */
-function ReceiptSlip({ r, i }: { r: Receipt; i: number }) {
-  const { t } = useLocale()
-  const [ref, seen] = useInView<HTMLDivElement>(0.4)
-  return (
-    <div ref={ref} className="relative">
-      <div className="mx-auto h-2 w-[92%] rounded-full bg-black/80" aria-hidden="true" />
-      <div
-        className="relative -mt-1 transition-[clip-path] ease-linear"
-        style={{ clipPath: seen ? 'inset(0 0 0 0)' : 'inset(0 0 100% 0)', transitionDuration: '1600ms', transitionDelay: `${i * 250}ms` }}
-      >
-        <article className="mx-[4%] bg-[#fdfdfb] px-5 pb-6 pt-5 font-mono text-[12px] text-[#1b1d22] shadow-[0_30px_60px_-30px_rgba(0,0,0,0.5)]">
-          <p className="flex items-center justify-between text-[10px] uppercase tracking-wider text-black/45"><span>SellUp · {t(r.agent)}</span><span>{r.date}</span></p>
-          <p className="mt-2 font-sans text-base font-medium">{t(r.title)}</p>
-          <p className="my-3 border-t border-dashed border-black/25" />
-          <ul className="space-y-1.5">
-            {r.lines.map((l) => (
-              <li key={l.label.es} className="flex justify-between gap-3"><span className="text-black/60">{t(l.label)}</span><span>{l.value}</span></li>
-            ))}
-          </ul>
-          <p className="my-3 border-t border-dashed border-black/25" />
-          <p className="flex items-baseline justify-between gap-3 text-sm font-semibold"><span>{t(r.total.label)}</span><span style={{ color: BLUE }}>{r.total.value}</span></p>
-          <p className="mt-4 font-sans text-xs leading-relaxed text-black/60">{t(r.note)}</p>
-        </article>
-        <div className="mx-[4%] h-3" style={{ background: ZIGZAG, backgroundSize: '12px 12px', backgroundPosition: 'left top', transform: 'rotate(180deg)' }} aria-hidden="true" />
-      </div>
-    </div>
-  )
-}
 
 const DEFAULT = project(6, 25)
 
@@ -131,14 +99,6 @@ export function SellUpImpact() {
 
       <h3 data-reveal className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Simula tu equipo', en: 'Simulate your team' })}</h3>
       <ImpactSimulator />
-
-      <h3 data-reveal className="mono-label mb-3 mt-16 opacity-60">{t({ es: 'Lo que sí está medido: el costo', en: 'What is measured: the cost' })}</h3>
-      <p data-reveal className="max-w-[62ch] leading-relaxed opacity-80">
-        {t({ es: 'Al 19 de noviembre de 2026, el panel de uso de SellUp registra US$53 de IA en 218 ejecuciones de agentes. Cada corrida deja su recibo:', en: 'As of November 19, 2026, SellUp’s usage panel logs US$53 of AI across 218 agent runs. Every run leaves its receipt:' })}
-      </p>
-      <div className="mt-10 grid gap-10 md:grid-cols-3 md:gap-5">
-        {RECEIPTS.map((r, i) => <ReceiptSlip key={r.title.es} r={r} i={i} />)}
-      </div>
 
       <p className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Lo que aprendí', en: 'What I learned' })}</p>
       <ol className="space-y-4">

@@ -13,17 +13,17 @@ import { FastStage } from './forma-a1-stage'
 import { MAP_H, MAP_W, SearchMap } from './forma-a1-map'
 
 /**
- * 5.2 · Agente 1: arranca cuando Rumbo ya busca (mapa de búsqueda por país),
+ * 5.2 · Agente 1: arranca cuando Rumbo ya busca (radar que recorre varios países),
  * el resultado en «Por revisar» con la empresa nueva destacada y su detalle.
  */
 
 const STEPS: readonly StoryStep[] = [
-  { label: { es: 'Rumbo busca en el mapa', en: 'Rumbo searches the map' }, from: 0 },
-  { label: { es: 'Aterriza en «Por revisar»', en: 'Lands in “To review”' }, from: 9 },
-  { label: { es: 'Se abre su detalle', en: 'Its detail opens' }, from: 17 },
+  { label: { es: 'El radar de Rumbo recorre los países', en: 'Rumbo’s radar sweeps the countries' }, from: 0 },
+  { label: { es: 'Aterriza en «Por revisar»', en: 'Lands in “To review”' }, from: 11 },
+  { label: { es: 'Se abre su detalle', en: 'Its detail opens' }, from: 19 },
 ]
-/** Ticks de 0,56 s: 0–8 mapa, 9–16 tabla, 17–26 detalle. */
-const LOOP = 27
+/** Ticks de 0,56 s: 0–10 radar, 11–18 tabla, 19–28 detalle. */
+const LOOP = 29
 
 /** Las filas caen escalonadas al aterrizar en la tabla. */
 const LANDING_CSS = `@keyframes a1-drop{0%{transform:translateY(-14px);opacity:0}100%{transform:none;opacity:1}}.a1-land [class*="border-white/[0.06]"]{animation:a1-drop 320ms cubic-bezier(0.16,1,0.3,1) both}${Array.from({ length: 10 }, (_, i) => `.a1-land [class*="border-white/[0.06]"]:nth-child(${i + 1}){animation-delay:${i * 45}ms}`).join('')}`
@@ -45,9 +45,9 @@ const STRUCTURE: readonly StructureItem[] = TYPES.map((o, i) => ({
 export function SearchReview() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
-  const [ref, time, jump] = useSceneTime(LOOP, 13)
+  const [ref, time, jump] = useSceneTime(LOOP, 15)
   const scene = stepAt(STEPS, time)
-  const onRow = time >= 13 && time < 17
+  const onRow = time >= 15 && time < 19
   return (
     <div ref={ref}>
       <style>{LANDING_CSS}</style>
@@ -55,14 +55,14 @@ export function SearchReview() {
       <FastStage
         active={scene}
         scenes={[
-          { node: <Scaled width={MAP_W} height={MAP_H}><SearchMap t={scene === 0 ? time : 8} still={reducedMotion} /></Scaled>, from: 0.6 },
+          { node: <Scaled width={MAP_W} height={MAP_H}><SearchMap t={scene === 0 ? time : 10} still={reducedMotion} /></Scaled>, from: 0.6 },
           {
             from: 1.18,
             bounce: true,
             node: (
               <div key={scene === 1 ? 'land' : 'idle'} className={scene === 1 && !reducedMotion ? 'a1-land' : ''}>
-                <RealFrame active="revisar" crumb={['Empresas', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 262 : 560} click={time === 16} show={onRow} />}>
-                  <CompanyReview arrived={time >= 10} focus={time >= 10} />
+                <RealFrame active="revisar" crumb={['Empresas', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 262 : 560} click={time === 18} show={onRow} />}>
+                  <CompanyReview arrived={time >= 12} focus={time >= 12} />
                 </RealFrame>
               </div>
             ),

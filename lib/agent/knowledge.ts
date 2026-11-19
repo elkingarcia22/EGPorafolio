@@ -10,6 +10,7 @@ import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 import { SELLUP_CASE } from '@/lib/content/cases/sellup/sellup-case'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
+import { ASSUMPTIONS } from '@/components/case/sellup/impact-model'
 
 /*
  * La base de conocimiento del agente: todo sale del contenido del sitio, así que el agente
@@ -114,13 +115,26 @@ function casesBlock(locale: Locale): string {
   return cases.map(([title, data]) => section(title, flatten(data, locale).join('\n'))).join('\n\n')
 }
 
+/** El modelo de impacto de SellUp (cifras de referencia): cómo se proyectan ARR y ROI. */
+function sellupImpactBlock(): string {
+  const a = ASSUMPTIONS
+  return section('SellUp · modelo de impacto (CIFRAS DE REFERENCIA, supuestos moderados, no resultados medidos)', [
+    `- El ARR incremental se proyecta como embudo: empresas trabajadas por vendedor a la semana × ${a.weeks} semanas × tasa de conexión × reunión (${a.meeting * 100} %) × cierre (${a.win * 100} %) × contrato anual promedio (USD ${a.acv}).`,
+    `- Tasa de conexión: ${a.connectManual * 100} % buscando a mano frente a ${a.connectSellUp * 100} % con SellUp; a mano, ${a.manualPerWeek} empresas por vendedor a la semana.`,
+    `- Los cierres llegan con rampa: el primer año cuenta parcial en los primeros meses.`,
+    `- Costo: IA unos USD ${a.aiPerCompany} por empresa (búsqueda, contactos y preparación) y USD ${a.platformYear} al año de infraestructura y proveedores.`,
+    `- Tiempo: ${a.hoursSavedWeek} horas a la semana que cada vendedor deja de buscar a mano (valoradas a USD ${a.hourly} la hora).`,
+    `- ROI = (ARR incremental del primer año + valor de horas ahorradas − costo) / costo.`,
+  ].join('\n'))
+}
+
 const cache = new Map<Locale, string>()
 
 /** Todo lo que el agente sabe, en un solo texto (se arma una vez por idioma). */
 export function buildKnowledge(locale: Locale): string {
   const hit = cache.get(locale)
   if (hit) return hit
-  const text = [profileBlock(locale), processBlock(locale), projectsBlock(locale), casesBlock(locale)].join('\n\n')
+  const text = [profileBlock(locale), processBlock(locale), projectsBlock(locale), casesBlock(locale), sellupImpactBlock()].join('\n\n')
   cache.set(locale, text)
   return text
 }

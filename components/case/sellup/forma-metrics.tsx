@@ -1,94 +1,108 @@
 'use client'
 
 import { useLocale, type L } from '@/lib/i18n'
+import { useA11y } from '@/lib/a11y'
 import { useInView } from './ui'
 import { useCount } from './forma-catalog-map'
-import { UsageScreen } from './forma-uso'
-import { Laptop } from './device-frames'
+import { UsageMatrix } from './forma-usage-matrix'
+import { UsageHeatmap, UsageTimeline } from './forma-usage-charts'
 
-/** 5.6 · Uso de IA y costos: las métricas reales de Producción como protagonistas. */
-
-const AGENTS: readonly { name: L; cost: number; note: L }[] = [
-  { name: { es: 'Agente 1 · Empresas', en: 'Agent 1 · Companies' }, cost: 44.67, note: { es: '31 aprobadas', en: '31 approved' } },
-  { name: { es: 'Agente 2 · Contactos', en: 'Agent 2 · Contacts' }, cost: 6.71, note: { es: '155 ejecuciones', en: '155 runs' } },
-  { name: { es: 'Agente 3 · Primer contacto', en: 'Agent 3 · First contact' }, cost: 0.87, note: { es: '12 ejecuciones', en: '12 runs' } },
-  { name: { es: 'Asistente de Slack', en: 'Slack assistant' }, cost: 0.63, note: { es: '—', en: '—' } },
-  { name: { es: 'Empresas de HubSpot', en: 'HubSpot companies' }, cost: 0.14, note: { es: '—', en: '—' } },
-]
+/** 5.6 · Uso de IA y costos: cifras reales del panel de Producción (19-11-2026), todo animado. */
 
 /** Número que cuenta hasta su valor; `decimals` para dinero. */
 function Num({ value, on, decimals = 0, prefix = '', suffix = '' }: { value: number; on: boolean; decimals?: number; prefix?: string; suffix?: string }) {
+  const { reducedMotion } = useA11y()
   const scale = Math.pow(10, decimals)
-  const n = useCount(Math.round(value * scale), on) / scale
+  const counted = useCount(Math.round(value * scale), on && !reducedMotion) / scale
+  const n = reducedMotion ? value : counted
   return <>{prefix}{n.toLocaleString('es-CO', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}{suffix}</>
 }
 
-function Tile({ children, label, className = '' }: { children: React.ReactNode; label: string; className?: string }) {
+interface Kpi {
+  value: number
+  decimals?: number
+  prefix?: string
+  suffix?: string
+  label: L
+  note: L
+  tone?: 'green' | 'red' | 'live'
+}
+
+/** Las cuatro cifras protagonistas, junto al costo. */
+const TOP: readonly Kpi[] = [
+  { value: 229, label: { es: 'Ejecuciones', en: 'Runs' }, note: { es: 'veces que trabajó un agente', en: 'times an agent worked' } },
+  { value: 2655, label: { es: 'Consultas', en: 'Queries' }, note: { es: 'a IA y 4 proveedores', en: 'to AI and 4 providers' } },
+  { value: 34, label: { es: 'Empresas aprobadas', en: 'Approved companies' }, note: { es: '8 % de las revisadas', en: '8% of those reviewed' }, tone: 'green' },
+  { value: 1.84, decimals: 2, prefix: 'US$', label: { es: 'Por aprobada', en: 'Per approved' }, note: { es: 'costo ÷ aprobadas', en: 'cost ÷ approved' }, tone: 'green' },
+]
+
+/** Las cifras de apoyo, junto a la matriz. */
+const SIDE: readonly Kpi[] = [
+  { value: 0.2111, decimals: 4, prefix: 'US$', label: { es: 'Costo medio', en: 'Average cost' }, note: { es: 'por ejecución', en: 'per run' } },
+  { value: 18, label: { es: 'Personas activas', en: 'Active people' }, note: { es: '10 equipos', en: '10 teams' } },
+  { value: 38, label: { es: 'Búsquedas', en: 'Searches' }, note: { es: '2,1 por persona', en: '2.1 per person' } },
+  { value: 117, label: { es: 'Errores', en: 'Errors' }, note: { es: 'fallidas, a la vista', en: 'failed, in plain sight' }, tone: 'red' },
+  { value: 8, label: { es: 'En curso', en: 'Running' }, note: { es: 'agentes ahora', en: 'agents now' }, tone: 'live' },
+]
+
+function KpiCard({ k, on, i }: { k: Kpi; on: boolean; i: number }) {
+  const { t } = useLocale()
+  const tone = k.tone === 'green' ? 'text-emerald-300' : k.tone === 'red' ? 'text-red-300' : 'text-white'
   return (
-    <div className={`rounded-[20px] border border-white/10 bg-[#141517]/90 p-5 backdrop-blur ${className}`}>
-      <p className="font-light leading-none tabular-nums">{children}</p>
-      <p className="mt-2 text-sm leading-snug text-white/60">{label}</p>
+    <div
+      className={`relative rounded-[18px] border bg-[#141517]/90 p-4 transition-all duration-500 ease-expo ${k.tone === 'green' ? 'border-emerald-400/25' : 'border-white/10'}`}
+      style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'translateY(14px) scale(0.97)', transitionDelay: `${150 + i * 70}ms` }}
+    >
+      <p className="flex items-center gap-2 text-xs text-white/55">
+        {k.tone === 'live' && <span className="relative flex h-2 w-2"><span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/70 motion-reduce:animate-none" /><span className="relative h-2 w-2 rounded-full bg-emerald-400" /></span>}
+        {t(k.label)}
+      </p>
+      <p className={`mt-1.5 text-[clamp(1.4rem,1.1rem+0.9vw,2rem)] font-light leading-none tabular-nums ${tone}`}>
+        <Num value={k.value} on={on} decimals={k.decimals} prefix={k.prefix} suffix={k.suffix} />
+      </p>
+      <p className="mt-1.5 text-[12px] leading-snug text-white/45">{t(k.note)}</p>
     </div>
   )
 }
 
 export function UsageMetrics() {
   const { t } = useLocale()
-  const [ref, seen] = useInView<HTMLDivElement>(0.2)
-  const max = AGENTS[0].cost
+  const { reducedMotion } = useA11y()
+  const [ref, seen] = useInView<HTMLDivElement>(0.15)
+  const on = seen || reducedMotion
   return (
     <div ref={ref}>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="relative overflow-hidden rounded-[24px] border border-[#6b8cff]/40 bg-gradient-to-br from-[#18203d] via-[#141826] to-[#121318] p-6 sm:col-span-2 lg:row-span-2">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[radial-gradient(closest-side,rgba(126,43,224,0.35),transparent)]" aria-hidden="true" />
-          <p className="mono-label text-white/50">{t({ es: 'Costo estimado de IA · todo el periodo', en: 'Estimated AI cost · whole period' })}</p>
-          <p className="mt-4 text-[clamp(3.2rem,2rem+5vw,6rem)] font-light leading-none tabular-nums text-signal"><Num value={53.03} on={seen} decimals={2} prefix="US$" /></p>
-          <p className="mt-4 max-w-[34ch] text-white/70">{t({ es: 'por todo lo que hicieron los agentes en Producción. Cada corrida deja su costo; si un proveedor no lo reporta, queda «desconocido», nunca cero.', en: 'for everything the agents did in Production. Every run logs its cost; if a provider doesn’t report it, it stays “unknown”, never zero.' })}</p>
-          <div className="mt-6 flex h-2 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
-            <span className="bg-emerald-400 transition-[width] duration-500 ease-expo" style={{ width: seen ? '73%' : '0%' }} />
-            <span className="bg-red-400 transition-[width] delay-300 duration-500 ease-expo" style={{ width: seen ? '8%' : '0%' }} />
-            <span className="bg-white/30 transition-[width] delay-500 duration-500 ease-expo" style={{ width: seen ? '19%' : '0%' }} />
-          </div>
-          <p className="mt-2 flex flex-wrap gap-x-4 text-xs text-white/55">
-            <span><span className="text-emerald-300">●</span> 160 {t({ es: 'completadas · 73 %', en: 'completed · 73%' })}</span>
-            <span><span className="text-red-300">●</span> 18 {t({ es: 'fallidas · 8 %', en: 'failed · 8%' })}</span>
-            <span><span className="text-white/50">●</span> 40 {t({ es: 'otras', en: 'other' })}</span>
-          </p>
-        </div>
-        <Tile label={t({ es: 'ejecuciones de los agentes', en: 'agent runs' })}><span className="text-[clamp(2rem,1.4rem+1.6vw,2.8rem)]"><Num value={218} on={seen} /></span></Tile>
-        <Tile label={t({ es: 'consultas a 4 proveedores', en: 'queries to 4 providers' })}><span className="text-[clamp(2rem,1.4rem+1.6vw,2.8rem)]"><Num value={2340} on={seen} /></span></Tile>
-        <Tile label={t({ es: 'por ejecución', en: 'per run' })}><span className="text-[clamp(2rem,1.4rem+1.6vw,2.8rem)]"><Num value={0.18} on={seen} decimals={2} prefix="US$" /></span></Tile>
-        <Tile className="border-emerald-400/30" label={t({ es: 'cuesta cada empresa aprobada (Agente 1)', en: 'per approved company (Agent 1)' })}><span className="text-[clamp(2rem,1.4rem+1.6vw,2.8rem)] text-emerald-300"><Num value={1.44} on={seen} decimals={2} prefix="US$" /></span></Tile>
-      </div>
-
-      <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
-        <div className="grid grid-cols-2 gap-3">
-          <Tile label={t({ es: 'empresas aprobadas por el Agente 1', en: 'companies approved from Agent 1' })}><span className="text-[clamp(2rem,1.4rem+1.6vw,2.8rem)]"><Num value={31} on={seen} /></span></Tile>
-          <Tile label={t({ es: 'de lo generado termina aprobado', en: 'of what’s generated gets approved' })}><span className="text-[clamp(2rem,1.4rem+1.6vw,2.8rem)]"><Num value={8.2} on={seen} decimals={1} suffix=" %" /></span></Tile>
-        </div>
-        <div className="rounded-[20px] border border-white/10 bg-[#141517]/90 p-5">
-          <p className="mono-label text-white/50">{t({ es: 'Costo por agente', en: 'Cost by agent' })}</p>
-          <ul className="mt-3 space-y-2.5">
-            {AGENTS.map((a, i) => (
-              <li key={a.name.es} className="grid grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_auto] items-center gap-3 text-sm">
-                <span className="truncate text-white/75">{t(a.name)}</span>
-                <span className="h-2 overflow-hidden rounded-full bg-white/10">
-                  <span className="block h-full rounded-full bg-gradient-to-r from-[#285ee6] to-[#6b8cff] transition-[width] duration-500 ease-expo" style={{ width: seen ? `${Math.max(2, (a.cost / max) * 100)}%` : '0%', transitionDelay: `${i * 120}ms` }} />
-                </span>
-                <span className="tabular-nums">US${a.cost.toFixed(2).replace('.', ',')}</span>
-              </li>
+      {/* Collage: costo protagonista, cifras clave, cuándo y cómo se usa, y la matriz por rol */}
+      <div className="grid gap-3 lg:grid-cols-12">
+        <div className="relative overflow-hidden rounded-[24px] border border-[#6b8cff]/40 bg-gradient-to-br from-[#18203d] via-[#141826] to-[#121318] p-6 lg:col-span-4 lg:row-span-2">
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 animate-pulse rounded-full bg-[radial-gradient(closest-side,rgba(126,43,224,0.4),transparent)] motion-reduce:animate-none" aria-hidden="true" />
+          <p className="mono-label text-white/50">{t({ es: 'Costo estimado de IA', en: 'Estimated AI cost' })}</p>
+          <p className="mt-4 text-[clamp(2.6rem,1.8rem+2.6vw,4.2rem)] font-light leading-none tabular-nums text-signal"><Num value={62.66} on={on} decimals={2} prefix="US$" />+</p>
+          <p className="mt-4 text-sm leading-relaxed text-white/65">{t({ es: 'Todo lo que hicieron los agentes en Producción. Si un proveedor no reporta el costo queda «desconocido», nunca cero: por eso el «+».', en: 'Everything the agents did in Production. If a provider doesn’t report cost it stays “unknown”, never zero: hence the “+”.' })}</p>
+          <div className="mt-6 grid grid-cols-3 gap-2 text-center" aria-hidden="true">
+            {[{ v: '19,57', l: { es: 'Admin', en: 'Admin' } }, { v: '20,16', l: { es: 'Líder', en: 'Lead' } }, { v: '22,91', l: { es: 'Vendedor', en: 'Rep' } }].map((r, i) => (
+              <div key={r.v}>
+                <div className="flex h-20 items-end justify-center">
+                  <span className="w-8 rounded-t-md bg-gradient-to-t from-[#285ee6] to-[#8fa6ff] transition-[height] duration-700 ease-expo" style={{ height: on ? `${(Number(r.v.replace(',', '.')) / 23) * 100}%` : '0%', transitionDelay: `${400 + i * 120}ms` }} />
+                </div>
+                <p className="mt-1 text-[11px] text-white/55">{t(r.l)} · US${r.v}</p>
+              </div>
             ))}
-          </ul>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:col-span-8">
+          {TOP.map((k, i) => <KpiCard key={k.label.es} k={k} on={on} i={i} />)}
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 lg:col-span-8">
+          <UsageHeatmap />
+          <UsageTimeline />
+        </div>
+        <div className="lg:col-span-9"><UsageMatrix /></div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 lg:col-span-3 lg:grid-cols-1">
+          {SIDE.map((k, i) => <KpiCard key={k.label.es} k={k} on={on} i={i + 4} />)}
         </div>
       </div>
-
-      <div className="mt-14 grid items-center gap-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-        <Laptop><UsageScreen /></Laptop>
-        <p className="max-w-[40ch] leading-relaxed text-white/70">
-          {t({ es: 'Todo sale de esta pantalla de la app: costo por agente, por país, por proveedor y por búsqueda. En la réplica corre una búsqueda de ejemplo y se suma en vivo.', en: 'It all comes from this app screen: cost by agent, country, provider and search. In the replica a sample search runs and adds up live.' })}
-        </p>
-      </div>
-      <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40">{t({ es: 'Cifras reales del panel de Producción (19-11-2026) · la pantalla es una réplica con una corrida de ejemplo', en: 'Real figures from the Production panel (19 Nov 2026) · the screen is a replica with a sample run' })}</p>
+      <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40">{t({ es: 'Cifras agregadas reales del panel de Producción (19-11-2026) · mapa de calor y curva, aproximados', en: 'Real aggregate figures from the Production panel (19 Nov 2026) · heatmap and curve approximate' })}</p>
     </div>
   )
 }

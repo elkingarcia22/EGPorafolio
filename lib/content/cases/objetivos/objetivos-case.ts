@@ -110,8 +110,8 @@ export const OBJ_CASE = {
 
   ai: {
     lead: {
-      es: 'La IA aparece donde ahorra una decisión difícil: escribir un buen objetivo, leer un ciclo de 300 personas y saber qué hacer después. En el prototipo son reglas sobre las cifras, sin modelo; el diseño define qué se pide, qué se muestra y con cuánta confianza.',
-      en: 'AI shows up where it saves a hard decision: writing a good goal, reading a 300-person cycle and knowing what to do next. In the prototype it’s rules over the numbers, no model; the design defines what is asked, what is shown and with how much confidence.',
+      es: 'Escribir un buen objetivo es lo más difícil de lanzar un ciclo. «Crear con IA» lo cambia por dos preguntas que cualquiera responde —cuál es el reto y qué tiene que ser verdad al cierre— y devuelve objetivos medibles, con su medida, su punto de partida y su meta.',
+      en: 'Writing a good goal is the hardest part of launching a cycle. “Create with AI” swaps it for two questions anyone can answer —what’s the challenge and what must be true at close— and returns measurable goals, with their measure, starting point and target.',
     } as L,
   },
 

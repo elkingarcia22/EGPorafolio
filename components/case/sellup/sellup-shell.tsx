@@ -10,7 +10,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { useReveal } from '../barberlytics/use-reveal'
 
-export type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto' | 'demo'
+export type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto'
 
 const CHAPTERS: readonly { id: ChapterKey; tone: 'dark' | 'light' }[] = [
   { id: 'puntos', tone: 'dark' },
@@ -20,7 +20,6 @@ const CHAPTERS: readonly { id: ChapterKey; tone: 'dark' | 'light' }[] = [
   { id: 'forma', tone: 'dark' },
   { id: 'ia', tone: 'dark' },
   { id: 'impacto', tone: 'dark' },
-  { id: 'demo', tone: 'dark' },
 ]
 
 export interface NextLink {
@@ -52,7 +51,6 @@ export function SellUpShell({ title, hero, content, next }: SellUpShellProps) {
       forma: t(c.form),
       ia: t(c.ai),
       impacto: t(c.results),
-      demo: t({ es: 'Demo', en: 'Demo' }),
     }
     return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: ch.tone }))
   }, [t, c])
