@@ -3,59 +3,67 @@
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE, type Mark } from '@/lib/content/cases/barberlytics/platform-case'
 
-const MARK: Record<Mark, { glyph: string; cls: string; label: { es: string; en: string } }> = {
-  yes: { glyph: '●', cls: 'bg-[#2a8a5c] text-white', label: { es: 'sí', en: 'yes' } },
-  half: { glyph: '◐', cls: 'bg-[#d18b1f]/80 text-[#16130f]', label: { es: 'a medias', en: 'partly' } },
-  no: { glyph: '○', cls: 'bg-[#a8383f]/25 text-[#ff8a8e]', label: { es: 'no', en: 'no' } },
-  unknown: { glyph: '?', cls: 'bg-white/[0.04] text-white/35', label: { es: 'sin verificar', en: 'unverified' } },
-}
+/** Posición vertical de cada burbuja (en %), para que no se pisen. */
+const BUBBLE_Y = [48, 40, 20, 60, 80, 52, 24, 82]
 
-/** Matriz de funciones del calendario contra el sector, como mapa de calor. */
-function BenchmarkMatrix() {
-  const { t } = useLocale()
+const shareOf = (marks: readonly Mark[]) => marks.slice(1).reduce((n, m) => n + (m === 'yes' ? 1 : m === 'half' ? 0.5 : 0), 0)
+
+/**
+ * Mapa de oportunidades: cada función del calendario, de «todo el sector la tiene» (izquierda)
+ * a «nadie la tiene» (derecha). El relleno dorado dice si Barberlytics la tiene.
+ */
+function OpportunityMap() {
+  const { t, locale } = useLocale()
   const { matrix } = PLATFORM_CASE.patterns
+  const rivals = matrix.products.length - 1
   return (
     <figure data-reveal="device" className="overflow-hidden rounded-3xl bg-[#0f0d0b] p-5 text-white md:p-8">
-      <figcaption className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-        <span className="text-lg">{t(matrix.title)}</span>
-        <span className="flex flex-wrap gap-3 text-[11px] text-white/55">
-          {(['yes', 'half', 'no', 'unknown'] as const).map((m) => (
-            <span key={m} className="flex items-center gap-1.5">
-              <span className={`flex h-4 w-4 items-center justify-center rounded text-[9px] ${MARK[m].cls}`}>{MARK[m].glyph}</span>
-              {t(MARK[m].label)}
-            </span>
-          ))}
+      <figcaption className="mb-2 flex flex-wrap items-baseline justify-between gap-3">
+        <span className="text-lg">{t({ es: 'Dónde está el espacio libre', en: 'Where the open space is' })}</span>
+        <span className="flex flex-wrap gap-4 text-[11px] text-white/60">
+          <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-[#d9b36a]" />{t({ es: 'Barberlytics lo tiene', en: 'Barberlytics has it' })}</span>
+          <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full border-2 border-[#d9b36a] bg-[linear-gradient(90deg,#d9b36a_50%,transparent_50%)]" />{t({ es: 'a medias', en: 'partly' })}</span>
+          <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full border border-dashed border-white/40" />{t({ es: 'aún no', en: 'not yet' })}</span>
         </span>
       </figcaption>
+      <p className="mb-6 max-w-[60ch] text-xs leading-relaxed text-white/50">
+        {t({ es: `Cada burbuja es una función del calendario; su lugar depende de cuántos de los ${rivals} productos del sector la tienen.`, en: `Each bubble is a calendar function; its place depends on how many of the ${rivals} industry products have it.` })}
+      </p>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] border-separate border-spacing-1 text-left text-xs">
-          <thead>
-            <tr>
-              <th scope="col" className="w-[30%] px-2 pb-2 font-normal text-white/45">{t({ es: 'Función', en: 'Function' })}</th>
-              {matrix.products.map((p, i) => (
-                <th key={p} scope="col" className={`px-1 pb-2 text-center font-normal ${i === 0 ? 'text-[#d9b36a]' : 'text-white/55'}`}>{p}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {matrix.rows.map((row, r) => (
-              <tr key={row.fn.es}>
-                <th scope="row" className="px-2 py-1 font-normal text-white/80">{t(row.fn)}</th>
-                {row.marks.map((m, c) => (
-                  <td key={matrix.products[c]} className="p-0">
-                    <span
-                      className={`flex h-8 items-center justify-center rounded-md text-[11px] animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] ${MARK[m].cls} ${c === 0 ? 'ring-1 ring-[#d9b36a]' : ''}`}
-                      style={{ animationDelay: `${r * 60 + c * 25}ms` }}
-                      title={`${matrix.products[c]} · ${t(MARK[m].label)}`}
-                    >
-                      {MARK[m].glyph}
-                    </span>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="relative h-[500px] min-w-[760px]">
+          {/* La zona que nadie ocupa */}
+          <div className="absolute inset-y-0 right-0 w-[30%] rounded-2xl bg-[linear-gradient(90deg,transparent,rgba(217,179,106,0.12))]" aria-hidden="true" />
+          <span className="mono-label absolute right-3 top-2 text-[#d9b36a]">{t({ es: 'Espacio libre', en: 'Open space' })}</span>
+          {/* Eje */}
+          <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 text-[11px] text-white/45">
+            <span>{t({ es: '← Todo el sector lo tiene', en: '← The whole industry has it' })}</span>
+            <span className="h-px flex-1 bg-gradient-to-r from-white/30 to-[#d9b36a]/70" />
+            <span>{t({ es: 'Nadie lo tiene →', en: 'Nobody has it →' })}</span>
+          </div>
+          {matrix.rows.map((row, i) => {
+            const share = shareOf(row.marks) / rivals
+            const own = row.marks[0]
+            const x = 9 + (1 - share) * 82
+            const alone = share === 0
+            return (
+              <div key={row.fn.es} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `calc(${BUBBLE_Y[i]}% - 14px)` }}>
+                <div
+                  className="flex h-[112px] w-[112px] animate-[ramp-in_0.8s_cubic-bezier(0.16,1,0.3,1)_both] flex-col items-center justify-center rounded-full p-3 text-center"
+                  style={{
+                    animationDelay: `${i * 90}ms`,
+                    background: own === 'yes' ? 'radial-gradient(circle at 35% 30%, #f0d18f, #b98b3c)' : own === 'half' ? 'linear-gradient(90deg, rgba(217,179,106,0.55) 50%, rgba(255,255,255,0.03) 50%)' : 'rgba(255,255,255,0.03)',
+                    border: own === 'no' ? '1.5px dashed rgba(255,255,255,0.35)' : '1.5px solid #d9b36a',
+                    boxShadow: alone ? '0 0 50px -6px rgba(217,179,106,0.8)' : undefined,
+                    color: own === 'yes' ? '#16130f' : '#efe9dd',
+                  }}
+                >
+                  <span className="text-[11px] font-medium leading-tight">{t(row.fn)}</span>
+                  <span className={`mt-1 font-mono text-[10px] ${own === 'yes' ? 'text-[#16130f]/70' : 'text-white/55'}`}>{share === 0 ? t({ es: 'solo nosotros', en: 'only us' }) : `${(share * rivals).toLocaleString(locale === 'es' ? 'es-CO' : 'en-US', { maximumFractionDigits: 1 })} / ${rivals}`}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
       <p className="mt-4 text-[11px] text-white/40">{t(matrix.note)}</p>
     </figure>
@@ -95,7 +103,7 @@ export function PlatformPatterns() {
   return (
     <div>
       <p data-reveal className="mb-10 max-w-[62ch] text-lg leading-relaxed opacity-80">{t(patterns.lead)}</p>
-      <BenchmarkMatrix />
+      <OpportunityMap />
       <Voices />
       <ol className="mt-12 space-y-4">
         {patterns.insights.map((insight, i) => (
