@@ -2,13 +2,16 @@
 
 import { Loader2 } from 'lucide-react'
 import { useLocale } from '@/lib/i18n'
+import { useA11y } from '@/lib/a11y'
 import { RealFrame } from './real-app'
 import { Composer, OptionsCard, RumboPanel, RumboSays, UserSays, type PanelOption } from './real-rumbo-panel'
 import { CompanyReview } from './real-review-tables'
 import { CompanyDetail } from './real-detail'
 import { AgentStructure, type StructureItem } from './forma-structure'
 import { FakeCursor, ReplicaNote, StorySteps, stepAt, type StoryStep } from './real-story'
-import { DetailScene, PanelScene, SceneStage, useSceneTime } from './forma-stage'
+import { DetailScene, PanelScene, useSceneTime } from './forma-stage'
+import { FastStage } from './forma-a1-stage'
+import { SpeedTunnel } from './forma-a1-tunnel'
 
 /**
  * 5.2 · Agente 1: el panel de Rumbo «Generar empresas candidatas» (tal cual la app),
@@ -17,10 +20,15 @@ import { DetailScene, PanelScene, SceneStage, useSceneTime } from './forma-stage
 
 const STEPS: readonly StoryStep[] = [
   { label: { es: 'Rumbo pregunta qué buscar', en: 'Rumbo asks what to look for' }, from: 0 },
-  { label: { es: 'Llega a «Por revisar», destacada', en: 'Lands in “To review”, highlighted' }, from: 13 },
-  { label: { es: 'Se abre su detalle', en: 'Its detail opens' }, from: 20 },
+  { label: { es: 'Viaja por las fuentes', en: 'Travels through the sources' }, from: 12 },
+  { label: { es: 'Aterriza en «Por revisar»', en: 'Lands in “To review”' }, from: 18 },
+  { label: { es: 'Se abre su detalle', en: 'Its detail opens' }, from: 26 },
 ]
-const LOOP = 29
+/** Ticks de 0,56 s: 0–11 panel, 12–17 túnel, 18–25 tabla, 26–35 detalle. */
+const LOOP = 36
+
+/** Las filas caen escalonadas al aterrizar en la tabla. */
+const LANDING_CSS = `@keyframes a1-drop{0%{transform:translateY(-14px);opacity:0}100%{transform:none;opacity:1}}.a1-land [class*="border-white/[0.06]"]{animation:a1-drop 320ms cubic-bezier(0.16,1,0.3,1) both}${Array.from({ length: 10 }, (_, i) => `.a1-land [class*="border-white/[0.06]"]:nth-child(${i + 1}){animation-delay:${i * 45}ms}`).join('')}`
 
 /** Los seis tipos de búsqueda, con el texto de la app. */
 const TYPES: readonly PanelOption[] = [
@@ -73,24 +81,35 @@ function Conversation({ time }: { time: number }) {
 
 export function SearchReview() {
   const { t } = useLocale()
+  const { reducedMotion } = useA11y()
   const [ref, time, jump] = useSceneTime(LOOP, 22)
   const scene = stepAt(STEPS, time)
-  const onRow = time >= 16 && time < 20
+  const onRow = time >= 22 && time < 26
   return (
     <div ref={ref}>
+      <style>{LANDING_CSS}</style>
       <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 1', en: 'Agent 1' }} onPick={jump} />
-      <SceneStage
+      <FastStage
         active={scene}
         scenes={[
-          <PanelScene key="panel"><Conversation time={Math.min(time, 12)} /></PanelScene>,
-          <RealFrame key="table" active="revisar" crumb={['Empresas', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 256 : 560} click={time === 19} show={onRow} />}>
-            <CompanyReview arrived={time >= 14} focus={time >= 14} />
-          </RealFrame>,
-          <DetailScene key="detail"><CompanyDetail show inline /></DetailScene>,
+          { node: <PanelScene><Conversation time={Math.min(time, 11)} /></PanelScene> },
+          { node: <SpeedTunnel active={scene === 1} still={reducedMotion} />, from: 0.6 },
+          {
+            from: 1.18,
+            bounce: true,
+            node: (
+              <div key={scene === 2 ? 'land' : 'idle'} className={scene === 2 && !reducedMotion ? 'a1-land' : ''}>
+                <RealFrame active="revisar" crumb={['Empresas', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 256 : 560} click={time === 25} show={onRow} />}>
+                  <CompanyReview arrived={time >= 19} focus={time >= 19} />
+                </RealFrame>
+              </div>
+            ),
+          },
+          { node: <DetailScene><CompanyDetail show inline /></DetailScene>, from: 0.22, origin: '30% 43%' },
         ]}
       />
       <ReplicaNote />
-      <AgentStructure heading={{ es: 'Su estructura · seis formas de buscar empresas', en: 'Its structure · six ways to find companies' }} items={STRUCTURE} active={scene === 0 ? 0 : undefined} />
+      <AgentStructure heading={{ es: 'Su estructura · seis formas de buscar empresas', en: 'Its structure · six ways to find companies' }} items={STRUCTURE} active={scene <= 1 ? 0 : undefined} />
       <p className="mt-3 text-sm text-white/50">{t({ es: 'Todas terminan en la misma bandeja, con las mismas verificaciones: número fiscal, dominio, duplicados y dueño en HubSpot.', en: 'They all end in the same queue, with the same checks: tax ID, domain, duplicates and owner in HubSpot.' })}</p>
     </div>
   )

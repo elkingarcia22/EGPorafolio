@@ -1,14 +1,16 @@
 'use client'
 
-import { Check, Minus } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { RealFrame } from './real-app'
 import { Composer, OptionsCard, RumboPanel, RumboSays, UserSays } from './real-rumbo-panel'
 import { ContactReview } from './real-review-tables'
-import { ContactDetail, type PhoneState } from './real-detail'
+import { ContactDetail } from './real-detail'
 import { AgentStructure, type StructureItem } from './forma-structure'
 import { FakeCursor, ReplicaNote, StorySteps, stepAt, type StoryStep } from './real-story'
-import { DetailScene, PanelScene, SceneStage, useSceneTime } from './forma-stage'
+import { DetailScene, PanelScene, SceneStage, Scaled, useSceneTime } from './forma-stage'
+import { PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
+import { PhoneDecoder, type A2Phone } from './forma-a2-phone'
 
 /**
  * 5.3 · Agente 2: el panel de Rumbo «Enriquecer contactos», el resultado en
@@ -17,10 +19,11 @@ import { DetailScene, PanelScene, SceneStage, useSceneTime } from './forma-stage
 
 const STEPS: readonly StoryStep[] = [
   { label: { es: 'Le das la empresa a Rumbo', en: 'You give Rumbo the company' }, from: 0 },
-  { label: { es: 'Llega a «Por revisar», destacada', en: 'Lands in “To review”, highlighted' }, from: 13 },
-  { label: { es: 'Su detalle y su teléfono', en: 'Its detail and phone' }, from: 19 },
+  { label: { es: 'El radar barre las fuentes', en: 'The radar sweeps the sources' }, from: 8 },
+  { label: { es: 'Las decisoras llegan a «Por revisar»', en: 'Decision-makers land in “To review”' }, from: 21 },
+  { label: { es: 'Su detalle: se descifra el teléfono', en: 'Their detail: the phone gets decoded' }, from: 26 },
 ]
-const LOOP = 32
+const LOOP = 38
 const COMPANY = 'Clínica Andina'
 
 const STRUCTURE: readonly StructureItem[] = [
@@ -29,16 +32,9 @@ const STRUCTURE: readonly StructureItem[] = [
   { title: { es: 'Un contacto por LinkedIn, correo o ID', en: 'One contact by LinkedIn, email or ID' }, body: { es: 'Su perfil de LinkedIn, su correo o su ID de contacto en HubSpot. Antes de gastar créditos revisa si ya lo tenemos.', en: 'Their LinkedIn profile, email or HubSpot contact ID. Before spending credits it checks whether we already have them.' }, note: { es: 'Teléfono: Apollo y, si no hay, Lusha', en: 'Phone: Apollo and, if none, Lusha' } },
 ]
 
-const CASCADE = [
-  { at: 8, name: 'HubSpot', result: '2 contactos · gratis', used: true },
-  { at: 9, name: 'Lo que SellUp ya conocía', result: '1 contacto · gratis', used: true },
-  { at: 10, name: 'Apollo', result: '3 decisores · 3 créditos', used: true },
-  { at: 11, name: 'Lusha', result: 'No hizo falta', used: false },
-]
-
 function Conversation({ time }: { time: number }) {
-  const typed = time < 2 ? 0 : Math.min(COMPANY.length, (time - 1) * 4)
-  const sent = time >= 6
+  const typed = time < 1 ? 0 : Math.min(COMPANY.length, time * 4)
+  const sent = time >= 5
   return (
     <RumboPanel
       inline
@@ -56,7 +52,7 @@ function Conversation({ time }: { time: number }) {
               />
             </div>
           )}
-          <Composer text={sent ? '' : COMPANY.slice(0, typed)} placeholder="Nombre o dominio de la empresa" typing={!sent && time >= 2} />
+          <Composer text={sent ? '' : COMPANY.slice(0, typed)} placeholder="Nombre o dominio de la empresa" typing={!sent && time >= 1} />
         </>
       }
     >
@@ -67,52 +63,62 @@ function Conversation({ time }: { time: number }) {
       {sent && (
         <>
           <UserSays>{COMPANY}</UserSays>
-          <RumboSays show={time >= 7}>Encontré Clínica Andina · clinicaandina.mx · 1.240 empleados. Reservo 8 créditos y busco primero en lo gratis.</RumboSays>
-          <div className="ml-8 space-y-1.5">
-            {CASCADE.map((c) => (
-              <p key={c.name} className={`flex items-center gap-2 rounded-lg border border-white/10 px-2.5 py-1.5 text-[12.5px] transition-all duration-500 ${time >= c.at ? 'opacity-100' : 'opacity-0'}`}>
-                {c.used ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Minus className="h-3.5 w-3.5 text-white/40" />}
-                <span className="font-medium">{c.name}</span>
-                <span className={`ml-auto ${c.used ? 'text-white/70' : 'text-white/40'}`}>{c.result}</span>
-              </p>
-            ))}
-          </div>
-          <RumboSays show={time >= 12}>Listo: 4 contactos a «Por revisar». Devolví los 5 créditos que no usé.</RumboSays>
+          <RumboSays show={time >= 6}>Encontré Clínica Andina · clinicaandina.mx · 1.240 empleados. Reservo 8 créditos y busco primero en lo gratis.</RumboSays>
+          <RumboSays show={time >= 7}>Barro HubSpot, lo ya conocido, Apollo y Lusha, en ese orden…</RumboSays>
         </>
       )}
     </RumboPanel>
   )
 }
 
-function phoneAt(time: number): PhoneState {
-  if (time < 22) return 'idle'
-  if (time < 24) return 'apollo'
-  if (time < 26) return 'lusha'
+function phoneAt(time: number): A2Phone {
+  if (time < 28) return 'idle'
+  if (time < 30) return 'apollo'
+  if (time < 32) return 'lusha'
   return 'done'
+}
+
+/** Entrada con velocidad: la escena llega desde un zoom con desenfoque. */
+function Warp({ on, children }: { on: boolean; children: ReactNode }) {
+  return (
+    <div className="motion-reduce:!transform-none motion-reduce:!filter-none" style={{ transform: on ? 'none' : 'scale(1.08)', filter: on ? 'none' : 'blur(10px)', transition: 'transform 380ms cubic-bezier(0.16,1,0.3,1), filter 320ms ease-out' }}>
+      {children}
+    </div>
+  )
 }
 
 export function ContactEnrichment() {
   const { t } = useLocale()
-  const [ref, time, jump] = useSceneTime(LOOP, 28)
+  const [ref, time, jump] = useSceneTime(LOOP, 33)
   const scene = stepAt(STEPS, time)
-  const onRow = time >= 15 && time < 19
-  const onPhone = time >= 19 && time < 23
+  const onRow = time >= 23 && time < 26
+  const onPhone = time >= 26 && time < 29
   return (
     <div ref={ref}>
       <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 2', en: 'Agent 2' }} onPick={jump} />
       <SceneStage
         active={scene}
         scenes={[
-          <PanelScene key="panel"><Conversation time={Math.min(time, 12)} /></PanelScene>,
-          <RealFrame key="table" active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 248 : 560} click={time === 18} show={onRow} />}>
-            <ContactReview arrived={time >= 14} focus={time >= 14} />
-          </RealFrame>,
-          <DetailScene key="detail">
-            <div className="relative h-full">
-              <ContactDetail show inline phone={phoneAt(time)} pressed={time === 21} />
-              <FakeCursor x={onPhone ? 115 : 600} y={onPhone ? 360 : 520} click={time === 21} show={onPhone} />
-            </div>
-          </DetailScene>,
+          <PanelScene key="panel" height={700}><Conversation time={Math.min(time, 8)} /></PanelScene>,
+          <Warp key="radar" on={scene === 1}>
+            <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={scene === 1 ? time - 8 : scene > 1 ? 13 : 0} /></Scaled>
+          </Warp>,
+          <Warp key="table" on={scene === 2}>
+            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 248 : 560} click={time === 25} show={onRow} />}>
+              <ContactReview arrived={time >= 22} focus={time >= 22} />
+            </RealFrame>
+          </Warp>,
+          <Warp key="detail" on={scene === 3}>
+            <DetailScene>
+              <div className="relative h-full">
+                <ContactDetail show inline phone="idle" />
+                <div className="absolute z-20" style={{ left: A2_BTN.x, top: A2_BTN.y }}>
+                  <PhoneDecoder state={phoneAt(time)} pressed={time === 28} />
+                </div>
+                <FakeCursor x={onPhone ? A2_BTN.x + 60 : 600} y={onPhone ? A2_BTN.y + 18 : 520} click={time === 28} show={onPhone} />
+              </div>
+            </DetailScene>
+          </Warp>,
         ]}
       />
       <ReplicaNote />
@@ -121,3 +127,6 @@ export function ContactEnrichment() {
     </div>
   )
 }
+
+/** Dónde queda el botón «Revelar teléfono» dentro del detalle (px de diseño, 960 × 600). */
+const A2_BTN = { x: 39, y: 362 }
