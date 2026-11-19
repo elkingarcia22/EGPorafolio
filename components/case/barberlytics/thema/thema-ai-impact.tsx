@@ -2,7 +2,7 @@
 
 import { useLocale } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
-import { BrowserMockup } from '@/components/case/kit/device'
+import { AiChatFlow } from './ai-chat-flow'
 
 /** Panel tipo editor/terminal para mostrar archivos y comandos. */
 function CodePanel({ title, children }: { title: string; children: React.ReactNode }) {
@@ -62,7 +62,8 @@ export function ThemaAi() {
       </dl>
 
       <div className="mt-12">
-        <BrowserMockup image={ai.guide} withLegend={false} />
+        <p data-reveal className="mono-label mb-5 opacity-60">{t({ es: 'Así se ve un pedido de principio a fin', en: 'A request, start to finish' })}</p>
+        <AiChatFlow />
       </div>
     </div>
   )

@@ -224,3 +224,22 @@ export function Doodle({ paths, viewBox = '0 0 100 100', className = '', accent 
     </svg>
   )
 }
+
+interface GuideSpec {
+  d: string
+  accent?: boolean
+}
+
+/** Líneas guía (sin flecha) en coordenadas del tablero: medidas, retículas, cotas. */
+export function Guides({ lines }: { lines: readonly GuideSpec[] }) {
+  const { w, h, filterId } = useContext(BoardContext)
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+      <g style={{ filter: `url(#${filterId})` }} fill="none" strokeLinecap="round">
+        {lines.map((l) => (
+          <path key={l.d} d={l.d} stroke={l.accent ? '#e8743b' : INK} strokeOpacity={l.accent ? 0.95 : 0.55} strokeWidth={l.accent ? 2 : 1.4} strokeDasharray="6 6" />
+        ))}
+      </g>
+    </svg>
+  )
+}

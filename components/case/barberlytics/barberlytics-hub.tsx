@@ -26,6 +26,33 @@ interface HubProject {
 
 const IMG = '/cases/barberlytics'
 
+/** Tres temas de la documentación en abanico: un sistema, varias identidades. */
+function ThemaFan() {
+  const fan = [
+    { id: 'thema', cls: 'left-[5%] top-[24%] z-10', rest: 'rotateY(26deg) rotateZ(-6deg)', open: 'rotateY(18deg) rotateZ(-9deg) translateX(-8%)' },
+    { id: 'emerald', cls: 'right-[5%] top-[24%] z-10', rest: 'rotateY(-26deg) rotateZ(6deg)', open: 'rotateY(-18deg) rotateZ(9deg) translateX(8%)' },
+    { id: 'premium', cls: 'left-1/2 top-[15%] z-20 -translate-x-1/2', rest: 'translateZ(40px)', open: 'translateZ(60px) translateY(-4%)' },
+  ]
+  const swatches = ['#D9B36A', '#0C5BEF', '#059669', '#F87171', '#7C3AED', '#7FD8AF']
+  return (
+    <div className="relative h-full bg-[radial-gradient(circle_at_50%_40%,rgba(217,179,106,0.28),transparent_62%)] [perspective:1400px]">
+      {fan.map((f) => (
+        <div key={f.id} className={`absolute w-[56%] ${f.cls}`}>
+          <div
+            className="overflow-hidden rounded-lg shadow-[0_30px_60px_-25px_rgba(0,0,0,0.9)] ring-1 ring-white/10 transition-transform duration-700 ease-expo [transform:var(--rest)] group-hover:[transform:var(--open)]"
+            style={{ '--rest': f.rest, '--open': f.open } as React.CSSProperties}
+          >
+            <Image src={`${IMG}/theme-${f.id}.webp`} width={1400} height={817} alt="" sizes="(min-width: 768px) 25vw, 55vw" className="block h-auto w-full" />
+          </div>
+        </div>
+      ))}
+      <div className="absolute bottom-[6%] left-1/2 z-30 flex -translate-x-1/2 gap-2 rounded-full bg-black/50 px-3 py-2 backdrop-blur">
+        {swatches.map((c) => <span key={c} className="h-3.5 w-3.5 rounded-full ring-1 ring-white/20" style={{ background: c }} />)}
+      </div>
+    </div>
+  )
+}
+
 const PROJECTS: readonly HubProject[] = [
   {
     slug: 'thema',
@@ -35,7 +62,7 @@ const PROJECTS: readonly HubProject[] = [
     body: { es: 'De un legado con cuatro fuentes de tokens a 218 componentes, 10 temas y reglas que la IA también sigue.', en: 'From a legacy with four token sources to 218 components, 10 themes and rules the AI follows too.' },
     stat: { es: '218 componentes · 22 familias', en: '218 components · 22 families' },
     ready: true,
-    visual: <Image src={`${IMG}/thema-home.webp`} width={1140} height={620} alt="" sizes="(min-width: 768px) 45vw, 100vw" className="h-full w-full object-cover object-left-top" />,
+    visual: <ThemaFan />,
   },
   {
     slug: 'reserva',

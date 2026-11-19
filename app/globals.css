@@ -124,3 +124,28 @@ body {
 
 /* Ocultar el cursor nativo solo cuando el cursor propio está activo */
 html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
+
+/* Collage de componentes (casos): cada pieza flota a su ritmo. */
+@keyframes collage-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.collage-float-a { animation: collage-float 6s ease-in-out infinite; }
+.collage-float-b { animation: collage-float 7.5s ease-in-out -2s infinite; }
+.collage-float-c { animation: collage-float 5.2s ease-in-out -1s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .collage-float-a, .collage-float-b, .collage-float-c { animation: none; }
+}
+html[data-motion='reduced'] .collage-float-a,
+html[data-motion='reduced'] .collage-float-b,
+html[data-motion='reduced'] .collage-float-c { animation: none; }
+
+/* Fundamentos en vivo (caso Thema) */
+@keyframes ramp-in {
+  from { opacity: 0; transform: translateY(14px) scaleY(0.85); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes motion-run {
+  from { left: 0.25rem; }
+  to { left: calc(100% - 1.75rem); }
+}

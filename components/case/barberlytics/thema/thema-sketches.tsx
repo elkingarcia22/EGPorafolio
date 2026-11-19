@@ -1,7 +1,7 @@
 'use client'
 
 import { useLocale, type L } from '@/lib/i18n'
-import { Arrows, Bar, Board, Doodle, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
+import { Arrows, Bar, Board, Doodle, Guides, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 
 /* ── Dibujos ─────────────────────────────────────────────────────────── */
 
@@ -181,6 +181,91 @@ export function SystemBoard() {
       </Pin>
       <Pin x={40} y={660} w={620}>
         <Hand size={1.4} className="opacity-70">{s('Fases reconstruidas: 5D temas · 7B auditoría · 8.0 reglas de pantalla · 8.5 iconos · 8.7 piezas de IA', 'Reconstructed phases: 5D themes · 7B audit · 8.0 screen rules · 8.5 icons · 8.7 AI pieces')}</Hand>
+      </Pin>
+    </Board>
+  )
+}
+
+/* ── Tablero 3 · Construcción del logo (SVG oficial y sus medidas reales) ─ */
+
+/** Medidas del logo (src/components/ui/barberlyticsLogoPaths.ts), en unidades del SVG. */
+const LOGO = { x: 44.13, y: 135.57, w: 452.7, h: 102 }
+const METRICS = [
+  { key: 'capTop', y: 137.51, label: { es: 'tope de mayúsculas', en: 'cap height' } },
+  { key: 'xHeight', y: 152.2, label: { es: 'minúsculas = punta de la flecha', en: 'x-height = arrow tip' }, accent: true },
+  { key: 'baseline', y: 188.27, label: { es: 'línea base', en: 'baseline' } },
+  { key: 'descender', y: 201.83, label: { es: 'descendente de la «y»', en: '“y” descender' } },
+  { key: 'pulse', y: 237.57, label: { es: 'fondo del pulso', en: 'pulse bottom' } },
+] as const
+const PULSE_START = 368.12
+const LOGO_X = 188.27 - 137.51
+
+/** Ancho de diseño del tablero de construcción */
+const BOARD_W = 1500
+
+/** Posición del logo en el tablero (px de diseño). */
+const PLACE = { x: 170, y: 190, w: 960 }
+const scale = PLACE.w / LOGO.w
+const toY = (y: number) => PLACE.y + (y - LOGO.y) * scale
+const toX = (x: number) => PLACE.x + (x - LOGO.x) * scale
+
+export function LogoConstructionBoard() {
+  const { t } = useLocale()
+  const s = (es: string, en: string): string => t({ es, en } satisfies L)
+  const pad = LOGO_X * scale
+  const height = LOGO.h * scale
+  const palette = [
+    { name: s('Carbón', 'Charcoal'), hex: '#171717' },
+    { name: s('Oro anterior · 1.8:1 ✕', 'Old gold · 1.8:1 ✕'), hex: '#F0B669' },
+    { name: s('Oro tinta · claro', 'Ink gold · light'), hex: '#A86F1F' },
+    { name: s('Gradiente de IA', 'AI gradient'), hex: 'linear-gradient(90deg,#F0CE86,#DE8C3A,#2E9CB0)' },
+  ]
+  return (
+    <Board title={s('Construcción · el logo oficial y sus medidas', 'Construction · the official logo and its measures')} w={1500} h={760} label={s('Logo oficial con sus líneas de construcción', 'Official logo with its construction lines')}>
+      <Pin x={40} y={24}>
+        <Hand size={2.4} className="font-bold">{s('Todo el aire se mide en «x»: la altura de la B', 'All space is measured in “x”: the height of the B')}</Hand>
+      </Pin>
+
+      {/* Espacio de respeto: 1x alrededor */}
+      <Pin x={PLACE.x - pad} y={PLACE.y - pad} w={PLACE.w + pad * 2}>
+        <div className="rounded-[0.4cqw] border-[0.12cqw] border-dashed border-[#e8743b]/70" style={{ height: `${((height + pad * 2) / BOARD_W) * 100}cqw` }} />
+      </Pin>
+      <Pin x={PLACE.x} y={PLACE.y} w={PLACE.w}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- SVG oficial, se muestra tal cual */}
+        <img src="/cases/barberlytics/logo-official-ink.svg" alt={s('Logo oficial de Barberlytics', 'Official Barberlytics logo')} className="block h-auto w-full" />
+      </Pin>
+      <Guides
+        lines={[
+          ...METRICS.map((m) => ({ d: `M${PLACE.x - 40},${toY(m.y)} L${PLACE.x + PLACE.w + 30},${toY(m.y)}`, accent: 'accent' in m && m.accent })),
+          { d: `M${toX(PULSE_START)},${toY(LOGO.y) - 30} L${toX(PULSE_START)},${toY(237.57) + 30}` },
+        ]}
+      />
+      {METRICS.map((m) => (
+        <Pin key={m.key} x={PLACE.x + PLACE.w + 40} y={toY(m.y) - 14} w={300}>
+          <Hand size={1.35} className={'accent' in m && m.accent ? 'font-bold text-[#c8642b]' : 'opacity-75'}>{t(m.label)}</Hand>
+        </Pin>
+      ))}
+      <Pin x={toX(PULSE_START) - 70} y={toY(237.57) + 34} w={190}>
+        <Hand size={1.3} className="opacity-75">{s('el pulso nace bajo la «i»', 'the pulse starts under the “i”')}</Hand>
+      </Pin>
+      <Pin x={PLACE.x - pad - 4} y={PLACE.y - pad - 34} w={260}>
+        <Hand size={1.3} className="text-[#c8642b]">{s('1x de aire alrededor', '1x clear space around')}</Hand>
+      </Pin>
+
+      {/* Paleta real del logo */}
+      <Pin x={40} y={600}>
+        <Hand size={1.8} className="font-bold">{s('La paleta', 'The palette')}</Hand>
+      </Pin>
+      {palette.map((p, i) => (
+        <Pin key={p.name} x={40 + i * 260} y={650} w={230}>
+          <span className="flex items-center gap-[0.6cqw]">
+            <span className="h-[3cqw] w-[3cqw] shrink-0 rounded-[0.5cqw] border-[0.12cqw] border-[#2a2d33]" style={{ background: p.hex }} />
+            <Hand size={1.35}>{p.name}</Hand>
+          </span>
+        </Pin>
+      ))}
+      <Pin x={1120} y={600} w={330} rotate={2}>
+        <Sticky color="yellow" small>{s('Un solo trazo de 0,14 em, puntas redondas: baja a 45° y sube a 67°.', 'One 0.14 em stroke, round caps: down at 45°, up at 67°.')}</Sticky>
       </Pin>
     </Board>
   )
