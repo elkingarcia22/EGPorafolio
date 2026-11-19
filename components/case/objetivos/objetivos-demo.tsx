@@ -10,38 +10,55 @@ import { RecordModal } from '@/components/case/kit/record-modal'
 const DEMO_URL = 'https://staging-playground.ubits.co/admin/desempeno-cultura/objetivos?ver=backlog'
 
 /**
- * Medidas del shell del playground (staging, 19 nov 2026): bajo 1200 px de ancho el menú
- * lateral se queda plegado en un riel de 72 px, y la barra superior mide 60 px. Se ven a
- * tamaño normal, pero una capa encima no deja navegar por ellos: solo se recorre Objetivos.
+ * Igual que la demo de Encuestas: el playground se dibuja a 1.199 px (justo bajo el `NARROW_WINDOW`
+ * de su RootLayout, así el menú queda plegado en el riel de 72 px) y se escala a todo el modal. El
+ * riel y la barra superior (60 px) se ven, pero una capa encima no deja navegar: solo Objetivos.
  */
-const MAX_W = 1199
 const RAIL = 72
-const HEADER = 60
+const TOPBAR = 60
+const NARROW_WINDOW = 1200
 
-/** El módulo a tamaño real; el menú y la barra se ven, pero no llevan a ningún lado. */
 function ModuleOnly() {
   const { t } = useLocale()
   const box = useRef<HTMLDivElement>(null)
-  const [w, setW] = useState(0)
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     const el = box.current
     if (!el) return
-    const ro = new ResizeObserver(([entry]) => setW(Math.min(MAX_W, entry.contentRect.width)))
+    const ro = new ResizeObserver(([e]) => setSize({ w: e.contentRect.width, h: e.contentRect.height }))
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
 
-  const blocked = t({ es: 'En la demo solo se recorre Objetivos', en: 'The demo only covers Goals' })
+  const width = size && size.w < 768 ? 1024 : NARROW_WINDOW - 1
+  const scale = size ? size.w / width : 1
+  const height = size ? size.h / scale : 800
+
   return (
-    <div ref={box} className="relative flex min-h-0 flex-1 justify-center bg-[#0b0d16]">
-      {w > 0 && (
-        <div className="relative h-full" style={{ width: w }}>
-          <iframe src={DEMO_URL} title={t({ es: 'Objetivos de UBITS, en vivo', en: 'UBITS Goals, live' })} className="h-full w-full border-0 bg-white" />
-          {/* Capas que atajan los clics del menú y de la barra: ahí se llega a los demás productos. */}
-          <div className="absolute inset-x-0 top-0 cursor-not-allowed" style={{ height: HEADER }} title={blocked} aria-hidden="true" />
-          <div className="absolute bottom-0 left-0 cursor-not-allowed" style={{ top: HEADER, width: RAIL }} title={blocked} aria-hidden="true" />
-        </div>
+    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden bg-white">
+      {!loaded && (
+        <p className="absolute inset-0 flex items-center justify-center gap-3 font-mono text-xs text-[#5c646f]" role="status">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0c5bef] border-t-transparent" />
+          {t({ es: 'Abriendo el playground en staging…', en: 'Opening the playground on staging…' })}
+        </p>
+      )}
+      {size && (
+        <iframe
+          src={DEMO_URL}
+          title={t({ es: 'Objetivos de UBITS, en vivo', en: 'UBITS Goals, live' })}
+          onLoad={() => setLoaded(true)}
+          className="absolute left-0 top-0 origin-top-left border-0 transition-opacity duration-500"
+          style={{ width, height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
+        />
+      )}
+      {/* Capas invisibles sobre el riel y la barra superior: se ven, pero no llevan a otros productos. */}
+      {size && (
+        <>
+          <span className="absolute left-0 top-0 h-full cursor-not-allowed" style={{ width: RAIL * scale }} aria-hidden="true" />
+          <span className="absolute right-0 top-0 cursor-not-allowed" style={{ left: RAIL * scale, height: TOPBAR * scale }} aria-hidden="true" />
+        </>
       )}
     </div>
   )
