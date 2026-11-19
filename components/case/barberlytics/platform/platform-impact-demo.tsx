@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import Image from 'next/image'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { getLenis } from '@/lib/motion'
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE, type RoleId } from '@/lib/content/cases/barberlytics/platform-case'
 
@@ -63,75 +65,116 @@ const DEMO_ROLES: readonly { id: RoleId; ir: string; name: { es: string; en: str
   { id: 'dueno', ir: '/calendario', name: { es: 'Dueño', en: 'Owner' } },
   { id: 'comision', ir: '/calendario', name: { es: 'Barbero', en: 'Barber' } },
 ]
+type DemoRole = (typeof DEMO_ROLES)[number]
 
-/**
- * 08 · Demo: la plataforma real en un navegador, entrando como cada rol.
- * El iframe solo se carga al pedirlo, así no pesa al abrir el caso.
- */
+const demoUrl = (role: DemoRole) => `${PLATFORM_CASE.demo.base}?rol=${role.id}&ir=${encodeURIComponent(role.ir)}`
+
+/** El calendario real a pantalla completa, con pestañas para entrar como cada rol. */
+function FullscreenCalendar({ initial, onClose }: { initial: DemoRole; onClose: () => void }) {
+  const { t } = useLocale()
+  const [role, setRole] = useState(initial)
+  const closeRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    const lenis = getLenis()
+    lenis?.stop()
+    const html = document.documentElement
+    const prev = html.style.overflow
+    html.style.overflow = 'hidden'
+    closeRef.current?.focus()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      html.style.overflow = prev
+      lenis?.start()
+    }
+  }, [onClose])
+
+  return (
+    <div role="dialog" aria-modal="true" aria-label={t({ es: 'Calendario de Barberlytics', en: 'Barberlytics calendar' })} className="fixed inset-0 z-[100] flex flex-col bg-[#0b0c0e]">
+      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 px-4 py-2.5 text-paper">
+        <span className="font-mono text-[11px] text-white/50">Barberlytics · {t({ es: 'calendario', en: 'calendar' })}</span>
+        <div role="tablist" aria-label={t({ es: 'Entrar como', en: 'Enter as' })} className="flex flex-wrap gap-1">
+          {DEMO_ROLES.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              role="tab"
+              aria-selected={role.id === r.id}
+              onClick={() => setRole(r)}
+              className="rounded-md px-3 py-1.5 font-mono text-[11px] text-white/60 transition-colors hover:bg-white/10 hover:text-white aria-selected:bg-white/15 aria-selected:text-white"
+            >
+              {t(r.name)}
+            </button>
+          ))}
+        </div>
+        <a href={demoUrl(role)} target="_blank" rel="noopener noreferrer" className="ml-auto font-mono text-[11px] text-white/60 hover:text-white">
+          {t({ es: 'Nueva pestaña', en: 'New tab' })} ↗
+        </a>
+        <button ref={closeRef} type="button" onClick={onClose} className="rounded-md border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white transition-colors hover:bg-white hover:text-black">
+          {t({ es: 'Cerrar', en: 'Close' })} · Esc
+        </button>
+      </div>
+      <iframe key={role.id} src={demoUrl(role)} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="w-full flex-1 bg-[#121009]" />
+    </div>
+  )
+}
+
+/** 08 · Demo: el calendario real, en una vista previa que se abre a pantalla completa. */
 export function PlatformDemo() {
   const { t } = useLocale()
   const { demo } = PLATFORM_CASE
-  const [role, setRole] = useState(DEMO_ROLES[0])
-  const [started, setStarted] = useState(false)
-  const url = `${demo.base}?rol=${role.id}&ir=${encodeURIComponent(role.ir)}`
+  const [open, setOpen] = useState<DemoRole | null>(null)
+  const close = useCallback(() => setOpen(null), [])
 
   return (
     <div>
-      <div className="grid gap-8 lg:grid-cols-12">
-        <div className="lg:col-span-5">
+      <div className="mb-10 grid gap-6 lg:grid-cols-12 lg:items-end">
+        <div className="lg:col-span-7">
           <p data-reveal className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t({ es: 'El calendario, en vivo.', en: 'The calendar, live.' })}</p>
-          <p data-reveal className="mt-5 leading-relaxed opacity-80">{t(demo.lead)}</p>
+          <p data-reveal className="mt-4 leading-relaxed opacity-80">{t(demo.lead)}</p>
         </div>
-        <dl data-reveal className="divide-y divide-fg/15 self-end border-y border-fg/15 lg:col-span-6 lg:col-start-7">
-          {demo.tryIt.map((item) => (
-            <div key={item.label.es} className="flex items-baseline justify-between gap-4 py-3 text-sm">
-              <dt className="opacity-60">{t(item.label)}</dt>
-              <dd className="text-right font-mono">{t(item.value)}</dd>
-            </div>
+        <ul data-reveal className="flex flex-wrap gap-2 lg:col-span-5 lg:justify-end">
+          {DEMO_ROLES.map((r) => (
+            <li key={r.id}>
+              <button type="button" onClick={() => setOpen(r)} className="mono-label border border-fg/25 px-3 py-2 transition-colors hover:border-signal hover:bg-signal hover:text-paper">
+                {t({ es: 'Como', en: 'As' })} {t(r.name)} ↗
+              </button>
+            </li>
           ))}
-        </dl>
+        </ul>
       </div>
 
-      <div data-reveal role="radiogroup" aria-label={t({ es: 'Entrar como', en: 'Enter as' })} className="mt-10 flex flex-wrap gap-2">
-        {DEMO_ROLES.map((r) => (
-          <button
-            key={r.id}
-            type="button"
-            role="radio"
-            aria-checked={role.id === r.id}
-            onClick={() => {
-              setRole(r)
-              setStarted(true)
-            }}
-            className="mono-label border border-fg/25 px-4 py-2.5 transition-colors hover:border-fg/60 aria-checked:border-signal aria-checked:bg-signal aria-checked:text-paper"
-          >
-            {t(r.name)}
-          </button>
+      <button type="button" onClick={() => setOpen(DEMO_ROLES[0])} data-reveal="device" className="group relative block w-full [perspective:1800px]">
+        <span className="block overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.85)] ring-1 ring-white/10 transition-transform duration-700 ease-expo [transform:rotateX(8deg)] group-hover:[transform:none]">
+          <span className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+            <span className="ml-3 flex h-5 flex-1 items-center rounded-md bg-white/[0.06] px-2 font-mono text-[10px] text-white/45">barberlytics.vercel.app/calendario</span>
+          </span>
+          <Image src="/cases/barberlytics/cal-states.webp" width={2000} height={1250} alt="" sizes="(min-width: 1024px) 70vw, 100vw" className="block h-auto w-full transition-[filter] duration-500 group-hover:brightness-75" />
+        </span>
+        <span className="absolute inset-0 flex items-center justify-center">
+          <span className="flex items-center gap-3 bg-void/85 px-6 py-4 text-paper backdrop-blur transition-colors group-hover:bg-signal">
+            <span className="mono-label">⤢ {t({ es: 'Abrir el calendario a pantalla completa', en: 'Open the calendar full screen' })}</span>
+          </span>
+        </span>
+      </button>
+
+      <dl data-reveal className="mt-8 grid gap-px overflow-hidden border border-fg/15 bg-fg/15 sm:grid-cols-3">
+        {demo.tryIt.map((item) => (
+          <div key={item.label.es} className="bg-bg p-4 text-sm">
+            <dt className="opacity-60">{t(item.label)}</dt>
+            <dd className="mt-1 font-mono">{t(item.value)}</dd>
+          </div>
         ))}
-        <a href={url} target="_blank" rel="noopener noreferrer" className="mono-label ml-auto self-center opacity-70 underline-offset-4 hover:underline hover:opacity-100">
-          {t({ es: 'Abrir en otra pestaña', en: 'Open in a new tab' })} ↗
-        </a>
-      </div>
+      </dl>
 
-      <div data-reveal="device" className="mt-6 overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_40px_90px_-35px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
-        <div className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-          <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-3 flex h-5 flex-1 items-center rounded-md bg-white/[0.06] px-3 font-mono text-[10px] text-white/45">barberlytics.vercel.app{role.ir}</span>
-        </div>
-        <div className="relative aspect-[16/10] max-h-[82vh] w-full">
-          {started ? (
-            <iframe key={role.id} src={url} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="absolute inset-0 h-full w-full bg-[#121009]" />
-          ) : (
-            <button type="button" onClick={() => setStarted(true)} className="group absolute inset-0 flex items-end justify-center bg-[url('/cases/barberlytics/cal-states.webp')] bg-cover bg-top pb-16">
-              <span className="bg-void/85 px-6 py-3.5 text-paper backdrop-blur transition-colors group-hover:bg-signal">
-                <span className="mono-label">▶ {t({ es: 'Abrir el calendario', en: 'Open the calendar' })} · {t(role.name)}</span>
-              </span>
-            </button>
-          )}
-        </div>
-      </div>
+      {open && <FullscreenCalendar initial={open} onClose={close} />}
     </div>
   )
 }
