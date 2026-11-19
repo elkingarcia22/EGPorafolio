@@ -7,6 +7,7 @@ import { PhoneBody, StatusBar } from '@/components/case/kit/device'
 import { CaseShell } from '../shared/case-shell'
 import { ClipperDots } from './clipper-dots'
 import { ClipperIdea } from './clipper-idea'
+import { OrbConstructionBoard, OrbLayersBoard } from './clipper-orb-sketches'
 import { ClipperHero } from './clipper-hero'
 import { AgentLoop, ProposalFlow, ToolsByRole, VoiceMode } from './clipper-pieces'
 import { AnswerBoard, AutonomySpectrum, BuildSection, ClipperDemo, ClipperImpact, OrbSection } from './clipper-sections'
@@ -88,8 +89,10 @@ function ClipperSketches() {
   const { t } = useLocale()
   return (
     <div className="space-y-12">
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t({ es: 'Antes del modelo, la forma de una buena respuesta: corta, con su fuente a la vista y con los cambios como propuestas, nunca como hechos.', en: 'Before the model, the shape of a good answer: short, with its source in view, and changes as proposals, never as facts.' })}</p>
+      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t({ es: 'Antes del modelo, la forma de una buena respuesta: corta, con su fuente a la vista y con los cambios como propuestas, nunca como hechos. Y la presencia de Clipper: cómo un poste de barbería se vuelve una esfera, capa por capa.', en: 'Before the model, the shape of a good answer: short, with its source in view, and changes as proposals, never as facts. And Clipper’s presence: how a barber pole becomes a sphere, layer by layer.' })}</p>
       <AnswerBoard />
+      <OrbConstructionBoard />
+      <OrbLayersBoard />
     </div>
   )
 }
