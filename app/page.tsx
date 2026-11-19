@@ -1,6 +1,6 @@
 import { Hero } from '@/components/home/hero'
 import { Manifesto } from '@/components/home/manifesto'
-import { Process } from '@/components/home/process'
+import { ProcessFlow } from '@/components/home/process-flow'
 import { WorkList } from '@/components/home/work-list'
 import { Trajectory } from '@/components/home/trajectory'
 import { Agent } from '@/components/home/agent'
@@ -17,7 +17,7 @@ export default async function HomePage() {
       <Hero />
       <Manifesto />
       <WorkList projects={projects} />
-      <Process />
+      <ProcessFlow />
       <Trajectory />
       <Agent projects={projects} />
       <Contact />
