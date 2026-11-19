@@ -70,12 +70,14 @@ export function RecordModal({ ids, openId, onOpenChange, title, titleLeading, de
     const prevOverflow = html.style.overflow
     const returnTo = document.activeElement as HTMLElement | null
     html.style.overflow = 'hidden'
+    html.dataset.modalOpen = 'true'
     closeRef.current?.focus()
     const frame = requestAnimationFrame(() => setShown(true))
     return () => {
       cancelAnimationFrame(frame)
       setShown(false)
       html.style.overflow = prevOverflow
+      delete html.dataset.modalOpen
       lenis?.start()
       returnTo?.focus?.()
     }

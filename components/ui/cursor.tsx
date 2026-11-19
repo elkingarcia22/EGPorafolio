@@ -82,11 +82,11 @@ export function Cursor() {
 
   return (
     <>
-      <div aria-hidden="true" className="pointer-events-none fixed left-0 top-0 z-[80] mix-blend-difference">
+      <div aria-hidden="true" data-cursor-layer className="pointer-events-none fixed left-0 top-0 z-[80] mix-blend-difference">
         <div ref={dotRef} className="absolute -left-[3px] -top-[3px] h-1.5 w-1.5 rounded-full bg-white" />
         <div ref={ringRef} className="absolute -left-5 -top-5 h-10 w-10 rounded-full border border-white/70" />
       </div>
-      <div ref={badgeRef} aria-hidden="true" className="pointer-events-none fixed left-0 top-0 z-[81]">
+      <div ref={badgeRef} aria-hidden="true" data-cursor-layer className="pointer-events-none fixed left-0 top-0 z-[81]">
         <div
           ref={badgeInnerRef}
           className="absolute -left-12 -top-12 flex h-24 w-24 items-center justify-center rounded-full bg-signal text-paper shadow-[0_12px_40px_-8px_rgba(0,0,0,0.45)]"
