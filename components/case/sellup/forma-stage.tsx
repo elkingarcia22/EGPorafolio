@@ -15,7 +15,7 @@ import { useInView } from './ui'
 export function useSceneTime(loop: number, still: number): [React.RefObject<HTMLDivElement>, number, (to: number) => void] {
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.25)
-  const tick = useTick(1000)
+  const tick = useTick(560)
   const [start, setStart] = useState<number | null>(null)
   const [held, setHeld] = useState<number | null>(null)
   useEffect(() => {
@@ -62,13 +62,13 @@ export function SceneStage({ active, scenes }: { active: number; scenes: readonl
   }, [scenes.length])
   const h = heights[active]
   return (
-    <div className="relative transition-[height] duration-700 ease-expo" style={{ height: h ? h : undefined }}>
+    <div className="relative transition-[height] duration-[400ms] ease-expo" style={{ height: h ? h : undefined }}>
       {scenes.map((scene, i) => (
         <div
           key={i}
           ref={(el) => { refs.current[i] = el }}
           aria-hidden={i !== active}
-          className={`${h ? 'absolute inset-x-0 top-0' : i === active ? 'relative' : 'absolute inset-x-0 top-0'} transition-[opacity,transform] duration-700 ease-expo ${i === active ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-3 scale-[0.985] opacity-0'}`}
+          className={`${h ? 'absolute inset-x-0 top-0' : i === active ? 'relative' : 'absolute inset-x-0 top-0'} transition-[opacity,transform] duration-[400ms] ease-expo ${i === active ? 'translate-y-0 scale-100 opacity-100' : 'pointer-events-none translate-y-3 scale-[0.985] opacity-0'}`}
         >
           {scene}
         </div>

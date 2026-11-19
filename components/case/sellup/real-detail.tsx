@@ -18,7 +18,7 @@ function Modal({ show, children, inline = false }: { show: boolean; children: Re
     <div className={`absolute inset-0 z-20 transition-opacity duration-500 ${show ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
       <div className="absolute inset-0 bg-black/60" />
       <div
-        className={`absolute bottom-4 left-[200px] right-[140px] top-4 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#1c1c1c] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.95)] transition-transform duration-700 ease-expo ${show ? 'translate-y-0 scale-100' : 'translate-y-6 scale-[0.98]'}`}
+        className={`absolute bottom-4 left-[200px] right-[140px] top-4 flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#1c1c1c] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.95)] transition-transform duration-[400ms] ease-expo ${show ? 'translate-y-0 scale-100' : 'translate-y-6 scale-[0.98]'}`}
       >
         {children}
       </div>

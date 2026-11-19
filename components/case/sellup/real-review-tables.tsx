@@ -83,8 +83,8 @@ export function CompanyReview({ arrived, focus }: { arrived: boolean; focus: boo
       <div className={`grid ${CO_COLS} gap-2 border-b border-white/10 px-4 py-2.5 text-[12px] text-white/60`}>
         <Box /><Th>Empresa</Th><Th>País</Th><Th>Sector</Th><Th>Responsable</Th><Th>Fecha</Th><Th>Calidad</Th><Th>Estado</Th>
       </div>
-      <div className="relative overflow-hidden transition-[max-height] duration-700 ease-expo" style={{ maxHeight: arrived ? 64 : 0 }}>
-        <div className="m-1 rounded-xl border transition-all duration-700" style={focus ? HIGHLIGHT : { borderColor: 'transparent' }}><CoRow c={NEW_CO} fresh /></div>
+      <div className="relative overflow-hidden transition-[max-height] duration-[400ms] ease-expo" style={{ maxHeight: arrived ? 64 : 0 }}>
+        <div className="m-1 rounded-xl border transition-all duration-[400ms]" style={focus ? HIGHLIGHT : { borderColor: 'transparent' }}><CoRow c={NEW_CO} fresh /></div>
       </div>
       {COMPANIES.map((c) => <CoRow key={c.name} c={c} />)}
     </Shell>
@@ -138,8 +138,8 @@ export function ContactReview({ arrived, focus }: { arrived: boolean; focus: boo
       <div className={`grid ${CT_COLS} gap-2 border-b border-white/10 px-4 py-2.5 text-[12px] text-white/60`}>
         <Box /><Th>Nombre</Th><Th>Cargo</Th><Th>Empresa</Th><Th>País</Th><Th>Fuente</Th><Th>Relevancia</Th><Th>Estado</Th><Th>Creado</Th>
       </div>
-      <div className="relative overflow-hidden transition-[max-height] duration-700 ease-expo" style={{ maxHeight: arrived ? 52 : 0 }}>
-        <div className="m-1 rounded-xl border transition-all duration-700" style={focus ? HIGHLIGHT : { borderColor: 'transparent' }}><CtRow c={NEW_CT} /></div>
+      <div className="relative overflow-hidden transition-[max-height] duration-[400ms] ease-expo" style={{ maxHeight: arrived ? 52 : 0 }}>
+        <div className="m-1 rounded-xl border transition-all duration-[400ms]" style={focus ? HIGHLIGHT : { borderColor: 'transparent' }}><CtRow c={NEW_CT} /></div>
       </div>
       {CONTACTS.map((c) => <CtRow key={c.name} c={c} />)}
     </Shell>

@@ -26,7 +26,7 @@ function Chain() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.3)
-  const tick = useTick(1000)
+  const tick = useTick(560)
   // 0..5: agente, persona, agente, persona, agente, persona (llamada)
   const at = reducedMotion ? 5 : tick % 7
   return (

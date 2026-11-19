@@ -70,7 +70,7 @@ function Screen({ time }: { time: number }) {
             <tr><th /><th className={th}>Fuente <ArrowUpDown className="inline h-3 w-3 opacity-40" /></th><th className={th}>País</th><th className={th}>Estado</th><th className={th}>Siguiente acción</th><th className={th}>Uso por la IA</th><th className={th}>Acción</th></tr>
           </thead>
           <tbody>
-            <tr className="transition-all duration-700" style={{ background: HIGHLIGHT.background, boxShadow: `inset 3px 0 0 ${verified ? '#34d399' : '#6b8cff'}` }}>
+            <tr className="transition-all duration-[400ms]" style={{ background: HIGHLIGHT.background, boxShadow: `inset 3px 0 0 ${verified ? '#34d399' : '#6b8cff'}` }}>
               <td className="pl-2 text-white/30"><GripVertical className="h-4 w-4" /></td>
               <td className="px-3 py-3 font-medium">DENUE · Directorio de unidades económicas</td>
               <td className="px-3">México</td>
@@ -79,7 +79,7 @@ function Screen({ time }: { time: number }) {
                 {verified ? 'Validada con 10 empresas de prueba: 10 con RFC y tamaño. Entra a la capa gratuita del Agente 1 para México.' : testing ? (
                   <span className="flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />Probando con empresas reales: {progress} de 10 con RFC y tamaño</span>
                 ) : 'Probar la descarga por actividad y tamaño antes de conectarla.'}
-                {testing && <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10"><span className="block h-full bg-[#6b8cff] transition-[width] duration-700" style={{ width: `${progress * 10}%` }} /></span>}
+                {testing && <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10"><span className="block h-full bg-[#6b8cff] transition-[width] duration-[400ms]" style={{ width: `${progress * 10}%` }} /></span>}
               </td>
               <td className="px-3">{verified ? <span className="flex items-center gap-1.5 text-emerald-300"><Check className="h-3.5 w-3.5" />Conectada</span> : <span className="text-white/45">Sin conectar</span>}</td>
               <td className="px-3"><span className="flex items-center gap-1 font-medium">Ver detalle <ArrowRight className="h-3.5 w-3.5" /></span></td>

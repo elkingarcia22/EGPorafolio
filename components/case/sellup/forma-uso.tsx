@@ -87,7 +87,7 @@ function Screen({ time }: { time: number }) {
               {a.map((ag, i) => (
                 <li key={ag.name} className="grid grid-cols-[160px_minmax(0,1fr)_60px_90px] items-center gap-3 text-[12px]">
                   <span className="truncate text-white/75">{ag.name}</span>
-                  <span className="h-1.5 overflow-hidden rounded-full bg-white/10"><span className="block h-full rounded-full bg-[#6b8cff] transition-[width] duration-1000" style={{ width: `${Math.max(2, (ag.cost / 45.2) * 100)}%`, boxShadow: i === 0 && now === 1 ? '0 0 12px #6b8cff' : 'none' }} /></span>
+                  <span className="h-1.5 overflow-hidden rounded-full bg-white/10"><span className="block h-full rounded-full bg-[#6b8cff] transition-[width] duration-500" style={{ width: `${Math.max(2, (ag.cost / 45.2) * 100)}%`, boxShadow: i === 0 && now === 1 ? '0 0 12px #6b8cff' : 'none' }} /></span>
                   <span className="text-right font-medium tabular-nums">{usd(ag.cost)}</span>
                   <span className="whitespace-nowrap text-white/45">{ag.ok} aprobados</span>
                 </li>
@@ -100,7 +100,7 @@ function Screen({ time }: { time: number }) {
             <p className="text-[13.5px] font-medium">Cómo terminaron las ejecuciones</p>
             <p className="text-[12px] text-white/50">Todas las veces que trabajó un agente en el periodo.</p>
             <p className="mt-4 flex h-2 gap-1 overflow-hidden">
-              <span className="rounded-full bg-emerald-400 transition-all duration-700" style={{ flex: done }} />
+              <span className="rounded-full bg-emerald-400 transition-all duration-[400ms]" style={{ flex: done }} />
               <span className="rounded-full bg-red-400" style={{ flex: 18 }} />
               <span className="rounded-full bg-white/30" style={{ flex: 40 }} />
             </p>

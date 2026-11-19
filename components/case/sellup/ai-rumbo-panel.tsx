@@ -75,7 +75,7 @@ export function RumboPanel() {
 
   useEffect(() => {
     if (!seen) return
-    const wait = stage === 0 ? (touched ? 99999 : 2600) : stage === 5 ? 5200 : 1500
+    const wait = stage === 0 ? (touched ? 99999 : 1500) : stage === 5 ? 3000 : 850
     const id = window.setTimeout(() => {
       if (stage < 5) return setStage(stage + 1)
       setTouched(false)
