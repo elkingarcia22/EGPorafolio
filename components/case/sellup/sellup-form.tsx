@@ -15,7 +15,7 @@ export function SellUpForm() {
       <Section
         n="5.1"
         title={{ es: 'Una empresa recorre el flujo', en: 'One company moves through the flow' }}
-        body={{ es: 'La pantalla de inicio de SellUp, tal cual. Sigue a una empresa: Rumbo la encuentra, busca a sus decisores y prepara el primer contacto. Cada etapa la mueve un agente y la ficha va contando qué pasó y qué falta.', en: 'SellUp’s home screen, as is. Follow one company: Rumbo finds it, looks for its decision-makers and prepares the first contact. Each stage is moved by an agent and the record keeps telling what happened and what’s missing.' }}
+        body={{ es: 'La pantalla de inicio de SellUp, tal cual. Sigue a una empresa: Rumbo la encuentra, busca a sus decisores y prepara el primer contacto. En el tablero, la tarjeta salta de columna en columna: cada etapa la mueve un agente.', en: 'SellUp’s home screen, as is. Follow one company: Rumbo finds it, looks for its decision-makers and prepares the first contact. On the board, the card jumps from column to column: each stage is moved by an agent.' }}
       >
         <PipelineFlow />
       </Section>
