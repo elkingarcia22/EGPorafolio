@@ -6,7 +6,7 @@ import { SectionLabel } from '@/components/ui/section-label'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
-import { answerQuestion } from '@/lib/agent/answer'
+import { answerQuestion, newMemory } from '@/lib/agent/answer'
 import type { Project } from '@/lib/content/projects'
 import { CaseCard, ContactActions, parseReply, RichText } from './agent-message'
 
@@ -17,7 +17,12 @@ interface Message {
 }
 
 const MAX_QUESTION_LENGTH = 600
-const LOCAL_TYPE_MS = 12
+/** El respaldo local escribe como una persona: piensa un momento y avanza por palabras, con pausas. */
+const THINK_MS: readonly [number, number] = [650, 1500]
+const WORD_MS: readonly [number, number] = [26, 70]
+const PAUSE_MS: readonly [number, number] = [140, 340]
+const between = ([min, max]: readonly [number, number]) => min + Math.random() * (max - min)
+const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms))
 
 /** Preguntas para empezar: lo que más define el perfil. */
 const STARTERS: readonly { topic: L; q: L }[] = [
@@ -61,6 +66,7 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const nextId = useRef(0)
   const abortRef = useRef<AbortController | null>(null)
+  const memoryRef = useRef(newMemory())
 
   useEffect(() => {
     const log = logRef.current
@@ -70,24 +76,30 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
 
   const patch = (id: number, content: string) => setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, content } : m)))
 
-  /** Sin modelo disponible, responde la versión local y la escribe poco a poco. */
-  const typeLocal = (id: number, question: string) =>
-    new Promise<void>((resolve) => {
-      const full = answerQuestion(question, locale, projects)
-      if (reducedMotion) {
-        patch(id, full)
-        return resolve()
-      }
-      let i = 0
-      const timer = window.setInterval(() => {
-        i += 4
-        patch(id, full.slice(0, i))
-        if (i >= full.length) {
-          window.clearInterval(timer)
-          resolve()
-        }
-      }, LOCAL_TYPE_MS)
-    })
+  /**
+   * Respaldo: sin modelo (sin clave, sin créditos o con error) responde la versión local, con memoria
+   * de la conversación, y la escribe como el modelo: pausa para pensar y palabras con ritmo humano.
+   */
+  const typeLocal = async (id: number, question: string, signal: AbortSignal) => {
+    const full = answerQuestion(question, locale, memoryRef.current)
+    if (reducedMotion) return patch(id, full)
+    const cut = full.search(/\n*\[\[/)
+    const body = cut === -1 ? full : full.slice(0, cut)
+    const marks = cut === -1 ? '' : full.slice(cut)
+    await wait(between(THINK_MS))
+    const parts = body.split(/(\s+)/)
+    let shown = ''
+    for (let i = 0; i < parts.length; ) {
+      if (signal.aborted) return
+      const step = 1 + Math.floor(Math.random() * 3)
+      const chunk = parts.slice(i, i + step * 2).join('')
+      i += step * 2
+      shown += chunk
+      patch(id, shown)
+      await wait(/[.,;:?!]\s*$/.test(chunk) ? between(PAUSE_MS) : between(WORD_MS))
+    }
+    patch(id, body + marks)
+  }
 
   const ask = async (raw: string) => {
     const question = raw.trim().slice(0, MAX_QUESTION_LENGTH)
@@ -107,12 +119,9 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
         body: JSON.stringify({ locale, messages: history.map(({ role, content }) => ({ role, content })) }),
         signal: controller.signal,
       })
-      if (res.status === 429) {
-        patch(agentId, `${t({ es: 'Hablamos mucho en poco tiempo 🙂 Dame unos minutos o escríbeme directo.', en: 'We’ve talked a lot in a short time 🙂 Give me a few minutes or write to me directly.' })}\n\n[[contacto]]`)
-        return
-      }
+      // Sin clave, sin créditos, límite alcanzado o error del modelo: responde el respaldo, sin avisos.
       if (!res.ok || !res.body) {
-        await typeLocal(agentId, question)
+        await typeLocal(agentId, question, controller.signal)
         return
       }
       const reader = res.body.getReader()
@@ -124,9 +133,9 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
         text += decoder.decode(value, { stream: true })
         patch(agentId, text)
       }
-      if (!text.trim()) await typeLocal(agentId, question)
+      if (!text.trim()) await typeLocal(agentId, question, controller.signal)
     } catch (error) {
-      if ((error as Error).name !== 'AbortError') await typeLocal(agentId, question)
+      if ((error as Error).name !== 'AbortError') await typeLocal(agentId, question, controller.signal)
     } finally {
       setBusy(false)
       abortRef.current = null
@@ -136,6 +145,7 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
   const reset = () => {
     abortRef.current?.abort()
     setMessages([])
+    memoryRef.current = newMemory()
     setBusy(false)
     inputRef.current?.focus()
   }
