@@ -50,7 +50,35 @@ const cases: [string, string | null][] = [
   ['me pasas tu hoja de vida', 'cv'], ['tienes cv', 'cv'],
   ['que te gusta de tu trabajo', 'motivation'], ['que te motiva', 'motivation'],
   ['hola', 'hello'], ['buenas tardes', 'hello'], ['gracias', 'thanks'],
-  ['cual es tu comida favorita', null], ['hablas ingles', null],
+  ['cual es tu comida favorita', 'personal'], ['hablas ingles', null],
+  // ── Segunda tanda: compuestas, detalles de casos, temas nuevos, tipeo e inglés
+  // compuestas: el tema específico manda
+  ['como haces los logos y que herramientas usas', 'branding'], ['que herramientas usas para bocetar', 'sketch'], ['como mides el impacto de la ia', 'metrics'],
+  ['como usas la ia para investigar', 'ai'], ['como diseñas un sistema de diseño y lo documentas', 'design-system'], ['como bocetas y prototipas', 'sketch'],
+  ['en que proyecto usaste voz', 'voice'], ['en que proyecto hiciste gamificacion', 'gamification'], ['en que proyecto mediste el roi', 'revenue'],
+  ['en que proyecto trabajaste la privacidad de los datos', 'privacy'], ['en que proyecto diseñaste para celular', 'mobile'],
+  // detalles de casos
+  ['como funciona clipper por voz', 'voice'], ['como es la voz de clipper', 'voice'], ['que es thema', 'design-system'], ['cuantos componentes tiene thema', 'design-system'],
+  ['que es lo de siempre en la reserva', 'barberlytics'], ['como reacomoda el calendario cuando alguien llega tarde', 'barberlytics'],
+  ['como se aprueba un objetivo', 'objetivos'], ['que es la cascada de objetivos', 'objetivos'], ['que es la nom 035', 'encuestas'], ['como funciona el anonimato en encuestas', 'encuestas'],
+  ['como evita sellup gastar creditos', 'sellup'], ['que hacen los agentes de sellup', 'ai-agents'], ['que es orbit', 'ai-agents'],
+  ['cuantas evaluaciones tiene clipper', 'ai-agents'], ['como evitas que clipper invente cifras', 'ai-agents'],
+  // nuevos temas
+  ['diseñas apps moviles', 'mobile'], ['tienes experiencia en responsive', 'mobile'], ['como organizas la informacion', 'ia-architecture'], ['como haces la arquitectura de informacion', 'ia-architecture'],
+  ['como escribes los textos de la interfaz', 'ux-writing'], ['te importa el microcopy', 'ux-writing'], ['usas gamificacion', 'gamification'], ['como motivas a los usuarios con rachas', 'gamification'],
+  ['como cuidas la privacidad', 'privacy'], ['como manejas datos sensibles', 'privacy'], ['has liderado equipos', 'leadership'], ['eres lead', 'leadership'],
+  ['documentas tus diseños', 'documentation'], ['como haces las especificaciones para desarrollo', 'documentation'],
+  ['tienes experiencia en b2b', 'b2b'], ['has trabajado en saas', 'b2b'], ['conoces de recursos humanos', 'b2b'], ['trabajaste en nomina', 'b2b'],
+  // tipeo y coloquial
+  ['q herramientas usas', 'tools'], ['cmo mides el exito', 'metrics'], ['cuentame d barberlitics', 'barberlytics'], ['como aces prototipos', 'prototype'], ['k es sellup', 'sellup'],
+  ['hablame de tu esperiencia', 'experience'], ['cual es tu procesp', 'process'], ['diseñas logotipos?', 'branding'], ['como investigas a los usarios', 'research'],
+  ['tienes portafolio?', 'projects'], ['ola', 'hello'], ['muchas grasias', 'thanks'],
+  // ingles
+  ['how do you sketch logos', 'branding'], ['what tools do you use', 'tools'], ['tell me about sellup', 'sellup'], ['how do you work with developers', 'team'],
+  ['do you design design systems', 'design-system'], ['how do you prioritize', 'prioritize'], ['what is your biggest weakness', 'strengths'], ['how much do you charge', 'money'],
+  ['can I see your resume', 'cv'], ['where are you based', 'contact'], ['do you lead teams', 'leadership'], ['how do you handle privacy', 'privacy'],
+  // fuera de tema
+  ['cual es tu equipo de futbol', 'personal'], ['que edad tienes', 'personal'],
 ]
 let fail = 0
 for (const [q, want] of cases) {

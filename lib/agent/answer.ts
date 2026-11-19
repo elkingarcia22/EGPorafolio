@@ -58,8 +58,9 @@ function keyMatches(q: string, tokens: readonly string[], rawKey: string): boole
   const key = fold(rawKey).trim()
   if (!key.includes(' ')) return tokens.some((t) => wordMatches(t, key))
   if (q.includes(` ${key} `) || q.includes(key)) return true
-  // Frases: todas sus palabras presentes, con tolerancia a errores.
-  return key.split(' ').every((part) => tokens.some((t) => wordMatches(t, part)))
+  // Frases: sus palabras seguidas y en orden, con tolerancia a errores («work with you» no es «work with developers»).
+  const parts = key.split(' ')
+  return tokens.some((_, i) => parts.every((part, k) => tokens[i + k] !== undefined && wordMatches(tokens[i + k], part)))
 }
 
 /**

@@ -100,7 +100,7 @@ export const TOPICS: readonly Topic[] = [
   {
     id: 'metrics',
     short: s('Y lo mido: defino antes la métrica de negocio que tiene que moverse y la señal que la confirma.', 'And I measure it: I define upfront the business metric that has to move and the signal that confirms it.'),
-    keys: ['si funciono', 'diseno funciono', 'como sabes si', 'metrica', 'metricas', 'metrics', 'kpi', 'kpis', 'medir', 'mides', 'medicion', 'measure', 'indicadores', 'exito', 'success', 'resultados', 'outcome', 'outcomes', 'north star'],
+    keys: ['mides el impacto', 'medir el impacto', 'si funciono', 'diseno funciono', 'como sabes si', 'metrica', 'metricas', 'metrics', 'kpi', 'kpis', 'medir', 'mides', 'medicion', 'measure', 'indicadores', 'exito', 'success', 'resultados', 'outcome', 'outcomes', 'north star'],
     replies: [
       s('Empiezo por la métrica, no por la pantalla: qué tiene que moverse en el negocio —adopción, conversión, retención, tiempo ahorrado, ingresos— y qué comportamiento la mueve. Escribo la hipótesis, la señal que la confirma y diseño para esa señal.\n\nPor ejemplo, en Objetivos la métrica de avance en % castigaba a quien se ponía metas ambiciosas; la cambiamos por la constancia de reportar, y eso cambió el diseño entero.', 'I start from the metric, not the screen: what has to move in the business —adoption, conversion, retention, time saved, revenue— and which behavior moves it. I write the hypothesis, the signal that confirms it and design for that signal.\n\nFor example, in Goals the % progress metric punished ambitious goals; we changed it to the habit of reporting, and that changed the whole design.'),
       s('Para mí un diseño está terminado cuando cambia un comportamiento que le importa al negocio. Por eso cada caso tiene su sección de impacto, y aclaro cuando las cifras son de referencia porque el rediseño aún no está en producción.\n\nPor ejemplo, en la reserva de Barberlytics la apuesta fue el tiempo para reservar «lo de siempre»: en el caso lo muestro bajando de 2 min 40 s a unos 35 s, como cifra de referencia.', 'To me a design is done when it changes a behavior the business cares about. That’s why every case has an impact section, and I say when figures are reference values because the redesign isn’t in production yet.\n\nFor example, in Barberlytics booking the bet was time to book “the usual”: in the case I show it dropping from 2 min 40 s to about 35 s, as a reference figure.'),
@@ -137,7 +137,7 @@ export const TOPICS: readonly Topic[] = [
   {
     id: 'design-system',
     short: s('Y todo cae en un sistema de diseño que deja personalizar sin romper, como Thema.', 'And everything lands in a design system that allows customizing without breaking, like Thema.'),
-    keys: ['sistema de diseno', 'design system', 'tokens', 'componentes', 'components', 'libreria', 'library', 'temas', 'themes', 'consistencia'],
+    keys: ['thema', 'sistema de diseno', 'design system', 'tokens', 'componentes', 'components', 'libreria', 'library', 'temas', 'themes', 'consistencia'],
     replies: [
       s('Me gustan los sistemas que dejan personalizar sin romper. Defino pocas decisiones y que el resto se derive: un color primario genera el tema completo, y lo que tiene significado —éxito, error, aviso— no cambia nunca.\n\nPor ejemplo, en Thema, el sistema de Barberlytics, pasé de cuatro fuentes de tokens en conflicto a 218 componentes, 22 familias y 10 temas, con reglas que la IA también sigue.', 'I like systems that let you customize without breaking. I define few decisions and derive the rest: one primary color generates the whole theme, and whatever carries meaning —success, error, warning— never changes.\n\nFor example, in Thema, Barberlytics’ system, I went from four conflicting token sources to 218 components, 22 families and 10 themes, with rules AI follows too.'),
     ],
@@ -189,6 +189,90 @@ export const TOPICS: readonly Topic[] = [
     extras: CASE('barberlytics'),
   },
 
+  {
+    id: 'voice',
+    weight: 2,
+    keys: ['voz', 'voice', 'hablar con', 'dictado', 'dictation', 'llamada', 'speech', 'conversacional', 'conversational'],
+    short: s('Y si hay voz, la diseño con paciencia: espera cuando la frase queda abierta y se interrumpe con un toque.', 'And if there’s voice, I design it patiently: it waits when a phrase is left open and one tap interrupts it.'),
+    replies: [
+      s('La voz la diseño alrededor de la paciencia: una pausa corta significa «terminé», pero si la frase queda abierta —«con», «a las»— el asistente espera el doble. Y siempre se puede interrumpir con un toque.\n\nPor ejemplo, en Clipper la reserva funciona como una llamada: saluda, responde en voz alta con la voz «Achird» de Gemini y vuelve a escuchar; en la app del equipo, por ahora, la voz es dictado.', 'I design voice around patience: a short pause means “done”, but if the phrase is left open —“with”, “at”— the assistant waits twice as long. And one tap always interrupts it.\n\nFor example, in Clipper booking works like a phone call: it greets, answers aloud with Gemini’s “Achird” voice and listens again; in the team app, for now, voice is dictation.'),
+    ],
+    extras: CASE('barberlytics'),
+  },
+  {
+    id: 'mobile',
+    weight: 1.5,
+    keys: ['movil', 'mobile', 'celular', 'responsive', 'app movil', 'tablet', 'pantallas', 'dispositivos', 'devices', 'ios', 'android'],
+    short: s('Y lo pienso para cada superficie: celular, tablet, monitor o widget, según dónde se usa.', 'And I think it through for each surface: phone, tablet, monitor or widget, depending on where it’s used.'),
+    replies: [
+      s('Diseño pensando en dónde y cómo se usa cada cosa, no solo en el tamaño de la pantalla. Quien reserva lo hace en el celular, con una mano; quien atiende la recepción mira un monitor todo el día.\n\nPor ejemplo, la reserva de Barberlytics funciona en celular, tablet, monitor y como widget en la web de la barbería, en español e inglés; y en Encuestas muestro cómo se responde desde el celular.', 'I design around where and how each thing is used, not just screen size. Someone booking does it on the phone, one-handed; the front desk watches a monitor all day.\n\nFor example, Barberlytics booking works on phone, tablet, monitor and as a widget on the shop’s website, in Spanish and English; and in Surveys I show how answering works on the phone.'),
+    ],
+    extras: join(CASE('barberlytics'), CASE('encuestas')),
+  },
+  {
+    id: 'ia-architecture',
+    weight: 1.5,
+    keys: ['organizas', 'organizar', 'informacion', 'arquitectura de informacion', 'information architecture', 'navegacion', 'navigation', 'estructura', 'jerarquia', 'organizar contenido', 'menu', 'flujos complejos', 'card sorting'],
+    replies: [
+      s('Ordeno la información por el ciclo de quien la usa, no por cómo está guardada en la base de datos. Primero mapeo los momentos y los roles, y después decido qué ve cada uno y cuándo.\n\nPor ejemplo, en Objetivos el producto cubría un solo momento; lo reorganicé en siete momentos del ciclo para tres roles: admin, líder y colaborador. Y en Encuestas había 83 encuestas en una sola lista, sin nada que dijera cuál necesitaba atención hoy.', 'I order information around the user’s cycle, not how it’s stored in the database. First I map moments and roles, then decide what each one sees and when.\n\nFor example, in Goals the product covered a single moment; I reorganized it into seven cycle moments for three roles: admin, lead and employee. And in Surveys there were 83 surveys in a single list, with nothing saying which one needed attention today.'),
+    ],
+    extras: join(CASE('objetivos'), CASE('encuestas')),
+  },
+  {
+    id: 'ux-writing',
+    weight: 1.5,
+    keys: ['ux writing', 'microcopy', 'textos', 'copy', 'copys', 'redaccion', 'lenguaje', 'tono', 'tone', 'nombres', 'wording'],
+    replies: [
+      s('Los textos son diseño: dicen qué pasó, qué sigue y quién decide. Escribo corto, honesto y en el idioma de quien lo usa.\n\nPor ejemplo, en Clipper la regla es «nunca digas que ya está hecho: di que quedó lista para aplicar». Y en el calendario, donde algo era una regla y no IA, le quitamos la etiqueta de IA y lo llamamos «Sugerencia».', 'Copy is design: it says what happened, what’s next and who decides. I write short, honest and in the user’s language.\n\nFor example, in Clipper the rule is “never say it’s done: say it’s ready to apply”. And in the calendar, where something was a rule and not AI, we removed the AI label and called it “Suggestion”.'),
+    ],
+    extras: CASE('barberlytics'),
+  },
+  {
+    id: 'gamification',
+    weight: 2,
+    keys: ['gamificacion', 'gamification', 'rachas', 'streaks', 'motivar usuarios', 'incentivos', 'incentives', 'recompensas', 'rewards'],
+    replies: [
+      s('Uso la gamificación para premiar el hábito, no para adornar: rachas, reconocimiento y metas que se pueden cumplir. Y cuido que no exponga a nadie.\n\nPor ejemplo, en Objetivos estudié Duolingo y Strava y premiamos reportar cada semana con rachas, en lugar del % crudo; en público solo se nombra para reconocer. Y antes del producto digital hice cursos e-learning gamificados para Contecar, Corficolombiana y Puerto de Cartagena.', 'I use gamification to reward habit, not to decorate: streaks, recognition and goals that can be met. And I make sure it exposes nobody.\n\nFor example, in Goals I studied Duolingo and Strava and we reward reporting every week with streaks instead of raw %; in public you only name people to praise them. And before digital product I made gamified e-learning courses for Contecar, Corficolombiana and Port of Cartagena.'),
+    ],
+    extras: CASE('objetivos'),
+  },
+  {
+    id: 'privacy',
+    weight: 2,
+    keys: ['privacidad', 'privacy', 'datos sensibles', 'sensitive data', 'seguridad', 'security', 'confidencial', 'permisos', 'permissions', 'roles y permisos', 'gdpr'],
+    replies: [
+      s('La privacidad la diseño como regla del producto, no como letra pequeña: qué se muestra, a quién y con cuántas personas detrás.\n\nPor ejemplo, en Encuestas un grupo con menos de cinco respuestas no muestra resultados; en Objetivos un grupo de menos de tres personas no se compara; y en Clipper el rol sale de la sesión firmada, así que cada persona solo ve sus datos.', 'I design privacy as a product rule, not fine print: what’s shown, to whom and with how many people behind it.\n\nFor example, in Surveys a group with fewer than five answers shows no results; in Goals a group under three people isn’t compared; and in Clipper the role comes from the signed session, so each person only sees their own data.'),
+    ],
+    extras: join(CASE('encuestas'), CASE('objetivos')),
+  },
+  {
+    id: 'leadership',
+    weight: 1.5,
+    keys: ['liderazgo', 'leadership', 'lideras', 'lead', 'liderar', 'diriges', 'manage', 'senior', 'mentor', 'mentoria'],
+    replies: [
+      s('He liderado diseño de punta a punta: fui UX/UI Lead en Siigo y Design Lead en Barberlytics, y hoy en UBITS lidero proyectos completos como Senior Specialist. Para mí liderar es dar claridad: la pregunta, los principios y el porqué de cada decisión, escritos.\n\nPor ejemplo, en Objetivos trabajé con PM, front y QA, y cuatro principios escritos decidieron el resto del diseño.', 'I’ve led design end to end: I was UX/UI Lead at Siigo and Design Lead at Barberlytics, and today at UBITS I lead whole projects as Senior Specialist. To me leading means giving clarity: the question, the principles and the why of each decision, written down.\n\nFor example, in Goals I worked with PM, front-end and QA, and four written principles decided the rest of the design.'),
+    ],
+    extras: CASE('objetivos'),
+  },
+  {
+    id: 'documentation',
+    weight: 1.5,
+    keys: ['documentacion', 'documentation', 'documentas', 'docs', 'specs', 'especificaciones', 'guias', 'guidelines'],
+    replies: [
+      s('Documento para que las decisiones sobrevivan: qué se decidió, por qué y qué no se puede hacer. Y si la documentación la va a leer una IA, tiene que poder verificarse sola.\n\nPor ejemplo, en Thema la documentación también es producto: un catálogo generado, reglas escritas y validaciones que fallan si alguien usa un color o un tamaño a mano.', 'I document so decisions survive: what was decided, why, and what isn’t allowed. And if an AI will read the docs, they have to be self-checking.\n\nFor example, in Thema the docs are a product too: a generated catalog, written rules and checks that fail if someone uses a hand-set color or size.'),
+    ],
+    extras: CASE('barberlytics'),
+  },
+  {
+    id: 'b2b',
+    weight: 1.5,
+    keys: ['b2b', 'saas', 'recursos humanos', 'rrhh', 'hr tech', 'erp', 'software empresarial', 'enterprise', 'contabilidad', 'nomina', 'facturacion'],
+    replies: [
+      s('Casi toda mi carrera ha sido software para empresas: Recursos Humanos en UBITS (objetivos, encuestas, matriz de talento), un ERP contable en Siigo (nómina, facturación electrónica, inventarios, POS y contabilidad) y la gestión de una barbería en Barberlytics. Lo que aprendí: en B2B quien compra no es quien usa, y hay que diseñar para los dos.\n\nPor ejemplo, en Objetivos diseñé para el admin que configura, el líder que aprueba y el colaborador que reporta.', 'Almost my whole career has been business software: HR at UBITS (goals, surveys, talent matrix), an accounting ERP at Siigo (payroll, e-invoicing, inventory, POS and accounting) and running a barbershop with Barberlytics. What I learned: in B2B the buyer isn’t the user, and you have to design for both.\n\nFor example, in Goals I designed for the admin who sets up, the lead who approves and the employee who reports.'),
+    ],
+    extras: CASE('objetivos'),
+  },
+
   /* ── IA ───────────────────────────────────────────────────────────── */
   {
     id: 'ai',
@@ -216,7 +300,7 @@ export const TOPICS: readonly Topic[] = [
   /* ── Casos ────────────────────────────────────────────────────────── */
   {
     id: 'barberlytics',
-    keys: ['barberlytics', 'barberia', 'barberias', 'barbershop', 'barber', 'thema', 'reserva', 'booking', 'calendario', 'calendar', 'plataforma'],
+    keys: ['barberlytics', 'barberia', 'barberias', 'barbershop', 'barber', 'reserva', 'booking', 'calendario', 'calendar', 'plataforma'],
     replies: [
       s('Barberlytics es software para barberías que diseñé de punta a punta: el sistema de diseño (Thema), la reserva del cliente, el calendario del negocio y Clipper, su IA. Lo más difícil fue que cada barbería trabaja distinto; la respuesta fue un producto que se adapta a la barbería y no al revés.', 'Barberlytics is software for barbershops I designed end to end: the design system (Thema), client booking, the business calendar and Clipper, its AI. The hardest part was that every shop works differently; the answer was a product that adapts to the shop, not the other way around.'),
       s('Es mi proyecto más completo. Una barbería vive de lo que se repite: el corte de siempre, con el mismo barbero, cada pocas semanas. Con eso diseñé una reserva que pone «lo de siempre» a un toque y un calendario donde cada cita dice su siguiente paso: ingresar, sentar, cobrar.', 'It’s my most complete project. A barbershop lives on what repeats: the usual cut, same barber, every few weeks. With that I designed booking that puts “the usual” one tap away and a calendar where every visit shows its next step: check in, seat, charge.'),
@@ -226,7 +310,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'objetivos',
-    keys: ['objetivos', 'objetivo', 'goals', 'goal', 'okr', 'okrs', 'cascada', 'cascade', 'desempeno', 'performance'],
+    keys: ['aprueba', 'aprobar', 'aprobacion', 'approve', 'objetivos', 'objetivo', 'goals', 'goal', 'okr', 'okrs', 'cascada', 'cascade', 'desempeno', 'performance'],
     replies: [
       s('En Objetivos de UBITS el producto era una sola pantalla para configurar ciclos: terminaba ahí. Lo rediseñé como el ciclo completo —crear, alinear en cascada, aprobar, reportar y leer resultados— para admin, líder y colaborador, y que se adapte a cómo cada empresa trabaja sus objetivos (SMART, OKR, KPI…).', 'In UBITS Goals the product was a single screen to set up cycles: it ended there. I redesigned it as the full cycle —create, cascade, approve, report and read results— for admin, lead and employee, adapting to how each company works its goals (SMART, OKR, KPI…).'),
     ],
@@ -266,7 +350,7 @@ export const TOPICS: readonly Topic[] = [
   {
     id: 'team',
     short: s('Y lo trabajo muy pegado a producto y desarrollo, con las decisiones escritas y su porqué.', 'And I work it closely with product and engineering, with decisions written down and their why.'),
-    keys: ['equipo', 'team', 'desarrolladores', 'developers', 'devs', 'ingenieros', 'engineers', 'handoff', 'entrega', ' pm ', 'product manager', 'colaboras', 'collaborate', 'trabajas con'],
+    keys: ['work with developers', 'with developers', 'with engineers', 'equipo', 'team', 'desarrolladores', 'developers', 'devs', 'ingenieros', 'engineers', 'handoff', 'entrega', ' pm ', 'product manager', 'colaboras', 'collaborate', 'trabajas con'],
     replies: [
       s('Trabajo muy pegado a producto y desarrollo. Llevo la evidencia a la mesa, dejo las decisiones escritas con su porqué y, cuando una idea genera dudas, la prototipo para que la discusión sea sobre algo real. El handoff casi no existe porque muchas veces entrego en código.\n\nPor ejemplo, en Objetivos trabajé con PM, front y QA en el rediseño del admin.', 'I work very close to product and engineering. I bring evidence to the table, write decisions down with their why and, when an idea raises doubts, I prototype it so the discussion is about something real. Handoff barely exists because I often deliver in code.\n\nFor example, in Goals I worked with PM, front-end and QA on the admin redesign.'),
     ],
@@ -351,7 +435,7 @@ export const TOPICS: readonly Topic[] = [
     id: 'contact',
     short: s('Si quieres, lo seguimos hablando directo.', 'If you like, let’s keep talking directly.'),
     weight: 1.2,
-    keys: ['contacto', 'contactarte', 'contact', 'correo', 'email', 'mail', 'whatsapp', 'telefono', 'phone', 'llamar', 'call', 'linkedin', 'disponible', 'disponibilidad', 'available', 'remoto', 'remote', 'ubicacion', 'donde vives', 'location'],
+    keys: ['based', 'where are you', 'donde estas', 'contacto', 'contactarte', 'contact', 'correo', 'email', 'mail', 'whatsapp', 'telefono', 'phone', 'llamar', 'call', 'linkedin', 'disponible', 'disponibilidad', 'available', 'remoto', 'remote', 'ubicacion', 'donde vives', 'location'],
     replies: [s(`Con gusto. Escríbeme a ${PROFILE.email} o por WhatsApp al ${PROFILE.phoneDisplay}. Estoy en ${PROFILE.location.es} y trabajo en remoto o híbrido.`, `Gladly. Email me at ${PROFILE.email} or WhatsApp me at ${PROFILE.phoneDisplay}. I’m based in ${PROFILE.location.en} and work remote or hybrid.`)],
     extras: s('[[contacto]]', '[[contacto]]'),
   },
@@ -363,8 +447,15 @@ export const TOPICS: readonly Topic[] = [
     extras: s('[[cv]]', '[[cv]]'),
   },
   {
+    id: 'personal',
+    weight: 3,
+    keys: ['futbol', 'football', 'soccer', 'comida', 'food', 'edad', 'age', 'how old', 'cuantos anos tienes', 'hobby', 'hobbies', 'pasatiempo', 'pasatiempos', 'familia', 'family', 'hijos', 'kids', 'musica', 'music', 'pelicula', 'movie', 'serie', 'signo', 'religion', 'politica', 'politics'],
+    replies: [s('Eso te lo cuento mejor en persona 🙂 Aquí me enfoco en lo que hago: producto, diseño, métricas e IA. Si quieres, conversamos directo.', 'I’d rather tell you that in person 🙂 Here I focus on what I do: product, design, metrics and AI. If you like, let’s talk directly.')],
+    extras: s('[[contacto]]', '[[contacto]]'),
+  },
+  {
     id: 'hello',
-    keys: ['hola', 'hello', 'hi', 'buenas', 'hey', 'buen dia', 'buenos dias', 'buenas tardes', 'good morning', 'que tal', 'saludos'],
+    keys: ['ola', 'hola', 'hello', 'hi', 'buenas', 'hey', 'buen dia', 'buenos dias', 'buenas tardes', 'good morning', 'que tal', 'saludos'],
     weight: 0.2,
     replies: [
       s('¡Hola! Qué bueno tenerte por aquí. Pregúntame lo que quieras: cómo pienso un producto, cómo lo mido, cómo boceto o cómo uso la IA para construirlo.', 'Hi! Great to have you here. Ask me anything: how I think a product through, how I measure it, how I sketch or how I use AI to build it.'),
