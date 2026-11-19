@@ -2,11 +2,10 @@
 
 import { useLocale } from '@/lib/i18n'
 import { LiveBuilder } from './form-builder'
-import { ResultsReal } from './form-results'
-import { UploadReal } from './form-upload'
+import { ResultsCollage } from './form-collage'
 import { HeatmapReal } from './form-heatmap'
 import { BrowserFrame, Moment } from './form-moments'
-import { TemplatesReal } from './form-templates'
+import { TemplatesFan } from './form-fan'
 import { PhoneAnswer } from './form-answer'
 import { ProductTour } from './form-tour'
 import './form.css'
@@ -30,7 +29,7 @@ export function SurveyForm() {
         title={{ es: 'Empezar nunca es una hoja en blanco', en: 'Starting is never a blank page' }}
         why={{ es: 'Cinco atajos en la portada, con NOM 035 primero porque es lo que más piden los clientes de México. Cada plantilla trae sus reglas: la de la norma llega de solo lectura y exige participación completa.', en: 'Five shortcuts on the home page, NOM 035 first because it’s what Mexican customers ask for most. Each template carries its rules: the norm’s arrives read-only and requires full participation.' }}
       >
-        <TemplatesReal />
+        <TemplatesFan />
       </Moment>
 
       <Moment
@@ -63,20 +62,12 @@ export function SurveyForm() {
       </Moment>
 
       <Moment
-        index={t({ es: 'Momento 05 · Histórico', en: 'Moment 05 · History' })}
-        title={{ es: 'Lo que se midió por fuera, adentro en minutos', en: 'What was measured elsewhere, inside in minutes' }}
-        why={{ es: 'La IA lee el archivo y propone; la persona confirma. Quien coincide por correo se vincula solo, quien solo coincide por nombre lo decide alguien, y los indicadores salen del mismo archivo.', en: 'AI reads the file and proposes; a person confirms. Matches by email link themselves, name-only matches are decided by someone, and the indicators come from the same file.' }}
-      >
-        <UploadReal />
-      </Moment>
-
-      <Moment
         wide
-        index={t({ es: 'Momento 06 · Resultados', en: 'Moment 06 · Results' })}
-        title={{ es: 'Una pregunta por pestaña', en: 'One question per tab' }}
-        why={{ es: 'Cada vista responde una sola pregunta y la responde con la gráfica que le sirve. El demográfico elegido viaja entre pestañas: de «participación por área» a «mapa por área» es un solo pensamiento.', en: 'Each view answers a single question with the chart that suits it. The chosen demographic travels across tabs: from “participation by area” to “map by area” is a single thought.' }}
+        index={t({ es: 'Momento 05 · Resultados', en: 'Moment 05 · Results' })}
+        title={{ es: 'Todo lo que dice una medición', en: 'Everything a measurement says' }}
+        why={{ es: 'Participación, favorabilidad, eNPS, sentimiento de los comentarios, mapa de calor, lecturas de la IA y accionables: cada vista responde una sola pregunta con la gráfica que le sirve. Las cifras son las reales del playground.', en: 'Participation, favorability, eNPS, comment sentiment, heatmap, AI readings and actions: each view answers a single question with the chart that suits it. The figures are the playground’s real ones.' }}
       >
-        <ResultsReal />
+        <ResultsCollage />
       </Moment>
     </div>
   )
