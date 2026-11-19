@@ -1,0 +1,13 @@
+/* Animaciones propias del caso Encuestas */
+@keyframes enc-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes enc-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes enc-scan { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes enc-confetti { 0% { transform: translateY(-10px) rotate(0); opacity: 1; } 100% { transform: translateY(160px) rotate(540deg); opacity: 0; } }
+.enc-fade { animation: enc-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.enc-pulse { animation: enc-pulse 1.4s ease-in-out infinite; }
+.enc-scan { animation: enc-scan 1.6s linear infinite; }
+.enc-confetti { animation: enc-confetti 1.6s ease-in forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .enc-fade, .enc-pulse, .enc-scan, .enc-confetti { animation: none; }
+}
+html[data-motion='reduced'] .enc-fade, html[data-motion='reduced'] .enc-pulse, html[data-motion='reduced'] .enc-scan, html[data-motion='reduced'] .enc-confetti { animation: none; }

@@ -11,8 +11,9 @@ export const revalidate = 300
 
 export async function generateStaticParams() {
   const { projects } = await listProjects()
-  // Barberlytics tiene su propia carpeta (portada + proyectos)
-  return projects.filter((p) => p.slug !== 'barberlytics').map((p) => ({ slug: p.slug }))
+  // Barberlytics y Encuestas tienen su propia carpeta y su propio caso
+  const OWN_ROUTE = new Set(['barberlytics', 'encuestas'])
+  return projects.filter((p) => !OWN_ROUTE.has(p.slug)).map((p) => ({ slug: p.slug }))
 }
 
 export async function generateMetadata({ params }: CasePageProps): Promise<Metadata> {
