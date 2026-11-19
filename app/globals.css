@@ -203,3 +203,7 @@ html[data-motion='reduced'] [data-slot-in] { animation: none; }
 @keyframes dash-run { to { stroke-dashoffset: -22; } }
 @keyframes radar-grow { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes view-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes wave { 0%, 100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
+@keyframes orbit { to { transform: rotate(360deg); } }
+html[data-motion='reduced'] [class*='animate-[wave'], html[data-motion='reduced'] [class*='animate-[orbit'] { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { [class*='animate-[wave'], [class*='animate-[orbit'] { animation: none !important; } }

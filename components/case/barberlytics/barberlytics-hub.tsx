@@ -100,7 +100,7 @@ const PROJECTS: readonly HubProject[] = [
     what: { es: 'La IA y su identidad', en: 'The AI and its identity' },
     body: { es: 'El poste de barbería hecho esfera: un asistente que consulta antes de responder y propone antes de actuar.', en: 'The barber pole turned sphere: an assistant that looks things up before answering and proposes before acting.' },
     stat: { es: '18 herramientas · 60 evaluaciones', en: '18 tools · 60 evaluations' },
-    ready: false,
+    ready: true,
     visual: (
       <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(46,156,176,0.18),transparent_65%)]">
         <ClipperOrb size={130} />
