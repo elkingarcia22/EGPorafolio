@@ -49,7 +49,7 @@ function Tag({ f, on, align }: { f: Feature; on: boolean; align: 'left' | 'right
   return (
     <li
       className={`relative rounded-[14px] px-3.5 py-2.5 ring-1 backdrop-blur-md transition-all duration-500 ${align === 'right' ? 'lg:text-left' : 'lg:text-right'} ${
-        on ? 'bg-[#5b7eff]/[0.14] ring-[#5b7eff]/60 shadow-[0_0_0_4px_rgba(91,126,255,0.12),0_30px_60px_-30px_rgba(0,0,0,0.9)]' : 'bg-[#141517]/80 ring-white/10 opacity-60'
+        on ? 'bg-[#5b7eff]/[0.14] ring-[#5b7eff]/60 shadow-[0_0_0_4px_rgba(91,126,255,0.12),0_30px_60px_-30px_rgba(0,0,0,0.9)]' : `pointer-events-none opacity-0 ring-transparent ${align === 'left' ? 'translate-x-3' : '-translate-x-3'}`
       }`}
     >
       <p className="text-[13px] font-medium leading-snug">{t(f.title)}</p>
@@ -76,7 +76,7 @@ export function HeroRumbo() {
 
   return (
     <div className="relative grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)_minmax(0,1fr)]">
-      <ul className="order-2 grid gap-3 sm:grid-cols-2 lg:order-1 lg:grid-cols-1">
+      <ul className="hidden gap-3 lg:order-1 lg:grid">
         {LEFT.map((f) => <Tag key={f.title.es} f={f} on={f === activeTag || (reducedMotion && f.phase === phase)} align="left" />)}
       </ul>
 
@@ -98,7 +98,7 @@ export function HeroRumbo() {
           {ORBIT.map((o) => {
             const on = p.sources.includes(o.name)
             return (
-              <g key={o.name} style={{ opacity: on ? 1 : 0.15, transition: 'opacity 600ms' }}>
+              <g key={o.name} style={{ opacity: on ? 1 : 0, transition: 'opacity 600ms' }}>
                 <line x1={o.x} y1={o.y} x2="50" y2="50" stroke="url(#beam)" strokeWidth="0.4" strokeDasharray="1.5 1.5">
                   {on && !reducedMotion && <animate attributeName="stroke-dashoffset" from="6" to="0" dur="0.8s" repeatCount="indefinite" />}
                 </line>
@@ -116,7 +116,7 @@ export function HeroRumbo() {
           return (
             <span
               key={o.name}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] ring-1 transition-all duration-500 ${on ? 'bg-[#5b7eff]/20 text-white ring-[#5b7eff]/60 shadow-[0_0_24px_rgba(91,126,255,0.45)]' : 'bg-[#0d0e10] text-white/35 ring-white/10'}`}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] ring-1 transition-all duration-500 ${on ? 'bg-[#5b7eff]/20 text-white ring-[#5b7eff]/60 shadow-[0_0_24px_rgba(91,126,255,0.45)]' : 'scale-90 bg-[#0d0e10] text-white/35 opacity-0 ring-white/10'}`}
               style={{ left: `${o.x}%`, top: `${o.y}%` }}
             >
               {o.name}
@@ -130,9 +130,17 @@ export function HeroRumbo() {
         </div>
       </div>
 
-      <ul className="order-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+      <ul className="hidden gap-3 lg:order-3 lg:grid">
         {RIGHT.map((f) => <Tag key={f.title.es} f={f} on={f === activeTag || (reducedMotion && f.phase === phase)} align="right" />)}
       </ul>
+
+      {/* En móvil, un solo letrero bajo la órbita: el del momento */}
+      {activeTag && (
+        <p key={activeTag.title.es} className="order-2 mx-auto rounded-[14px] bg-[#5b7eff]/[0.14] px-4 py-2.5 text-center ring-1 ring-[#5b7eff]/60 lg:hidden">
+          <span className="block text-[13px] font-medium">{t(activeTag.title)}</span>
+          <span className="block text-[11px] text-white/55">{t(activeTag.body)}</span>
+        </p>
+      )}
     </div>
   )
 }
