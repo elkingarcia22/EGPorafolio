@@ -2,21 +2,21 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
-import { useLocale, type L } from '@/lib/i18n'
-import { EDITABLE, MINUTES_PER_QUESTION, NORMATIVE, NORMATIVE_OUTPUT, SPECTRUM, TIER_LABEL, type SpectrumTemplate, type Tier } from '@/lib/content/cases/encuestas/idea-spectrum'
-import { Lock, UBITS_BLUE } from './shared'
+import { useLocale } from '@/lib/i18n'
+import { MINUTES_PER_QUESTION, NORMATIVE_OUTPUT, SPECTRUM, SWITCHES, TIER_LABEL, type SpectrumTemplate, type SwitchState, type Tier } from '@/lib/content/cases/encuestas/idea-spectrum'
+import { Lock } from './shared'
 
 const TIERS: readonly Tier[] = ['sencilla', 'robusta', 'normativa']
-const TIER_COLOR: Record<Tier, string> = { sencilla: '#43a970', robusta: UBITS_BLUE, normativa: '#e8743b' }
-const STEP_MS = 3400
-/** La plantilla más grande del catálogo (Clima o Cultura completa): la escala de la barra. */
-const MAX_QUESTIONS = 50
+const TIER_COLOR: Record<Tier, string> = { sencilla: '#4cc38a', robusta: '#5b8cff', normativa: '#ff8a4c' }
+const STEP_MS = 3600
+const DOTS_PER_ROW = 5
+const SECTIONS_SHOWN = 5
 
 const questionsOf = (tpl: SpectrumTemplate) => tpl.sections.reduce((s, x) => s + x.questions, 0)
 /** Igual que `measureTemplate` del producto: al menos 1 minuto, redondeado. */
 const minutesOf = (q: number) => (q === 0 ? 0 : Math.max(1, Math.round(q * MINUTES_PER_QUESTION)))
 
-/** Avanza solo por las plantillas mientras está a la vista; se detiene al tocarla. */
+/** Avanza solo mientras está a la vista; se queda quieta en cuanto alguien elige una plantilla. */
 function useAutoAdvance(count: number, box: React.RefObject<HTMLElement | null>) {
   const { reducedMotion } = useA11y()
   const [index, setIndex] = useState(0)
@@ -27,7 +27,7 @@ function useAutoAdvance(count: number, box: React.RefObject<HTMLElement | null>)
   useEffect(() => {
     const el = box.current
     if (!el) return
-    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.35 })
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.3 })
     io.observe(el)
     return () => io.disconnect()
   }, [box])
@@ -42,46 +42,112 @@ function useAutoAdvance(count: number, box: React.RefObject<HTMLElement | null>)
     setAuto(false)
     setIndex(i)
   }
-  return { index, pick, setHover, playing: auto && !hover && visible && !reducedMotion }
+  return { index, pick, setHover, visible, playing: auto && !hover && visible && !reducedMotion }
 }
 
-function Stat({ value, label }: { value: string | number; label: L }) {
+/** El horizonte: cada plantilla es una columna de puntos, una por pregunta, de la más sencilla a la normativa. */
+function Skyline({ index, onPick, shown }: { index: number; onPick: (i: number) => void; shown: boolean }) {
   const { t } = useLocale()
   return (
-    <div>
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
-      <p className="text-[11px] text-[#5c646f]">{t(label)}</p>
+    <div className="grid grid-cols-[repeat(7,minmax(0,1fr))] items-end gap-1.5 sm:gap-4">
+      {SPECTRUM.map((tpl, i) => {
+        const q = questionsOf(tpl)
+        const on = i === index
+        const color = TIER_COLOR[tpl.tier]
+        return (
+          <button key={tpl.id} type="button" onClick={() => onPick(i)} aria-pressed={on} aria-label={`${t(tpl.name)} · ${q}`} className="group flex flex-col items-center gap-2 focus-visible:outline-none">
+            <span className="font-mono text-[10px] tabular-nums transition-colors sm:text-xs" style={{ color: on ? color : 'rgba(255,255,255,0.4)' }}>{q}</span>
+            <span
+              className="grid gap-[2px] transition-[filter,opacity] duration-500 group-hover:opacity-100 sm:gap-[3px]"
+              style={{ gridTemplateColumns: `repeat(${DOTS_PER_ROW}, minmax(0, 1fr))`, opacity: on ? 1 : 0.38, filter: on ? `drop-shadow(0 0 10px ${color}80)` : 'none' }}
+            >
+              {Array.from({ length: q }, (_, d) => {
+                // Se apilan de abajo hacia arriba: la fila de la pregunta d se cuenta desde el suelo.
+                const row = Math.floor(d / DOTS_PER_ROW)
+                const rows = Math.ceil(q / DOTS_PER_ROW)
+                return (
+                  <span
+                    key={d}
+                    className={`block aspect-square w-[5px] rounded-[1.5px] sm:w-[7px] ${shown ? 'enc-pop' : 'opacity-0'}`}
+                    style={{ background: color, gridRow: rows - row, gridColumn: (d % DOTS_PER_ROW) + 1, animationDelay: `${i * 90 + row * 35}ms` }}
+                  />
+                )
+              })}
+            </span>
+            <span className={`h-0.5 w-full rounded-full transition-colors ${on ? '' : 'bg-white/10'}`} style={on ? { background: color } : undefined} />
+            <span className={`hidden text-center text-[11px] leading-tight transition-colors sm:block ${on ? 'text-white' : 'text-white/45'}`}>{t(tpl.name)}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }
 
-/** La plantilla elegida como plano: cada sección con sus preguntas como puntos y, si los tiene, sus dominios. */
-function Blueprint({ tpl }: { tpl: SpectrumTemplate }) {
+function Toggle({ state, color, label }: { state: SwitchState; color: string; label: string }) {
+  const on = state !== 'off'
+  return (
+    <li className="flex items-center justify-between gap-3 py-1.5 text-[13px]">
+      <span className={`transition-colors duration-500 ${state === 'off' ? 'text-white/35' : 'text-white/85'}`}>{label}</span>
+      <span className="relative h-5 w-9 shrink-0 rounded-full transition-colors duration-500" style={{ background: on ? color : 'rgba(255,255,255,0.12)' }} aria-hidden="true">
+        <span className={`absolute top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white text-[#0e1116] shadow transition-transform duration-500 ${on ? 'translate-x-[18px]' : 'translate-x-0.5'}`}>
+          {state === 'locked' && <Lock className="h-2.5 w-2.5" />}
+        </span>
+      </span>
+    </li>
+  )
+}
+
+/** La plantilla abierta en el constructor: secciones numeradas, sus preguntas y, en la norma, los dominios. */
+function BuilderMock({ tpl }: { tpl: SpectrumTemplate }) {
   const { t } = useLocale()
   const color = TIER_COLOR[tpl.tier]
-  let delay = 0
+  const q = questionsOf(tpl)
+  const rest = tpl.sections.length - SECTIONS_SHOWN
   return (
-    <ul key={tpl.id} className="space-y-1.5">
-      {tpl.sections.map((s, i) => (
-        <li key={s.title} className="enc-fade grid grid-cols-[minmax(0,11rem)_1fr] items-center gap-3 sm:grid-cols-[minmax(0,14rem)_1fr]" style={{ animationDelay: `${i * 40}ms` }}>
-          <span className="flex min-w-0 items-center gap-2 text-xs">
-            <span className="shrink-0 rounded px-1 font-mono text-[10px] text-white" style={{ background: color }}>{i + 1}</span>
-            <span className="truncate">{s.title}</span>
-          </span>
-          <span className="flex flex-wrap items-center gap-1">
-            {Array.from({ length: s.questions }, (_, q) => {
-              delay += 18
-              return <span key={q} className="enc-pop block h-2.5 w-2.5 rounded-[3px]" style={{ background: color, animationDelay: `${delay}ms` }} />
-            })}
-            {s.sub && (
-              <span className="ml-1 rounded-full bg-[#fdf0e8] px-1.5 py-px font-mono text-[9px] text-[#b4531f]">
-                {s.sub} {t(s.sub === 1 ? { es: 'dominio', en: 'domain' } : { es: 'dominios', en: 'domains' })}
-              </span>
-            )}
-          </span>
-        </li>
-      ))}
-    </ul>
+    <div className="overflow-hidden rounded-xl bg-white text-[#303a47] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.8)]">
+      <div className="flex items-center gap-2 border-b border-black/[0.06] bg-[#f6f7fb] px-3 py-2" aria-hidden="true">
+        <span className="flex gap-1"><span className="h-2 w-2 rounded-full bg-black/15" /><span className="h-2 w-2 rounded-full bg-black/15" /><span className="h-2 w-2 rounded-full bg-black/15" /></span>
+        <span className="truncate font-mono text-[10px] text-black/45">/encuestas/crear · {t({ es: 'Secciones y preguntas', en: 'Sections and questions' })}</span>
+      </div>
+      <div key={tpl.id} className="enc-fade p-4 sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] uppercase tracking-wider" style={{ color: tpl.tier === 'sencilla' ? '#2c8a5c' : tpl.tier === 'robusta' ? '#0c5bef' : '#c2561b' }}>{t(TIER_LABEL[tpl.tier])}</p>
+            <p className="text-lg font-semibold leading-tight">{t(tpl.name)}</p>
+            <p className="text-xs text-[#5c646f]">{t(tpl.use)}</p>
+          </div>
+          <p className="flex gap-4 text-right font-mono text-[11px] text-[#5c646f]">
+            <span><b className="block text-base text-[#303a47]">{tpl.sections.length}</b>{t({ es: 'secc.', en: 'sect.' })}</span>
+            <span><b className="block text-base text-[#303a47]">{q}</b>{t({ es: 'preg.', en: 'q.' })}</span>
+            <span><b className="block text-base text-[#303a47]">{minutesOf(q)}′</b>{t({ es: 'min', en: 'min' })}</span>
+          </p>
+        </div>
+        <ul className="mt-4 space-y-1.5">
+          {tpl.sections.slice(0, SECTIONS_SHOWN).map((s, i) => (
+            <li key={s.title} className="enc-fade" style={{ animationDelay: `${80 + i * 60}ms` }}>
+              <div className="flex items-center gap-2 rounded-lg border border-black/[0.07] bg-[#f8faff] px-2.5 py-1.5">
+                <span className="rounded px-1.5 py-0.5 font-mono text-[10px] text-white" style={{ background: color }}>{i + 1}</span>
+                <span className="min-w-0 flex-1 truncate text-[13px] font-medium">{s.title}</span>
+                <span className="flex gap-[3px]" aria-hidden="true">
+                  {Array.from({ length: Math.min(s.questions, 10) }, (_, d) => <span key={d} className="h-1.5 w-1.5 rounded-full" style={{ background: color, opacity: 0.75 }} />)}
+                </span>
+                {tpl.tier === 'normativa' && <Lock className="h-3 w-3 shrink-0 text-[#979ba3]" />}
+              </div>
+              {s.sub && (
+                <div className="ml-6 mt-1 flex flex-wrap gap-1">
+                  {Array.from({ length: s.sub }, (_, k) => (
+                    <span key={k} className="rounded-md border border-dashed border-[#f0b08a] px-1.5 py-0.5 font-mono text-[10px] text-[#c2561b]">
+                      {i + 1}.{k + 1} {t({ es: 'dominio', en: 'domain' })}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </li>
+          ))}
+          {rest > 0 && <li className="px-2.5 pt-1 text-xs text-[#979ba3]">+ {rest} {t({ es: 'secciones más', en: 'more sections' })}</li>}
+        </ul>
+      </div>
+    </div>
   )
 }
 
@@ -89,87 +155,62 @@ function Blueprint({ tpl }: { tpl: SpectrumTemplate }) {
 export function TemplateSpectrum() {
   const { t } = useLocale()
   const box = useRef<HTMLDivElement>(null)
-  const { index, pick, setHover, playing } = useAutoAdvance(SPECTRUM.length, box)
+  const { index, pick, setHover, visible, playing } = useAutoAdvance(SPECTRUM.length, box)
+  const [shown, setShown] = useState(false)
+  useEffect(() => {
+    if (visible) setShown(true)
+  }, [visible])
   const tpl = SPECTRUM[index]
-  const q = questionsOf(tpl)
+  const color = TIER_COLOR[tpl.tier]
   const normative = tpl.tier === 'normativa'
-  const rules = normative ? NORMATIVE : EDITABLE
 
   return (
-    <div ref={box} data-reveal className="overflow-hidden rounded-2xl bg-[#f8faff] text-[#303a47] ring-1 ring-black/10" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onFocus={() => setHover(true)} onBlur={() => setHover(false)}>
-      {/* Las plantillas del catálogo, ordenadas de la más sencilla a la normativa. */}
-      <div className="grid gap-4 border-b border-black/10 bg-white p-4 sm:grid-cols-3 sm:p-5">
-        {TIERS.map((tier) => (
-          <div key={tier}>
-            <p className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider" style={{ color: TIER_COLOR[tier] }}>
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: TIER_COLOR[tier] }} />
-              {t(TIER_LABEL[tier])}
-            </p>
-            <div className="flex flex-wrap gap-1.5" role="group" aria-label={t(TIER_LABEL[tier])}>
-              {SPECTRUM.map((x, i) =>
-                x.tier !== tier ? null : (
-                  <button
-                    key={x.id}
-                    type="button"
-                    aria-pressed={i === index}
-                    onClick={() => pick(i)}
-                    className="relative overflow-hidden rounded-lg border px-2.5 py-1.5 text-xs transition-colors"
-                    style={i === index ? { borderColor: TIER_COLOR[tier], color: TIER_COLOR[tier], background: `${TIER_COLOR[tier]}12`, fontWeight: 600 } : { borderColor: '#d0d2d5' }}
-                  >
-                    {t(x.name)}
-                    {i === index && playing && <span key={`${x.id}-bar`} className="absolute bottom-0 left-0 h-0.5 w-full origin-left" style={{ background: TIER_COLOR[tier], animation: `enc-grow ${STEP_MS}ms linear both` }} />}
-                  </button>
-                ),
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+    <div
+      ref={box}
+      data-reveal
+      className="relative overflow-hidden rounded-3xl bg-[#0e1116] p-5 text-white ring-1 ring-white/10 sm:p-8"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
+    >
+      <div className="pointer-events-none absolute -top-1/3 left-1/2 h-[120%] w-[90%] -translate-x-1/2 rounded-full opacity-60 transition-[background] duration-1000" style={{ background: `radial-gradient(closest-side, ${color}33, transparent)` }} aria-hidden="true" />
 
-      <div className="grid md:grid-cols-[minmax(0,1fr)_17rem]">
-        <div className="min-w-0 p-5 sm:p-6">
-          <div key={tpl.id} className="enc-fade flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-lg font-semibold">{t(tpl.name)}</p>
-              <p className="text-sm text-[#5c646f]">{t(tpl.use)}</p>
-            </div>
-            <div className="flex gap-6">
-              <Stat value={tpl.sections.length} label={{ es: 'secciones', en: 'sections' }} />
-              <Stat value={q} label={{ es: 'preguntas', en: 'questions' }} />
-              <Stat value={`${minutesOf(q)} min`} label={{ es: 'estimado', en: 'estimated' }} />
-              <Stat value={tpl.levels} label={tpl.levels === 1 ? { es: 'nivel', en: 'level' } : { es: 'niveles', en: 'levels' }} />
-            </div>
-          </div>
-
-          {/* Qué tan grande es, frente a la plantilla más grande del catálogo. */}
-          <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-[#ecf1fa]" aria-hidden="true">
-            <div className="h-full rounded-full transition-[width] duration-700 ease-out" style={{ width: `${(q / MAX_QUESTIONS) * 100}%`, background: TIER_COLOR[tpl.tier] }} />
-          </div>
-
-          <div className="mt-6">
-            <Blueprint tpl={tpl} />
-          </div>
+      <div className="relative">
+        <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+          <p className="mono-label text-white/60">{t({ es: 'Un constructor · siete plantillas', en: 'One builder · seven templates' })}</p>
+          <p className="flex gap-4 font-mono text-[10px] uppercase tracking-wider">
+            {TIERS.map((tier) => (
+              <span key={tier} className="flex items-center gap-1.5 transition-opacity" style={{ color: TIER_COLOR[tier], opacity: tier === tpl.tier ? 1 : 0.45 }}>
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: TIER_COLOR[tier] }} />
+                {t(TIER_LABEL[tier])}
+              </span>
+            ))}
+          </p>
         </div>
 
-        <aside className="border-t border-black/10 bg-white p-5 md:border-l md:border-t-0">
-          <p className="text-xs font-semibold">{normative ? t({ es: 'Lo que pone la norma', en: 'What the standard sets' }) : t({ es: 'Lo que decide la empresa', en: 'What the company decides' })}</p>
-          <ul key={tpl.tier} className="mt-3 space-y-2">
-            {rules.map((r, i) => (
-              <li key={r.id} className="enc-fade flex items-start gap-2 text-sm leading-snug" style={{ animationDelay: `${i * 70}ms` }}>
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] text-white" style={{ background: TIER_COLOR[tpl.tier] }}>
-                  {normative ? <Lock className="h-2.5 w-2.5" /> : '✓'}
-                </span>
-                {t(r.label)}
-              </li>
-            ))}
-          </ul>
-          {normative && NORMATIVE_OUTPUT[tpl.id] && (
-            <p key={tpl.id} className="enc-fade mt-4 rounded-lg bg-[#fdf0e8] px-3 py-2 text-xs leading-snug text-[#b4531f]">{t(NORMATIVE_OUTPUT[tpl.id])}</p>
-          )}
-          <p className="mt-4 text-[11px] leading-snug text-[#979ba3]">
-            {t({ es: 'El mismo constructor y el mismo modelo de secciones en las siete: cambian las reglas que se encienden.', en: 'The same builder and the same section model in all seven: what changes is which rules switch on.' })}
-          </p>
-        </aside>
+        <Skyline index={index} onPick={pick} shown={shown} />
+        <div className="mt-3 h-px overflow-hidden bg-white/10" aria-hidden="true">
+          {playing && <span key={index} className="block h-full origin-left" style={{ background: color, animation: `enc-grow ${STEP_MS}ms linear both` }} />}
+        </div>
+
+        <div className="mt-8 grid gap-6 md:grid-cols-[minmax(0,1fr)_16rem]">
+          <BuilderMock tpl={tpl} />
+          <div>
+            <p className="text-xs font-semibold text-white/70">{normative ? t({ es: 'Lo que enciende la norma', en: 'What the standard switches on' }) : t({ es: 'Lo que ajusta la empresa', en: 'What the company adjusts' })}</p>
+            <ul className="mt-2 divide-y divide-white/[0.06]">
+              {SWITCHES.map((s) => (
+                <Toggle key={s.id} state={normative ? s.nom : s.org} color={color} label={t(s.label)} />
+              ))}
+            </ul>
+            {normative && NORMATIVE_OUTPUT[tpl.id] && (
+              <p key={tpl.id} className="enc-fade mt-4 rounded-lg px-3 py-2 text-xs leading-snug" style={{ background: `${color}1f`, color }}>{t(NORMATIVE_OUTPUT[tpl.id])}</p>
+            )}
+            <p className="mt-4 text-[11px] leading-snug text-white/45">
+              {t({ es: 'Mismo constructor, mismo modelo de secciones: lo que cambia son los interruptores.', en: 'Same builder, same section model: what changes are the switches.' })}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

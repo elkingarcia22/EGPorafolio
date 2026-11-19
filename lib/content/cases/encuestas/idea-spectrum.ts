@@ -47,25 +47,26 @@ export const SPECTRUM: readonly SpectrumTemplate[] = [
   { id: 'nom3', tier: 'normativa', levels: 3, name: { es: 'NOM 035 · Guía III', en: 'NOM 035 · Guide III' }, use: { es: 'Riesgo psicosocial, más de 50 colaboradores', en: 'Psychosocial risk, over 50 employees' }, sections: [...RIESGO, { title: 'Entorno organizacional', questions: 4, sub: 2 }] },
 ]
 
-export interface Rule {
+export type SwitchState = 'on' | 'off' | 'locked'
+
+export interface Switch {
   id: string
   label: L
+  /** En las plantillas organizacionales (Cultura, Clima, eNPS…). */
+  org: SwitchState
+  /** En la NOM 035 (verificado en el código del playground: `aviso-en-curso`, `stepper`, `nom035.ts`). */
+  nom: SwitchState
 }
 
-/** Lo que la persona decide en cualquier plantilla organizacional. */
-export const EDITABLE: readonly Rule[] = [
-  { id: 'preguntas', label: { es: 'Edita, suma o quita preguntas', en: 'Edit, add or remove questions' } },
-  { id: 'secciones', label: { es: 'Secciones y subsecciones hasta 3 niveles', en: 'Sections and subsections up to 3 levels' } },
-  { id: 'visibilidad', label: { es: 'Anónima o pública, con mínimo por grupo', en: 'Anonymous or public, with a group minimum' } },
-  { id: 'participantes', label: { es: 'Toda la empresa, por grupos o por persona', en: 'Whole company, by group or by person' } },
-]
-
-/** Lo que la norma enciende en una NOM 035 (verificado en el código del playground). */
-export const NORMATIVE: readonly Rule[] = [
-  { id: 'oficial', label: { es: 'Cuestionario oficial: se revisa, no se edita', en: 'Official questionnaire: reviewed, not edited' } },
-  { id: 'demografico', label: { es: 'Al menos un dato demográfico activo', en: 'At least one active demographic' } },
-  { id: 'participacion', label: { es: 'Exige el 100 % de participación', en: 'Requires 100 % participation' } },
-  { id: 'riesgo', label: { es: 'Se lee como riesgo, no como favorabilidad', en: 'Read as risk, not favorability' } },
+/** Los ajustes del constructor y cómo quedan según la plantilla: la personalización es la misma pieza. */
+export const SWITCHES: readonly Switch[] = [
+  { id: 'preguntas', label: { es: 'Editar y sumar preguntas', en: 'Edit and add questions' }, org: 'on', nom: 'locked' },
+  { id: 'secciones', label: { es: 'Secciones hasta 3 niveles', en: 'Sections up to 3 levels' }, org: 'on', nom: 'locked' },
+  { id: 'visibilidad', label: { es: 'Anónima o pública', en: 'Anonymous or public' }, org: 'on', nom: 'on' },
+  { id: 'participantes', label: { es: 'Empresa, grupos o personas', en: 'Company, groups or people' }, org: 'on', nom: 'on' },
+  { id: 'demografico', label: { es: 'Dato demográfico obligatorio', en: 'Required demographic' }, org: 'off', nom: 'on' },
+  { id: 'participacion', label: { es: '100 % de participación', en: '100 % participation' }, org: 'off', nom: 'on' },
+  { id: 'riesgo', label: { es: 'Lectura de riesgo', en: 'Risk reading' }, org: 'off', nom: 'on' },
 ]
 
 /** Lo que entrega cada guía de la norma en vez de un puntaje. */
