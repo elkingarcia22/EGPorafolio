@@ -2,6 +2,7 @@
 
 import { useLocale } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
+import { CascadeBoard } from './sketch-cascade-board'
 
 /** Una celda dibujada de la matriz decisor × canal. */
 function Cell({ state }: { state: 'done' | 'empty' | 'review' }) {
@@ -13,7 +14,7 @@ function Cell({ state }: { state: 'done' | 'empty' | 'review' }) {
   )
 }
 
-/** 04 · Bocetos: las tres pantallas donde decide la persona. */
+/** 04 · Bocetos: la cadena de agentes en cascada y las bandejas donde decide la persona. */
 export function SellUpSketches() {
   const { t } = useLocale()
   const matrix: ('done' | 'empty' | 'review')[][] = [
@@ -25,8 +26,15 @@ export function SellUpSketches() {
     <div className="space-y-10">
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
         {t({
-          es: 'Antes de cualquier agente dibujé los tres lugares donde decide la persona. Si esas pantallas no explican en una línea qué propone la IA y de dónde lo sacó, no importa qué tan bueno sea el modelo.',
-          en: 'Before any agent, I drew the three places where the person decides. If those screens can’t explain in one line what the AI proposes and where it got it, it doesn’t matter how good the model is.',
+          es: 'Antes de escribir un agente dibujé la cadena completa: tres agentes que se pasan el trabajo, cada uno con su escalera de fuentes de gratis a pago, y una persona entre uno y otro. Elige un agente y mira dónde se detiene.',
+          en: 'Before writing an agent I drew the whole chain: three agents handing work to each other, each with its staircase of sources from free to paid, and a person between them. Pick an agent and see where it stops.',
+        })}
+      </p>
+      <CascadeBoard />
+      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
+        {t({
+          es: 'Y en cada punto donde la cadena se detiene, dibujé la bandeja donde decide la persona.',
+          en: 'And at every point where the chain stops, I drew the queue where the person decides.',
         })}
       </p>
       <Board title={t({ es: 'SellUp · donde decide la persona', en: 'SellUp · where the person decides' })} w={1400} h={820} label={t({ es: 'Bocetos de las tres bandejas de revisión', en: 'Sketches of the three review queues' })}>

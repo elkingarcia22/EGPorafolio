@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { SPLIT } from '@/lib/content/cases/sellup/sellup-agents'
 import { BLUE, Section, useInView } from './ui'
+import { RumboOrb } from './platform'
+import { RumboPanel } from './ai-rumbo-panel'
+import { RumboSearch } from './ai-rumbo-search'
 
 /** Medido en la rama principal del repo de SellUp (15-05 al 17-11-2026). */
 const BUILD_STATS: readonly { value: string; label: L }[] = [
@@ -93,22 +96,45 @@ function AuditStack() {
   )
 }
 
-/** 06 · IA: la IA dentro del producto y la IA para construirlo. */
+/** 06 · IA: Rumbo, la IA de SellUp, y cómo se construyó con Claude Code. */
 export function SellUpAi() {
   const { t } = useLocale()
   return (
     <div>
+      <div className="mb-4 flex items-center gap-4" data-reveal>
+        <RumboOrb size={56} pulse />
+        <p className="max-w-[26ch] text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.1] tracking-tight">
+          {t({ es: 'Rumbo, la IA que trabaja dentro de SellUp.', en: 'Rumbo, the AI that works inside SellUp.' })}
+        </p>
+      </div>
+      <p data-reveal className="max-w-[62ch] leading-relaxed opacity-80">
+        {t({ es: 'Rumbo no es un chat aparte: es la misma IA detrás de los tres agentes. Conversa para entender qué busca el vendedor, baja la cascada de fuentes, lee y cita, y entrega todo a una bandeja donde una persona decide.', en: 'Rumbo isn’t a separate chat: it’s the same AI behind all three agents. It talks to understand what the rep wants, steps down the cascade of sources, reads and cites, and hands everything to a queue where a person decides.' })}
+      </p>
       <Section
         n="6.1"
-        title={{ es: 'El modelo propone; el código decide qué es verdad', en: 'The model proposes; code decides what’s true' }}
-        body={{ es: 'La regla de diseño fue separar lo que se juzga de lo que se comprueba. El modelo juzga y redacta. Las reglas comparan números fiscales, reservan créditos y descartan citas que no están en la fuente. Ninguna aprobación, precio ni escritura en HubSpot sale de un modelo.', en: 'The design rule was to separate what gets judged from what gets checked. The model judges and writes. Rules compare tax IDs, reserve credits and discard quotes that aren’t in the source. No approval, price or HubSpot write comes from a model.' }}
+        title={{ es: 'Una conversación en seis pasos', en: 'A conversation in six steps' }}
+        body={{ es: 'En vez de un formulario con veinte filtros, Rumbo pregunta lo justo: tipo, país, industria y criterios. Muestra el resumen antes de gastar nada. Elige un tipo de búsqueda o deja que la conversación avance sola.', en: 'Instead of a form with twenty filters, Rumbo asks just enough: type, country, industry and criteria. It shows the summary before spending anything. Pick a search type or let the conversation run.' }}
+      >
+        <RumboPanel />
+      </Section>
+      <Section
+        n="6.2"
+        title={{ es: 'Cómo busca Rumbo', en: 'How Rumbo searches' }}
+        body={{ es: 'Rumbo consulta primero lo gratis, lee la fuente, guarda la frase exacta que respalda cada dato y verifica contra el dominio o el número fiscal. Se detiene apenas cumple la meta: si no hace falta pagar, no paga.', en: 'Rumbo checks free sources first, reads the source, saves the exact quote behind every fact and verifies against the domain or tax ID. It stops as soon as it hits the goal: if it doesn’t need to pay, it doesn’t.' }}
+      >
+        <RumboSearch />
+      </Section>
+      <Section
+        n="6.3"
+        title={{ es: 'Rumbo propone; el código decide qué es verdad', en: 'Rumbo proposes; code decides what’s true' }}
+        body={{ es: 'La regla de diseño fue separar lo que se juzga de lo que se comprueba. Rumbo juzga y redacta. Las reglas comparan números fiscales, reservan créditos y descartan citas que no están en la fuente. Ninguna aprobación, precio ni escritura en HubSpot sale de un modelo.', en: 'The design rule was to separate what gets judged from what gets checked. Rumbo judges and writes. Rules compare tax IDs, reserve credits and discard quotes that aren’t in the source. No approval, price or HubSpot write comes from a model.' }}
       >
         <ModelVsRules />
       </Section>
       <Section
-        n="6.2"
+        n="6.4"
         title={{ es: 'Construido con Claude Code', en: 'Built with Claude Code' }}
-        body={{ es: 'Diseñé el producto y dirigí su construcción con Claude Code: cada agente nació como un documento de diseño en docs/, se construyó por partes con pruebas, y se cerró con una auditoría contra Producción en modo de solo lectura.', en: 'I designed the product and directed its build with Claude Code: each agent was born as a design document in docs/, built in parts with tests, and closed with a read-only audit against Production.' }}
+        body={{ es: 'Diseñé el producto y dirigí su construcción con Claude Code: cada agente nació como un documento de diseño, se construyó por partes con pruebas y se cerró con una auditoría contra Producción en modo de solo lectura. Cuando algo no cuadraba, primero se auditaba con datos reales.', en: 'I designed the product and directed its build with Claude Code: each agent was born as a design document, built in parts with tests and closed with a read-only audit against Production. When something didn’t add up, it was audited with real data first.' }}
       >
         <dl className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {BUILD_STATS.map((s) => (
@@ -121,13 +147,7 @@ export function SellUpAi() {
             </div>
           ))}
         </dl>
-      </Section>
-      <Section
-        n="6.3"
-        title={{ es: 'Auditar antes de seguir', en: 'Audit before moving on' }}
-        body={{ es: 'Cuando algo no cuadraba, la IA no adivinaba el arreglo: primero auditaba con datos reales y publicaba la ficha. Así se encontró que la búsqueda de contactos preguntaba mal, o dónde se iban los créditos de Apollo.', en: 'When something didn’t add up, the AI didn’t guess the fix: it audited with real data first and published the brief. That’s how we found the contact search was asking wrong, or where Apollo credits were going.' }}
-      >
-        <AuditStack />
+        <div className="mt-10"><AuditStack /></div>
       </Section>
     </div>
   )
