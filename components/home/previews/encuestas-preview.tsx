@@ -5,7 +5,7 @@ import { useA11y } from '@/lib/a11y'
 import { useTick } from '@/components/case/barberlytics/thema/live-pieces'
 import { TEMPLATES } from '@/components/case/encuestas/form-fan'
 
-const STEP_MS = 1500
+const STEP_MS = 850
 const BLUE = '#0c5bef'
 
 /** Vista previa del listado: las cinco plantillas reales del inicio de Encuestas en abanico, una pasa al frente. */
@@ -32,7 +32,7 @@ export function EncuestasPreview() {
           return (
             <div
               key={tp.name}
-              className="absolute bottom-0 left-1/2 w-[29%] origin-bottom rounded-2xl border bg-white p-2.5 shadow-[0_14px_30px_-14px_rgba(10,11,13,0.45)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="absolute bottom-0 left-1/2 w-[29%] origin-bottom rounded-2xl border bg-white p-2.5 shadow-[0_14px_30px_-14px_rgba(10,11,13,0.45)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
                 transform: `translateX(calc(-50% + ${on ? 0 : off * 4.2}rem)) rotate(${on ? 0 : off * 9}deg) translateY(${on ? -1.2 : Math.abs(off) * 0.45}rem) scale(${on ? 1.12 : 0.88})`,
                 zIndex: on ? 20 : 10 - Math.abs(Math.round(off)),
