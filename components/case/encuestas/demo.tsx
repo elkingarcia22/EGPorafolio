@@ -19,6 +19,8 @@ const FLAGS = '?ver=todos'
  */
 const RAIL = 72
 const TOPBAR = 60
+/** `NARROW_WINDOW` del RootLayout del playground. */
+const NARROW_WINDOW = 1200
 
 interface Entry {
   id: string
@@ -34,7 +36,7 @@ const ENTRIES: readonly Entry[] = [
 
 const urlOf = (e: Entry) => `${STAGING}${MODULE}${e.path}${FLAGS}`
 
-/** El playground real a escala de escritorio, con todo su marco a la vista y solo Encuestas para tocar. */
+/** El playground real con el riel plegado, escalado a todo el ancho, con su marco a la vista y solo Encuestas para tocar. */
 function StagingFrame({ entry }: { entry: Entry }) {
   const { t } = useLocale()
   const box = useRef<HTMLDivElement>(null)
@@ -49,16 +51,14 @@ function StagingFrame({ entry }: { entry: Entry }) {
     return () => ro.disconnect()
   }, [])
 
-  // Bajo 1.200 px de ventana el playground pliega su menú al riel de 72 px (RootLayout, NARROW_WINDOW): por eso el
-  // iframe mide 1.196. En pantallas angostas se dibuja a 1.024 para no quedar diminuto.
-  const width = size && size.w < 768 ? 1024 : 1196
-  // A tamaño real cuando cabe; solo se achica si el modal es más angosto. Si sobra espacio, queda centrado.
-  const scale = size ? Math.min(1, size.w / width) : 1
+  // El playground se dibuja a 1.199 px, justo bajo el `NARROW_WINDOW` de su RootLayout, para que el menú quede plegado
+  // al riel de 72 px; después se escala al ancho del modal, sin márgenes. En pantallas angostas se dibuja a 1.024.
+  const width = size && size.w < 768 ? 1024 : NARROW_WINDOW - 1
+  const scale = size ? size.w / width : 1
   const height = size ? size.h / scale : 800
-  const left = size ? Math.max(0, (size.w - width * scale) / 2) : 0
 
   return (
-    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden bg-[#e9edf5]">
+    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden bg-white">
       {!loaded && (
         <p className="absolute inset-0 flex items-center justify-center gap-3 font-mono text-xs text-[#5c646f]" role="status">
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0c5bef] border-t-transparent" />
@@ -71,15 +71,15 @@ function StagingFrame({ entry }: { entry: Entry }) {
           src={urlOf(entry)}
           title={t({ es: `Encuestas en staging: ${entry.name.es}`, en: `Surveys on staging: ${entry.name.en}` })}
           onLoad={() => setLoaded(true)}
-          className="absolute top-0 origin-top-left border-0 transition-opacity duration-500"
-          style={{ left, width, height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
+          className="absolute left-0 top-0 origin-top-left border-0 transition-opacity duration-500"
+          style={{ width, height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
         />
       )}
       {/* Capas invisibles sobre el riel y la barra superior: se ven, pero no llevan a otros productos. */}
       {size && (
         <>
-          <span className="absolute top-0 h-full cursor-not-allowed" style={{ left, width: RAIL * scale }} aria-hidden="true" />
-          <span className="absolute top-0 cursor-not-allowed" style={{ left: left + RAIL * scale, width: (width - RAIL) * scale, height: TOPBAR * scale }} aria-hidden="true" />
+          <span className="absolute left-0 top-0 h-full cursor-not-allowed" style={{ width: RAIL * scale }} aria-hidden="true" />
+          <span className="absolute right-0 top-0 cursor-not-allowed" style={{ left: RAIL * scale, height: TOPBAR * scale }} aria-hidden="true" />
         </>
       )}
     </div>
