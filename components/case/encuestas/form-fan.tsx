@@ -8,7 +8,7 @@ import { UBITS_BLUE, useTicker } from './shared'
 const ROUTE = '/admin/desempeno-cultura/encuestas'
 
 /** Los cinco atajos del inicio, con su ícono «glass» real del design system (playground, `crea-algo-nuevo.tsx`). */
-const TEMPLATES: readonly { name: string; hint: L; color: string; icon: string; detail: L }[] = [
+export const TEMPLATES: readonly { name: string; hint: L; color: string; icon: string; detail: L }[] = [
   { name: 'NOM 035', icon: '/cases/encuestas/glass/nom035.webp', hint: { es: 'Cumple la norma en México', en: 'Meets the Mexican norm' }, color: '#22a06b', detail: { es: 'Cuestionario oficial de solo lectura · exige el 100 % de participación y al menos un dato demográfico', en: 'Read-only official questionnaire · requires 100% participation and at least one demographic' } },
   { name: 'Universidad Corporativa', icon: '/cases/encuestas/glass/universidad.webp', hint: { es: 'Mide la formación', en: 'Measures learning' }, color: '#e8743b', detail: { es: 'Lista para medir la experiencia de formación', en: 'Ready to measure the learning experience' } },
   { name: 'Cultura', icon: '/cases/encuestas/glass/cultura.webp', hint: { es: 'Mide tus valores', en: 'Measures your values' }, color: '#d9467a', detail: { es: 'Versión corta de 30 preguntas o completa de 50, para comparar año a año', en: 'Short 30-question or full 50-question version, to compare year over year' } },
