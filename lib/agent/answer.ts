@@ -41,6 +41,10 @@ function wordMatches(token: string, key: string): boolean {
   if (token === key) return true
   if (key.length <= 3) return false // ia, ui, cv, arr…: solo exactas
   if (token.length >= 4 && (token.startsWith(key) || key.startsWith(token)) && Math.abs(token.length - key.length) <= 3) return true
+  // Misma raíz: «bocetación» y «bocetas», «prototipado» y «prototipos».
+  let common = 0
+  while (common < token.length && common < key.length && token[common] === key[common]) common++
+  if (common >= 5 && common >= key.length - 2) return true
   return key.length >= 5 && distance(token, key) <= (key.length >= 8 ? 2 : 1)
 }
 
@@ -52,8 +56,26 @@ function keyMatches(q: string, tokens: readonly string[], rawKey: string): boole
   return key.split(' ').every((part) => tokens.some((t) => wordMatches(t, part)))
 }
 
+/**
+ * Puntos de un tema: cuántas palabras distintas de la pregunta lo activan (las frases cuentan doble).
+ * Así «bocetación» no suma tres veces por coincidir con «boceto», «bocetos» y «bocetas».
+ */
+function topicPoints(topic: Topic, q: string, tokens: readonly string[]): number {
+  const hitTokens = new Set<string>()
+  let phrases = 0
+  for (const raw of topic.keys) {
+    const key = fold(raw).trim()
+    if (key.includes(' ')) {
+      if (keyMatches(q, tokens, key)) phrases++
+      continue
+    }
+    tokens.forEach((t) => wordMatches(t, key) && hitTokens.add(t))
+  }
+  return (hitTokens.size + phrases * 2) * (topic.weight ?? 1)
+}
+
 function score(q: string, tokens: readonly string[]): { topic: Topic; points: number }[] {
-  return TOPICS.map((topic) => ({ topic, points: topic.keys.filter((k) => keyMatches(q, tokens, k)).length * (topic.weight ?? 1) }))
+  return TOPICS.map((topic) => ({ topic, points: topicPoints(topic, q, tokens) }))
     .filter((r) => r.points > 0)
     .sort((a, b) => b.points - a.points)
 }

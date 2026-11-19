@@ -29,6 +29,7 @@ export const TOPICS: readonly Topic[] = [
   /* ── Cómo trabajo ─────────────────────────────────────────────────── */
   {
     id: 'vibe',
+    weight: 2,
     keys: ['vibe coding', 'vibe', 'codigo', 'programas', 'programar', 'construyes', 'construir', 'cursor', 'claude code', 'build', 'coding', 'code'],
     replies: [
       s('Diseño y también construyo. Con Claude Code y Cursor paso de la idea a algo que funciona en días: escribo primero las reglas del sistema de diseño para que la IA las respete, armo piezas pequeñas, las pruebo en el navegador y voy subiendo. El vibe coding no reemplaza el criterio; lo acelera.\n\nPor ejemplo, Barberlytics lo diseñé y construí así, y este mismo portafolio también.', 'I design and I also build. With Claude Code and Cursor I go from idea to something that works in days: I first write the design-system rules so AI respects them, build small pieces, test them in the browser and scale up. Vibe coding doesn’t replace judgment; it speeds it up.\n\nFor example, I designed and built Barberlytics that way, and this very portfolio too.'),
@@ -65,7 +66,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'sketch',
-    keys: ['boceto', 'bocetos', 'bocetas', 'sketch', 'sketches', 'wireframe', 'wireframes', 'flujo', 'flujos', 'flow', 'ideacion', 'ideas', 'variantes', 'versiones'],
+    keys: ['boceto', 'bocetos', 'bocetas', 'bocetar', 'bocetacion', 'sketch', 'sketches', 'wireframe', 'wireframes', 'flujo', 'flujos', 'flow', 'ideacion', 'ideas', 'variantes', 'versiones'],
     replies: [
       s('Bocetar para mí es pensar barato. Antes de cualquier pantalla hago tableros a mano: el flujo completo, dónde se separan los caminos, qué pasa cuando algo falla y varias versiones lado a lado. Ahí descarto rápido, sin apego.\n\nPor ejemplo, en la reserva de Barberlytics bocetamos cuatro versiones —paso a paso, agenda en lista, según el cliente y Clipper— sobre un mismo motor, y «según el cliente» quedó por defecto.', 'Sketching to me is cheap thinking. Before any screen I make hand-drawn boards: the whole flow, where paths split, what happens when something fails and several versions side by side. There I discard fast, without attachment.\n\nFor example, in Barberlytics booking we sketched four versions —step by step, list agenda, by client and Clipper— on one engine, and “by client” became the default.'),
     ],
@@ -157,6 +158,25 @@ export const TOPICS: readonly Topic[] = [
     ],
     extras: join(CASE('encuestas'), CASE('objetivos')),
   },
+  {
+    id: 'branding',
+    weight: 1.5,
+    keys: ['logo', 'logos', 'logotipo', 'isotipo', 'imagotipo', 'marca', 'marcas', 'branding', 'brand', 'identidad visual', 'identity', 'icono', 'icon', 'orbe', 'orb'],
+    replies: [
+      s('Boceto un logo como cualquier problema: primero qué tiene que decir y después muchas formas de decirlo, a mano, antes de pulir una. Exploro direcciones con el mismo ADN, me quedo con lo que sobrevive y termino con la construcción y sus medidas, probándolo en todos los tamaños y temas.\n\nPor ejemplo, en Barberlytics la pregunta era cómo «barbería» y «métricas» se vuelven un solo signo. Boceté seis direcciones —impulso, peine, poste, navaja, placa y sello— y lo afiné en seis rondas: la flecha que sube se quedó, le di un pulso, el gradiente de IA, lo probé en los catorce temas y al final la flecha sola quedó como isotipo para el favicon y el ícono de la app.', 'I sketch a logo like any problem: first what it has to say, then many ways of saying it, by hand, before polishing one. I explore directions with the same DNA, keep what survives and finish with the construction and its measures, testing it at every size and theme.\n\nFor example, in Barberlytics the question was how “barbershop” and “metrics” become one sign. I sketched six directions —momentum, comb, pole, razor, plate and seal— and refined it in six rounds: the rising arrow stayed, I gave it a pulse, the AI gradient, tested it in all fourteen themes and in the end the arrow alone became the isotype for favicon and app icon.'),
+    ],
+    deep: s('También diseñé la presencia de Clipper, la IA: no un ícono sino un orbe. Lo construí desde el poste de barbería —franjas a 45°, recortadas en círculo— con el gradiente de IA, vidrio, anillo y halo, y tres estados: reposo, escucha y piensa. Y en Thema la barbería puede sacar su tema de color de su propio logo.', 'I also designed the presence of Clipper, the AI: not an icon but an orb. I built it from the barber pole —45° stripes, cut into a circle— with the AI gradient, glass, ring and halo, and three states: idle, listening and thinking. And in Thema a shop can pull its color theme from its own logo.'),
+    extras: join(CASE('barberlytics'), sug('¿Cómo construiste el orbe de Clipper?', 'How did you build Clipper’s orb?')),
+  },
+
+  {
+    id: 'motivation',
+    keys: ['te gusta', 'gusta', 'pasion', 'motiva', 'motivacion', 'disfrutas', 'inspira', 'love', 'enjoy', 'passion'],
+    replies: [
+      s('Lo que más disfruto es el momento en que puntos sueltos se conectan: una queja en una reseña, un dato de uso y una idea de negocio que de pronto explican lo mismo. Y ahora, con IA, ver esa idea funcionando el mismo día.\n\nPor ejemplo, en Barberlytics esa conexión fue darme cuenta de que una barbería vive de lo que se repite; de ahí salió casi todo el producto.', 'What I enjoy most is the moment loose dots connect: a complaint in a review, a usage data point and a business idea that suddenly explain the same thing. And now, with AI, seeing that idea working the same day.\n\nFor example, in Barberlytics that connection was realizing a barbershop lives on what repeats; almost the whole product came from there.'),
+    ],
+    extras: CASE('barberlytics'),
+  },
 
   /* ── IA ───────────────────────────────────────────────────────────── */
   {
@@ -171,6 +191,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'ai-agents',
+    weight: 1.2,
     keys: ['agente', 'agentes', 'agent', 'agents', 'asistente', 'assistant', 'chatbot', 'bot', 'clipper', 'rumbo', 'orbit', 'evaluaciones', 'evals', 'guardrails', 'alucin'],
     replies: [
       s('Cuando diseño un agente, diseño tres cosas además de la interfaz: qué puede consultar, qué puede proponer y qué nunca hace solo. Y lo evalúo con preguntas reales antes de soltarlo.\n\nPor ejemplo, Clipper nunca adivina: si una respuesta trae una cifra que no salió de los datos, el servidor la frena; y trata las notas de los clientes como datos, nunca como órdenes.', 'When I design an agent, I design three things besides the interface: what it can look up, what it can propose and what it never does alone. And I evaluate it with real questions before letting it loose.\n\nFor example, Clipper never guesses: if an answer has a figure that didn’t come from the data, the server stops it; and it treats client notes as data, never as orders.'),
@@ -219,6 +240,8 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'projects',
+    /** «¿En qué proyecto…?» no debe tapar el tema real de la pregunta. */
+    weight: 0.3,
     keys: ['proyectos', 'projects', 'casos', 'cases', 'portafolio', 'portfolio', 'trabajos', 'favorito', 'favorite', 'mejor proyecto', 'orgulloso', 'proud'],
     replies: [
       s('En el portafolio hay cuatro: Objetivos y Encuestas de UBITS, SellUp —la plataforma comercial con IA de UBITS— y Barberlytics, software para barberías que diseñé y construí de punta a punta. Si tuviera que elegir uno, Barberlytics, porque ahí junté todo: sistema de diseño, producto, IA y código.', 'There are four in the portfolio: UBITS Goals and Surveys, SellUp —UBITS’ AI sales platform— and Barberlytics, software for barbershops I designed and built end to end. If I had to pick one, Barberlytics, because it brings it all together: design system, product, AI and code.'),
