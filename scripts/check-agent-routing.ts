@@ -79,6 +79,12 @@ const cases: [string, string | null][] = [
   ['can I see your resume', 'cv'], ['where are you based', 'contact'], ['do you lead teams', 'leadership'], ['how do you handle privacy', 'privacy'],
   // fuera de tema
   ['cual es tu equipo de futbol', 'personal'], ['que edad tienes', 'personal'],
+  // ── Tercera tanda: lo técnico
+  ['que tecnologias usas', 'stack'], ['usas react o vue', 'stack'], ['sabes de shadcn', 'stack'], ['trabajas con vite', 'stack'], ['que framework usas', 'stack'], ['next js', 'stack'],
+  ['como conectas la base de datos', 'backend'], ['usas supabase', 'backend'], ['sabes de backend', 'backend'], ['como manejas el login', 'backend'], ['haces apis', 'backend'],
+  ['como despliegas', 'deploy'], ['usas vercel', 'deploy'], ['como publicas tus proyectos', 'deploy'], ['como haces deploys', 'deploy'],
+  ['usas github', 'git'], ['como haces los commits', 'git'], ['trabajas con pull requests', 'git'], ['manejas ramas en git', 'git'],
+  ['que construyes tu mismo con codigo e ia', 'vibe'], ['eres full stack', 'vibe'],
 ]
 let fail = 0
 for (const [q, want] of cases) {
