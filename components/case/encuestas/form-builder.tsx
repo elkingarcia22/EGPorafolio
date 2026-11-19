@@ -114,7 +114,7 @@ export function LiveBuilder() {
   const iconBtn = 'flex h-7 w-7 items-center justify-center rounded-md text-[13px] text-[#5c646f] transition-colors hover:bg-[#ecf1fa] hover:text-[#303a47] disabled:opacity-30'
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-[#f8faff] text-[#303a47] ring-1 ring-black/10">
+    <div className="relative overflow-hidden bg-[#f8faff] text-[#303a47]">
       <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_15rem]">
         <ul className="min-w-0 space-y-1.5 p-4 sm:p-5">
           {entries.map((e) => {

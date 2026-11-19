@@ -1,72 +1,43 @@
 'use client'
 
-import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
-import type { Finding } from '@/lib/content/cases/encuestas/types'
+import { AffinityBoard } from './patterns-board'
 
-type Area = Finding['area']
+/** De dónde salen los hallazgos: no hubo entrevistas, hubo recorrido, reuniones y crítica. */
+const SOURCES: readonly { value: string; label: L }[] = [
+  { value: '83', label: { es: 'encuestas en la cuenta real auditada', en: 'surveys in the real audited account' } },
+  { value: '↻', label: { es: 'reuniones con producto y desarrollo', en: 'meetings with product and engineering' } },
+  { value: '✎', label: { es: 'crítica de nuestros propios prototipos', en: 'critique of our own prototypes' } },
+]
 
-/** Cada área con el prefijo de sus casos de QA en el producto y un color propio. */
-const AREAS: Record<Area, { label: L; code: string; color: string }> = {
-  lista: { label: { es: 'Lista', en: 'List' }, code: 'LIS', color: '#7aa2ff' },
-  constructor: { label: { es: 'Constructor', en: 'Builder' }, code: 'CRE', color: '#b18cff' },
-  carga: { label: { es: 'Carga histórica', en: 'Historical upload' }, code: 'CAR', color: '#f1c56c' },
-  resultados: { label: { es: 'Resultados', en: 'Results' }, code: 'RES', color: '#8ccfa4' },
-  privacidad: { label: { es: 'Privacidad', en: 'Privacy' }, code: 'ANO', color: '#f0a07a' },
-}
-
-const ORDER = Object.keys(AREAS) as Area[]
-
-/** 02 · Patrones: la auditoría como un tablero filtrable por parte del producto. */
+/** 02 · Patrones: la auditoría como un tablero de afinidad que se agrupa solo. */
 export function AuditPatterns() {
   const { t } = useLocale()
   const p = ENCUESTAS_CASE.patterns
-  const [area, setArea] = useState<Area | 'todo'>('todo')
-  const visible = p.findings.filter((f) => area === 'todo' || f.area === area)
-  const count = (a: Area) => p.findings.filter((f) => f.area === a).length
-
   return (
     <div>
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(p.lead)}</p>
 
-      <div data-reveal className="mt-10 flex flex-wrap gap-2" role="group" aria-label={t({ es: 'Filtrar hallazgos por área', en: 'Filter findings by area' })}>
-        <button type="button" aria-pressed={area === 'todo'} onClick={() => setArea('todo')} className={`mono-label border px-3 py-2 transition-colors ${area === 'todo' ? 'border-signal bg-signal text-paper' : 'border-fg/25 hover:border-fg/60'}`}>
-          {t({ es: 'Todo', en: 'All' })} · {p.findings.length}
-        </button>
-        {ORDER.map((a) => (
-          <button key={a} type="button" aria-pressed={area === a} onClick={() => setArea(a)} className={`mono-label flex items-center gap-2 border px-3 py-2 transition-colors ${area === a ? 'border-fg bg-fg text-bg' : 'border-fg/25 hover:border-fg/60'}`}>
-            <span className="h-2 w-2 rounded-full" style={{ background: AREAS[a].color }} />
-            {t(AREAS[a].label)} · {count(a)}
-          </button>
-        ))}
-      </div>
-
-      <ol className="mt-8 grid gap-3 md:grid-cols-2" aria-live="polite">
-        {visible.map((f) => {
-          const meta = AREAS[f.area]
-          const index = p.findings.indexOf(f) + 1
-          return (
-            <li key={f.text.es} className="enc-fade relative overflow-hidden rounded-lg border border-fg/15 bg-fg/[0.03] p-5 pl-6">
-              <span className="absolute inset-y-0 left-0 w-1" style={{ background: meta.color }} aria-hidden="true" />
-              <p className="flex items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-wider opacity-60">
-                <span>{meta.code}-{String(index).padStart(3, '0')}</span>
-                <span>{t(meta.label)}</span>
-              </p>
-              <p className="mt-3 leading-snug">{t(f.text)}</p>
-            </li>
-          )
-        })}
-      </ol>
-
-      <ol className="mt-16 space-y-4">
-        {p.insights.map((insight, i) => (
-          <li key={insight.es} data-reveal className="flex gap-5 border-t border-fg/15 pt-4">
-            <span className="mono-label shrink-0 text-signal">{t({ es: 'Hallazgo', en: 'Insight' })} 0{i + 1}</span>
-            <span className="text-lg leading-snug">{t(insight)}</span>
+      <ul data-reveal className="mt-8 flex flex-wrap gap-2" aria-label={t({ es: 'Fuentes', en: 'Sources' })}>
+        {SOURCES.map((s) => (
+          <li key={s.label.es} className="flex items-center gap-3 rounded-full border border-fg/20 bg-fg/[0.04] py-1.5 pl-1.5 pr-4 text-sm">
+            <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-signal px-2 font-mono text-xs text-paper">{s.value}</span>
+            {t(s.label)}
           </li>
         ))}
-      </ol>
+      </ul>
+
+      <div className="mt-12">
+        <AffinityBoard />
+      </div>
+
+      <p className="mt-6 max-w-[62ch] text-xs leading-relaxed opacity-55">
+        {t({
+          es: 'Cada nota lleva el código de su caso de QA en el producto y la severidad que le di en la auditoría. Pasa por un grupo o un hallazgo para ver de dónde sale.',
+          en: 'Each note carries its QA case code in the product and the severity I gave it in the audit. Hover a group or an insight to see where it comes from.',
+        })}
+      </p>
     </div>
   )
 }

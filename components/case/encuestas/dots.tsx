@@ -1,95 +1,100 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
-import { useTicker } from './shared'
+import { ParticipationRiver } from './dots-river'
+import { STATION_MOCKS } from './dots-mocks'
+import './hero-dots.css'
 
-const R = 150
-const C = 190
+const ADVANCE_MS = 4200
 
-/** Posición de la parada `i` de `n` sobre el anillo, empezando arriba. */
-function point(i: number, n: number, r = R): { x: number; y: number } {
-  const a = (i / n) * Math.PI * 2 - Math.PI / 2
-  return { x: C + Math.cos(a) * r, y: C + Math.sin(a) * r }
-}
-
-/** El ciclo de una medición: seis paradas en un anillo; cada una muestra qué estaba roto y qué cambió. */
-function MeasurementCycle() {
+/** El recorrido de una medición: el río arriba, y debajo el reto y el rediseño de la parada elegida. */
+function MeasurementJourney() {
   const { t } = useLocale()
+  const { reducedMotion } = useA11y()
   const stations = ENCUESTAS_CASE.dots.stations
-  const [picked, setPicked] = useState<number | null>(null)
-  const tick = useTicker(2600, picked === null)
-  const active = picked ?? tick % stations.length
+  const [active, setActive] = useState(0)
+  const [pinned, setPinned] = useState(false)
+  const [hover, setHover] = useState(false)
   const station = stations[active]
-  const n = stations.length
+  const Mock = STATION_MOCKS[station.id]
+
+  useEffect(() => {
+    if (reducedMotion || pinned || hover) return
+    const id = window.setInterval(() => setActive((a) => (a + 1) % stations.length), ADVANCE_MS)
+    return () => window.clearInterval(id)
+  }, [reducedMotion, pinned, hover, stations.length])
+
+  const pick = (i: number) => {
+    setActive(i)
+    setPinned(true)
+  }
 
   return (
-    <div className="grid items-center gap-10 lg:grid-cols-12">
-      <div className="relative mx-auto w-full max-w-[24rem] lg:col-span-6" data-reveal="pop">
-        <svg viewBox="0 0 380 380" className="w-full" role="img" aria-label={t({ es: 'Ciclo de una medición en seis paradas', en: 'A measurement cycle in six stops' })}>
-          <circle cx={C} cy={C} r={R} fill="none" stroke="currentColor" strokeOpacity="0.15" strokeWidth="1.5" strokeDasharray="3 6" />
-          <circle
-            cx={C}
-            cy={C}
-            r={R}
-            fill="none"
-            stroke="rgb(var(--signal))"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            pathLength={n}
-            strokeDasharray={`${active + 1} ${n}`}
-            transform={`rotate(-90 ${C} ${C})`}
-            className="transition-[stroke-dasharray] duration-700 ease-expo"
-          />
-          <text x={C} y={C - 8} textAnchor="middle" className="fill-current font-mono text-[11px] opacity-50">
-            {String(active + 1).padStart(2, '0')} / {String(n).padStart(2, '0')}
-          </text>
-          <text x={C} y={C + 18} textAnchor="middle" className="fill-current text-[20px] font-light">
-            {t(station.name)}
-          </text>
-        </svg>
-        {stations.map((s, i) => {
-          const p = point(i, n)
-          const on = i === active
-          return (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setPicked(i)}
-              aria-pressed={on}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider transition-all duration-500 ${on ? 'scale-110 border-signal bg-signal text-paper' : 'border-fg/25 bg-bg hover:border-signal'}`}
-              style={{ left: `${(p.x / 380) * 100}%`, top: `${(p.y / 380) * 100}%` }}
-            >
-              {t(s.name)}
-            </button>
-          )
-        })}
+    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+      <div className="hidden md:block" data-reveal>
+        <ParticipationRiver stations={stations} active={active} onPick={pick} />
+        <p className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[10px] opacity-50">
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-signal" />{t({ es: 'personas que siguen', en: 'people who continue' })}</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-[#e0675f]" />{t({ es: 'personas que se quedan en una parada', en: 'people who stall at a stop' })}</span>
+          <span>{t({ es: 'Flujo ilustrativo, no son datos medidos.', en: 'Illustrative flow, not measured data.' })}</span>
+        </p>
       </div>
 
-      <div className="lg:col-span-6" aria-live="polite">
-        <p className="mono-label opacity-50">{t(station.who)}</p>
-        <div key={station.id} className="mt-4 grid gap-px overflow-hidden border border-fg/15 bg-fg/15 enc-fade">
-          <div className="bg-bg p-6">
-            <p className="mono-label text-[#e0675f]">{t({ es: 'El reto', en: 'The challenge' })}</p>
-            <p className="mt-2 text-lg leading-snug opacity-80">{t(station.before)}</p>
-          </div>
-          <div className="bg-bg p-6">
-            <p className="mono-label text-signal">{t({ es: 'Con el rediseño', en: 'With the redesign' })}</p>
-            <p className="mt-2 text-lg leading-snug">{t(station.after)}</p>
-          </div>
+      <ol className="relative space-y-1 border-l border-fg/15 pl-5 md:hidden" data-reveal>
+        {stations.map((s, i) => {
+          const on = i === active
+          return (
+            <li key={s.id} className="relative">
+              <span className={`absolute -left-[1.6rem] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full border-2 border-signal transition-colors ${on ? 'bg-signal' : 'bg-bg'}`} aria-hidden="true" />
+              <button type="button" aria-pressed={on} onClick={() => pick(i)} className={`flex w-full flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left transition-opacity ${on ? '' : 'opacity-60'}`}>
+                <span className="font-mono text-[10px] text-signal">{String(i + 1).padStart(2, '0')}</span>
+                <span className="text-base">{t(s.name)}</span>
+                <span className="rounded-full border border-fg/20 px-2 py-0.5 text-[10px]">{t(s.who)}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
+
+      <div key={station.id} className="hd-rise mt-10 grid gap-4 lg:grid-cols-12" aria-live="polite">
+        <div className="relative overflow-hidden rounded-2xl border border-[#e0675f]/30 bg-[#e0675f]/[0.06] p-6 lg:col-span-4">
+          <p className="mono-label text-[#f08a83]">{t({ es: 'El reto', en: 'The challenge' })}</p>
+          <p className="mt-3 text-lg leading-snug opacity-85">{t(station.before)}</p>
+          <span className="pointer-events-none absolute -bottom-6 -right-2 font-mono text-[6rem] leading-none text-[#e0675f] opacity-10" aria-hidden="true">{String(active + 1).padStart(2, '0')}</span>
         </div>
-        {picked !== null && (
-          <button type="button" onClick={() => setPicked(null)} className="mono-label mt-4 opacity-60 hover:opacity-100">
-            ↻ {t({ es: 'Seguir el recorrido solo', en: 'Resume the tour' })}
-          </button>
-        )}
+        <div className="grid gap-4 rounded-2xl border border-signal/40 bg-signal/[0.06] p-6 sm:grid-cols-2 lg:col-span-8">
+          <div>
+            <p className="mono-label text-signal">{t({ es: 'Con el rediseño', en: 'With the redesign' })}</p>
+            <p className="mt-3 text-lg leading-snug">{t(station.after)}</p>
+            {pinned && (
+              <button type="button" onClick={() => setPinned(false)} className="mono-label mt-5 opacity-60 hover:opacity-100">
+                ↻ {t({ es: 'Seguir el recorrido solo', en: 'Resume the tour' })}
+              </button>
+            )}
+          </div>
+          {Mock && <Mock />}
+        </div>
+      </div>
+
+      <div className="mt-4 flex gap-1.5" aria-hidden="true">
+        {stations.map((s, i) => (
+          <span key={s.id} className="h-0.5 flex-1 overflow-hidden rounded-full bg-fg/10">
+            {i === active && !pinned && !hover && !reducedMotion ? (
+              <span key={`${s.id}-run`} className="block h-full bg-signal" style={{ animation: `hd-grow ${ADVANCE_MS}ms linear both`, transformOrigin: 'left' }} />
+            ) : (
+              <span className={`block h-full ${i <= active ? 'bg-signal' : ''}`} />
+            )}
+          </span>
+        ))}
       </div>
     </div>
   )
 }
 
-/** 01 · Los puntos: el ciclo roto de una medición y las cifras de partida. */
+/** 01 · Los puntos: el recorrido de una medición, dónde se pierde la gente y las cifras de partida. */
 export function CycleDots() {
   const { t } = useLocale()
   const d = ENCUESTAS_CASE.dots
@@ -98,8 +103,8 @@ export function CycleDots() {
       <p data-reveal="mask" className="max-w-[24ch] text-[clamp(1.8rem,1rem+2.6vw,3.4rem)] font-light leading-[1.08] tracking-tight">{t(d.kicker)}</p>
       <p data-reveal className="mt-8 max-w-[62ch] text-lg leading-relaxed opacity-80">{t(d.lead)}</p>
 
-      <p data-reveal className="mono-label mb-8 mt-16 opacity-60">{t({ es: 'El ciclo de una medición', en: 'A measurement cycle' })}</p>
-      <MeasurementCycle />
+      <p data-reveal className="mono-label mb-8 mt-16 opacity-60">{t({ es: 'El río de una medición: seis paradas, de crear a actuar', en: 'The river of a measurement: six stops, from create to act' })}</p>
+      <MeasurementJourney />
 
       <dl className="mt-20 grid grid-cols-2 gap-8 border-t border-fg/15 pt-10 lg:grid-cols-4">
         {d.facts.map((f) => (

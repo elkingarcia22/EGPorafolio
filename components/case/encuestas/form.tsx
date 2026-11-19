@@ -1,128 +1,89 @@
 'use client'
 
-import { useLocale, type L } from '@/lib/i18n'
-import { SHOTS } from '@/lib/content/cases/encuestas/case'
+import { useLocale } from '@/lib/i18n'
 import { LiveBuilder } from './form-builder'
-import { ResultsTabs, StepperShots, UploadPipeline } from './form-flows'
-import { FAV, Lock, Screen } from './shared'
+import { ResultsTabs, UploadPipeline } from './form-flows'
+import { AnonymityHeatmap, BrowserFrame, Moment, TemplatesFan } from './form-moments'
+import { PhoneAnswer } from './form-phone'
+import { ScreensWall } from './form-wall'
+import './form.css'
 
 const ROUTE = '/admin/desempeno-cultura/encuestas'
 
-function Part({ index, title, lead, children }: { index: string; title: L; lead: L; children: React.ReactNode }) {
-  const { t } = useLocale()
-  return (
-    <section className="border-t border-fg/15 pt-10">
-      <div className="mb-8 grid gap-4 lg:grid-cols-12">
-        <p data-reveal className="mono-label text-signal lg:col-span-3">{index}</p>
-        <div className="lg:col-span-9">
-          <h3 data-reveal="mask" className="text-[clamp(1.5rem,1rem+1.4vw,2.2rem)] font-light leading-tight">{t(title)}</h3>
-          <p data-reveal className="mt-3 max-w-[60ch] leading-relaxed opacity-75">{t(lead)}</p>
-        </div>
-      </div>
-      {children}
-    </section>
-  )
-}
-
-const HOME_NOTES: readonly L[] = [
-  { es: 'Cinco atajos para crear, con NOM 035 primero: es la que más preguntan los clientes de México.', en: 'Five create shortcuts, NOM 035 first: it’s what customers in Mexico ask for most.' },
-  { es: '«Para atender» ordena por riesgo lo que necesita una acción hoy, y cada riesgo trae su botón.', en: '“To address” ranks by risk what needs action today, and each risk brings its button.' },
-  { es: 'Las tarjetas y la tabla no pueden contar historias distintas: cada métrica es exactamente un filtro de la lista.', en: 'Cards and table can’t tell different stories: each metric is exactly a list filter.' },
-]
-
-const CELL_STATES: readonly { label: L; hint: L; render: React.ReactNode }[] = [
-  { label: { es: 'Número con color', en: 'Colored number' }, hint: { es: 'el promedio de 1 a 5 de ese cruce', en: 'that cross’s 1–5 average' }, render: <span className="rounded-md px-2 py-1 font-mono text-sm text-[#14161a]" style={{ background: FAV[3] }}>4,2</span> },
-  { label: { es: 'Número gris', en: 'Grey number' }, hint: { es: 'fuera de las bandas resaltadas', en: 'outside highlighted bands' }, render: <span className="rounded-md bg-fg/10 px-2 py-1 font-mono text-sm opacity-60">3,4</span> },
-  { label: { es: 'Reservado', en: 'Reserved' }, hint: { es: 'tiene respuestas, pero no llega al mínimo', en: 'has answers, but below the minimum' }, render: <span className="rounded-md bg-fg/10 px-2 py-1.5 opacity-70"><Lock className="h-4 w-4" /></span> },
-  { label: { es: 'Sin respuestas', en: 'No answers' }, hint: { es: 'nadie de ese grupo ha respondido', en: 'nobody in that group has answered' }, render: <span className="font-mono text-lg opacity-50">—</span> },
-  { label: { es: 'Sin escala', en: 'No scale' }, hint: { es: 'abierta u opciones: no hay nada de 1 a 5', en: 'open or options: nothing on 1–5' }, render: <span className="text-lg opacity-60">💬</span> },
-  { label: { es: 'Nivel oculto', en: 'Hidden level' }, hint: { es: 'ese nivel está apagado en «Niveles»', en: 'that level is off in “Levels”' }, render: <span className="inline-block h-7 w-10 rounded-md border border-dashed border-fg/30" /> },
-]
-
-/** 05 · Forma: el producto completo, de la lista a la acción, con piezas para tocar y capturas reales. */
+/** 05 · Forma: el producto entero en movimiento y, después, los seis momentos que lo hacen ganar. */
 export function SurveyForm() {
   const { t } = useLocale()
   return (
-    <div className="space-y-24">
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
-        {t({ es: 'Seis superficies, una sola encuesta por debajo: el mismo borrador alimenta la vista previa, los resultados y cada archivo descargable, así que ninguna pantalla puede contradecir a otra. Todas las capturas son del prototipo real, corriendo en local.', en: 'Six surfaces, a single survey underneath: the same draft feeds the preview, the results and every downloadable file, so no screen can contradict another. Every screenshot is from the real prototype, running locally.' })}
-      </p>
+    <div className="space-y-24 md:space-y-32">
+      <div className="space-y-10">
+        <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
+          {t({ es: 'Seis superficies, una sola encuesta por debajo: el mismo borrador alimenta la vista previa, los resultados y cada archivo descargable, así que ninguna pantalla puede contradecir a otra. Primero el producto entero; después, los momentos que lo hacen distinto.', en: 'Six surfaces, a single survey underneath: the same draft feeds the preview, the results and every downloadable file, so no screen can contradict another. First the whole product; then the moments that make it different.' })}
+        </p>
+        <ScreensWall />
+      </div>
 
-      <Part index="5.1 · Inicio" title={{ es: 'Lo primero que ves es lo que necesita atención', en: 'The first thing you see is what needs attention' }} lead={{ es: 'La lista dejó de ser un archivo de encuestas y pasó a ser una bandeja de trabajo.', en: 'The list stopped being a survey archive and became a work inbox.' }}>
-        <div className="grid gap-8 lg:grid-cols-12">
-          <div data-reveal="device" className="lg:col-span-8">
-            <Screen shot={SHOTS.lista} route={ROUTE} />
-          </div>
-          <ol className="space-y-6 lg:col-span-4">
-            {HOME_NOTES.map((n, i) => (
-              <li key={n.es} data-reveal="right" className="flex gap-4">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-signal font-mono text-[11px] text-paper">{i + 1}</span>
-                <p className="leading-relaxed opacity-80">{t(n)}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </Part>
+      <Moment
+        index={t({ es: 'Momento 01 · Plantillas', en: 'Moment 01 · Templates' })}
+        title={{ es: 'Empezar nunca es una hoja en blanco', en: 'Starting is never a blank page' }}
+        why={{ es: 'Cinco atajos en la portada, con NOM 035 primero porque es lo que más piden los clientes de México. Cada plantilla trae sus reglas: la de la norma llega de solo lectura y exige participación completa.', en: 'Five shortcuts on the home page, NOM 035 first because it’s what Mexican customers ask for most. Each template carries its rules: the norm’s arrives read-only and requires full participation.' }}
+        shot="plantillas"
+      >
+        <TemplatesFan />
+      </Moment>
 
-      <Part index="5.2 · Crear" title={{ es: 'Cinco pasos con un candado real', en: 'Five steps with a real lock' }} lead={{ es: 'Toca cada paso. El orden no es decoración: decide qué se puede preguntar.', en: 'Tap each step. The order isn’t decoration: it decides what can be asked.' }}>
-        <StepperShots />
-      </Part>
-
-      <Part index="5.3 · Secciones" title={{ es: 'Un árbol que se ordena solo', en: 'A tree that orders itself' }} lead={{ es: 'Pruébalo: agrega una subsección dentro de «Confianza» y mira el tope de tres niveles; borra una sección con contenido y te dice qué se lleva; deja una vacía y el resumen no te deja seguir.', en: 'Try it: add a subsection inside “Trust” and hit the three-level cap; delete a section with content and it tells you what goes with it; leave one empty and the summary won’t let you continue.' }}>
-        <div data-reveal>
+      <Moment
+        flip
+        index={t({ es: 'Momento 02 · Secciones', en: 'Moment 02 · Sections' })}
+        title={{ es: 'Un árbol que se ordena solo', en: 'A tree that orders itself' }}
+        why={{ es: 'Pruébalo: agrega una subsección dentro de «Confianza» y choca con el tope de tres niveles; borra una sección con contenido y te dice qué se lleva. La numeración y el tiempo estimado salen solos.', en: 'Try it: add a subsection inside “Trust” and hit the three-level cap; delete a section with content and it tells you what goes with it. Numbering and estimated time update themselves.' }}
+        shot="secciones"
+        route={`${ROUTE}/crear`}
+      >
+        <BrowserFrame route={`${ROUTE}/crear · ${t({ es: 'Secciones y preguntas', en: 'Sections and questions' })}`}>
           <LiveBuilder />
-        </div>
-        <div className="mt-8 grid gap-6 md:grid-cols-2">
-          <div data-reveal="device">
-            <Screen shot={SHOTS.banco} route={`${ROUTE}/crear`} sizes="(min-width: 768px) 35vw, 100vw" />
-            <p className="mt-3 text-sm opacity-70">{t({ es: 'Banco de preguntas: por tipo y por sección, se marca una pregunta o la sección entera.', en: 'Question bank: by type and section, pick one question or the whole section.' })}</p>
-          </div>
-          <div data-reveal="device">
-            <Screen shot={SHOTS.plantillas} route={ROUTE} sizes="(min-width: 768px) 35vw, 100vw" />
-            <p className="mt-3 text-sm opacity-70">{t({ es: 'Plantillas: Cultura y Clima en versión corta (30) o completa (50). La completa es la corta más preguntas, para comparar año a año.', en: 'Templates: Culture and Climate in short (30) or full (50). The full one is the short one plus questions, to compare year over year.' })}</p>
-          </div>
-        </div>
-      </Part>
+        </BrowserFrame>
+      </Moment>
 
-      <Part index="5.4 · Histórico" title={{ es: 'Traer lo que se midió por fuera', en: 'Bring in what was measured elsewhere' }} lead={{ es: 'La primera medición en UBITS no tiene con qué compararse si no llega su historia. La carga lee el archivo, propone y deja que la persona confirme; luego sigue en segundo plano.', en: 'The first UBITS measurement has nothing to compare against unless its history arrives. The upload reads the file, proposes and lets a person confirm; then it continues in the background.' }}>
+      <Moment
+        index={t({ es: 'Momento 03 · Anonimato', en: 'Moment 03 · Anonymity' })}
+        title={{ es: 'La privacidad viaja a cada celda', en: 'Privacy travels to every cell' }}
+        why={{ es: 'Un grupo con respuestas pero por debajo del mínimo se ve con candado, nunca con un número. El mínimo arranca en 5 y no baja de 3: prueba a moverlo y mira qué áreas se abren.', en: 'A group with answers but below the minimum shows a lock, never a number. The minimum starts at 5 and never goes below 3: move it and watch which areas open.' }}
+        shot="heatmap"
+        route={`${ROUTE}/open-cultura-ola2-2026/resultados`}
+      >
+        <AnonymityHeatmap />
+      </Moment>
+
+      <Moment
+        flip
+        index={t({ es: 'Momento 04 · Responder', en: 'Moment 04 · Answering' })}
+        title={{ es: 'Terminar se siente como terminar', en: 'Finishing feels like finishing' }}
+        why={{ es: 'Responder no tenía ni historia de usuario. Ahora la promesa de privacidad va al empezar, cada subsección es una página, el 0–10 abre una pregunta según la banda elegida y el envío cierra con una celebración, no con un «Enviado».', en: 'Answering didn’t even have a user story. Now the privacy promise comes first, each subsection is a page, the 0–10 opens a follow-up by band, and sending ends in a celebration, not a “Sent”.' }}
+        shot="previewFinal"
+        route="/encuesta/clima-q1-2026"
+      >
+        <PhoneAnswer />
+      </Moment>
+
+      <Moment
+        index={t({ es: 'Momento 05 · Histórico', en: 'Moment 05 · History' })}
+        title={{ es: 'Lo que se midió por fuera, adentro en minutos', en: 'What was measured elsewhere, inside in minutes' }}
+        why={{ es: 'La IA lee el archivo y propone; la persona confirma. Quien coincide por correo se vincula solo, quien solo coincide por nombre lo decide alguien, y los indicadores salen del mismo archivo.', en: 'AI reads the file and proposes; a person confirms. Matches by email link themselves, name-only matches are decided by someone, and the indicators come from the same file.' }}
+        shot="cargarEstructura"
+      >
         <UploadPipeline />
-      </Part>
+      </Moment>
 
-      <Part index="5.5 · Responder" title={{ es: 'La pantalla que no existía', en: 'The screen that didn’t exist' }} lead={{ es: 'Responder no tenía ni historia de usuario. La vista previa es el ensayo de esa experiencia: la promesa de privacidad dicha al empezar, una página por subsección y el avance siempre a la vista.', en: 'Answering didn’t even have a user story. The preview rehearses that experience: the privacy promise stated up front, one page per subsection and progress always in view.' }}>
-        <div className="relative pb-[12%]">
-          <div data-reveal="device" className="relative z-10 w-[78%]">
-            <Screen shot={SHOTS.previewBienvenida} route="/encuesta/clima-q1-2026" sizes="(min-width: 1024px) 50vw, 90vw" />
-          </div>
-          <div data-reveal="device" className="absolute right-0 top-[22%] z-20 w-[62%]">
-            <Screen shot={SHOTS.previewPreguntas} route="/encuesta/clima-q1-2026/1.1" sizes="(min-width: 1024px) 40vw, 70vw" />
-          </div>
-        </div>
-        <ul className="mt-10 grid gap-6 md:grid-cols-3">
-          {[
-            { es: 'Cada pregunta Likert va en su tarjeta, con su escala completa: se lee y se contesta mejor que una fila de tabla.', en: 'Each Likert question gets its own card with the full scale: it reads and answers better than a table row.' },
-            { es: 'El índice de la derecha dice cuánto falta por sección; con más de 14 páginas los puntitos pasan a «Página 7 de 22».', en: 'The right index shows what’s left per section; past 14 pages the dots become “Page 7 of 22”.' },
-            { es: 'No se avanza con obligatorias sin responder, y la última página dice «Enviar y finalizar», no «Siguiente».', en: 'You can’t advance with required questions unanswered, and the last page says “Send and finish”, not “Next”.' },
-          ].map((n) => (
-            <li key={n.es} data-reveal className="border-t border-fg/15 pt-4 text-sm leading-relaxed opacity-80">{t(n)}</li>
-          ))}
-        </ul>
-      </Part>
-
-      <Part index="5.6 · Resultados" title={{ es: 'Una pregunta por pestaña', en: 'One question per tab' }} lead={{ es: 'El demográfico elegido viaja entre pestañas: pasar de «participación por área» a «mapa de calor por área» es un solo pensamiento.', en: 'The chosen demographic travels across tabs: going from “participation by area” to “heatmap by area” is a single thought.' }}>
+      <Moment
+        flip
+        index={t({ es: 'Momento 06 · Resultados', en: 'Moment 06 · Results' })}
+        title={{ es: 'Una pregunta por pestaña', en: 'One question per tab' }}
+        why={{ es: 'Cada vista responde una sola pregunta y la responde con la gráfica que le sirve. El demográfico elegido viaja entre pestañas: de «participación por área» a «mapa por área» es un solo pensamiento.', en: 'Each view answers a single question with the chart that suits it. The chosen demographic travels across tabs: from “participation by area” to “map by area” is a single thought.' }}
+        shot="favorabilidad"
+        route={`${ROUTE}/c2026-1/resultados`}
+      >
         <ResultsTabs />
-        <p data-reveal className="mono-label mb-5 mt-14 opacity-60">{t({ es: 'Los seis estados de una celda del mapa de calor', en: 'The six states of a heatmap cell' })}</p>
-        <ul className="grid gap-px overflow-hidden border border-fg/15 bg-fg/15 sm:grid-cols-2 lg:grid-cols-3">
-          {CELL_STATES.map((s) => (
-            <li key={s.label.es} data-reveal className="flex items-center gap-4 bg-bg p-5">
-              <span className="flex w-14 shrink-0 justify-center" aria-hidden="true">{s.render}</span>
-              <span>
-                <span className="block text-sm font-medium">{t(s.label)}</span>
-                <span className="block text-xs opacity-60">{t(s.hint)}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Part>
+      </Moment>
     </div>
   )
 }

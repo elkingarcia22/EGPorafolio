@@ -4,7 +4,10 @@ import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 import { SCOPE, type Quarter } from '@/lib/content/cases/encuestas/scope'
+import { NOM_GOALS, NOM_RULES, RETENTION, SUS, USABILITY } from '@/lib/content/cases/encuestas/impact-metrics'
+import { ShiftBars, SusGauge, TurnoverChart } from './impact-charts'
 import { ReferenceTag } from './shared'
+import './ai-impact.css'
 
 const QUARTERS: readonly { id: Quarter; color: string }[] = [
   { id: 'Q4 2026', color: 'rgb(var(--signal))' },
@@ -87,59 +90,110 @@ function ScopeMap() {
   )
 }
 
-/** 07 · Impacto: alcance verificable, metas de referencia y aprendizajes. */
+/** Cabecera de cada grupo de métricas. */
+function GroupHead({ n, title, lead }: { n: string; title: L; lead: L }) {
+  const { t } = useLocale()
+  return (
+    <div data-reveal className="mb-8 grid gap-3 border-t border-fg/15 pt-6 md:grid-cols-12">
+      <p className="font-mono text-xs text-signal md:col-span-2">{n}</p>
+      <h3 className="text-[clamp(1.5rem,1.1rem+1.2vw,2.2rem)] font-light leading-tight md:col-span-5">{t(title)}</h3>
+      <p className="text-sm leading-relaxed opacity-70 md:col-span-5">{t(lead)}</p>
+    </div>
+  )
+}
+
+/** 07 · Impacto: usabilidad, retención y NOM 035 (metas de referencia), más el alcance real verificable. */
 export function SurveyImpact() {
   const { t } = useLocale()
   const d = ENCUESTAS_CASE.impact
   return (
-    <div>
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(d.lead)}</p>
-
-      <dl className="mt-12 grid grid-cols-2 gap-8 lg:grid-cols-4">
-        {d.scope.map((f) => (
-          <div key={f.label.es} data-reveal>
-            <dt className="sr-only">{t(f.label)}</dt>
-            <dd>
-              <span data-count={f.value} className="block text-[clamp(2.4rem,1.6rem+2.4vw,3.8rem)] font-light leading-none text-signal tabular-nums">{f.value}</span>
-              <span className="mt-3 block text-sm leading-snug opacity-70">{t(f.label)}</span>
-            </dd>
-          </div>
-        ))}
-      </dl>
-
-      <p data-reveal className="mono-label mb-5 mt-20 opacity-60">{t({ es: 'Las 99 funcionalidades, por superficie y trimestre', en: 'The 99 features, by surface and quarter' })}</p>
-      <ScopeMap />
-
-      <div className="mt-20 grid gap-12 lg:grid-cols-12">
-        <div className="lg:col-span-6">
-          <p data-reveal className="mono-label opacity-60">{t({ es: 'Lo que vamos a medir al salir', en: 'What we’ll measure at launch' })}</p>
-          <ul className="mt-6 divide-y divide-fg/15 border-y border-fg/15">
-            {d.goals.map((g) => (
-              <li key={g.label.es} data-reveal className="flex items-baseline gap-5 py-4">
-                <span className="w-24 shrink-0 text-2xl font-light tabular-nums text-signal">{g.value}</span>
-                <span className="text-sm leading-snug opacity-80">
-                  {t(g.label)}
-                  {g.reference && <ReferenceTag />}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-3 text-xs leading-relaxed opacity-60">
-            {t({ es: 'Las cifras marcadas son metas de referencia, no resultados medidos: el módulo aún no corre con clientes. El cero de las descargas no es una meta, es una regla del producto.', en: 'Marked figures are reference goals, not measured results: the module isn’t live with customers yet. The zero for downloads isn’t a goal, it’s a product rule.' })}
-          </p>
-        </div>
-        <div className="lg:col-span-6">
-          <p data-reveal className="mono-label opacity-60">{t({ es: 'Lo que me llevo', en: 'What I take away' })}</p>
-          <ol className="mt-6 space-y-6">
-            {d.learnings.map((l, i) => (
-              <li key={l.es} data-reveal className="flex gap-4">
-                <span className="font-mono text-xs text-signal">0{i + 1}</span>
-                <span className="leading-relaxed">{t(l)}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
+    <div className="space-y-24">
+      <div>
+        <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(d.lead)}</p>
+        <p data-reveal className="mt-5 inline-flex max-w-[62ch] items-start gap-3 rounded-xl border border-fg/15 px-4 py-3 text-xs leading-relaxed opacity-80">
+          <ReferenceTag />
+          <span>{t({ es: 'Las cifras marcadas son metas de referencia, modestas a propósito: el módulo aún no corre con clientes y se medirán al salir. Las reglas de la NOM 035 sí están verificadas en el producto.', en: 'Marked figures are reference goals, modest on purpose: the module isn’t live with customers yet and they’ll be measured at launch. The NOM 035 rules are verified in the product.' })}</span>
+        </p>
       </div>
+
+      <section>
+        <GroupHead n="A" title={{ es: 'Usabilidad de la plataforma', en: 'Platform usability' }} lead={{ es: 'Lo que más pesaba era crear: siete pantallas sin orden y ninguna señal de qué faltaba. La meta es que un admin arme un clima desde plantilla sin pedir ayuda.', en: 'Creation weighed the most: seven screens with no order and no sign of what was missing. The goal is for an admin to build a climate survey from a template without asking for help.' }} />
+        <div className="grid gap-8 lg:grid-cols-12">
+          <div data-reveal className="lg:col-span-5">
+            <SusGauge shift={SUS} />
+          </div>
+          <div className="space-y-8 lg:col-span-7">
+            {USABILITY.map((m) => (
+              <div key={m.id} data-reveal>
+                <ShiftBars shift={m} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <GroupHead n="B" title={{ es: 'Retención', en: 'Retention' }} lead={{ es: 'Una encuesta retiene cuando termina en algo: más gente responde si el recordatorio llega a su grupo, y la rotación baja donde el resultado se vuelve un plan con dueño.', en: 'A survey retains when it ends in something: more people answer when the reminder reaches their group, and turnover drops where results become an owned plan.' }} />
+        <div className="grid gap-8 lg:grid-cols-12">
+          <div data-reveal className="lg:col-span-7">
+            <TurnoverChart />
+          </div>
+          <div className="space-y-8 lg:col-span-5">
+            {RETENTION.map((m) => (
+              <div key={m.id} data-reveal>
+                <ShiftBars shift={m} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <GroupHead n="C" title={{ es: 'Plantillas normativas · NOM 035', en: 'Normative templates · NOM 035' }} lead={{ es: 'En México la NOM-035-STPS-2018 no es otra encuesta de clima: se lee como riesgo, exige participación total y produce documentos. El producto la trae lista y no deja romperla.', en: 'In Mexico, NOM-035-STPS-2018 isn’t just another climate survey: it reads as risk, requires full participation and produces documents. The product ships it ready and won’t let you break it.' }} />
+        <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-fg/15 bg-fg/15 lg:grid-cols-4">
+          {NOM_RULES.map((r) => (
+            <li key={r.label.es} data-reveal className="bg-bg p-5">
+              <span className="block text-[clamp(2rem,1.4rem+1.6vw,3rem)] font-light leading-none tabular-nums">{r.value}</span>
+              <span className="mt-3 block text-xs leading-relaxed opacity-70">{t(r.label)}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-10 grid gap-8 md:grid-cols-2">
+          {NOM_GOALS.map((m) => (
+            <div key={m.id} data-reveal>
+              <ShiftBars shift={m} />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <dl className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+          {d.scope.map((f) => (
+            <div key={f.label.es} data-reveal>
+              <dt className="sr-only">{t(f.label)}</dt>
+              <dd>
+                <span data-count={f.value} className="block text-[clamp(2.4rem,1.6rem+2.4vw,3.8rem)] font-light leading-none text-signal tabular-nums">{f.value}</span>
+                <span className="mt-3 block text-sm leading-snug opacity-70">{t(f.label)}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p data-reveal className="mono-label mb-5 mt-14 opacity-60">{t({ es: 'Las 99 funcionalidades, por superficie y trimestre', en: 'The 99 features, by surface and quarter' })}</p>
+        <ScopeMap />
+      </section>
+
+      <section>
+        <p data-reveal className="mono-label opacity-60">{t({ es: 'Lo que me llevo', en: 'What I take away' })}</p>
+        <ol className="mt-6 grid gap-8 md:grid-cols-3">
+          {d.learnings.map((l, i) => (
+            <li key={l.es} data-reveal className="border-t border-fg/15 pt-4">
+              <span className="font-mono text-xs text-signal">0{i + 1}</span>
+              <p className="mt-3 leading-relaxed">{t(l)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   )
 }
