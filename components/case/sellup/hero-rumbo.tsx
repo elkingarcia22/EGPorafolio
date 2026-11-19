@@ -85,14 +85,14 @@ export function HeroRumbo() {
         <div className="absolute inset-[24%] rounded-full border border-dashed border-white/10" aria-hidden="true" />
         <div
           className="absolute inset-[8%] animate-[spin_5s_linear_infinite] rounded-full motion-reduce:animate-none"
-          style={{ background: 'conic-gradient(from 0deg, rgba(192,38,211,0.32), rgba(45,92,247,0.12) 16%, transparent 30%)' }}
+          style={{ background: 'conic-gradient(from 0deg, rgba(210,45,106,0.32), rgba(40,94,230,0.12) 16%, transparent 30%)' }}
           aria-hidden="true"
         />
         <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full" aria-hidden="true">
           <defs>
             <linearGradient id="beam" x1="0" x2="1">
-              <stop offset="0" stopColor="#2d5cf7" />
-              <stop offset="1" stopColor="#c026d3" />
+              <stop offset="0" stopColor="#285ee6" />
+              <stop offset="1" stopColor="#d22d6a" />
             </linearGradient>
           </defs>
           {ORBIT.map((o) => {
@@ -124,7 +124,7 @@ export function HeroRumbo() {
           )
         })}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
-          <RumboMark size={112} glow={!reducedMotion} />
+          <RumboMark size={112} motion={reducedMotion ? 'still' : 'breathing'} glow />
           <p className="mt-3 text-sm font-medium">Rumbo</p>
           <p className="text-[11px] text-white/50" aria-live="polite">{t(p.agent)}</p>
         </div>

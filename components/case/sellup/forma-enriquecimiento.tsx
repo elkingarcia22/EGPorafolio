@@ -87,7 +87,7 @@ function Screen({ time }: { time: number }) {
             const show = i < people
             return (
               <li key={p.name} className="flex items-center gap-3 rounded-xl border px-3 py-2 transition-all duration-500" style={{ ...(hero && show ? HIGHLIGHT : { borderColor: 'rgba(255,255,255,0.08)' }), opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(8px)', display: time >= 12 ? 'flex' : 'none' }}>
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#6b8cff] to-[#7c3aed] text-[12px] font-medium">{p.name[0]}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#6b8cff] to-[#7e2be0] text-[12px] font-medium">{p.name[0]}</span>
                 <span className="w-[230px]"><span className="block text-[13.5px] font-medium">{p.name}</span><span className="text-[12px] text-white/50">{p.role}</span></span>
                 <span className="flex gap-1.5">{p.tags.map((tg) => <RealTag key={tg} tone={tg === 'En HubSpot' ? 'gray' : 'green'}>{tg}</RealTag>)}</span>
                 <span className="text-[11.5px] text-white/40">vía {p.from}</span>
