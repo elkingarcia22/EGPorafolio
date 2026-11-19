@@ -44,11 +44,23 @@ export function SellUpMark({ size = 32, tone = 'dark', className = '' }: MarkPro
   )
 }
 
-/** La palabra «SellUp»: hereda el tamaño y el color de «Sell» del contenedor. */
+/**
+ * La palabra «SellUp» del logotipo completo: la U imán reemplaza a la letra y queda «Sell·U·p». Medidas de
+ * `.magnet-word` (repo SellUp, `logo-propuestas`): 700 con tracking −0,04em, la U de 0,82 × 1,05em bajada 0,12em y
+ * la «p» en 800, ambas en el color de marca. Hereda el tamaño y el color de «Sell» del contenedor.
+ */
 export function SellUpWordmark({ tone = 'dark', className = '' }: { tone?: Tone; className?: string }) {
+  const brand = SU_BRAND[tone]
   return (
-    <span className={`${inter.className} font-bold tracking-tight ${className}`}>
-      Sell<span style={{ color: SU_BRAND[tone] }}>Up</span>
+    <span className={`${inter.className} inline-flex items-baseline font-bold tracking-[-0.04em] ${className}`} aria-label="SellUp" role="img">
+      <span aria-hidden="true">Sell</span>
+      <svg viewBox="0 0 24 30" fill="none" stroke={brand} strokeLinecap="round" aria-hidden="true" className="mx-[0.02em] h-[1.05em] w-[0.82em] shrink-0 translate-y-[0.12em]">
+        <path d="M5 13 V19 A7 7 0 0 0 19 19 V13" strokeWidth="4.6" />
+        <path d="M5 7.5 V10 M19 7.5 V10" strokeWidth="4.6" opacity="0.5" />
+        <circle cx="12" cy="5" r="1.8" fill={brand} stroke="none" />
+        <circle cx="12" cy="11.5" r="2.3" fill={brand} stroke="none" />
+      </svg>
+      <span aria-hidden="true" className="font-extrabold" style={{ color: brand }}>p</span>
     </span>
   )
 }
