@@ -15,24 +15,8 @@ export const STAGE = 'relative overflow-hidden rounded-[20px] bg-[#0b0e14] p-5 t
 /** Superficie clara, como una tarjeta de la plataforma. */
 export const SURFACE = 'rounded-[14px] border border-black/[0.08] bg-white text-[#14161b] shadow-[0_1px_2px_rgba(0,0,0,0.05)]'
 
-/** El logo «U imán» de SellUp: una U que atrae tres puntos. */
-export function SellUpMark({ size = 32, className = '' }: { size?: number; className?: string }) {
-  return (
-    <span
-      className={`inline-grid shrink-0 place-items-center text-white ${className}`}
-      style={{ width: size, height: size, borderRadius: size * 0.28, background: `linear-gradient(135deg,#7d9bff,${BLUE} 52%,${BLUE_DEEP})` }}
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeLinecap="round" style={{ width: '72%', height: '72%' }}>
-        <path d="M14 22 V30 A10 10 0 0 0 34 30 V22" strokeWidth="7" />
-        <path d="M14 15 V19.5 M34 15 V19.5" strokeWidth="7" opacity="0.55" />
-        <circle cx="24" cy="5.4" r="1.9" fill="currentColor" stroke="none" opacity="0.6" />
-        <circle cx="24" cy="12" r="2.6" fill="currentColor" stroke="none" />
-        <circle cx="24" cy="21" r="3.2" fill="currentColor" stroke="none" />
-      </svg>
-    </span>
-  )
-}
+/** El logo y la palabra viven en `brand.tsx`, con la tipografía y los tokens del producto. */
+export { SellUpMark, SellUpWordmark } from './brand'
 
 const COST_STYLE: Record<CascadeStep['cost'], { label: L; cls: string }> = {
   free: { label: { es: 'Gratis', en: 'Free' }, cls: 'bg-emerald-400/15 text-emerald-300' },

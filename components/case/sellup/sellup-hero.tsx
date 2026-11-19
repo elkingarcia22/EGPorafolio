@@ -9,7 +9,7 @@ import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { SELLUP_CASE } from '@/lib/content/cases/sellup/sellup-case'
 import { HeroRumbo } from './hero-rumbo'
-import { BLUE, SellUpMark } from './ui'
+import { SellUpMark, SellUpWordmark } from './ui'
 
 export function SellUpHero() {
   const { t } = useLocale()
@@ -44,9 +44,7 @@ export function SellUpHero() {
           <h1 className="flex items-center gap-[0.18em] text-[clamp(3.2rem,1rem+8vw,10rem)] font-light leading-[0.9] tracking-tight md:col-span-7">
             <span data-hero-mark className="inline-block"><SellUpMark size={96} className="!h-[0.78em] !w-[0.78em]" /></span>
             <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
-              <span data-hero-word className="relative inline-block">Sell<span style={{ color: BLUE }}>Up</span>
-                <svg viewBox="0 0 20 20" className="absolute left-[0.36em] top-[-0.08em] h-[0.3em] w-[0.3em]" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.7" /><circle cx="10" cy="10" r="2" fill="currentColor" /></svg>
-              </span>
+              <span data-hero-word className="inline-block"><SellUpWordmark /></span>
             </span>
           </h1>
           <p data-hero-fade className="text-lg leading-relaxed opacity-85 md:col-span-5">{t(SELLUP_CASE.tagline)}</p>

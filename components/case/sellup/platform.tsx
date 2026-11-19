@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { BLUE, SellUpMark } from './ui'
+import { BLUE, SellUpMark, SellUpWordmark } from './ui'
 
 /**
  * Piezas compartidas que replican la plataforma SellUp en modo oscuro:
@@ -24,16 +24,9 @@ export const RUMBO_GRADIENT = 'linear-gradient(90deg,#5b7eff 0%,#8b5cf6 55%,#ef4
 /** Logo completo: el ícono de la U imán y la palabra «SellUp» con «Up» en azul. */
 export function SellUpLogo({ size = 40, className = '' }: { size?: number; className?: string }) {
   return (
-    <span className={`inline-flex items-center ${className}`} style={{ gap: size * 0.35 }} aria-label="SellUp">
+    <span className={`inline-flex items-center ${className}`} style={{ gap: size * 0.35, fontSize: size * 0.95 }} aria-label="SellUp">
       <SellUpMark size={size} />
-      <span className="relative font-light leading-none tracking-[-0.03em]" style={{ fontSize: size * 0.95 }}>
-        <span className="text-[#f2f1ec]">Sell</span>
-        <span style={{ color: BLUE }}>Up</span>
-        <svg viewBox="0 0 20 20" className="absolute" style={{ width: size * 0.36, height: size * 0.36, left: size * 0.36, top: -size * 0.26 }} aria-hidden="true">
-          <circle cx="10" cy="10" r="8" fill="none" stroke="#f2f1ec" strokeWidth="1" opacity="0.7" />
-          <circle cx="10" cy="10" r="2" fill="#f2f1ec" />
-        </svg>
-      </span>
+      <SellUpWordmark className="leading-none text-[#f2f1ec]" />
     </span>
   )
 }
@@ -90,7 +83,7 @@ export function AppFrame({ active, crumb, children, aside, className = '' }: App
       <nav className="hidden w-[168px] shrink-0 flex-col gap-0.5 p-2.5 md:flex" style={{ background: APP.side }} aria-label="SellUp">
         <div className="mb-3 flex items-center gap-2 rounded-lg px-2 py-1.5 ring-1 ring-white/10">
           <SellUpMark size={18} />
-          <span className="font-medium">SellUp</span>
+          <SellUpWordmark />
         </div>
         {NAV.map((n) => (
           <span
