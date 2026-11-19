@@ -1,41 +1,76 @@
 'use client'
 
-import Image from 'next/image'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { useLocale } from '@/lib/i18n'
+import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
-import type { CaseImage } from '@/lib/content/cases/barberlytics/types'
+import { LiveCalendar, useCalendarClock, type ColorBy, type Density } from './live-calendar'
 
-/** Pantalla de la composición: marco oscuro y la captura real. */
-function Screen({ image, sizes, priority = false }: { image: CaseImage; sizes: string; priority?: boolean }) {
+/** La portada recorre estos ajustes, como si alguien adaptara la vista a su barbería. */
+const TOUR: readonly { colorBy: ColorBy; density: Density; label: L }[] = [
+  { colorBy: 'estado', density: 'normal', label: { es: 'Color por estado', en: 'Color by status' } },
+  { colorBy: 'servicio', density: 'normal', label: { es: 'Color por servicio', en: 'Color by service' } },
+  { colorBy: 'cliente', density: 'amplia', label: { es: 'Color por cliente · amplia', en: 'Color by client · roomy' } },
+  { colorBy: 'estado', density: 'compacta', label: { es: 'Estado · compacta', en: 'Status · compact' } },
+]
+const TOUR_MS = 4200
+
+const COLOR_OPTIONS: readonly { id: ColorBy; label: L }[] = [
+  { id: 'neutral', label: { es: 'Neutral', en: 'Neutral' } },
+  { id: 'servicio', label: { es: 'Servicio', en: 'Service' } },
+  { id: 'estado', label: { es: 'Estado', en: 'Status' } },
+  { id: 'cliente', label: { es: 'Cliente', en: 'Client' } },
+]
+const DENSITY_OPTIONS: readonly { id: Density; label: L }[] = [
+  { id: 'compacta', label: { es: 'Compacta', en: 'Compact' } },
+  { id: 'normal', label: { es: 'Normal', en: 'Normal' } },
+  { id: 'amplia', label: { es: 'Amplia', en: 'Roomy' } },
+]
+
+function Segmented<T extends string>({ options, value, label }: { options: readonly { id: T; label: L }[]; value: T; label: string }) {
   const { t } = useLocale()
   return (
-    <div className="overflow-hidden rounded-[12px] bg-[#0b0c0e] p-[6px] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
-      <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full rounded-[7px]" priority={priority} />
+    <div>
+      <p className="mb-1.5 text-[10px] uppercase tracking-[0.14em] text-white/40">{label}</p>
+      <div className="flex rounded-lg bg-white/[0.05] p-0.5">
+        {options.map((o) => (
+          <span key={o.id} className={`flex-1 rounded-md px-2 py-1 text-center text-[11px] transition-colors duration-500 ${o.id === value ? 'bg-[#d9b36a] text-[#16130f]' : 'text-white/60'}`}>
+            {t(o.label)}
+          </span>
+        ))}
+      </div>
     </div>
   )
 }
 
-/** Los cinco roles, como las «puertas» que flotan sobre la plataforma. */
-const ROLE_CHIPS = [
-  { es: 'Dueño', en: 'Owner', pos: 'left-[1%] top-[2%]' },
-  { es: 'Administrador', en: 'Manager', pos: 'left-[22%] -top-[4%] hidden md:flex' },
-  { es: 'Recepción', en: 'Front desk', pos: 'right-[24%] -top-[3%] hidden md:flex' },
-  { es: 'Barbero por comisión', en: 'Commission barber', pos: 'right-[1%] top-[8%]' },
-  { es: 'Barbero de renta', en: 'Chair-rent barber', pos: 'bottom-[8%] right-[4%]' },
-] as const
-
-/** Portada del caso Plataforma: tres pantallas reales en profundidad y los cinco roles. */
+/** Portada del caso: el calendario en vivo, que se adapta solo mientras lo miras. */
 export function PlatformHero() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const ref = useRef<HTMLDivElement>(null)
-  const roles = PLATFORM_CASE.roles
+  const now = useCalendarClock()
+  const [step, setStep] = useState(0)
+  const [narrow, setNarrow] = useState(false)
+  const view = TOUR[step]
+
+  // En celular caben tres barberos.
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    const update = () => setNarrow(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
+  useEffect(() => {
+    if (reducedMotion) return
+    const id = window.setInterval(() => setStep((s) => (s + 1) % TOUR.length), TOUR_MS)
+    return () => window.clearInterval(id)
+  }, [reducedMotion])
 
   useEffect(() => {
     const el = ref.current
@@ -44,20 +79,9 @@ export function PlatformHero() {
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
       tl.from('[data-hero-word]', { yPercent: 115, duration: 1.3, stagger: 0.08 }, 0.15)
         .from('[data-hero-fade]', { autoAlpha: 0, y: 24, duration: 1, stagger: 0.06 }, 0.45)
-        .from('[data-hero-device]', { autoAlpha: 0, y: 180, rotateX: 26, transformPerspective: 1600, duration: 1.7, stagger: 0.14 }, 0.4)
-        .from('[data-hero-glow]', { autoAlpha: 0, scale: 0.7, duration: 2.2, ease: 'power2.out' }, 0.3)
-        .from('[data-hero-chip]', { autoAlpha: 0, scale: 0.5, duration: 0.8, stagger: 0.1, ease: 'back.out(1.8)' }, 1.1)
-
-      gsap.utils.toArray<HTMLElement>('[data-hero-chip]').forEach((chip, i) => {
-        gsap.to(chip, { y: -10, duration: 2.4 + i * 0.3, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.8 + i * 0.2 })
-      })
-      gsap.utils.toArray<HTMLElement>('[data-depth]').forEach((layer) => {
-        gsap.to(layer, {
-          yPercent: -Number(layer.dataset.depth) * 35,
-          ease: 'none',
-          scrollTrigger: { trigger: '[data-hero-stage]', start: 'top bottom', end: 'bottom top', scrub: true },
-        })
-      })
+        // El calendario se abre de arriba hacia abajo, sin giros.
+        .fromTo('[data-hero-calendar]', { clipPath: 'inset(0 0 100% 0 round 16px)' }, { clipPath: 'inset(0 0 0% 0 round 16px)', duration: 1.6, ease: 'power3.inOut' }, 0.5)
+        .from('[data-hero-panel]', { autoAlpha: 0, x: 30, duration: 1 }, 1.4)
     }, el)
     return () => ctx.revert()
   }, [reducedMotion])
@@ -67,7 +91,7 @@ export function PlatformHero() {
   return (
     <ToneSection tone="dark" className="relative overflow-hidden px-[var(--gutter)] pb-24 pt-32">
       <div ref={ref}>
-        <div data-hero-glow className="pointer-events-none absolute left-1/2 top-[52%] h-[70vw] max-h-[1100px] w-[95vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(217,179,106,0.26),rgba(63,114,216,0.1)_55%,transparent)]" aria-hidden="true" />
+        <div className="pointer-events-none absolute -right-[10%] top-[30%] h-[60vw] max-h-[900px] w-[60vw] rounded-full bg-[radial-gradient(closest-side,rgba(217,179,106,0.18),transparent)]" aria-hidden="true" />
 
         <div className="relative mb-14 flex flex-wrap items-center justify-between gap-x-6 gap-y-2" data-hero-fade>
           <TransitionLink href="/proyectos/barberlytics" transitionLabel="Barberlytics" className="mono-label opacity-60 hover:opacity-100">
@@ -87,32 +111,21 @@ export function PlatformHero() {
           <p data-hero-fade className="text-lg leading-relaxed opacity-85 md:col-span-5">{t(PLATFORM_CASE.tagline)}</p>
         </div>
 
-        <div data-hero-stage className="relative mx-auto mt-20 h-[clamp(260px,36vw,560px)] max-w-6xl [perspective:1600px]">
-          <div data-depth="0.25" className="absolute left-0 top-[16%] z-10 hidden w-[40%] md:block">
-            <div data-hero-device style={{ transform: 'rotateY(26deg) rotateX(8deg) rotateZ(-2deg)' }}>
-              <Screen image={roles[0].image} sizes="40vw" />
-            </div>
+        <div className="relative mt-16 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
+          <div data-hero-calendar>
+            <LiveCalendar now={now} colorBy={view.colorBy} density={view.density} columns={narrow ? 3 : 5} />
           </div>
-          <div data-depth="0.4" className="absolute right-0 top-[20%] z-10 hidden w-[40%] md:block">
-            <div data-hero-device style={{ transform: 'rotateY(-26deg) rotateX(8deg) rotateZ(2deg)' }}>
-              <Screen image={roles[3].image} sizes="40vw" />
+          <aside data-hero-panel className="rounded-2xl border border-white/10 bg-[#141210]/90 p-4 backdrop-blur" aria-label={t({ es: 'Ajustes de la vista', en: 'View settings' })}>
+            <p className="text-sm font-medium">{t({ es: 'Ajustes de la vista', en: 'View settings' })}</p>
+            <p className="mb-4 mt-1 text-[11px] leading-snug text-white/50">{t({ es: 'Cada barbería —y cada persona— ve el día a su manera.', en: 'Every shop —and every person— sees the day their way.' })}</p>
+            <div className="space-y-4">
+              <Segmented options={COLOR_OPTIONS} value={view.colorBy} label={t({ es: 'Colorear tarjetas por', en: 'Color cards by' })} />
+              <Segmented options={DENSITY_OPTIONS} value={view.density} label={t({ es: 'Densidad', en: 'Density' })} />
             </div>
-          </div>
-          <div data-depth="0.1" className="absolute left-1/2 top-0 z-20 w-full -translate-x-1/2 md:w-[62%]">
-            <div data-hero-device style={{ transform: 'rotateX(10deg)' }}>
-              <Screen image={roles[1].image} sizes="(min-width: 768px) 62vw, 100vw" priority />
-            </div>
-          </div>
-
-          {ROLE_CHIPS.map((chip) => (
-            <span key={chip.es} data-hero-chip className={`absolute z-30 flex items-center gap-2 whitespace-nowrap border border-paper/15 bg-void/75 px-3.5 py-2 text-xs text-paper backdrop-blur-md ${chip.pos}`}>
-              <span className="h-1.5 w-1.5 rounded-full bg-[#d9b36a]" aria-hidden="true" />
-              {t(chip)}
-            </span>
-          ))}
-          <span data-hero-chip className="absolute bottom-[4%] left-[3%] z-30 flex items-center gap-2 whitespace-nowrap border border-paper/15 bg-void/75 px-3.5 py-2 text-xs text-paper backdrop-blur-md">
-            {t({ es: 'Entra como cada rol, al final ↓', en: 'Enter as each role, at the end ↓' })}
-          </span>
+            <p key={step} className="mt-4 animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] rounded-lg bg-[#d9b36a]/10 px-3 py-2 text-[11px] text-[#e9c27a]">
+              ↻ {t(view.label)}
+            </p>
+          </aside>
         </div>
 
         <dl className="relative mt-16 grid grid-cols-2 gap-6 border-t border-fg/15 pt-8 md:grid-cols-5">

@@ -178,3 +178,10 @@ html[data-motion='reduced'] [class*='animate-[ramp-in'] { animation: none !impor
 }
 html[data-motion='reduced'] [class*='animate-[logo-scan'] { animation: none !important; opacity: 0; }
 @media (prefers-reduced-motion: reduce) { [class*='animate-[logo-scan'] { animation: none !important; opacity: 0; } }
+@keyframes tap-ping {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  70% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+html[data-motion='reduced'] [class*='animate-[tap-ping'] { animation: none !important; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { [class*='animate-[tap-ping'] { animation: none !important; opacity: 0; } }

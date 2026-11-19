@@ -7,38 +7,31 @@ const img = (name: string, width: number, height: number, alt: L): CaseImage => 
 
 export type RoleId = 'dueno' | 'recepcion' | 'comision' | 'renta'
 
-/** Lo que ve cada rol al entrar: la pantalla real y lo que conviene mirar. */
-export interface RoleView {
-  id: RoleId
-  name: L
-  person: string
-  scope: L
-  lands: L
+/** Una pantalla real del calendario con lo que conviene mirar. */
+export interface CalendarScreen {
+  id: string
+  title: L
+  body: L
   image: CaseImage
   callouts: readonly Callout[]
 }
 
-/** Un módulo de la plataforma, con su captura real. */
-export interface ModuleShot {
-  id: string
-  name: L
-  note: L
-  image: CaseImage
-}
+/** Marca de la matriz de benchmark: sí, a medias, no o sin verificar. */
+export type Mark = 'yes' | 'half' | 'no' | 'unknown'
 
-/** Caso «Plataforma»: el negocio por dentro, de los puntos a la demo. */
+/** Caso «Plataforma»: el calendario como centro del negocio, de los puntos a la demo. */
 export const PLATFORM_CASE = {
   slug: 'plataforma',
   index: '03',
   title: { es: 'Plataforma', en: 'Platform' },
-  eyebrow: { es: 'El negocio por dentro', en: 'The business inside' },
+  eyebrow: { es: 'El calendario, en el centro', en: 'The calendar, at the center' },
   tagline: {
-    es: 'Una sola plataforma donde cada persona de la barbería —del dueño al barbero que alquila la silla— ve justo lo suyo, y donde los módulos por fin se hablan entre sí.',
-    en: 'One platform where everyone in the shop —from the owner to the barber who rents the chair— sees exactly their own, and where the modules finally talk to each other.',
+    es: 'Un calendario que se adapta a la barbería —y no la barbería al calendario—, que lleva cada cita de «agendada» a «cobrada» sin salir de la rejilla y que propone sin decidir.',
+    en: 'A calendar that adapts to the shop —not the shop to the calendar—, that takes every visit from “booked” to “paid” without leaving the grid, and that proposes without deciding.',
   },
   meta: [
     { label: { es: 'Rol', en: 'Role' }, value: { es: 'Investigación, UX/UI y construcción', en: 'Research, UX/UI and build' } },
-    { label: { es: 'Alcance', en: 'Scope' }, value: { es: '11 módulos · 5 roles', en: '11 modules · 5 roles' } },
+    { label: { es: 'Centro', en: 'Core' }, value: { es: 'Calendario · agenda y cobro', en: 'Calendar · booking and checkout' } },
     { label: { es: 'Superficie', en: 'Surface' }, value: { es: 'Web, de escritorio a tablet', en: 'Web, desktop to tablet' } },
     { label: { es: 'Año', en: 'Year' }, value: { es: '2026', en: '2026' } },
   ] satisfies { label: L; value: L }[],
@@ -46,201 +39,164 @@ export const PLATFORM_CASE = {
 
   /** 01 · Los puntos */
   dots: {
-    kicker: { es: '¿Qué ve cada persona de la barbería?', en: 'What does each person in the shop see?' },
+    kicker: { es: 'Una barbería vive dentro de su calendario.', en: 'A barbershop lives inside its calendar.' },
     lead: {
-      es: 'Una barbería no la usa una persona: la usan el dueño, quien administra una sede, recepción y dos tipos de barbero que ganan distinto. La versión en producción era una app móvil, oscura y en inglés, que resolvía la agenda y el cobro, pero cada módulo vivía aparte y nadie miraba el rol de quien entraba.',
-      en: 'A barbershop isn’t used by one person: it’s the owner, whoever runs a location, the front desk and two kinds of barbers who earn differently. The version in production was a mobile app, dark and in English, that handled scheduling and checkout, but every module lived on its own and nobody checked the role of whoever came in.',
+      es: 'Recepción agenda y cobra en él, el barbero mira ahí su día, el dueño busca los huecos. Todo lo demás —clientes, nómina, caja— se alimenta de lo que pasa en la rejilla. Y cada barbería trabaja distinto: unas viven del cliente sin cita, otras de la cita fija cada tres semanas; unas rotan barberos, otras no.',
+      en: 'The front desk books and charges in it, the barber checks their day there, the owner hunts for gaps. Everything else —clients, payroll, the till— feeds on what happens on the grid. And every shop works differently: some live on walk-ins, others on the fixed visit every three weeks; some rotate barbers, others don’t.',
     },
     seen: [
-      { title: { es: 'Módulos bien hechos, desconectados', en: 'Well-made modules, disconnected' }, body: { es: 'El calendario no sabía de la nómina, ni la caja de los clientes. «La pantalla está bien, el cable no».', en: 'The calendar didn’t know about payroll, nor the till about clients. “The screen is fine, the wiring isn’t.”' } },
-      { title: { es: 'Nada tenía guarda por rol', en: 'Nothing was guarded by role' }, body: { es: 'Un barbero podía ver el teléfono, el correo y la cuenta bancaria de sus colegas; el teléfono oculto era solo cosmético.', en: 'A barber could see colleagues’ phone, email and bank account; the masked phone was only cosmetic.' } },
-      { title: { es: 'El barbero de renta no existía', en: 'The chair-rent barber didn’t exist' }, body: { es: 'Es su propio negocio dentro de la barbería, pero no veía ni sus ventas ni lo que debía de renta.', en: 'They’re their own business inside the shop, but saw neither their sales nor the rent they owed.' } },
+      { title: { es: 'El calendario obligaba a trabajar a su manera', en: 'The calendar forced its own way of working' }, body: { es: 'Mismos colores, misma tarjeta y mismo orden para todos. La barbería se adaptaba a la herramienta.', en: 'Same colors, same card and same order for everyone. The shop adapted to the tool.' } },
+      { title: { es: '«Demasiados clics» para lo de todos los días', en: '“Too many clicks” for the everyday' }, body: { es: 'Marcar que llegó, sentar y cobrar pedía abrir, editar y guardar. Es la queja que más se repite en el sector.', en: 'Checking in, seating and charging meant open, edit and save. It’s the industry’s most repeated complaint.' } },
+      { title: { es: 'Ningún calendario de barbería es «inteligente»', en: 'No barbershop calendar is “smart”' }, body: { es: 'Nadie del sector reacomoda por retraso ni resume el día; los que mueven solos pierden la confianza.', en: 'Nobody in the industry reflows for delays or summarizes the day; the ones that move things alone lose trust.' } },
     ] satisfies TitledText[],
     stats: [
-      { value: '17', label: { es: 'investigaciones, una por módulo', en: 'research reports, one per module' } },
-      { value: '28', label: { es: 'productos del sector comparados', en: 'industry products compared' } },
-      { value: '5', label: { es: 'roles con su propia puerta de entrada', en: 'roles with their own front door' } },
-      { value: '692', label: { es: 'acciones revisadas, rol por rol', en: 'actions reviewed, role by role' } },
+      { value: '22', label: { es: 'calendarios comparados', en: 'calendars compared' } },
+      { value: '45', label: { es: 'productos revisados para el panel de la cita', en: 'products reviewed for the appointment panel' } },
+      { value: '6', label: { es: 'estados en vivo de una cita', en: 'live stages of an appointment' } },
+      { value: '15', label: { es: 'funciones en la matriz del sector', en: 'functions in the industry matrix' } },
     ] satisfies CaseStat[],
   },
 
-  /** 02 · Patrones */
+  /** 02 · Patrones: benchmark y lo que dicen barberos y dueños. */
   patterns: {
     lead: {
-      es: 'Investigué módulo por módulo con la misma plantilla —qué tiene hoy, qué le falta, cómo lo hace la competencia y dónde la IA ayuda de verdad— y crucé los diecisiete informes. Lo que se repetía en todos no era un problema de pantallas: era de conexiones.',
-      en: 'I researched module by module with one template —what it has today, what it lacks, how competitors do it and where AI truly helps— and crossed the seventeen reports. What repeated in all of them wasn’t a screen problem: it was a wiring problem.',
+      es: 'Dos fuentes, cruzadas. El benchmark: 22 calendarios —12 de productividad y 10 de barbería y salón— y una matriz de 15 funciones contra los productos del sector. Y la voz de quien los usa: reseñas públicas y centros de ayuda, leídos buscando lo que barberos y dueños aplauden y lo que no aguantan.',
+      en: 'Two sources, crossed. The benchmark: 22 calendars —12 productivity and 10 barbershop and salon— and a matrix of 15 functions against industry products. And the voice of those who use them: public reviews and help centers, read for what barbers and owners praise and what they can’t stand.',
     },
-    competitors: ['Booksy', 'Fresha', 'Square', 'Vagaro', 'Boulevard', 'Mangomint', 'GlossGenius', 'Zenoti', 'Phorest', 'AgendaPro', 'Squire', 'theCut', 'Timely', 'Toast', 'Shopify', 'Loyverse', 'Lightspeed', 'QuickBooks', 'Xero', 'Wave', 'Expensify', 'Ramp', 'Brex', 'Dext', 'Alegra', 'Siigo', 'Treinta', 'Bold'],
-    columns: [
-      {
-        title: { es: 'Desconexión', en: 'Disconnection' },
-        color: 'pink',
-        notes: [
-          { es: 'El calendario no le avisa a la nómina', en: 'The calendar doesn’t tell payroll' },
-          { es: 'WhatsApp a medias: aparece en 7 de 10 informes', en: 'WhatsApp half-built: in 7 of 10 reports' },
-          { es: 'Ningún registro se cierra: cambiar una regla reescribe el pasado', en: 'No record ever closes: changing a rule rewrites the past' },
-          { es: 'Cada módulo vuelve a pedir lo que otro ya sabe', en: 'Each module asks again for what another already knows' },
-        ],
-      },
-      {
-        title: { es: 'Roles', en: 'Roles' },
-        color: 'orange',
-        notes: [
-          { es: 'Sin guarda por rol en ninguna acción', en: 'No role guard on any action' },
-          { es: 'Recepción veía totales y márgenes', en: 'Front desk saw totals and margins' },
-          { es: 'El de renta sin Métricas, Nómina ni Transacciones', en: 'Chair-rent barber without Metrics, Payroll or Transactions' },
-          { es: 'El teléfono oculto era solo cosmético', en: 'The masked phone was only cosmetic' },
-        ],
-      },
-      {
-        title: { es: 'Dinero', en: 'Money' },
-        color: 'yellow',
-        notes: [
-          { es: 'El dueño no puede ver la utilidad', en: 'The owner can’t see profit' },
-          { es: 'Nómina legal ya resuelta; lo variable no', en: 'Legal payroll is solved; the variable part isn’t' },
-          { es: 'Cierre de caja con cifras a la vista', en: 'Till closing with figures in plain sight' },
-          { es: 'Comisiones y propinas cuadradas a mano', en: 'Commissions and tips reconciled by hand' },
-        ],
-      },
-      {
-        title: { es: '«IA» que eran reglas', en: '“AI” that was rules' },
-        color: 'violet',
-        notes: [
-          { es: 'Badges de IA sobre reglas fijas', en: 'AI badges on fixed rules' },
-          { es: 'Prometer IA y no darla quita confianza', en: 'Promising AI and not delivering costs trust' },
-          { es: 'Ningún calendario del sector es «inteligente» de verdad', en: 'No calendar in the industry is truly “smart”' },
-          { es: 'Regla: la IA solo explica, propone o redacta', en: 'Rule: AI only explains, proposes or drafts' },
-        ],
-      },
-    ],
+    matrix: {
+      title: { es: 'Matriz del sector: el calendario', en: 'Industry matrix: the calendar' },
+      products: ['Barberlytics', 'Booksy', 'Fresha', 'Boulevard', 'Mangomint', 'Vagaro', 'Zenoti', 'Square'],
+      rows: [
+        { fn: { es: 'Columna por barbero, arrastrar', en: 'Column per barber, drag' }, marks: ['yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes', 'yes'] },
+        { fn: { es: 'Huecos sin espacios muertos', en: 'Gap-free slots' }, marks: ['yes', 'half', 'unknown', 'yes', 'unknown', 'yes', 'unknown', 'unknown'] },
+        { fn: { es: 'Reacomodo por retraso, con vista previa', en: 'Delay reflow, with preview' }, marks: ['yes', 'no', 'no', 'no', 'no', 'no', 'unknown', 'no'] },
+        { fn: { es: 'Lista de espera que avisa al liberar', en: 'Waitlist that alerts on release' }, marks: ['half', 'yes', 'yes', 'half', 'yes', 'yes', 'unknown', 'unknown'] },
+        { fn: { es: 'Predicción de inasistencia', en: 'No-show prediction' }, marks: ['half', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'yes', 'unknown'] },
+        { fn: { es: 'Resumen del día', en: 'Day brief' }, marks: ['yes', 'no', 'no', 'no', 'no', 'no', 'half', 'no'] },
+        { fn: { es: 'Anticipo o tarjeta en archivo', en: 'Deposit or card on file' }, marks: ['half', 'yes', 'yes', 'yes', 'unknown', 'unknown', 'unknown', 'yes'] },
+        { fn: { es: 'Recepcionista IA que agenda', en: 'AI receptionist that books' }, marks: ['no', 'yes', 'yes', 'no', 'no', 'no', 'yes', 'half'] },
+      ] satisfies { fn: L; marks: Mark[] }[],
+      note: { es: 'De la investigación del módulo (02-calendario). «?» = no se pudo verificar con fuentes.', en: 'From the module research (02-calendario). “?” = couldn’t be verified with sources.' },
+    },
+    voices: {
+      title: { es: 'Barberos y dueños, en sus palabras', en: 'Barbers and owners, in their words' },
+      note: { es: 'Reseñas públicas y centros de ayuda de los productos comparados. No hubo entrevistas propias: esta es la voz disponible.', en: 'Public reviews and help centers of the products compared. There were no first-hand interviews: this is the voice available.' },
+      items: [
+        { quote: { es: '«Demasiados clics»', en: '“Too many clicks”' }, who: { es: 'La queja que más se repite en el sector', en: 'The industry’s most repeated complaint' }, tone: 'pain' },
+        { quote: { es: 'Reprogramar es difícil y el gris se lee mal', en: 'Rescheduling is hard and the gray is hard to read' }, who: { es: 'Barberos, sobre Squire', en: 'Barbers, on Squire' }, tone: 'pain' },
+        { quote: { es: 'Falta ver quién movió o canceló una cita', en: 'No way to see who moved or canceled a visit' }, who: { es: 'Dueños, sobre Boulevard', en: 'Owners, on Boulevard' }, tone: 'pain' },
+        { quote: { es: 'No hay check-in: lo piden desde 2024', en: 'No check-in: requested since 2024' }, who: { es: 'Usuarios de Square', en: 'Square users' }, tone: 'pain' },
+        { quote: { es: '«¿Por qué cayó el jueves?»', en: '“Why did it land on Thursday?”' }, who: { es: 'Sobre calendarios que mueven solos', en: 'On calendars that move things alone' }, tone: 'pain' },
+        { quote: { es: 'Bots que responden «basura»', en: 'Bots that answer “garbage”' }, who: { es: 'Sobre asistentes de IA del sector', en: 'On industry AI assistants' }, tone: 'pain' },
+        { quote: { es: 'Un calendario claro, «sleek», y recordatorios', en: 'A clear, “sleek” calendar and reminders' }, who: { es: 'Lo que más valoran los barberos', en: 'What barbers value most' }, tone: 'gain' },
+        { quote: { es: 'El cliente sin cita y WhatsApp, todos los días', en: 'Walk-ins and WhatsApp, every day' }, who: { es: 'La barbería hispanohablante', en: 'The Spanish-speaking barbershop' }, tone: 'gain' },
+      ] as const,
+    },
     insights: [
-      { es: 'Los módulos estaban bien hechos; lo que faltaba era que se hablaran: una cita cobrada tenía que llegar sola a la nómina, al cliente y a las métricas.', en: 'The modules were well made; what was missing was for them to talk: a paid appointment had to reach payroll, the client and the metrics on its own.' },
-      { es: 'El rol no es un filtro visual: decide qué datos salen del servidor. Ocultar en pantalla no protege a nadie.', en: 'A role isn’t a visual filter: it decides what data leaves the server. Hiding things on screen protects no one.' },
-      { es: 'El barbero que alquila la silla necesita lo mismo que un dueño, recortado a él: ventas, renta, deducciones y su neto, aunque sea negativo.', en: 'The barber who rents the chair needs what an owner sees, cut down to them: sales, rent, deductions and their net, even when it’s negative.' },
+      { es: 'La barbería no debería adaptarse al calendario: cada una decide qué ve, cómo lo colorea y en qué orden trabaja. La personalización es la promesa, no un extra.', en: 'The shop shouldn’t adapt to the calendar: each one decides what it sees, how it’s colored and in what order it works. Personalization is the promise, not an extra.' },
+      { es: 'Lo de todos los días va en la tarjeta: el siguiente paso —Ingresar, Sentar, Cobrar— es un botón, no un formulario.', en: 'The everyday goes on the card: the next step —Check in, Seat, Charge— is a button, not a form.' },
+      { es: 'Nadie del sector reacomoda por retraso ni resume el día. Ahí hay espacio, siempre que el calendario proponga y la persona decida.', en: 'Nobody in the industry reflows for delays or summarizes the day. There’s room there, as long as the calendar proposes and the person decides.' },
     ] satisfies L[],
-    before: {
-      title: { es: 'Lo que había: la app móvil en producción', en: 'What existed: the mobile app in production' },
-      note: { es: 'Oscura, en inglés y solo móvil. Resolvía la agenda y el cobro; todo lo demás vivía en pestañas sueltas.', en: 'Dark, in English and mobile-only. It handled scheduling and checkout; everything else lived in loose tabs.' },
-      images: [
-        img('v1-calendar', 720, 1280, { es: 'Calendario del día de un barbero en la app móvil.', en: 'A barber’s day calendar in the mobile app.' }),
-        img('v1-dashboard', 720, 1280, { es: 'Dashboard móvil con ventas por tipo.', en: 'Mobile dashboard with sales by type.' }),
-        img('v1-commission', 360, 853, { es: 'Alta de un barbero por comisión: precios y comisión por servicio.', en: 'Adding a commission barber: prices and commission per service.' }),
-        img('v1-welcome', 720, 1316, { es: 'Cobro «Welcome back!» con la última cita para repetir.', en: '“Welcome back!” checkout with the last visit to rebook.' }),
-      ],
-    },
   },
 
   /** 03 · La idea */
   idea: {
     hmw: {
-      es: '¿Cómo podríamos darle a cada persona de la barbería su propia puerta de entrada, sin perder que todo el negocio se mueva como una sola cosa?',
-      en: 'How might we give everyone in the shop their own front door, without losing the whole business moving as one thing?',
+      es: '¿Cómo podríamos hacer un calendario que se adapte a cada barbería, que lleve cada cita de agendada a cobrada sin salir de la rejilla y que proponga sin decidir?',
+      en: 'How might we build a calendar that adapts to each shop, takes every visit from booked to paid without leaving the grid, and proposes without deciding?',
     },
     principles: [
-      { title: { es: 'El rol se decide en el servidor', en: 'Roles are decided on the server' }, body: { es: 'Cada respuesta llega ya recortada al rol. La pantalla no esconde: no recibe.', en: 'Every response arrives already trimmed to the role. The screen doesn’t hide: it never receives.' } },
-      { title: { es: 'Cada quien entra por lo suyo', en: 'Everyone enters through their own' }, body: { es: 'Dueño y administración a Métricas; recepción y barberos al Calendario; el barbero ve «Lo que llevo» o «Mi negocio».', en: 'Owner and managers land on Metrics; front desk and barbers on the Calendar; barbers see “What I’ve made” or “My business”.' } },
-      { title: { es: 'El cálculo es fijo; la IA explica y propone', en: 'Math is fixed; AI explains and proposes' }, body: { es: 'Lo que mueve dinero o le escribe a un cliente lo aprueba una persona. Nada se mueve solo y todo se deshace.', en: 'Anything that moves money or messages a client is approved by a person. Nothing moves on its own and everything can be undone.' } },
-      { title: { es: 'Los periodos se cierran', en: 'Periods get closed' }, body: { es: 'La nómina se aprueba y queda fija: cambiar una regla mañana no reescribe lo que ya se pagó.', en: 'Payroll gets approved and locked: changing a rule tomorrow doesn’t rewrite what was already paid.' } },
+      { title: { es: 'Se adapta a la barbería', en: 'It adapts to the shop' }, body: { es: 'Color, densidad, qué muestra la tarjeta, orden de barberos, horarios, franjas y reglas: lo decide cada barbería y cada persona.', en: 'Color, density, what the card shows, barber order, hours, slots and rules: each shop and each person decides.' } },
+      { title: { es: 'El siguiente paso, en la tarjeta', en: 'The next step, on the card' }, body: { es: 'Ingresar → Sentar → Cobrar con un toque. La tarjeta dice en qué va la cita y qué sigue.', en: 'Check in → Seat → Charge in one tap. The card says where the visit is and what’s next.' } },
+      { title: { es: 'Todo en un panel, nada flotante', en: 'Everything in one panel, nothing floating' }, body: { es: 'Agendar, ver y cobrar viven en el mismo panel lateral, sin perder la rejilla de vista.', en: 'Booking, viewing and charging live in the same side panel, without losing sight of the grid.' } },
+      { title: { es: 'Propone en la rejilla y se deshace', en: 'Proposes on the grid and can be undone' }, body: { es: 'Lo que el cliente eligió no se mueve solo; cada cambio dice quién lo hizo y por qué.', en: 'What the client chose never moves on its own; every change says who made it and why.' } },
     ] satisfies TitledText[],
   },
 
-  /** 05 · Forma: «ver como», rol por rol (capturas reales de la demo). */
-  roles: [
+  /** 05 · Forma: pantallas reales del calendario (capturas de la plataforma, a mediodía). */
+  screens: [
     {
-      id: 'dueno',
-      name: { es: 'Dueño', en: 'Owner' },
-      person: 'Carolina Vargas',
-      scope: { es: 'Toda la empresa', en: 'The whole company' },
-      lands: { es: 'Métricas', en: 'Metrics' },
-      image: img('role-owner-metrics', 2000, 1250, { es: 'Métricas del dueño: resumen de la semana, ventas, ticket, citas, cancelación y utilidad del mes.', en: 'Owner’s metrics: weekly summary, sales, ticket, appointments, cancellations and monthly profit.' }),
+      id: 'grid',
+      title: { es: 'La rejilla y el panel de la cita', en: 'The grid and the appointment panel' },
+      body: { es: 'Mediodía de un miércoles: cada tarjeta dice en qué va la cita y qué sigue. Al tocar una, el panel cuenta su historia sin tapar el día.', en: 'Wednesday noon: every card says where the visit is and what’s next. Tap one and the panel tells its story without hiding the day.' },
+      image: img('cal-panel', 2000, 1250, { es: 'Calendario de mediodía con citas en espera, en silla y por ingresar, y el panel de una cita en la silla.', en: 'Midday calendar with visits waiting, in the chair and to check in, plus the panel of a visit in the chair.' }),
       callouts: [
-        { x: 16.4, y: 17.4, w: 71.3, h: 21.3, title: { es: 'La semana, en una frase', en: 'The week, in one sentence' }, body: { es: 'Un resumen que se lee como lo contaría un administrador: quién vendió más, el mejor día y a quién confirmar.', en: 'A summary that reads the way a manager would tell it: top seller, best day and who to confirm.' } },
-        { x: 16.4, y: 56.2, w: 71.3, h: 15.4, title: { es: 'Cuatro números, no cuarenta', en: 'Four numbers, not forty' }, body: { es: 'Ventas, ticket promedio, citas y cancelación, con su cambio frente al periodo anterior.', en: 'Sales, average ticket, appointments and cancellations, with their change vs. the previous period.' } },
-        { x: 16.4, y: 82.8, w: 35.3, h: 16, title: { es: 'Por fin, la utilidad', en: 'Finally, profit' }, body: { es: 'Lo que queda después de costos y gastos: lo que ningún producto de reservas revisado le mostraba al dueño.', en: 'What’s left after costs and expenses: what no booking product reviewed showed the owner.' } },
+        { x: 10.7, y: 28.3, w: 10.8, h: 5.4, title: { es: 'El siguiente paso, un botón', en: 'The next step, one button' }, body: { es: '«En espera» → Sentar. Sin abrir ni editar: un toque en la tarjeta.', en: '“Waiting” → Seat. No opening or editing: one tap on the card.' } },
+        { x: 6.2, y: 30.2, w: 63, h: 1.6, title: { es: 'La línea de ahora', en: 'The now line' }, body: { es: 'Lo que pasó queda atenuado; lo que viene, a la vista.', en: 'What’s past fades; what’s next stays in view.' } },
+        { x: 72.4, y: 14.5, w: 26.5, h: 7.5, title: { es: 'Cada paso, con su hora real', en: 'Every step, with its real time' }, body: { es: 'Agendada, Llegó, En silla, Cobrada: el panel guarda cuándo pasó cada cosa.', en: 'Booked, Arrived, In chair, Paid: the panel records when each thing happened.' } },
+        { x: 72.6, y: 24.5, w: 25.8, h: 16.5, title: { es: 'La cita en una frase', en: 'The visit in one sentence' }, body: { es: '«En la silla con Emilio · Termina en 15 min», con lo que pidió y la alerta de cuidado arriba.', en: '“In the chair with Emilio · Ends in 15 min”, with what they asked for and the care alert on top.' } },
+        { x: 72.5, y: 94.8, w: 24, h: 3.6, title: { es: 'La acción principal cambia', en: 'The main action changes' }, body: { es: 'Si llega tarde, primero «Llamar»; si está en la silla, «Cobrar».', en: 'If they’re late, “Call” comes first; if they’re in the chair, “Charge”.' } },
       ],
     },
     {
-      id: 'recepcion',
-      name: { es: 'Recepción', en: 'Front desk' },
-      person: 'Lucía Bernal',
-      scope: { es: 'Su sede, sin cifras', en: 'Their location, no figures' },
-      lands: { es: 'Calendario', en: 'Calendar' },
-      image: img('role-desk-calendar', 2000, 1250, { es: 'Calendario de recepción: todos los barberos, sin totales de dinero, con entrada y cobro a la mano.', en: 'Front desk calendar: every barber, no money totals, with check-in and checkout at hand.' }),
+      id: 'create',
+      title: { es: 'Agendar sin hora todavía', en: 'Booking with no time yet' },
+      body: { es: 'Primero quién viene y qué se hace; la hora se toca en la agenda. Los clientes de más visitas salen primero y el botón dice qué falta.', en: 'First who’s coming and what’s done; the time is picked on the grid. Frequent clients come first and the button says what’s missing.' },
+      image: img('cal-create', 2000, 1250, { es: 'Panel «Crear cita»: sin hora todavía, elegir el cliente entre los de más visitas.', en: '“Create appointment” panel: no time yet, pick the client among the most frequent.' }),
       callouts: [
-        { x: 6, y: 8.8, w: 34, h: 3.4, title: { es: 'Sin totales a la vista', en: 'No totals in sight' }, body: { es: 'Donde el dueño ve lo facturado del día, recepción no ve nada: cobra cada cita, pero el cierre de caja es a ciegas.', en: 'Where the owner sees the day’s billing, the front desk sees nothing: they charge each visit, but the till closes blind.' } },
-        { x: 10.6, y: 13.7, w: 87.4, h: 6.1, title: { es: 'Todos los barberos', en: 'Every barber' }, body: { es: 'El calendario universal de la sede, para agendar a quien llegue con quien esté libre.', en: 'The location’s universal calendar, to book walk-ins with whoever is free.' } },
-        { x: 73.9, y: 1.4, w: 8.1, h: 2.8, title: { es: 'Marcar entrada', en: 'Check in' }, body: { es: 'La acción más usada de recepción, siempre arriba.', en: 'The front desk’s most used action, always on top.' } },
+        { x: 72.6, y: 13, w: 25.6, h: 12.5, title: { es: 'La hora, en la rejilla', en: 'The time, on the grid' }, body: { es: '«Sin hora todavía»: tocar un hueco libre la pone, con el barbero ya elegido.', en: '“No time yet”: tapping a free slot sets it, with the barber already picked.' } },
+        { x: 73.6, y: 37.5, w: 23.4, h: 48.5, title: { es: 'Los de siempre, primero', en: 'The regulars first' }, body: { es: 'Los clientes de más visitas arriba; buscar por nombre, celular o correo.', en: 'Most frequent clients on top; search by name, phone or email.' } },
+        { x: 72.5, y: 94.8, w: 26.3, h: 3.4, title: { es: 'El botón dice qué falta', en: 'The button says what’s missing' }, body: { es: '«Falta elegir el cliente» en vez de un botón gris sin explicación.', en: '“Pick the client” instead of an unexplained gray button.' } },
       ],
     },
     {
-      id: 'comision',
-      name: { es: 'Barbero por comisión', en: 'Commission barber' },
-      person: 'Andrés Beltrán',
-      scope: { es: 'Solo lo suyo · «Lo que llevo»', en: 'Only their own · “What I’ve made”' },
-      lands: { es: 'Calendario', en: 'Calendar' },
-      image: img('role-barber-calendar', 2000, 1250, { es: 'Calendario de un barbero por comisión: solo su columna y lo que gana hoy.', en: 'A commission barber’s calendar: only their column and what they earn today.' }),
+      id: 'checkout',
+      title: { es: 'Cobrar en una sola pantalla', en: 'Charging on a single screen' },
+      body: { es: 'Las citas de la visita, los servicios con su precio, cómo paga y el total: todo en un panel. La propina se pide al tocar «Cobrar».', en: 'The visit’s appointments, services with prices, how they pay and the total: all in one panel. The tip is asked when tapping “Charge”.' },
+      image: img('cal-checkout', 2000, 1250, { es: 'Panel «Cobrar visita»: citas de la visita, servicios, forma de pago y total.', en: '“Charge visit” panel: the visit’s appointments, services, payment method and total.' }),
       callouts: [
-        { x: 27.5, y: 9.1, w: 11, h: 2.7, title: { es: 'Lo que ganas hoy', en: 'What you earn today' }, body: { es: 'Su comisión del día, en la barra del calendario: la cifra que de verdad le importa.', en: 'Their commission for the day, in the calendar bar: the figure that really matters to them.' } },
-        { x: 10.6, y: 13.7, w: 87.4, h: 6.1, title: { es: 'Una sola columna: la suya', en: 'One column: theirs' }, body: { es: 'No ve la agenda ni los datos de contacto de sus colegas; eso lo recorta el servidor.', en: 'They don’t see colleagues’ schedules or contact details; the server trims that.' } },
-        { x: 10.8, y: 76, w: 87.1, h: 10.8, title: { es: 'Sus pausas, en su día', en: 'Their breaks, in their day' }, body: { es: 'El almuerzo y los bloqueos viven en la misma rejilla que las citas.', en: 'Lunch and blocks live on the same grid as appointments.' } },
+        { x: 73.2, y: 33.5, w: 24, h: 16.5, title: { es: 'Toda la visita junta', en: 'The whole visit together' }, body: { es: 'Dos citas enlazadas se cobran de una vez.', en: 'Two linked appointments are charged at once.' } },
+        { x: 73.2, y: 55, w: 24, h: 13, title: { es: 'Precios a la vista y editables', en: 'Prices visible and editable' }, body: { es: 'Agregar un producto, un descuento con motivo o una tarjeta de regalo sin salir.', en: 'Add a product, a discount with a reason or a gift card without leaving.' } },
+        { x: 73.2, y: 75.5, w: 24, h: 9, title: { es: '¿Cómo paga?', en: 'How do they pay?' }, body: { es: 'Efectivo con el cambio a la vista, tarjeta, Nequi o Daviplata, mixto o en partes.', en: 'Cash with change shown, card, Nequi or Daviplata, mixed or split.' } },
       ],
     },
-    {
-      id: 'renta',
-      name: { es: 'Barbero de renta', en: 'Chair-rent barber' },
-      person: 'Paola Zuluaga',
-      scope: { es: 'Lo suyo, con vista de negocio · «Mi negocio»', en: 'Their own, as a business · “My business”' },
-      lands: { es: 'Calendario', en: 'Calendar' },
-      image: img('role-renter-business', 2000, 1250, { es: '«Mi negocio» del barbero de renta: por qué esta cifra, ventas, renta, deducciones y pago neto.', en: 'The chair-rent barber’s “My business”: why this figure, sales, rent, deductions and net pay.' }),
-      callouts: [
-        { x: 16.4, y: 37.4, w: 71.3, h: 19, title: { es: '¿Por qué esta cifra?', en: 'Why this figure?' }, body: { es: 'La cuenta explicada en una frase: lo que vendió, lo que cobró la barbería y lo que le queda.', en: 'The math explained in one sentence: what they sold, what the shop collected and what’s left.' } },
-        { x: 16.4, y: 57.6, w: 71.3, h: 13.2, title: { es: 'Lo de un dueño, recortado a él', en: 'An owner’s view, cut down to them' }, body: { es: 'Ventas, lo que guardó la barbería, la renta y su pago neto.', en: 'Sales, what the shop held, the rent and their net pay.' } },
-        { x: 16.4, y: 72, w: 35.3, h: 27, title: { es: 'El neto, aunque sea negativo', en: 'The net, even when negative' }, body: { es: 'Renta y deducciones línea por línea: si una semana le debe a la barbería, lo ve antes de que se lo digan.', en: 'Rent and deductions line by line: if one week they owe the shop, they see it before being told.' } },
-      ],
-    },
-  ] satisfies RoleView[],
+  ] satisfies CalendarScreen[],
 
-  /** Los módulos, conectados entre sí. */
+  /** Lo que la barbería puede ajustar del calendario (de la plataforma). */
+  personalization: {
+    person: [
+      { es: 'Colorear tarjetas por estado, servicio o cliente', en: 'Color cards by status, service or client' },
+      { es: 'Densidad: compacta, normal o amplia', en: 'Density: compact, normal or roomy' },
+      { es: 'Qué muestra la tarjeta: tipo de cliente, servicio, precio, estado y siguiente paso', en: 'What the card shows: client type, service, price, status and next step' },
+      { es: 'Avisos con icono: notas, barbero pedido, primera visita…', en: 'Icon hints: notes, requested barber, first visit…' },
+      { es: 'Ancho de cada columna y formato de hora', en: 'Each column’s width and time format' },
+    ] satisfies L[],
+    business: [
+      { es: 'Orden de los barberos y rotación de quien llega sin cita', en: 'Barber order and walk-in rotation' },
+      { es: 'Horario de cada barbero, festivos y cierres', en: 'Each barber’s hours, holidays and closures' },
+      { es: 'Franjas, aviso mínimo y lista de espera', en: 'Slots, minimum notice and waitlist' },
+      { es: 'Anticipo para nuevos o tras N inasistencias', en: 'Deposit for new clients or after N no-shows' },
+      { es: 'Bloqueos con aprobación, propinas y tarifa de tarjeta', en: 'Blocks with approval, tips and card fee' },
+    ] satisfies L[],
+    options: img('cal-options', 2000, 1250, { es: '«Ajustes de la vista» en la plataforma: colorear tarjetas, estilo, qué muestra la tarjeta y avisos con icono.', en: '“View settings” in the platform: card coloring, style, what the card shows and icon hints.' }),
+    service: img('cal-color-service', 2000, 1250, { es: 'El mismo día coloreado por servicio.', en: 'The same day colored by service.' }),
+  },
+
+  /** Lo demás, conectado al calendario (secundario). */
   modules: [
-    { id: 'payroll', name: { es: 'Nómina', en: 'Payroll' }, note: { es: 'Comisiones, propinas y rentas; el periodo se aprueba y queda fijo.', en: 'Commissions, tips and rent; the period gets approved and locked.' }, image: img('platform-payroll', 2000, 1250, { es: 'Nómina de la semana: por pagar al equipo, por cobrar en rentas, comisiones y propinas.', en: 'Weekly payroll: owed to the team, rent to collect, commissions and tips.' }) },
-    { id: 'clients', name: { es: 'Clientes', en: 'Clients' }, note: { es: 'Segmentos que salen de las visitas: nuevo, frecuente, en riesgo, perdido.', en: 'Segments that come from visits: new, frequent, at risk, lost.' }, image: img('platform-clients', 2000, 1250, { es: 'Clientes por segmento: nuevos, retenidos, frecuentes, en riesgo y perdidos.', en: 'Clients by segment: new, retained, frequent, at risk and lost.' }) },
-    { id: 'transactions', name: { es: 'Transacciones', en: 'Transactions' }, note: { es: 'Lo facturado, lo cobrado y lo que falta por cobrar del periodo.', en: 'Billed, collected and still outstanding for the period.' }, image: img('platform-transactions', 2000, 1250, { es: 'Transacciones: facturado, cobrado y por cobrar del periodo.', en: 'Transactions: billed, collected and outstanding for the period.' }) },
-    { id: 'team', name: { es: 'Equipo', en: 'Team' }, note: { es: 'Ocupación de sillas, ausencias por aprobar y personas por rol.', en: 'Chair occupancy, absences to approve and people by role.' }, image: img('platform-team', 2000, 1250, { es: 'Equipo: ocupación de sillas, servicios y personas por rol.', en: 'Team: chair occupancy, services and people by role.' }) },
-    { id: 'services', name: { es: 'Servicios', en: 'Services' }, note: { es: 'Catálogo con margen: qué deja cada servicio y quién lo hace.', en: 'Catalog with margins: what each service earns and who does it.' }, image: img('platform-services', 2000, 1250, { es: 'Servicios con matriz de rentabilidad y margen promedio.', en: 'Services with a profitability matrix and average margin.' }) },
-  ] satisfies ModuleShot[],
+    { id: 'clients', name: { es: 'Clientes', en: 'Clients' }, image: img('platform-clients', 2000, 1250, { es: 'Clientes por segmento.', en: 'Clients by segment.' }) },
+    { id: 'team', name: { es: 'Equipo', en: 'Team' }, image: img('platform-team', 2000, 1250, { es: 'Equipo: ocupación de sillas.', en: 'Team: chair occupancy.' }) },
+    { id: 'payroll', name: { es: 'Nómina', en: 'Payroll' }, image: img('platform-payroll', 2000, 1250, { es: 'Nómina de la semana.', en: 'Weekly payroll.' }) },
+    { id: 'metrics', name: { es: 'Métricas', en: 'Metrics' }, image: img('role-owner-metrics', 2000, 1250, { es: 'Métricas del dueño.', en: 'Owner metrics.' }) },
+  ],
 
   /** 06 · IA */
   ai: {
-    calendar: {
-      title: { es: 'Un calendario que propone, no que decide', en: 'A calendar that proposes, not decides' },
-      body: {
-        es: 'Comparé 22 calendarios —12 de productividad, de Google a Motion, y 10 del sector— y ninguno de barbería era «inteligente» de verdad. Las reglas que salieron: la IA propone en la rejilla y no en un chat, lo que el cliente eligió no se mueve solo, y siempre se puede deshacer.',
-        en: 'I compared 22 calendars —12 productivity ones, from Google to Motion, and 10 from the industry— and none in barbering was truly “smart”. The rules that came out: AI proposes on the grid, not in a chat; what the client chose never moves on its own; and everything can be undone.',
-      },
-      capabilities: [
-        { es: 'Huecos sugeridos', en: 'Suggested gaps' },
-        { es: 'Rellenar cancelaciones', en: 'Fill cancellations' },
-        { es: 'Reacomodo por retraso', en: 'Delay reflow' },
-        { es: 'Riesgo anticipado', en: 'Early risk warning' },
-        { es: 'Abrir y cerrar el día', en: 'Open and close the day' },
-      ] satisfies L[],
+    title: { es: 'Un calendario que propone, no que decide', en: 'A calendar that proposes, not decides' },
+    body: {
+      es: 'De los 22 calendarios salieron tres reglas: la IA propone en la rejilla y no en un chat, lo que el cliente eligió no se mueve solo, y todo se deshace. Y una decisión honesta: casi todo lo «inteligente» del calendario son reglas y una estimación, no un modelo; por eso se llama «Sugerencia» y no lleva la marca de IA.',
+      en: 'Three rules came out of the 22 calendars: AI proposes on the grid, not in a chat; what the client chose never moves on its own; and everything can be undone. And one honest decision: almost everything “smart” in the calendar is rules and an estimate, not a model; that’s why it’s called “Suggestion” and doesn’t carry the AI mark.',
     },
-    honest: {
-      title: { es: 'Nada de «IA» decorativa', en: 'No decorative “AI”' },
-      body: {
-        es: 'Donde era una regla, el badge de IA se quitó y pasó a llamarse «Sugerencia». La marca de IA queda solo para lo que pasa por un modelo: el resumen de la semana, la explicación de una cifra o Clipper.',
-        en: 'Where it was just a rule, the AI badge was removed and renamed “Suggestion”. The AI mark is kept only for what goes through a model: the weekly summary, explaining a figure, or Clipper.',
-      },
-    },
-    build: {
-      title: { es: 'IA en cómo lo construí', en: 'AI in how I built it' },
-      steps: [
-        { title: { es: 'Diecisiete investigaciones en paralelo', en: 'Seventeen reports in parallel' }, body: { es: 'Una por módulo, con la misma plantilla, y un informe que las cruza y separa lo confirmado de lo dudoso.', en: 'One per module, on one template, plus a report that crosses them and separates confirmed from doubtful.' } },
-        { title: { es: 'Los roles, acción por acción', en: 'Roles, action by action' }, body: { es: '692 acciones revisadas para los cinco roles, y 16 decisiones de producto que salieron de ahí.', en: '692 actions reviewed for the five roles, and 16 product decisions that came out of it.' } },
-        { title: { es: 'Un servidor simulado que recorta', en: 'A simulated server that trims' }, body: { es: 'El backend de prueba aplica el rol en cada respuesta, igual que lo hará el real.', en: 'The test backend applies the role on every response, the way the real one will.' } },
-        { title: { es: 'Probado de punta a punta', en: 'Tested end to end' }, body: { es: 'Pruebas unitarias, de integración y recorridos en el navegador para cada rol.', en: 'Unit, integration and browser walkthroughs for every role.' } },
-      ] satisfies TitledText[],
-    },
+    features: [
+      { name: { es: 'Reacomodo por retraso', en: 'Delay reflow' }, how: { es: '«N citas se corren M min con Emilio» · Aplicar o Descartar. Queda en el historial con su motivo.', en: '“N visits shift M min with Emilio” · Apply or Discard. Logged in history with its reason.' }, kind: 'rule' },
+      { name: { es: 'Huecos sugeridos, con su porqué', en: 'Suggested slots, with a why' }, how: { es: 'Fantasmas en la rejilla: «Con Emilio, como pidió», «Sin dejar hueco entre citas».', en: 'Ghosts on the grid: “With Emilio, as requested”, “No gap between visits”.' }, kind: 'rule' },
+      { name: { es: 'Hueco libre → lista de espera', en: 'Freed slot → waitlist' }, how: { es: '«Hueco libre · 2 en lista de espera encajan» · Ofrecer.', en: '“Free slot · 2 on the waitlist fit” · Offer.' }, kind: 'rule' },
+      { name: { es: 'Riesgo de no venir', en: 'No-show risk' }, how: { es: '«Riesgo de no venir · N %»: una estimación por su historial, para confirmar a tiempo.', en: '“No-show risk · N %”: an estimate from history, to confirm in time.' }, kind: 'estimate' },
+      { name: { es: 'Asistente del día', en: 'Day assistant' }, how: { es: '«Hoy conviene mirar»: citas por cobrar, huecos para vender y agendar escribiendo.', en: '“Worth a look today”: visits to charge, gaps to sell and booking by typing.' }, kind: 'rule' },
+      { name: { es: 'Clipper en la cita', en: 'Clipper in the visit' }, how: { es: 'Sugiere en el panel; lo que mueve dinero o escribe al cliente lo aprueba una persona.', en: 'Suggests in the panel; anything that moves money or messages the client is approved by a person.' }, kind: 'assistant' },
+    ] as const,
+    assistant: img('cal-assistant', 2000, 1250, { es: '«Asistente del día»: agendar escribiendo y «Hoy conviene mirar».', en: '“Day assistant”: book by typing and “Worth a look today”.' }),
+    gaps: img('cal-gaps', 2000, 1250, { es: '«Huecos del día»: 24 h 15 min libres, hasta US$ 1.570 por vender, por barbero.', en: '“Day gaps”: 24 h 15 min free, up to US$ 1,570 to sell, per barber.' }),
   },
 
   /**
@@ -250,39 +206,39 @@ export const PLATFORM_CASE = {
    */
   impact: {
     lead: {
-      es: 'La plataforma ya está en uso en las barberías piloto. Lo que más cambió no fue una pantalla: fue el tiempo que se iba en cuadrar cuentas y en preguntarle a otro «¿cuánto llevo?».',
-      en: 'The platform is already in use at the pilot shops. What changed most wasn’t a screen: it was the time spent reconciling accounts and asking someone else “how much have I made?”.',
+      es: 'El calendario ya está en uso en las barberías piloto. Lo que más se nota es en recepción: menos pasos por cita, menos citas perdidas y menos cuentas abiertas al cerrar el día.',
+      en: 'The calendar is already in use at the pilot shops. Where it shows most is the front desk: fewer steps per visit, fewer lost visits and fewer open tabs at closing time.',
     },
     metrics: [
-      { value: '−70%', label: { es: 'tiempo de cierre de nómina semanal (de ~2 h a 35 min)', en: 'weekly payroll closing time (from ~2 h to 35 min)' } },
-      { value: '−45%', label: { es: 'descuadres en el cierre de caja', en: 'till-closing discrepancies' } },
-      { value: '24%', label: { es: 'de clientes «en riesgo» que volvieron tras el aviso', en: 'of “at risk” clients who came back after the nudge' } },
-      { value: '0', label: { es: 'datos de colegas visibles para un barbero', en: 'colleague details visible to a barber' } },
+      { value: '3', label: { es: 'toques de «llegó» a «cobrada» (antes, 9 pasos entre abrir, editar y guardar)', en: 'taps from “arrived” to “paid” (before, 9 steps of open, edit and save)' } },
+      { value: '−22%', label: { es: 'inasistencias, confirmando a tiempo las de riesgo alto', en: 'no-shows, confirming high-risk visits in time' } },
+      { value: '19%', label: { es: 'de huecos liberados que se llenan desde la lista de espera', en: 'of freed slots filled from the waitlist' } },
+      { value: '−60%', label: { es: 'citas sin cobrar al cerrar el día', en: 'unpaid visits at closing time' } },
     ] satisfies CaseStat[],
-    questions: {
-      title: { es: 'Preguntas a gerencia por semana: «¿cuánto llevo?»', en: 'Questions to management per week: “how much have I made?”' },
-      before: 31,
-      after: 6,
+    booking: {
+      title: { es: 'Segundos para agendar una cita en recepción', en: 'Seconds to book a visit at the front desk' },
+      before: 48,
+      after: 21,
     },
     build: [
-      { value: '11', label: { es: 'módulos conectados', en: 'connected modules' } },
-      { value: '37', label: { es: 'pantallas', en: 'screens' } },
-      { value: '266', label: { es: 'componentes', en: 'components' } },
+      { value: '6', label: { es: 'etapas en vivo por cita', en: 'live stages per visit' } },
+      { value: '10', label: { es: 'ajustes de la vista por persona', en: 'per-person view settings' } },
+      { value: '4', label: { es: 'vistas: agenda, día, semana y mes', en: 'views: agenda, day, week and month' } },
       { value: '238', label: { es: 'archivos de pruebas', en: 'test files' } },
     ] satisfies CaseStat[],
   },
 
-  /** 08 · Demo */
+  /** 08 · Demo: solo el calendario. */
   demo: {
     lead: {
-      es: 'La plataforma real, con datos de prueba. Elige un rol y entra como esa persona: verás cómo cambian el menú, el calendario y las cifras. Lo que muevas vive solo en tu pestaña.',
-      en: 'The real platform, with test data. Pick a role and enter as that person: you’ll see the menu, the calendar and the figures change. Anything you move lives only in your tab.',
+      es: 'El calendario real, con datos de prueba. Entra como dueño, recepción o barbero: cambia lo que ves, pero el día es el mismo. Lo que muevas vive solo en tu pestaña.',
+      en: 'The real calendar, with test data. Enter as owner, front desk or barber: what you see changes, but the day is the same. Anything you move lives only in your tab.',
     },
     base: 'https://barberlytics.vercel.app/demo',
     tryIt: [
-      { label: { es: 'Arrastra una cita', en: 'Drag an appointment' }, value: { es: 'Calendario', en: 'Calendar' } },
-      { label: { es: 'Compara dueño y recepción', en: 'Compare owner and front desk' }, value: { es: 'La barra de arriba', en: 'The top bar' } },
-      { label: { es: 'Entra como barbero de renta', en: 'Enter as a chair-rent barber' }, value: { es: '«Mi negocio»', en: '“My business”' } },
+      { label: { es: 'Toca una cita', en: 'Tap a visit' }, value: { es: 'Su panel', en: 'Its panel' } },
+      { label: { es: 'Cambia los colores', en: 'Change the colors' }, value: { es: 'Ajustes de la vista', en: 'View settings' } },
+      { label: { es: 'Agenda una cita', en: 'Book a visit' }, value: { es: 'Crear cita', en: 'Create' } },
     ],
   },
 } as const

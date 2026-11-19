@@ -3,82 +3,65 @@
 import { useLocale, type L } from '@/lib/i18n'
 import { Arrows, Board, Btn, Guides, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 
-/* ── Tablero 1: quién ve qué ──────────────────────────────────────────── */
+/* ── Tablero 1: anatomía de la tarjeta ───────────────────────────────── */
 
-const MODULES: readonly L[] = [
-  { es: 'Métricas', en: 'Metrics' },
-  { es: 'Calendario', en: 'Calendar' },
-  { es: 'Nómina', en: 'Payroll' },
-  { es: 'Clientes', en: 'Clients' },
-  { es: 'Caja', en: 'Till' },
-]
+const DENSITIES = [
+  { label: 'compacta', h: 60 },
+  { label: 'normal', h: 84 },
+  { label: 'amplia', h: 112 },
+] as const
 
-type Cell = 'all' | 'none' | L
-
-const MATRIX: readonly { role: L; cells: readonly Cell[] }[] = [
-  { role: { es: 'Dueño', en: 'Owner' }, cells: ['all', 'all', 'all', 'all', 'all'] },
-  { role: { es: 'Administrador', en: 'Manager' }, cells: [{ es: 'su sede', en: 'their site' }, { es: 'su sede', en: 'their site' }, { es: 'su sede', en: 'their site' }, { es: 'su sede', en: 'their site' }, { es: 'su sede', en: 'their site' }] },
-  { role: { es: 'Recepción', en: 'Front desk' }, cells: ['none', 'all', 'none', { es: 'para agendar', en: 'to book' }, { es: 'cobra, sin totales', en: 'charges, no totals' }] },
-  { role: { es: 'Barbero comisión', en: 'Commission barber' }, cells: ['none', { es: 'su columna', en: 'own column' }, { es: '«lo que llevo»', en: '“what I’ve made”' }, { es: 'los suyos', en: 'their own' }, 'none'] },
-  { role: { es: 'Barbero renta', en: 'Chair-rent barber' }, cells: [{ es: '«mi negocio»', en: '“my business”' }, { es: 'su columna', en: 'own column' }, { es: '«mi negocio»', en: '“my business”' }, { es: 'los suyos', en: 'their own' }, 'none'] },
-]
-
-const COL_X = [340, 510, 680, 850, 1020]
-const COL_W = 160
-const ROW_Y = [170, 268, 366, 464, 562]
-const GRID = { left: 50, right: 1185, top: 110, bottom: 650 }
-
-function MarkCell({ cell }: { cell: Cell }) {
+export function CardAnatomyBoard() {
   const { t } = useLocale()
-  if (cell === 'all') return <Hand size={2.2} className="font-bold">✓</Hand>
-  if (cell === 'none') return <Hand size={2} className="opacity-35">✕</Hand>
-  return <Hand size={1.55} className="font-bold text-[#e8743b]">{t(cell)}</Hand>
-}
-
-export function RoleMapBoard() {
-  const { t } = useLocale()
-  const lines = [
-    ...ROW_Y.map((y) => ({ d: `M${GRID.left},${y - 18} L${GRID.right},${y - 18}` })),
-    { d: `M${GRID.left},${GRID.bottom} L${GRID.right},${GRID.bottom}` },
-    ...COL_X.map((x) => ({ d: `M${x - 8},${GRID.top} L${x - 8},${GRID.bottom}` })),
-  ]
   return (
-    <Board title={t({ es: 'Roles · quién ve qué', en: 'Roles · who sees what' })} w={1400} h={720} label={t({ es: 'Mapa a mano de qué ve cada rol en cada módulo', en: 'Hand-drawn map of what each role sees in each module' })}>
+    <Board title={t({ es: 'Calendario · anatomía de la tarjeta', en: 'Calendar · card anatomy' })} w={1400} h={720} label={t({ es: 'Boceto a mano de la tarjeta de una cita con sus partes anotadas', en: 'Hand sketch of an appointment card with its parts annotated' })}>
       <Pin x={50} y={30}>
-        <Hand size={2.4} className="font-bold">{t({ es: '5 roles × lo que ve cada uno', en: '5 roles × what each one sees' })}</Hand>
+        <Hand size={2.4} className="font-bold">{t({ es: 'La tarjeta: todo lo que se ve sin abrir nada', en: 'The card: everything visible without opening anything' })}</Hand>
       </Pin>
-      <Guides lines={lines} />
-      {MODULES.map((m, c) => (
-        <Pin key={m.es} x={COL_X[c]} y={GRID.top + 12} w={COL_W}>
-          <Hand size={1.6} className="block text-center font-bold">{t(m)}</Hand>
+
+      <Pin x={120} y={150} w={500}>
+        <Sketchy fill="#fff7ea" className="px-[1.4cqw] py-[1.2cqw]">
+          <div className="flex items-center gap-[0.8cqw]">
+            <span className="h-[0.9cqw] w-[0.9cqw] rounded-full border-[0.18cqw] border-[#2a2d33] bg-[#bfe0ff]" />
+            <Hand size={2} className="font-bold">Mariana Ramírez</Hand>
+            <span className="ml-auto"><Sketchy className="px-[0.6cqw]"><Hand size={1.2}>RETENIDO</Hand></Sketchy></span>
+          </div>
+          <div className="mt-[0.8cqw]"><Hand size={1.5} className="opacity-70">Corte + barba · US$ 59</Hand></div>
+          <div className="mt-[2.4cqw] flex items-center justify-between">
+            <Sketchy fill="#ffd2a8" className="px-[0.8cqw]"><Hand size={1.3}>● En silla</Hand></Sketchy>
+            <Btn accent>Cobrar</Btn>
+          </div>
+        </Sketchy>
+      </Pin>
+
+      <Pin x={700} y={120} w={300}><Hand size={1.5}>{t({ es: 'tipo de cliente: Nuevo → Retenido → Frecuente → VIP', en: 'client type: New → Retained → Frequent → VIP' })}</Hand></Pin>
+      <Pin x={700} y={235} w={300}><Hand size={1.5}>{t({ es: 'servicio + precio (se pueden ocultar)', en: 'service + price (can be hidden)' })}</Hand></Pin>
+      <Pin x={700} y={330} w={300}><Hand size={1.5}>{t({ es: 'etapa en vivo: se deduce sola (5 min sin llegar = Tarde)', en: 'live stage: worked out alone (5 min no-show = Late)' })}</Hand></Pin>
+      <Pin x={700} y={440} w={300}><Hand size={1.5} className="font-bold text-[#e8743b]">{t({ es: 'UN botón: el siguiente paso', en: 'ONE button: the next step' })}</Hand></Pin>
+      <Arrows
+        paths={[
+          { d: 'M695,140 C640,140 610,165 590,180' },
+          { d: 'M695,250 C600,250 520,240 470,232' },
+          { d: 'M695,345 C560,350 380,330 300,318' },
+          { d: 'M695,455 C650,440 600,360 585,325', accent: true },
+        ]}
+      />
+
+      <Pin x={1060} y={120} w={300} rotate={2}>
+        <Sticky color="yellow">{t({ es: 'Color por estado, servicio o cliente: lo elige cada persona', en: 'Color by status, service or client: each person chooses' })}</Sticky>
+      </Pin>
+      <Pin x={1070} y={330} w={290} rotate={-1.5}>
+        <Sticky color="pink">{t({ es: 'Alergia: el único aviso que no se puede apagar', en: 'Allergy: the only hint that can’t be turned off' })}</Sticky>
+      </Pin>
+
+      <Pin x={120} y={560}><Hand size={1.5} className="font-bold">{t({ es: 'densidad →', en: 'density →' })}</Hand></Pin>
+      {DENSITIES.map((d, i) => (
+        <Pin key={d.label} x={290 + i * 150} y={560} w={120}>
+          <Sketchy fill="rgba(255,255,255,0.7)" className="px-[0.6cqw] py-[0.4cqw]">
+            <span className="block" style={{ height: `${d.h / 14}cqw` }}><Hand size={1.15}>{d.label}</Hand></span>
+          </Sketchy>
         </Pin>
       ))}
-      {MATRIX.map((row, r) => (
-        <div key={row.role.es}>
-          <Pin x={GRID.left + 10} y={ROW_Y[r] + 4} w={270}>
-            <Hand size={1.7}>{t(row.role)}</Hand>
-          </Pin>
-          {row.cells.map((cell, c) => (
-            <Pin key={`${row.role.es}-${c}`} x={COL_X[c]} y={ROW_Y[r] + 2} w={COL_W} className="text-center">
-              <MarkCell cell={cell} />
-            </Pin>
-          ))}
-        </div>
-      ))}
-
-      <Pin x={1210} y={110} w={170} rotate={2}>
-        <Sticky color="yellow" small>{t({ es: 'El servidor recorta. La pantalla no esconde: no recibe.', en: 'The server trims. The screen doesn’t hide: it never receives.' })}</Sticky>
-      </Pin>
-      <Pin x={1215} y={300} w={165} rotate={-2}>
-        <Sticky color="blue" small>{t({ es: '«Ver como» solo para dueño y admin', en: '“View as” only for owner and manager' })}</Sticky>
-      </Pin>
-      <Pin x={1210} y={470} w={170} rotate={1.5}>
-        <Sticky color="pink" small>{t({ es: 'Nadie fuerza citas encima de otra ni fuera de horario', en: 'Nobody forces bookings on top of another or out of hours' })}</Sticky>
-      </Pin>
-      <Arrows paths={[{ d: 'M1205,520 C1150,560 1120,585 1105,600', accent: true }]} />
-      <Pin x={50} y={680}>
-        <Hand size={1.7}>{t({ es: '692 acciones revisadas → 16 decisiones', en: '692 actions reviewed → 16 decisions' })}</Hand>
-      </Pin>
     </Board>
   )
 }

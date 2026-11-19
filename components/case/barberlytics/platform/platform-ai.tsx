@@ -3,7 +3,7 @@
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import { useTick } from '../thema/live-pieces'
-import { ClipperOrb } from '../clipper-orb'
+import { BrowserMockup } from '@/components/case/kit/device'
 
 const GOLD = '#D9B36A'
 const SLOT_PX = 42 // alto de media hora en la rejilla
@@ -82,73 +82,62 @@ function CalendarProposes() {
         </div>
       </div>
 
-      <div className={`mt-4 flex flex-wrap items-center gap-3 rounded-xl p-3 transition-all duration-500 ${preview || applied ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`} style={{ background: `linear-gradient(90deg, rgba(217,179,106,0.16), rgba(63,114,216,0.14))`, boxShadow: `inset 0 0 0 1px rgba(217,179,106,0.35)` }}>
-        <ClipperOrb size={22} />
+      <div className={`mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#d9b36a]/40 bg-[#d9b36a]/[0.08] p-3 transition-all duration-500 ${preview || applied ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>
+        <span className="rounded-full border border-[#d9b36a]/50 px-2 py-0.5 text-[10px] text-[#e9c27a]">{t({ es: 'Sugerencia', en: 'Suggestion' })}</span>
         <p className="flex-1 text-xs">
           {applied
-            ? t({ es: '3 citas movidas +20 min · Diego no se mueve: eligió esa hora.', en: '3 visits moved +20 min · Diego stays: he chose that time.' })
-            : t({ es: 'Propuesta: mover 3 citas de Emilio +20 min. Diego no se toca.', en: 'Proposal: move 3 of Emilio’s visits +20 min. Diego is untouched.' })}
+            ? t({ es: 'Movidas 20 min porque la cita anterior se alargó · Diego no se toca: eligió esa hora.', en: 'Moved 20 min because the previous visit ran long · Diego stays: he chose that time.' })
+            : t({ es: '3 citas se corren 20 min con Emilio', en: '3 visits shift 20 min with Emilio' })}
         </p>
+        {!applied && <span className="text-xs text-white/55">{t({ es: 'Descartar', en: 'Discard' })}</span>}
         <span className="rounded-md px-3 py-1.5 text-xs font-semibold text-[#16130f]" style={{ background: GOLD }}>{applied ? t({ es: 'Deshacer', en: 'Undo' }) : t({ es: 'Aplicar', en: 'Apply' })}</span>
       </div>
     </div>
   )
 }
 
-/** 06 · IA: el calendario que propone, la IA honesta y cómo lo construí. */
+const KIND: Record<'rule' | 'estimate' | 'assistant', { es: string; en: string; cls: string }> = {
+  rule: { es: 'Regla', en: 'Rule', cls: 'border-fg/30' },
+  estimate: { es: 'Estimación', en: 'Estimate', cls: 'border-[#d18b1f]/60 text-[#d18b1f]' },
+  assistant: { es: 'Asistente', en: 'Assistant', cls: 'border-transparent bg-[linear-gradient(90deg,#f0ce86,#de8c3a,#2e9cb0,#3f72d8)] text-[#16130f]' },
+}
+
+/** 06 · IA: el calendario que propone, sin vender reglas como IA. */
 export function PlatformAi() {
   const { t } = useLocale()
-  const { calendar, honest, build } = PLATFORM_CASE.ai
+  const { ai } = PLATFORM_CASE
   return (
     <div>
-      <h3 data-reveal="mask" className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t(calendar.title)}</h3>
-      <p data-reveal className="mt-5 max-w-[62ch] leading-relaxed opacity-80">{t(calendar.body)}</p>
+      <h3 data-reveal="mask" className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t(ai.title)}</h3>
+      <p data-reveal className="mt-5 max-w-[62ch] leading-relaxed opacity-80">{t(ai.body)}</p>
 
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <div data-reveal="device"><CalendarProposes /></div>
-        <ol className="space-y-3">
-          {calendar.capabilities.map((c, i) => (
-            <li key={c.es} data-reveal="right" className={`flex items-center gap-4 border-l-2 py-1.5 pl-4 ${i === 2 ? 'border-[#d9b36a]' : 'border-fg/15'}`}>
-              <span className="mono-label w-6 shrink-0 opacity-60">0{i + 1}</span>
-              <span className={i === 2 ? 'text-[#d9b36a]' : ''}>{t(c)}</span>
-              {i === 2 && <span className="mono-label ml-auto text-[#d9b36a]">{t({ es: 'en la animación', en: 'animated' })}</span>}
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      <div className="mt-16 grid gap-6 md:grid-cols-2">
-        <div data-reveal className="rounded-2xl border border-fg/15 p-6">
-          <p className="mono-label mb-3 text-signal">{t(honest.title)}</p>
-          <p className="leading-relaxed opacity-80">{t(honest.body)}</p>
-          <div className="mt-5 flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full border border-fg/25 px-3 py-1 line-through opacity-50">✦ IA · {t({ es: 'regla fija', en: 'fixed rule' })}</span>
-            <span className="rounded-full border border-fg/40 px-3 py-1">{t({ es: 'Sugerencia', en: 'Suggestion' })}</span>
-            <span className="rounded-full px-3 py-1 text-[#16130f]" style={{ background: 'linear-gradient(90deg,#f0ce86,#de8c3a,#2e9cb0,#3f72d8)' }}>✦ IA · {t({ es: 'pasa por un modelo', en: 'goes through a model' })}</span>
-          </div>
-        </div>
-        <div data-reveal className="rounded-2xl border border-fg/15 p-6">
-          <p className="mono-label mb-3 text-signal">{t({ es: 'Cómo te fue esta semana', en: 'How your week went' })}</p>
-          <p className="leading-relaxed opacity-85">
-            {t({
-              es: '«En los últimos 7 días vendiste US$ 14.050 en 303 servicios. Andrés Beltrán fue quien más vendió. El mejor día fue el miércoles. Hubo 26 citas a las que no vino nadie: confirma a tiempo las de riesgo alto.»',
-              en: '“In the last 7 days you sold US$ 14,050 across 303 services. Andrés Beltrán sold the most. Wednesday was the best day. 26 appointments were no-shows: confirm high-risk ones in time.”',
-            })}
-          </p>
-          <p className="mt-3 text-xs opacity-55">{t({ es: 'Las cifras salen del cálculo; el modelo solo las cuenta.', en: 'The figures come from the math; the model only tells them.' })}</p>
+        <div data-reveal className="space-y-4 text-sm leading-relaxed">
+          <p className="mono-label text-[#d9b36a]">{t({ es: 'Reacomodo por retraso', en: 'Delay reflow' })}</p>
+          <p className="opacity-80">{t({ es: 'Cuando una cita se alarga, el calendario muestra en la rejilla dónde quedarían las siguientes. Nada se mueve hasta «Aplicar»; lo que el cliente eligió no se toca, y el historial guarda quién lo movió y por qué.', en: 'When a visit runs long, the calendar shows on the grid where the next ones would land. Nothing moves until “Apply”; what the client chose stays put, and history records who moved it and why.' })}</p>
+          <p className="opacity-60">{t({ es: 'Ningún producto del sector lo tiene; la idea viene de los calendarios de productividad que muestran la cascada antes de aplicarla.', en: 'No industry product has it; the idea comes from productivity calendars that show the cascade before applying it.' })}</p>
         </div>
       </div>
 
-      <h3 data-reveal="mask" className="mb-6 mt-16 text-[clamp(1.35rem,1rem+1vw,1.9rem)]">{t(build.title)}</h3>
-      <ol className="grid gap-px overflow-hidden border border-fg/15 bg-fg/15 sm:grid-cols-2 lg:grid-cols-4">
-        {build.steps.map((s, i) => (
-          <li key={s.title.es} data-reveal className="bg-bg p-6">
-            <span className="mono-label text-signal">0{i + 1}</span>
-            <p className="mt-3 font-medium leading-snug">{t(s.title)}</p>
-            <p className="mt-2 text-sm leading-relaxed opacity-70">{t(s.body)}</p>
+      <ul className="mt-14 grid gap-px overflow-hidden border border-fg/15 bg-fg/15 sm:grid-cols-2 lg:grid-cols-3">
+        {ai.features.map((f) => (
+          <li key={f.name.es} data-reveal className="bg-bg p-6">
+            <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] ${KIND[f.kind].cls}`}>{t(KIND[f.kind])}</span>
+            <p className="mt-3 font-medium leading-snug">{t(f.name)}</p>
+            <p className="mt-2 text-sm leading-relaxed opacity-70">{t(f.how)}</p>
           </li>
         ))}
-      </ol>
+      </ul>
+
+      <div className="mt-14 grid gap-6 md:grid-cols-2">
+        {[ai.assistant, ai.gaps].map((image) => (
+          <figure key={image.src}>
+            <BrowserMockup image={image} withLegend={false} sizes="(min-width: 768px) 40vw, 100vw" />
+            <figcaption data-reveal className="mt-3 text-sm opacity-65">{t(image.alt)}</figcaption>
+          </figure>
+        ))}
+      </div>
     </div>
   )
 }

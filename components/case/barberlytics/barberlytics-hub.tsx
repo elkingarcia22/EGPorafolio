@@ -11,6 +11,7 @@ import { COPY } from '@/lib/content/copy'
 import { OVERVIEW } from '@/lib/content/cases/barberlytics/overview'
 import type { Project } from '@/lib/content/projects'
 import { ClipperOrb } from './clipper-orb'
+import { LiveCalendarCard } from './platform/live-calendar'
 import { useReveal } from './use-reveal'
 
 interface HubProject {
@@ -86,25 +87,11 @@ const PROJECTS: readonly HubProject[] = [
     slug: 'plataforma',
     index: '03',
     title: { es: 'Plataforma', en: 'Platform' },
-    what: { es: 'El negocio por dentro', en: 'The business inside' },
-    body: { es: 'De una app móvil a una plataforma web por roles: el dueño, la recepción y el barbero que alquila su silla.', en: 'From a mobile app to a role-based web platform: the owner, the front desk and the barber who rents a chair.' },
-    stat: { es: '5 roles · 17 investigaciones', en: '5 roles · 17 research reports' },
+    what: { es: 'El calendario, en el centro', en: 'The calendar, at the center' },
+    body: { es: 'Un calendario que se adapta a la barbería y lleva cada cita de agendada a cobrada sin salir de la rejilla.', en: 'A calendar that adapts to the shop and takes every visit from booked to paid without leaving the grid.' },
+    stat: { es: '22 calendarios comparados · 6 etapas en vivo', en: '22 calendars compared · 6 live stages' },
     ready: true,
-    visual: (
-      <div className="relative h-full overflow-hidden bg-[radial-gradient(circle_at_50%_110%,rgba(217,179,106,0.32),transparent_62%)] [perspective:1400px]">
-        {[
-          { name: 'role-owner-metrics', cls: 'left-[-4%] top-[18%] w-[56%]', tilt: 'rotateY(24deg) rotateZ(-4deg)' },
-          { name: 'role-renter-business', cls: 'right-[-4%] top-[22%] w-[56%]', tilt: 'rotateY(-24deg) rotateZ(4deg)' },
-          { name: 'role-desk-calendar', cls: 'left-1/2 top-[8%] z-10 w-[66%] -translate-x-1/2', tilt: 'rotateX(8deg)' },
-        ].map((s) => (
-          <div key={s.name} className={`absolute transition-transform duration-700 ease-expo group-hover:scale-[1.03] ${s.cls}`}>
-            <div style={{ transform: s.tilt }} className="overflow-hidden rounded-lg bg-[#0b0c0e] p-1 shadow-[0_30px_60px_-25px_rgba(0,0,0,0.8)]">
-              <Image src={`${IMG}/${s.name}.webp`} width={2000} height={1250} alt="" sizes="(min-width: 768px) 30vw, 70vw" className="block h-auto w-full rounded" />
-            </div>
-          </div>
-        ))}
-      </div>
-    ),
+    visual: <LiveCalendarCard />,
   },
   {
     slug: 'clipper',
