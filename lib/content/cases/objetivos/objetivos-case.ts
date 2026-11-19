@@ -1,0 +1,152 @@
+import type { L } from '@/lib/i18n'
+
+/**
+ * Textos del caso Objetivos (UBITS). Las cifras «de construcción» salen del playground y del tablero del
+ * rediseño; las de impacto son de referencia y lo dicen en pantalla.
+ * Fuentes: playground-ux (admin/desempeno-cultura/objetivos), prototipo «configuración objetivos»,
+ * motor de Rediseno-UBITS-2027 y el tablero «Rediseño UBITS».
+ */
+
+export interface Fact {
+  value: string
+  label: L
+}
+
+export interface Shot {
+  src: string
+  alt: L
+  caption: L
+}
+
+const img = (name: string) => `/cases/objetivos/${name}.webp`
+
+export const OBJ_CASE = {
+  title: { es: 'Objetivos', en: 'Goals' } as L,
+  eyebrow: { es: 'UBITS · Desempeño y cultura', en: 'UBITS · Performance & culture' } as L,
+  tagline: {
+    es: 'El producto completo de objetivos: del ciclo que configura RR. HH. al avance que reporta cada persona, con la empresa, las áreas y la gente conectadas en una sola cascada.',
+    en: 'The whole goals product: from the cycle HR sets up to the progress each person reports, with company, areas and people connected in a single cascade.',
+  } as L,
+  meta: [
+    { label: { es: 'Rol', en: 'Role' }, value: { es: 'Diseño de producto · de la investigación al prototipo en código', en: 'Product design · from research to coded prototype' } },
+    { label: { es: 'Año', en: 'Year' }, value: { es: '2026', en: '2026' } },
+    { label: { es: 'Equipo', en: 'Team' }, value: { es: 'PM, diseño, front y QA del rediseño del admin', en: 'PM, design, front-end and QA of the admin redesign' } },
+    { label: { es: 'Alcance', en: 'Scope' }, value: { es: 'Admin, líder y colaborador', en: 'Admin, lead and employee' } },
+  ] as readonly { label: L; value: L }[],
+  tools: ['Figma', 'React + Vite', 'Claude', 'Jira', 'Playwright'] as readonly string[],
+
+  dots: {
+    kicker: { es: 'Los objetivos se configuraban. Después, silencio.', en: 'Goals got configured. Then, silence.' } as L,
+    lead: {
+      es: 'En la plataforma, Objetivos era una pantalla: «Configuración de ciclos de objetivos». El admin armaba el ciclo, cargaba un Excel y ahí terminaba el producto. No había cómo ver si la empresa avanzaba, ni a quién ayudar, ni qué hacer con el resultado al cierre. El primer prototipo resolvió la carga; el rediseño tenía que cubrir el ciclo entero.',
+      en: 'On the platform, Goals was one screen: “Goal cycle setup”. The admin built the cycle, uploaded an Excel file and that was the end of the product. There was no way to see whether the company was moving, whom to help, or what to do with the result at close. The first prototype solved the upload; the redesign had to cover the whole cycle.',
+    } as L,
+    seen: [
+      {
+        title: { es: 'Un formulario, no un producto', en: 'A form, not a product' },
+        body: { es: 'Todo giraba en torno a crear el ciclo. Seguimiento, aprobación y resultados quedaban por fuera.', en: 'Everything revolved around creating the cycle. Tracking, approval and results were left out.' },
+      },
+      {
+        title: { es: 'Carga masiva frágil', en: 'Fragile bulk upload' },
+        body: { es: 'La operación se elegía a mano y «equivocarse no da error»; un usuario repetido avisaba pero no bloqueaba.', en: 'The operation was picked by hand and “getting it wrong throws no error”; a duplicate user warned but didn’t block.' },
+      },
+      {
+        title: { es: 'Avance sin lectura', en: 'Progress with no reading' },
+        body: { es: 'Un porcentaje por persona, sin saber si iba atrasado frente al calendario ni a qué objetivo de empresa aportaba.', en: 'One percentage per person, with no sense of whether it lagged the calendar or which company goal it fed.' },
+      },
+    ] as readonly { title: L; body: L }[],
+    facts: [
+      { value: '1', label: { es: 'pantalla en la plataforma actual', en: 'screen on the current platform' } },
+      { value: '7', label: { es: 'momentos del ciclo por cubrir', en: 'cycle moments to cover' } },
+      { value: '3', label: { es: 'roles: admin, líder y colaborador', en: 'roles: admin, lead and employee' } },
+      { value: '15', label: { es: 'áreas de casos de uso', en: 'use-case areas' } },
+    ] as readonly Fact[],
+  },
+
+  patterns: {
+    lead: {
+      es: 'No había entrevistas ni métricas de uso del módulo: la investigación fue de producto. Revisé cómo otras herramientas consiguen que la gente reporte —no solo las de objetivos— y saqué reglas que después quedaron escritas en el código.',
+      en: 'There were no interviews or usage metrics for the module: research was product research. I looked at how other tools get people to report —not only goal tools— and drew rules that ended up written into the code.',
+    } as L,
+    insights: [
+      { es: 'Premiar la constancia de reportar, no el % crudo: el % castiga a quien se pone metas ambiciosas.', en: 'Reward the habit of reporting, not the raw %: raw % punishes ambitious goals.' },
+      { es: 'Comparar grupos de tamaño parecido; un grupo de menos de 3 personas no se compara.', en: 'Compare groups of similar size; a group under 3 people is never compared.' },
+      { es: 'En público solo se nombra para reconocer: a quien falta se le cuenta, no se le nombra.', en: 'In public you only name people to praise them: those missing are counted, not named.' },
+      { es: 'Un objetivo sin aprobar no lleva avance: primero se acuerda, después se mide.', en: 'An unapproved goal carries no progress: agree first, measure later.' },
+    ] as readonly L[],
+  },
+
+  idea: {
+    hmw: {
+      es: '¿Cómo podríamos hacer que un objetivo viva todo el ciclo, y no solo el día en que se configura?',
+      en: 'How might we make a goal live through the whole cycle, not just the day it gets configured?',
+    } as L,
+  },
+
+  form: {
+    lead: {
+      es: 'El rediseño se construyó en el playground de UBITS, en React, sobre el sistema de diseño de la empresa. Estas son capturas reales, sacadas en local con el alcance completo activado.',
+      en: 'The redesign was built in UBITS’ playground, in React, on the company design system. These are real screenshots, taken locally with the full scope switched on.',
+    } as L,
+    steps: [
+      { id: 'general', label: { es: 'Parametrización', en: 'Setup' }, shot: { src: img('crear'), alt: { es: 'Paso 1 del constructor: nombre, duración y fechas', en: 'Builder step 1: name, duration and dates' }, caption: { es: 'Nombre, duración y quién redacta. «Así va el ciclo» dice qué falta.', en: 'Name, duration and who writes. “How the cycle is going” says what’s missing.' } } },
+      { id: 'company', label: { es: 'Objetivos de la empresa', en: 'Company goals' }, shot: { src: img('empresa'), alt: { es: 'Paso de objetivos de la empresa con Crear con IA', en: 'Company goals step with Create with AI' } , caption: { es: 'El norte primero: cada objetivo con qué se quiere lograr y cómo se mide.', en: 'North first: each goal with what to achieve and how it’s measured.' } } },
+      { id: 'objectives', label: { es: 'Objetivos asignados', en: 'Assigned goals' }, shot: { src: img('asignados'), alt: { es: 'Paso de objetivos asignados por grupo', en: 'Assigned goals by group step' }, caption: { es: 'Se reparten por grupo o persona, con su peso; el resumen confirma que todo está listo.', en: 'Split by group or person, with weight; the summary confirms all is ready.' } } },
+      { id: 'carga', label: { es: 'Carga masiva', en: 'Bulk upload' }, shot: { src: img('carga'), alt: { es: 'Panel de carga masiva de objetivos', en: 'Bulk goal upload panel' }, caption: { es: 'La operación se elige antes de subir el archivo: crear, editar o actualizar avance.', en: 'The operation is chosen before uploading: create, edit or update progress.' } } },
+    ] as readonly { id: string; label: L; shot: Shot }[],
+    tabs: [
+      { id: 'resumen', label: { es: 'Resumen', en: 'Summary' }, shot: { src: img('resumen'), alt: { es: 'Resumen de un ciclo finalizado', en: 'Summary of a closed cycle' }, caption: { es: 'Cómo cerró: avance frente al calendario y ritmo de reportes.', en: 'How it closed: progress vs. calendar and reporting rhythm.' } } },
+      { id: 'alineacion', label: { es: 'Alineación', en: 'Alignment' }, shot: { src: img('alineacion'), alt: { es: 'Mapa de alineación de áreas a objetivos de empresa', en: 'Alignment map from areas to company goals' }, caption: { es: 'De cada área a cada objetivo de empresa: el grosor es lo que aporta y el color, cómo va.', en: 'From each area to each company goal: thickness is contribution, colour is progress.' } } },
+      { id: 'cumplimiento', label: { es: 'Cumplimiento', en: 'Attainment' }, shot: { src: img('calor'), alt: { es: 'Mapa de calor de cumplimiento por área', en: 'Attainment heat map by area' }, caption: { es: 'Mapa de calor: un cruce de menos de 3 personas sale reservado.', en: 'Heat map: a cell with under 3 people is kept private.' } } },
+      { id: 'participantes', label: { es: 'Participantes', en: 'People' }, shot: { src: img('ficha'), alt: { es: 'Ficha de un colaborador con sus objetivos', en: 'Employee profile with their goals' }, caption: { es: 'La ficha de cada persona: peso, objetivos en meta y «Actualizar avance».', en: 'Each person’s profile: weight, goals on target and “Update progress”.' } } },
+      { id: 'ranking', label: { es: 'Ranking', en: 'Ranking' }, shot: { src: img('ranking'), alt: { es: 'Pulso de reporte con podio por área', en: 'Reporting pulse with podium by area' }, caption: { es: 'Pulso de reporte: rachas y podio por área, con «Felicitar».', en: 'Reporting pulse: streaks and area podium, with “Congratulate”.' } } },
+      { id: 'ia', label: { es: 'Análisis con IA', en: 'AI analysis' }, shot: { src: img('ia'), alt: { es: 'Lectura de la IA del ciclo', en: 'AI reading of the cycle' }, caption: { es: 'Hallazgos, riesgos y acciones, cada uno con su evidencia y su confiabilidad.', en: 'Findings, risks and actions, each with evidence and confidence.' } } },
+      { id: 'accionables', label: { es: 'Accionables', en: 'Actions' }, shot: { src: img('accionables'), alt: { es: 'Accionables sugeridos del ciclo', en: 'Suggested cycle actions' }, caption: { es: 'Cada accionable crea una tarea con responsable y entregable.', en: 'Each action creates a task with an owner and a deliverable.' } } },
+    ] as readonly { id: string; label: L; shot: Shot }[],
+    home: { src: img('inicio'), alt: { es: 'Inicio de Objetivos con Para atender y pulso', en: 'Goals home with To attend and pulse' }, caption: { es: 'El inicio: lo que hay que atender, el pulso de todos los ciclos y la lista.', en: 'Home: what needs attention, the pulse of every cycle and the list.' } } as Shot,
+    noGoals: { src: img('sin-objetivos'), alt: { es: 'Usuarios sin objetivos', en: 'Users without goals' }, caption: { es: '«Usuarios sin objetivos»: quién quedó por fuera, con «Agregar a ciclo».', en: '“Users without goals”: who was left out, with “Add to cycle”.' } } as Shot,
+    periods: { src: img('periodos'), alt: { es: 'Ciclo anual dividido en trimestres', en: 'Yearly cycle split into quarters' }, caption: { es: 'Un ciclo anual dividido en periodos: cada trimestre con su estado.', en: 'A yearly cycle split into periods: each quarter with its state.' } } as Shot,
+  },
+
+  ai: {
+    lead: {
+      es: 'La IA aparece donde ahorra una decisión difícil: escribir un buen objetivo, leer un ciclo de 300 personas y saber qué hacer después. En el prototipo son reglas sobre las cifras, sin modelo; el diseño define qué se pide, qué se muestra y con cuánta confianza.',
+      en: 'AI shows up where it saves a hard decision: writing a good goal, reading a 300-person cycle and knowing what to do next. In the prototype it’s rules over the numbers, no model; the design defines what is asked, what is shown and with how much confidence.',
+    } as L,
+  },
+
+  impact: {
+    lead: {
+      es: 'El rediseño todavía no está en producción, así que separo lo construido —que se puede contar— de lo que esperamos mover, que son cifras de referencia.',
+      en: 'The redesign isn’t in production yet, so I separate what was built —which can be counted— from what we expect to move, which are reference figures.',
+    } as L,
+    built: [
+      { value: '926', label: { es: 'casos de uso, cada uno con su subtarea en Jira', en: 'use cases, each with its Jira subtask' } },
+      { value: '80', label: { es: 'funcionalidades repartidas por trimestre', en: 'features split by quarter' } },
+      { value: '7', label: { es: 'pestañas de resultados', en: 'results tabs' } },
+      { value: '5', label: { es: 'pasos del constructor de ciclos', en: 'cycle-builder steps' } },
+    ] as readonly Fact[],
+    reference: [
+      { value: 30, prefix: '−', suffix: ' %', label: { es: 'tiempo para lanzar un ciclo', en: 'time to launch a cycle' } },
+      { value: 10, prefix: '+', suffix: ' pts', label: { es: 'personas que reportan cada mes', en: 'people reporting each month' } },
+      { value: 20, prefix: '−', suffix: ' %', label: { es: 'objetivos devueltos por mal escritos', en: 'goals sent back for poor wording' } },
+    ] as readonly { value: number; prefix: string; suffix: string; label: L }[],
+    roadmap: [
+      { id: 'q4', label: { es: 'Q4 2026', en: 'Q4 2026' }, count: 33, sample: { es: 'Permisos de líder y colaborador, aprobar objetivos, actualizar avance, evidencias, carga masiva.', en: 'Lead and employee permissions, approving goals, updating progress, evidence, bulk upload.' } },
+      { id: 'q1', label: { es: 'Q1 2027', en: 'Q1 2027' }, count: 43, sample: { es: 'Mapa de alineación, recordatorios, historial, bloquear avance, acciones clave, ciclos con periodos.', en: 'Alignment map, reminders, history, locking progress, key actions, cycles with periods.' } },
+      { id: 'backlog', label: { es: 'Backlog', en: 'Backlog' }, count: 4, sample: { es: 'Que el líder vea toda su línea y la aprobación final.', en: 'Leads seeing their whole line and final approval.' } },
+    ] as readonly { id: string; label: L; count: number; sample: L }[],
+    learnings: [
+      { es: 'Escribir las reglas al lado del código —con fecha y por qué— hizo que las decisiones sobrevivieran a cada iteración.', en: 'Writing rules next to the code —with date and reason— made decisions survive every iteration.' },
+      { es: 'Un caso de uso que abre la pantalla exacta (?caso=) vale más que diez capturas en un documento.', en: 'A use case that opens the exact screen (?caso=) is worth more than ten screenshots in a doc.' },
+      { es: 'Decir qué no existe todavía («nada que finja») evitó prometer pantallas que nadie iba a construir.', en: 'Stating what doesn’t exist yet (“nothing that pretends”) avoided promising screens nobody would build.' },
+    ] as readonly L[],
+  },
+
+  demo: {
+    lead: {
+      es: 'El ciclo entero en una sola demo: entra como admin, como líder o como colaborador. Lo que reporta una persona sube por la cascada hasta el objetivo de la empresa.',
+      en: 'The whole cycle in one demo: enter as admin, lead or employee. What one person reports climbs the cascade up to the company goal.',
+    } as L,
+  },
+} as const

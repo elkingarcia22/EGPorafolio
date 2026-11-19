@@ -1,113 +1,90 @@
 import type { Project } from './types'
 
-/** CONTENIDO PROVISIONAL — caso de ejemplo mientras se documentan los reales. */
+/**
+ * Ficha de Objetivos (UBITS) para la lista de trabajo y «siguiente proyecto».
+ * El caso completo vive en lib/content/cases/objetivos y se muestra con ObjetivosCase.
+ * Las cifras de resultados son de referencia: el rediseño aún no está en producción.
+ */
 export const objetivos: Project = {
   slug: 'objetivos',
-  frequency: '01.24',
-  title: { es: 'Objetivos que sí se cumplen', en: 'Goals that actually get done' },
+  frequency: '01.26',
+  title: { es: 'Objetivos, de punta a punta', en: 'Goals, end to end' },
   client: 'UBITS',
-  year: '2024',
+  year: '2026',
   accent: '64 96 255',
   mock: 'dashboard',
   tagline: {
-    es: 'Rediseño del módulo de objetivos para que líderes y colaboradores pasen de "llenar un formato" a conversar sobre avances reales.',
-    en: 'Redesign of the goals module so leaders and employees stop "filling a form" and start talking about real progress.',
+    es: 'El producto completo de objetivos de UBITS: configurar, crear, alinear en cascada, aprobar, reportar avance y leer resultados, para admin, líder y colaborador.',
+    en: 'UBITS’ whole goals product: set up, create, cascade alignment, approve, report progress and read results, for admin, lead and employee.',
   },
-  role: { es: 'Lead UX/UI · investigación, diseño y sistema', en: 'UX/UI Lead · research, design and system' },
-  team: { es: '1 PM, 4 devs, 1 QA', en: '1 PM, 4 devs, 1 QA' },
-  duration: { es: '5 meses', en: '5 months' },
-  tools: ['Figma', 'Miro', 'Claude', 'Cursor', 'Hotjar'],
+  role: { es: 'Diseño de producto · de la investigación al prototipo en código', en: 'Product design · from research to coded prototype' },
+  team: { es: 'PM, diseño, front y QA del rediseño del admin', en: 'PM, design, front-end and QA of the admin redesign' },
+  duration: { es: 'Sep–nov 2026, en curso', en: 'Sep–Nov 2026, ongoing' },
+  tools: ['Figma', 'React + Vite', 'Claude', 'Jira', 'Playwright'],
   problem: {
     context: {
-      es: 'Las empresas configuraban objetivos al inicio del año y no volvían a abrirlos. El módulo era un formulario largo, sin seguimiento ni conexión con las conversaciones 1:1.',
-      en: 'Companies set goals at the start of the year and never opened them again. The module was a long form with no follow-up and no link to 1:1 conversations.',
+      es: 'En la plataforma, Objetivos era una sola pantalla para configurar ciclos. El producto terminaba al crear el ciclo: no había aprobación, seguimiento ni lectura de resultados.',
+      en: 'On the platform, Goals was a single screen to set up cycles. The product ended when the cycle was created: no approval, tracking or reading of results.',
     },
     quotes: [
-      { text: { es: '“Los objetivos los lleno en enero y los vuelvo a ver en la evaluación.”', en: '“I fill in my goals in January and see them again at review time.”' }, who: { es: 'Colaborador, retail', en: 'Employee, retail' } },
-      { text: { es: '“No sé si mi equipo va bien hasta que ya es tarde.”', en: '“I don’t know if my team is on track until it’s too late.”' }, who: { es: 'Líder de área', en: 'Team lead' } },
-      { text: { es: '“Configurar un ciclo me toma una semana entera.”', en: '“Setting up a cycle takes me a whole week.”' }, who: { es: 'Admin de RR. HH.', en: 'HR admin' } },
+      { text: { es: '«Estas métricas no me hacen sentido… para incentivar que pongan el progreso.»', en: '“These metrics don’t make sense to me… to encourage people to log progress.”' }, who: { es: 'Revisión de diseño, 30-oct', en: 'Design review, Oct 30' } },
     ],
     stats: [
-      { value: '12%', label: { es: 'de objetivos con al menos un avance', en: 'of goals with at least one update' } },
-      { value: '38 min', label: { es: 'para crear un objetivo', en: 'to create one goal' } },
-      { value: '4/10', label: { es: 'satisfacción del admin', en: 'admin satisfaction' } },
+      { value: '1', label: { es: 'pantalla en la plataforma actual', en: 'screen on the current platform' } },
+      { value: '7', label: { es: 'momentos del ciclo por cubrir', en: 'cycle moments to cover' } },
+      { value: '3', label: { es: 'roles: admin, líder y colaborador', en: 'roles: admin, lead and employee' } },
     ],
   },
   research: {
     method: {
-      es: '14 entrevistas, 3 empresas, análisis de 9.000 objetivos y mapas de calor del flujo actual.',
-      en: '14 interviews, 3 companies, analysis of 9,000 goals and heatmaps of the current flow.',
+      es: 'Revisión de producto: Lattice, Viva Goals, Geekbot, Duolingo, Strava, Ambition y Spinify, más el prototipo anterior de configuración.',
+      en: 'Product review: Lattice, Viva Goals, Geekbot, Duolingo, Strava, Ambition and Spinify, plus the previous setup prototype.',
     },
     clusters: [
-      {
-        title: { es: 'Olvido', en: 'Forgetting' },
-        notes: [
-          { es: 'Nadie recuerda volver', en: 'Nobody remembers to come back' },
-          { es: 'Sin recordatorios', en: 'No reminders' },
-          { es: 'Avance = evaluación', en: 'Progress = review' },
-        ],
-      },
-      {
-        title: { es: 'Complejidad', en: 'Complexity' },
-        notes: [
-          { es: '17 campos obligatorios', en: '17 required fields' },
-          { es: 'Pesos confusos', en: 'Confusing weights' },
-          { es: 'Jerga de RR. HH.', en: 'HR jargon' },
-        ],
-      },
-      {
-        title: { es: 'Visibilidad', en: 'Visibility' },
-        notes: [
-          { es: 'El líder no ve riesgo', en: 'Leads can’t see risk' },
-          { es: 'Sin vista de equipo', en: 'No team view' },
-        ],
-      },
+      { title: { es: 'Constancia', en: 'Habit' }, notes: [{ es: 'Premiar reportar, no el % crudo', en: 'Reward reporting, not raw %' }, { es: 'Rachas semanales', en: 'Weekly streaks' }] },
+      { title: { es: 'Alineación', en: 'Alignment' }, notes: [{ es: 'Todo cuelga de la empresa', en: 'Everything hangs from the company' }, { es: '«Sin alinear» visible', en: 'Visible “unaligned”' }] },
+      { title: { es: 'Privacidad', en: 'Privacy' }, notes: [{ es: 'Menos de 3 no se compara', en: 'Under 3 isn’t compared' }, { es: 'Contar, no nombrar', en: 'Count, don’t name' }] },
     ],
     insights: [
-      { es: 'El objetivo no es el formulario: es la conversación que provoca.', en: 'The goal isn’t the form: it’s the conversation it sparks.' },
-      { es: 'Actualizar debe tomar menos que un mensaje de chat.', en: 'Updating must take less time than a chat message.' },
-      { es: 'El líder necesita saber dónde intervenir, no ver todo.', en: 'Leads need to know where to step in, not see everything.' },
+      { es: 'Un objetivo sin aprobar no lleva avance.', en: 'An unapproved goal carries no progress.' },
+      { es: 'En público solo se nombra para reconocer.', en: 'In public you only name people to praise them.' },
     ],
   },
   idea: {
     hmw: {
-      es: '¿Cómo podríamos hacer que actualizar un objetivo sea tan natural como contar cómo vas?',
-      en: 'How might we make updating a goal as natural as saying how you’re doing?',
+      es: '¿Cómo podríamos hacer que un objetivo viva todo el ciclo, y no solo el día en que se configura?',
+      en: 'How might we make a goal live through the whole cycle, not just the day it gets configured?',
     },
     principles: [
-      { title: { es: 'Un toque', en: 'One tap' }, body: { es: 'Avance en un gesto, detalle solo si quieres.', en: 'Progress in one gesture, detail only if you want.' } },
-      { title: { es: 'Riesgo primero', en: 'Risk first' }, body: { es: 'El líder ve primero lo que necesita atención.', en: 'Leads see what needs attention first.' } },
-      { title: { es: 'IA que redacta', en: 'AI that drafts' }, body: { es: 'La IA propone objetivos SMART a partir de una idea.', en: 'AI drafts SMART goals from a rough idea.' } },
+      { title: { es: 'El norte primero', en: 'North first' }, body: { es: 'Cada objetivo dice a cuál de empresa empuja.', en: 'Every goal says which company goal it pushes.' } },
+      { title: { es: 'Acordar antes de medir', en: 'Agree before measuring' }, body: { es: 'Sin aprobación no hay avance.', en: 'No approval, no progress.' } },
+      { title: { es: 'Constancia antes que %', en: 'Habit over %' }, body: { es: 'Se premia volver a reportar.', en: 'Coming back to report is rewarded.' } },
     ],
   },
   sketches: {
-    caption: { es: 'De 6 caminos explorados quedaron 2. El ganador puso el avance en la primera línea de cada tarjeta.', en: 'Out of 6 explored paths, 2 survived. The winner put progress on the first line of every card.' },
-    notes: [
-      { es: 'avance arriba', en: 'progress on top' },
-      { es: '¿semáforo?', en: 'traffic light?' },
-      { es: 'vista equipo', en: 'team view' },
-    ],
+    caption: { es: 'El recorrido del constructor cambia según quién redacta los objetivos.', en: 'The builder path changes with who writes the goals.' },
+    notes: [{ es: '¿quién redacta?', en: 'who writes?' }, { es: 'sin alinear', en: 'unaligned' }, { es: 'resumen en 5 bloques', en: '5-block summary' }],
   },
   form: {
-    caption: { es: 'Arrastra para pasar del wireframe validado a la interfaz final con el sistema de diseño.', en: 'Drag to go from the validated wireframe to the final UI built on the design system.' },
+    caption: { es: 'Capturas reales del playground de UBITS con el alcance completo.', en: 'Real screenshots of UBITS’ playground with the full scope.' },
   },
   ai: {
-    intro: { es: 'La IA no reemplazó el criterio: comprimió semanas de exploración en días.', en: 'AI didn’t replace judgment: it compressed weeks of exploration into days.' },
+    intro: { es: 'IA para escribir objetivos, leer el ciclo y sincronizar el código con los casos de uso.', en: 'AI to write goals, read the cycle and sync code with use cases.' },
     steps: [
-      { tool: 'Claude', prompt: { es: 'Agrupa estas 140 notas de entrevistas por necesidad, no por tema.', en: 'Cluster these 140 interview notes by need, not by topic.' }, output: { es: '6 grupos + 3 tensiones entre líderes y colaboradores', en: '6 clusters + 3 tensions between leads and employees' } },
-      { tool: 'Figma Make', prompt: { es: 'Genera 6 variaciones de tarjeta de objetivo con el avance como protagonista.', en: 'Generate 6 goal-card variations with progress as the hero.' }, output: { es: '6 prototipos navegables en una tarde', en: '6 clickable prototypes in one afternoon' } },
-      { tool: 'Cursor', prompt: { es: 'Construye el prototipo de "check-in en un toque" con datos reales anonimizados.', en: 'Build the "one-tap check-in" prototype with real anonymized data.' }, output: { es: 'Prototipo en código probado con 8 usuarios', en: 'Coded prototype tested with 8 users' } },
+      { tool: 'Crear con IA', prompt: { es: 'Cinco preguntas, ningún campo técnico.', en: 'Five questions, no technical fields.' }, output: { es: 'Objetivos con dirección y medida deducidas', en: 'Goals with deduced direction and measure' } },
+      { tool: 'Análisis con IA', prompt: { es: 'Leer el ciclo completo.', en: 'Read the whole cycle.' }, output: { es: 'Hallazgos, riesgos y acciones con evidencia', en: 'Findings, risks and actions with evidence' } },
+      { tool: 'Claude', prompt: { es: 'Cruzar cada cambio del playground con los casos de uso.', en: 'Match every playground change with the use cases.' }, output: { es: 'Propuestas con pantallazo para aprobación humana', en: 'Screenshot proposals for human approval' } },
     ],
   },
   results: {
     metrics: [
-      { value: 64, suffix: '%', label: { es: 'objetivos con avance mensual', en: 'goals with monthly updates' } },
-      { value: 6, suffix: ' min', label: { es: 'para crear un objetivo', en: 'to create a goal' } },
-      { value: 3, prefix: '×', suffix: '', label: { es: 'más check-ins de líderes', en: 'more check-ins from leads' } },
+      { value: 926, suffix: '', label: { es: 'casos de uso con su subtarea en Jira', en: 'use cases with their Jira subtask' } },
+      { value: 80, suffix: '', label: { es: 'funcionalidades repartidas por trimestre', en: 'features split by quarter' } },
+      { value: 7, suffix: '', label: { es: 'pestañas de resultados', en: 'results tabs' } },
     ],
     learnings: [
-      { es: 'Medir la conversación, no el formulario.', en: 'Measure the conversation, not the form.' },
-      { es: 'Prototipar en código cambió la calidad del feedback.', en: 'Prototyping in code changed the quality of feedback.' },
+      { es: 'Escribir las reglas al lado del código hizo que las decisiones sobrevivieran.', en: 'Writing rules next to the code made decisions survive.' },
+      { es: 'Decir qué no existe todavía evitó prometer pantallas.', en: 'Stating what doesn’t exist yet avoided promising screens.' },
     ],
   },
 }
