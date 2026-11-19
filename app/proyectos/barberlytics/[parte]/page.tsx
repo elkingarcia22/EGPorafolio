@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { BookingCase } from '@/components/case/barberlytics/booking/booking-case'
 import { ThemaCase } from '@/components/case/barberlytics/thema/thema-case'
+import { PlatformCase } from '@/components/case/barberlytics/platform/platform-case'
 
 interface PartPageProps {
   params: Promise<{ parte: string }>
@@ -11,6 +12,7 @@ interface PartPageProps {
 const PARTS = {
   thema: { title: 'Thema, sistema de diseño · Barberlytics — Elkin Garcia', Case: ThemaCase },
   reserva: { title: 'Reserva en línea · Barberlytics — Elkin Garcia', Case: BookingCase },
+  plataforma: { title: 'Plataforma · Barberlytics — Elkin Garcia', Case: PlatformCase },
 } as const
 
 type PartSlug = keyof typeof PARTS
