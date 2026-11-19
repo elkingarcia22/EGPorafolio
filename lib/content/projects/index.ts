@@ -7,4 +7,4 @@ import type { Project } from './types'
 export type { Project, MockKind } from './types'
 
 /** Orden en que aparecen en el sitio. */
-export const PROJECTS: readonly Project[] = [objetivos, barberlytics, sellup, encuestas]
+export const PROJECTS: readonly Project[] = [encuestas, barberlytics, sellup, objetivos]
