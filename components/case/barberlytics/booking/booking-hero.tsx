@@ -11,6 +11,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { ClipperOrb } from '../clipper-orb'
+import { useNarrow } from '../use-narrow'
 
 const IMG = '/cases/barberlytics'
 
@@ -31,7 +32,7 @@ function HeroPhone({ src, alt, tilt }: { src: string; alt: L; tilt: string }) {
     <div style={{ transform: tilt }}>
       <PhoneBody>
         <StatusBar />
-        <Image src={src} width={780} height={1688} alt={t(alt)} sizes="(min-width: 768px) 18vw, 60vw" className="block h-auto w-full" priority />
+        <Image src={src} width={780} height={1688} alt={t(alt)} sizes="(min-width: 768px) 18vw, 50vw" className="block h-auto w-full" priority />
       </PhoneBody>
     </div>
   )
@@ -43,10 +44,14 @@ export function BookingHero() {
   const { reducedMotion } = useA11y()
   const ref = useRef<HTMLDivElement>(null)
   const title = t(BOOKING_CASE.title).split(' ')
+  // En el celular el giro de los aparatos es más suave: así no se salen del margen.
+  const phone = useNarrow('(max-width: 767px)')
 
   useEffect(() => {
     const el = ref.current
     if (!el || reducedMotion) return
+    // En el celular la profundidad es menor: el aparato de atrás no sube hasta el texto.
+    const depthK = window.matchMedia('(max-width: 767px)').matches ? 14 : 35
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
       tl.from('[data-hero-word]', { yPercent: 115, duration: 1.3, stagger: 0.08 }, 0.15)
@@ -63,7 +68,7 @@ export function BookingHero() {
       // Profundidad: cada aparato se mueve a su velocidad al hacer scroll.
       gsap.utils.toArray<HTMLElement>('[data-depth]').forEach((layer) => {
         gsap.to(layer, {
-          yPercent: -Number(layer.dataset.depth) * 35,
+          yPercent: -Number(layer.dataset.depth) * depthK,
           ease: 'none',
           scrollTrigger: { trigger: '[data-hero-stage]', start: 'top bottom', end: 'bottom top', scrub: true },
         })
@@ -96,8 +101,9 @@ export function BookingHero() {
         </div>
 
         {/* Composición de aparatos */}
-        <div data-hero-stage className="relative mx-auto mt-16 h-[540px] max-w-6xl md:h-[clamp(380px,50vw,720px)] [perspective:1400px]">
-          {/* En el celular, la tablet se oculta y los dos celulares crecen: menos piezas, legibles. */}
+        <div data-hero-stage className="relative mx-auto mt-16 aspect-[2/3] max-w-6xl md:aspect-auto md:h-[clamp(380px,50vw,720px)] [perspective:1400px]">
+          {/* En el celular, la tablet se oculta y los dos celulares crecen. El escenario va en proporción (2:3) y los
+              aparatos en % de su ancho: la composición es la misma de 320 a 767 px y su alto reserva el espacio. */}
           <div data-depth="0.12" className="absolute left-1/2 top-[4%] z-10 hidden w-[38%] -translate-x-1/2 md:block">
             <div data-hero-device>
               <div style={{ transform: 'perspective(1400px) rotateX(12deg) rotateZ(-1.5deg)' }} className="rounded-[30px] bg-[#0b0c0e] p-[12px] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
@@ -108,15 +114,15 @@ export function BookingHero() {
             </div>
           </div>
 
-          <div data-depth="0.35" className="absolute left-[2%] top-[9%] z-20 w-[58%] md:left-[9%] md:top-[22%] md:w-[19%]">
+          <div data-depth="0.35" className="absolute left-[8%] top-[14%] z-20 w-[48%] md:left-[9%] md:top-[22%] md:w-[19%]">
             <div data-hero-device>
-              <HeroPhone src={`${IMG}/booking-return.webp`} alt={BOOKING_CASE.form.screens[0].image.alt} tilt="perspective(1200px) rotateY(24deg) rotateX(6deg) rotateZ(-6deg)" />
+              <HeroPhone src={`${IMG}/booking-return.webp`} alt={BOOKING_CASE.form.screens[0].image.alt} tilt={phone ? 'perspective(1200px) rotateY(14deg) rotateX(4deg) rotateZ(-3deg)' : 'perspective(1200px) rotateY(24deg) rotateX(6deg) rotateZ(-6deg)'} />
             </div>
           </div>
 
-          <div data-depth="0.55" className="absolute right-[2%] top-0 z-10 w-[48%] md:right-[9%] md:top-[12%] md:z-20 md:w-[19%]">
+          <div data-depth="0.55" className="absolute right-[7%] top-0 z-10 w-[40%] md:right-[9%] md:top-[12%] md:z-20 md:w-[19%]">
             <div data-hero-device>
-              <HeroPhone src={`${IMG}/clipper-thread.webp`} alt={BOOKING_CASE.form.screens[2].image.alt} tilt="perspective(1200px) rotateY(-24deg) rotateX(6deg) rotateZ(5deg)" />
+              <HeroPhone src={`${IMG}/clipper-thread.webp`} alt={BOOKING_CASE.form.screens[2].image.alt} tilt={phone ? 'perspective(1200px) rotateY(-14deg) rotateX(4deg) rotateZ(3deg)' : 'perspective(1200px) rotateY(-24deg) rotateX(6deg) rotateZ(5deg)'} />
             </div>
           </div>
 
@@ -124,8 +130,8 @@ export function BookingHero() {
             <ClipperOrb size={58} />
           </div>
           <Chip className="left-[2%] top-[6%] hidden md:flex">{t({ es: '15 productos comparados', en: '15 products compared' })}</Chip>
-          <Chip className="right-[2%] top-[72%] md:top-[66%]">{t({ es: '4 versiones · 1 motor', en: '4 versions · 1 engine' })}</Chip>
-          <Chip className="bottom-[2%] left-[3%] md:bottom-[18%]">{t({ es: 'Demo en vivo al final ↓', en: 'Live demo at the end ↓' })}</Chip>
+          <Chip className="left-[2%] top-0 md:left-auto md:right-[2%] md:top-[66%]">{t({ es: '4 versiones · 1 motor', en: '4 versions · 1 engine' })}</Chip>
+          <Chip className="bottom-0 left-[8%] md:bottom-[18%] md:left-[3%]">{t({ es: 'Demo en vivo al final ↓', en: 'Live demo at the end ↓' })}</Chip>
         </div>
 
         <dl className="relative mt-16 grid grid-cols-2 gap-6 border-t border-fg/15 pt-8 md:grid-cols-5">

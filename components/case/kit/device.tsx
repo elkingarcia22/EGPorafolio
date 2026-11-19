@@ -76,7 +76,7 @@ export function StatusBar() {
   return (
     <div className="relative flex h-[34px] items-center justify-between bg-[#0b0c0e] px-6 text-[11px] font-semibold text-white" aria-hidden="true">
       <span>9:41</span>
-      <span className="absolute left-1/2 top-[7px] h-[22px] w-[86px] -translate-x-1/2 rounded-full bg-black" />
+      <span className="absolute left-1/2 top-[7px] h-[22px] w-[30%] max-w-[86px] -translate-x-1/2 rounded-full bg-black" />
       <span className="flex items-center gap-1">
         <span className="flex items-end gap-[2px]">
           {[4, 6, 8, 10].map((h) => <span key={h} className="w-[3px] rounded-sm bg-white" style={{ height: h }} />)}
