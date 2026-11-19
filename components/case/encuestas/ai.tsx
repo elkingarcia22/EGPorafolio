@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
-import { AiBuilderDemo } from './ai-builder'
+import { OrbitBuilder } from './ai-orbit'
 import './ai-impact.css'
 
 type Confidence = 'alta' | 'media' | 'baja'
@@ -110,9 +110,9 @@ export function SurveyAi() {
       </div>
 
       <section>
-        <p data-reveal className="mono-label mb-5 text-signal">{t({ es: 'En el constructor · Crear encuesta con IA', en: 'In the builder · Create survey with AI' })}</p>
+        <p data-reveal className="mono-label mb-5 text-signal">{t({ es: 'Orbit, el agente de UBITS · Crear encuesta con IA', en: 'Orbit, UBITS’s agent · Create survey with AI' })}</p>
         <div data-reveal>
-          <AiBuilderDemo />
+          <OrbitBuilder />
         </div>
       </section>
 
