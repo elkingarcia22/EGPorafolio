@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
-import { SHOTS, type ShotKey } from '@/lib/content/cases/encuestas/case'
-import { favColor, Lock, Screen, UBITS_BLUE, useTicker } from './shared'
+import { favColor, Lock, UBITS_BLUE, useTicker } from './shared'
 
 const ROUTE = '/admin/desempeno-cultura/encuestas'
 
@@ -11,46 +10,20 @@ interface MomentProps {
   index: string
   title: L
   why: L
-  shot: ShotKey
-  route?: string
   flip?: boolean
   children: React.ReactNode
 }
 
-/** Un momento ganador: la pieza animada grande, por qué gana y la pantalla real a un clic. */
-export function Moment({ index, title, why, shot, route = ROUTE, flip = false, children }: MomentProps) {
+/** Un momento ganador: la pieza animada grande y por qué gana. */
+export function Moment({ index, title, why, flip = false, children }: MomentProps) {
   const { t } = useLocale()
-  const [real, setReal] = useState(false)
-  const s = SHOTS[shot]
   return (
     <section className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
-      <div data-reveal="device" className={`min-w-0 lg:col-span-8 ${flip ? 'lg:order-2' : ''}`}>
-        {real ? (
-          <div key="real" className="enc-fade">
-            <Screen shot={s} route={route} />
-          </div>
-        ) : (
-          <div key="mock">{children}</div>
-        )}
-      </div>
+      <div data-reveal="device" className={`min-w-0 lg:col-span-8 ${flip ? 'lg:order-2' : ''}`}>{children}</div>
       <div className={`lg:col-span-4 ${flip ? 'lg:order-1' : ''}`}>
         <p data-reveal className="mono-label text-signal">{index}</p>
         <h3 data-reveal="mask" className="mt-3 text-[clamp(1.6rem,1rem+1.6vw,2.4rem)] font-light leading-[1.05]">{t(title)}</h3>
         <p data-reveal className="mt-4 leading-relaxed opacity-75">{t(why)}</p>
-        <button
-          type="button"
-          data-reveal
-          onClick={() => setReal((v) => !v)}
-          aria-pressed={real}
-          className="group mt-6 flex w-full items-center gap-3 rounded-xl border border-fg/15 p-2 pr-4 text-left transition-colors hover:border-signal focus-visible:border-signal"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={s.src} alt="" width={96} height={60} className="h-14 w-24 shrink-0 rounded-md object-cover object-top ring-1 ring-black/10 transition-transform duration-300 group-hover:scale-105" loading="lazy" />
-          <span className="text-sm">
-            <span className="block font-medium">{real ? t({ es: 'Volver a la pieza animada', en: 'Back to the animated piece' }) : t({ es: 'Ver pantalla real', en: 'See the real screen' })}</span>
-            <span className="block text-xs opacity-60">{t(s.alt)}</span>
-          </span>
-        </button>
       </div>
     </section>
   )
