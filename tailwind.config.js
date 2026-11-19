@@ -16,6 +16,7 @@ module.exports = {
       fontFamily: {
         display: ['var(--font-display)', 'Futura', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+        hand: ['var(--font-hand)', 'cursive'],
       },
       letterSpacing: {
         brand: '0.32em',

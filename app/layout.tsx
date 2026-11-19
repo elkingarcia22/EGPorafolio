@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Jost, JetBrains_Mono } from 'next/font/google'
+import { Caveat, Jost, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { LocaleProvider } from '@/lib/i18n'
 import { A11yProvider } from '@/lib/a11y'
@@ -23,6 +23,14 @@ const mono = JetBrains_Mono({
   display: 'swap',
 })
 
+// Caveat: letra a mano para los bocetos de los casos (tableros tipo Miro).
+const hand = Caveat({
+  subsets: ['latin'],
+  weight: ['500', '700'],
+  variable: '--font-hand',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
   title: 'Elkin Garcia — Diseñador UX/UI que construye con IA',
   description:
@@ -38,7 +46,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" data-tone="dark" className={`${display.variable} ${mono.variable}`}>
+    <html lang="es" data-tone="dark" className={`${display.variable} ${mono.variable} ${hand.variable}`}>
       <body>
         <LocaleProvider>
           <A11yProvider>

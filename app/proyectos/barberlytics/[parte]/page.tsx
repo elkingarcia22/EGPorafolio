@@ -1,0 +1,34 @@
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { BookingCase } from '@/components/case/barberlytics/booking/booking-case'
+
+interface PartPageProps {
+  params: Promise<{ parte: string }>
+}
+
+/** Proyectos de Barberlytics con caso propio (los demás se suman al terminarlos). */
+const PARTS = {
+  reserva: { title: 'Reserva en línea · Barberlytics — Elkin Garcia', Case: BookingCase },
+} as const
+
+type PartSlug = keyof typeof PARTS
+
+const isPart = (slug: string): slug is PartSlug => slug in PARTS
+
+export function generateStaticParams() {
+  return Object.keys(PARTS).map((parte) => ({ parte }))
+}
+
+export const dynamicParams = false
+
+export async function generateMetadata({ params }: PartPageProps): Promise<Metadata> {
+  const { parte } = await params
+  return isPart(parte) ? { title: PARTS[parte].title } : {}
+}
+
+export default async function BarberlyticsPartPage({ params }: PartPageProps) {
+  const { parte } = await params
+  if (!isPart(parte)) notFound()
+  const { Case } = PARTS[parte]
+  return <Case />
+}
