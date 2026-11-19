@@ -8,7 +8,8 @@ import { ClipperIdea } from './clipper-idea'
 import { ClipperInPlatform } from './clipper-in-platform'
 import { OrbConstructionBoard, OrbLayersBoard } from './clipper-orb-sketches'
 import { ClipperHero } from './clipper-hero'
-import { AgentLoop, ProposalFlow, ToolsByRole, VoiceMode } from './clipper-pieces'
+import { AgentLoop } from './clipper-pieces'
+import { ClipperVoice } from './clipper-voice'
 import { AnswerBoard, AutonomySpectrum, ClipperDemo, ClipperImpact, OrbSection } from './clipper-sections'
 import { ClipperAiProcess } from './clipper-ai-process'
 
@@ -34,19 +35,13 @@ function ClipperForm() {
       <Section n="5.1" title={{ es: 'Una pregunta, por dentro', en: 'One question, inside' }} body={{ es: 'Ejemplos de las pruebas y evaluaciones del agente. A la izquierda, lo que ve la persona; a la derecha, lo que pasa por dentro: entiende quién pregunta, elige una herramienta de su rol, revisa las cifras y responde diciendo qué consultó.', en: 'Examples from the agent’s tests and evaluations. On the left, what the person sees; on the right, what happens inside: it understands who’s asking, picks a tool from their role, checks the figures and answers saying what it looked up.' }}>
         <AgentLoop />
       </Section>
-      <Section n="5.2" title={{ es: 'Dieciocho herramientas, según quién pregunta', en: 'Eighteen tools, depending on who asks' }} body={{ es: 'Trece consultan y cinco proponen. Cada rol ve solo las suyas, y el rol sale de la sesión firmada, no de lo que pida el navegador.', en: 'Thirteen read and five propose. Each role only sees its own, and the role comes from the signed session, not from what the browser asks for.' }}>
-        <ToolsByRole />
+      <Section n="5.2" title={{ es: 'La voz', en: 'The voice' }} body={{ es: 'Escucha con paciencia —si la frase queda abierta, espera— y en la reserva contesta como una llamada. En la app del equipo, por ahora, la voz es dictado.', en: 'It listens patiently —if the phrase is left open, it waits— and in booking it answers like a phone call. In the team app, for now, voice is dictation.' }}>
+        <ClipperVoice />
       </Section>
-      <Section n="5.3" title={{ es: 'Propone; tú aplicas', en: 'It proposes; you apply' }} body={{ es: 'Clipper nunca cambia nada solo: deja una tarjeta con el antes y el después. Aplicar, Descartar y Deshacer, con avisos cuando choca con otra cita o cuando es un dato de salud.', en: 'Clipper never changes anything alone: it leaves a card with before and after. Apply, Discard and Undo, with warnings when it clashes with another visit or when it’s health data.' }}>
-        <ProposalFlow />
-      </Section>
-      <Section n="5.4" title={{ es: 'La voz', en: 'The voice' }} body={{ es: 'Escucha con paciencia —si la frase queda abierta, espera— y en la reserva contesta como una llamada. En la app del equipo, por ahora, la voz es dictado.', en: 'It listens patiently —if the phrase is left open, it waits— and in booking it answers like a phone call. In the team app, for now, voice is dictation.' }}>
-        <VoiceMode />
-      </Section>
-      <Section n="5.5" title={{ es: 'El orbe', en: 'The orb' }} body={{ es: 'El poste de barbería hecho esfera: tres estados y una sola regla, ser el único símbolo de IA del producto.', en: 'The barber pole turned sphere: three states and one rule, being the product’s only AI symbol.' }}>
+      <Section n="5.3" title={{ es: 'El orbe', en: 'The orb' }} body={{ es: 'El poste de barbería hecho esfera: tres estados y una sola regla, ser el único símbolo de IA del producto.', en: 'The barber pole turned sphere: three states and one rule, being the product’s only AI symbol.' }}>
         <OrbSection />
       </Section>
-      <Section n="5.6" title={{ es: 'En la plataforma y en la reserva', en: 'In the platform and in booking' }} body={{ es: 'Así se ve hoy: el panel lateral dentro de la plataforma, las tarjetas de propuesta y el Clipper que atiende al cliente en la reserva.', en: 'How it looks today: the side panel inside the platform, the proposal cards and the Clipper that serves clients in booking.' }}>
+      <Section n="5.4" title={{ es: 'En la plataforma y en la reserva', en: 'In the platform and in booking' }} body={{ es: 'Así se ve hoy: el panel lateral dentro de la plataforma, las tarjetas de propuesta y el Clipper que atiende al cliente en la reserva.', en: 'How it looks today: the side panel inside the platform, the proposal cards and the Clipper that serves clients in booking.' }}>
         <ClipperInPlatform />
       </Section>
     </div>
