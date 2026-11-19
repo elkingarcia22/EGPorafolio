@@ -105,7 +105,6 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
           <SectionLabel index="01" className="mb-8">{t(COPY.work.label)}</SectionLabel>
           <h2 className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight">{t(COPY.work.title)}</h2>
         </div>
-        <p className="mono-label opacity-50">{t(COPY.work.placeholder)}</p>
       </div>
 
       <ul>

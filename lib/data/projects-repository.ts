@@ -14,6 +14,9 @@ export interface ProjectsResult {
   source: 'supabase' | 'local'
 }
 
+/** Casos de ejemplo retirados: no se muestran aunque sigan publicados en Supabase. */
+const RETIRED: ReadonlySet<string> = new Set(['carga-masiva-ia', 'nomina'])
+
 let client: SupabaseClient | null | undefined
 
 function getClient(): SupabaseClient | null {
@@ -42,7 +45,7 @@ export async function listProjects(): Promise<ProjectsResult> {
   }
 
   const rows: unknown[] = (data ?? []).map((row) => (row as { content: unknown }).content)
-  const valid = rows.filter(isProject)
+  const valid = rows.filter(isProject).filter((p) => !RETIRED.has(p.slug))
   if (valid.length < rows.length) {
     console.error(`[projects] ${rows.length - valid.length} fila(s) con formato inválido fueron omitidas`)
   }
