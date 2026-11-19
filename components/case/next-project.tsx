@@ -2,7 +2,7 @@
 
 import { ToneSection } from '@/components/ui/tone-section'
 import { TransitionLink } from '@/components/transition/page-transition'
-import { MockScreen } from '@/components/mock/mock-screen'
+import { ProjectPreview } from '@/components/home/project-preview'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import type { Project } from '@/lib/content/projects'
@@ -26,11 +26,10 @@ export function NextProject({ project }: { project: Project }) {
             {title} <span className="text-signal">↗</span>
           </p>
         </div>
-        <div className="overflow-hidden md:col-span-5">
+        {/* La misma vista previa animada de la lista de proyectos de la portada */}
+        <div className="overflow-hidden rounded-md shadow-[0_40px_90px_-35px_rgba(0,0,0,0.7)] ring-1 ring-white/10 md:col-span-5">
           <div className="transition-transform duration-700 ease-expo group-hover:scale-[1.03]">
-            <div className={project.mock === 'mobile' ? 'mx-auto max-w-[12rem]' : ''}>
-              <MockScreen kind={project.mock} mode="ui" accent={project.accent} />
-            </div>
+            <ProjectPreview project={project} />
           </div>
         </div>
       </TransitionLink>

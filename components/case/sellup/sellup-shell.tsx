@@ -3,12 +3,12 @@
 import { useMemo, useRef } from 'react'
 import { Chapter, type ChapterMeta } from '@/components/case/chapter'
 import { ChapterNav } from '@/components/case/chapter-nav'
-import { ToneSection } from '@/components/ui/tone-section'
-import { TransitionLink } from '@/components/transition/page-transition'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { useReveal } from '../barberlytics/use-reveal'
+import { NextProject } from '@/components/case/next-project'
+import { PROJECTS } from '@/lib/content/projects'
 
 export type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto'
 
@@ -36,6 +36,7 @@ interface SellUpShellProps {
 
 /** Armazón del caso SellUp: portada, índice fijo, los 8 capítulos y el salto al siguiente proyecto. */
 export function SellUpShell({ title, hero, content, next }: SellUpShellProps) {
+  const nextProject = PROJECTS.find((p) => p.slug === next.slug)
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const ref = useRef<HTMLDivElement>(null)
@@ -73,14 +74,7 @@ export function SellUpShell({ title, hero, content, next }: SellUpShellProps) {
           })}
         </div>
       </div>
-      <ToneSection tone="dark" className="border-t border-fg/15 px-[var(--gutter)] py-[clamp(4rem,3rem+5vw,8rem)]">
-        <TransitionLink href={`/proyectos/${next.slug}`} transitionLabel={t(next.title)} className="group block">
-          <p className="mono-label mb-4 opacity-60">{t({ es: 'Siguiente proyecto', en: 'Next project' })}</p>
-          <p className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.95] tracking-tight transition-transform duration-700 ease-expo group-hover:translate-x-3">
-            {t(next.title)} <span className="text-signal">↗</span>
-          </p>
-        </TransitionLink>
-      </ToneSection>
+      {nextProject && <NextProject project={nextProject} />}
     </article>
   )
 }

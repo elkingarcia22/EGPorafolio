@@ -231,3 +231,14 @@ html[data-motion='reduced'] [class*='animate-[wave'], html[data-motion='reduced'
 }
 html[data-motion='reduced'] [class*='animate-[aurora-drift'], html[data-motion='reduced'] [class*='animate-[ripple-out'] { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { [class*='animate-[aurora-drift'], [class*='animate-[ripple-out'] { animation: none !important; } }
+/* La carga entre páginas: puntos que se conectan uno tras otro */
+@keyframes node-link {
+  0% { stroke-dashoffset: 1; opacity: 1; }
+  45% { stroke-dashoffset: 0; opacity: 1; }
+  80%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes node-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  25% { transform: scale(1.5); opacity: 1; }
+}
+html[data-motion='reduced'] [style*='node-link'], html[data-motion='reduced'] [style*='node-pulse'] { animation: none !important; }

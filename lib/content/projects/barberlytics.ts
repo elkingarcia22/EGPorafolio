@@ -8,7 +8,7 @@ import type { Project } from './types'
 export const barberlytics: Project = {
   slug: 'barberlytics',
   frequency: '02.23',
-  title: { es: 'La barbería que se agenda sola', en: 'The barbershop that books itself' },
+  title: { es: 'Potencia tu barbería', en: 'Power up your barbershop' },
   client: 'Barberlytics',
   year: '2022 — 2026',
   accent: '232 140 48',

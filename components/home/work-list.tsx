@@ -4,30 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { TransitionLink } from '@/components/transition/page-transition'
-import { MockScreen } from '@/components/mock/mock-screen'
-import { BarberlyticsPreview } from './previews/barberlytics-preview'
-import { EncuestasPreview } from './previews/encuestas-preview'
-import { ObjetivosPreview } from './previews/objetivos-preview'
-import { HeroRumboCard } from '@/components/case/sellup/hero-rumbo'
+import { hasCustomPreview, ProjectPreview } from './project-preview'
 import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import type { Project } from '@/lib/content/projects'
-
-/** Vistas previas propias por proyecto; el resto usa la pantalla genérica. */
-const PREVIEWS: Partial<Record<string, () => React.JSX.Element>> = {
-  barberlytics: BarberlyticsPreview,
-  sellup: HeroRumboCard,
-  objetivos: ObjetivosPreview,
-  encuestas: EncuestasPreview,
-}
-
-function ProjectPreview({ project, className = '' }: { project: Project; className?: string }) {
-  const Custom = PREVIEWS[project.slug]
-  if (Custom) return <div className={`overflow-hidden ${className}`}><Custom /></div>
-  return <MockScreen kind={project.mock} mode="ui" accent={project.accent} className={className} />
-}
 
 function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project | null) => void }) {
   const { t } = useLocale()
@@ -122,7 +104,7 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
       <div
         ref={previewRef}
         aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-40 hidden md:block ${active && PREVIEWS[active.slug] ? 'w-[min(32rem,38vw)]' : 'w-[min(26rem,32vw)]'}`}
+        className={`pointer-events-none fixed left-0 top-0 z-40 hidden md:block ${active && hasCustomPreview(active.slug) ? 'w-[min(32rem,38vw)]' : 'w-[min(26rem,32vw)]'}`}
         style={{ clipPath: 'inset(50% 50% 50% 50%)' }}
       >
         {active && (

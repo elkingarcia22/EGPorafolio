@@ -11,6 +11,7 @@ import { COPY } from '@/lib/content/copy'
 import { ScrollTrigger, scrollToHeroSignature, scrollToTarget } from '@/lib/motion'
 
 const NAV = [
+  { id: 'home', label: { es: 'Inicio', en: 'Home' } },
   { id: 'work', label: COPY.nav.work },
   { id: 'process', label: COPY.nav.process },
   { id: 'about', label: COPY.nav.about },
@@ -138,6 +139,15 @@ export function SiteHeader() {
     return () => window.removeEventListener('hashchange', check)
   }, [])
 
+  /** Inicio (y el logo): en la portada sube hasta el EG; desde otra página, vuelve a la portada. */
+  const goHome = (event: React.MouseEvent) => {
+    setMenuOpen(false)
+    if (!isHome) return
+    event.preventDefault()
+    if (window.location.hash) history.replaceState(null, '', '/')
+    scrollToHeroSignature(1.8)
+  }
+
   const goTo = (id: string) => (event: React.MouseEvent) => {
     setMenuOpen(false)
     if (!isHome) return
@@ -157,13 +167,7 @@ export function SiteHeader() {
           href="/"
           aria-label="Elkin Garcia — inicio"
           transitionLabel="EG"
-          onClick={(event) => {
-            setMenuOpen(false)
-            if (!isHome) return
-            event.preventDefault()
-            if (window.location.hash) history.replaceState(null, '', '/')
-            scrollToHeroSignature(1.8)
-          }}
+          onClick={goHome}
         >
           <Monogram />
         </TransitionLink>
@@ -171,7 +175,13 @@ export function SiteHeader() {
         <nav aria-label="Principal" className="hidden md:block">
           <ul className="flex items-center gap-7">
             {NAV.map((item) =>
-              item.id === 'work' ? (
+              item.id === 'home' ? (
+                <li key={item.id}>
+                  <TransitionLink href="/" transitionLabel="EG" onClick={goHome} className="mono-label opacity-70 transition-opacity hover:opacity-100">
+                    {t(item.label)}
+                  </TransitionLink>
+                </li>
+              ) : item.id === 'work' ? (
                 <ProjectsMenu key={item.id} onWorkClick={goTo(item.id)} />
               ) : item.id === 'cv' ? (
                 <li key={item.id}>
@@ -233,7 +243,11 @@ export function SiteHeader() {
             {NAV.map((item, i) => (
               <li key={item.id} className="flex items-baseline gap-4">
                 <span className="mono-label opacity-40">0{i + 1}</span>
-                {item.id === 'cv' ? (
+                {item.id === 'home' ? (
+                  <TransitionLink href="/" transitionLabel="EG" onClick={goHome} className="brand-title text-2xl">
+                    {t(item.label)}
+                  </TransitionLink>
+                ) : item.id === 'cv' ? (
                   <button type="button" onClick={openCv} aria-haspopup="dialog" className="brand-title text-2xl">
                     {t(item.label)}
                   </button>

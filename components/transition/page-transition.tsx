@@ -29,6 +29,8 @@ export function TransitionOverlay() {
   const firstRoute = useRef(true)
   const [label, setLabel] = useState('')
   const [isWaiting, setIsWaiting] = useState(false)
+  /** La cortina ya tapa la pantalla: se muestra el centro (página y conexiones). */
+  const [covered, setCovered] = useState(false)
   const timers = useRef<number[]>([])
 
   const clearTimers = () => {
@@ -47,6 +49,7 @@ export function TransitionOverlay() {
       // Pide la página mientras la cortina cubre: al terminar ya está lista.
       router.prefetch(href)
       setLabel(nextLabel)
+      setCovered(true)
       isCovering.current = true
       document.documentElement.dataset.transitioning = 'true'
       gsap.set(rootRef.current, { visibility: 'visible' })
@@ -86,6 +89,7 @@ export function TransitionOverlay() {
     else if (!jumpToHash()) scrollToTop()
     clearTimers()
     setIsWaiting(false)
+    setCovered(false)
     if (!isCovering.current || !rootRef.current) return
     isCovering.current = false
     const root = rootRef.current
@@ -112,14 +116,19 @@ export function TransitionOverlay() {
       {Array.from({ length: BAR_COUNT }, (_, i) => (
         <div key={i} data-bar className="h-full flex-1 bg-void" style={{ transform: 'scaleY(0)' }} />
       ))}
-      <p className="mono-label caret absolute bottom-8 left-[var(--gutter)] text-paper/70">{label}</p>
-      {/* Mientras la página llega: una línea que recorre el borde y el aviso de carga */}
-      <div className={`absolute inset-x-0 bottom-0 h-[2px] overflow-hidden transition-opacity duration-300 ${isWaiting ? 'opacity-100' : 'opacity-0'}`}>
-        <span className="absolute inset-y-0 left-0 w-2/5 bg-signal" style={{ animation: isWaiting ? 'curtain-load 1.1s cubic-bezier(0.65,0,0.35,1) infinite' : 'none' }} />
+      {/* Al centro: la página que se abre y puntos que se van conectando mientras llega */}
+      <div className={`absolute inset-0 flex flex-col items-center justify-center gap-6 transition-opacity duration-300 ${covered ? 'opacity-100 delay-200' : 'opacity-0'}`}>
+        <svg viewBox="0 0 220 40" className="h-10 w-56 overflow-visible" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <line key={i} x1={10 + i * 50} y1={20} x2={60 + i * 50} y2={20} pathLength={1} className="stroke-signal" strokeWidth="1.5" strokeDasharray="1" style={{ animation: covered ? `node-link 1.8s cubic-bezier(0.65,0,0.35,1) ${i * 0.18}s infinite` : 'none' }} />
+          ))}
+          {[0, 1, 2, 3, 4].map((i) => (
+            <circle key={i} cx={10 + i * 50} cy={20} r={4} className="fill-paper" style={{ transformOrigin: `${10 + i * 50}px 20px`, animation: covered ? `node-pulse 1.8s ease-in-out ${i * 0.18}s infinite` : 'none' }} />
+          ))}
+        </svg>
+        <p className="mono-label caret text-paper/80">{label}</p>
+        <p className={`mono-label text-paper/40 transition-opacity duration-300 ${isWaiting ? 'opacity-100' : 'opacity-0'}`}>Conectando…</p>
       </div>
-      <p className={`mono-label absolute bottom-8 right-[var(--gutter)] text-paper/45 transition-opacity duration-300 ${isWaiting ? 'opacity-100' : 'opacity-0'}`}>
-        Cargando…
-      </p>
     </div>
   )
 }
