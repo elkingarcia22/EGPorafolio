@@ -23,7 +23,7 @@ export function ObjetivosForm() {
 
       <Block>
         <SubHead index="5.2">{t({ es: 'Alinear: el último paso de crear un ciclo', en: 'Align: the last step of creating a cycle' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'Antes de publicar, cada meta asignada se conecta con el objetivo de empresa al que empuja: se arrastra su punto azul y el contador sube hasta «3 de 3 alineados · 100 %». Son las tarjetas del ciclo «KPIs corporativos 2026» del staging. Pruébalo: arrastra un punto o toca una flecha para cortarla.', en: 'Before publishing, each assigned goal is connected to the company goal it pushes: you drag its blue dot and the counter climbs to “3 of 3 aligned · 100 %”. These are the cards of the “KPIs corporativos 2026” cycle on staging. Try it: drag a dot or tap an arrow to cut it.' })}</Body>
+        <Body className="mb-8">{t({ es: 'Antes de publicar, el último paso conecta lo asignado con la estrategia. La vista «Colaboradores» lo muestra en cascada: cada persona aporta a su grupo y cada grupo a los objetivos de empresa. La cámara arranca en una tarjeta y se aleja hasta ver todo el ciclo, con las personas, áreas y aportes reales del staging.', en: 'Before publishing, the last step connects what was assigned with strategy. The “Collaborators” view shows it as a cascade: each person feeds their group and each group the company goals. The camera starts on one card and pulls back to the whole cycle, with the real people, areas and contributions from staging.' })}</Body>
         <AlignmentBuilder />
       </Block>
 

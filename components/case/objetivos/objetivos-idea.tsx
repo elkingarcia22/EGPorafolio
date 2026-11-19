@@ -2,7 +2,7 @@
 
 import { useLocale } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
-import { ModelConfigurator } from './model-configurator'
+import { CoverageGrid } from './coverage-grid'
 import { PrinciplesStage } from './principles-stage'
 
 /** 03 · La idea: la pregunta y cuatro principios, cada uno con su demostración. */
@@ -19,7 +19,7 @@ export function ObjetivosIdea() {
         })}
       </p>
       <div className="mt-12">
-        <ModelConfigurator />
+        <CoverageGrid />
       </div>
 
       <p data-reveal className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Y cuatro principios que valen para cualquier modelo', en: 'And four principles that hold for any model' })}</p>

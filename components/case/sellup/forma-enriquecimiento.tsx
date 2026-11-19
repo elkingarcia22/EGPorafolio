@@ -61,17 +61,14 @@ export function ContactEnrichment() {
             <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={scene === 0 ? time : 13} /></Scaled>
           </Warp>,
           <Warp key="table" on={scene === 1}>
-            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 248 : 560} click={time === 17} show={onRow} />}>
+            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 258 : 560} click={time === 17} show={onRow} />}>
               <ContactReview arrived={time >= 14} focus={time >= 14} />
             </RealFrame>
           </Warp>,
           <Warp key="detail" on={scene === 2}>
             <DetailScene>
               <div className="relative h-full">
-                <ContactDetail show inline phone="idle" />
-                <div className="absolute z-20" style={{ left: A2_BTN.x, top: A2_BTN.y }}>
-                  <PhoneDecoder state={phoneAt(time)} pressed={time === 20} />
-                </div>
+                <ContactDetail show inline phone="idle" phoneSlot={<PhoneDecoder state={phoneAt(time)} pressed={time === 20} />} />
                 <FakeCursor x={onPhone ? A2_BTN.x + 60 : 600} y={onPhone ? A2_BTN.y + 18 : 520} click={time === 20} show={onPhone} />
               </div>
             </DetailScene>
@@ -86,4 +83,4 @@ export function ContactEnrichment() {
 }
 
 /** Dónde queda el botón «Revelar teléfono» dentro del detalle (px de diseño, 960 × 600). */
-const A2_BTN = { x: 39, y: 362 }
+const A2_BTN = { x: 39, y: 348 }

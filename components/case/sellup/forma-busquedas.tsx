@@ -61,7 +61,7 @@ export function SearchReview() {
             bounce: true,
             node: (
               <div key={scene === 1 ? 'land' : 'idle'} className={scene === 1 && !reducedMotion ? 'a1-land' : ''}>
-                <RealFrame active="revisar" crumb={['Empresas', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 256 : 560} click={time === 16} show={onRow} />}>
+                <RealFrame active="revisar" crumb={['Empresas', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 262 : 560} click={time === 16} show={onRow} />}>
                   <CompanyReview arrived={time >= 10} focus={time >= 10} />
                 </RealFrame>
               </div>
