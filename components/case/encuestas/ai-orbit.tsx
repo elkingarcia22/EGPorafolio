@@ -218,7 +218,7 @@ function Platform({ built }: { built: number }) {
           const creating = !seen(doneAt)
           const collapsed = si === 0 && !creating
           return (
-            <div key={sec.n} className={`enc-ai-pop rounded-xl border bg-white transition-[border-color,box-shadow] duration-500 ${creating ? 'border-transparent shadow-[0_0_0_1.5px_#7e2be0,0_10px_30px_-12px_rgba(126,43,224,0.55)]' : 'border-black/[0.08]'}`}>
+            <div key={sec.n} className={`enc-ai-pop rounded-xl border bg-white transition-[border-color,box-shadow] duration-500 ${creating ? 'border-[#7e2be0] shadow-[inset_0_0_0_0.5px_#7e2be0,0_8px_22px_-14px_rgba(126,43,224,0.6)]' : 'border-black/[0.08]'}`}>
               <div className="flex items-start gap-2 px-3 py-2.5">
                 <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#0c5bef] text-[9px] text-white">{sec.n}</span>
                 <div className="min-w-0 flex-1">
