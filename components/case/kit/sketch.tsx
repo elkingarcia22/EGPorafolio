@@ -197,3 +197,30 @@ export function Arrows({ paths }: { paths: readonly ArrowSpec[] }) {
     </svg>
   )
 }
+
+interface DoodleProps {
+  /** Trazos en un lienzo de 100×100 (o el viewBox que se indique) */
+  paths: readonly string[]
+  viewBox?: string
+  className?: string
+  /** Trazos rellenos de acento (ej. un punto o una barra destacada) */
+  accent?: readonly string[]
+  strokeWidth?: number
+}
+
+/** Dibujo a mano libre (tijeras, peine, gráficas…), con trazo tembloroso que se dibuja al aparecer. */
+export function Doodle({ paths, viewBox = '0 0 100 100', className = '', accent = [], strokeWidth = 2.6 }: DoodleProps) {
+  const { filterId } = useContext(BoardContext)
+  return (
+    <svg viewBox={viewBox} className={`block h-auto w-full overflow-visible ${className}`} aria-hidden="true">
+      <g style={{ filter: `url(#${filterId})` }} fill="none" stroke={INK} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+        {paths.map((d) => (
+          <path key={d} d={d} pathLength={1} strokeDasharray={1} data-draw="" />
+        ))}
+        {accent.map((d) => (
+          <path key={d} d={d} stroke="#e8743b" strokeWidth={strokeWidth + 0.6} pathLength={1} strokeDasharray={1} data-draw="" />
+        ))}
+      </g>
+    </svg>
+  )
+}

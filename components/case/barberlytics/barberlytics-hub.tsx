@@ -34,7 +34,7 @@ const PROJECTS: readonly HubProject[] = [
     what: { es: 'Sistema de diseño', en: 'Design system' },
     body: { es: 'De un legado con cuatro fuentes de tokens a 218 componentes, 10 temas y reglas que la IA también sigue.', en: 'From a legacy with four token sources to 218 components, 10 themes and rules the AI follows too.' },
     stat: { es: '218 componentes · 22 familias', en: '218 components · 22 families' },
-    ready: false,
+    ready: true,
     visual: <Image src={`${IMG}/thema-home.webp`} width={1140} height={620} alt="" sizes="(min-width: 768px) 45vw, 100vw" className="h-full w-full object-cover object-left-top" />,
   },
   {
@@ -129,7 +129,7 @@ export function BarberlyticsHub({ next }: { next: Project }) {
   useReveal(ref, reducedMotion)
 
   return (
-    <article ref={ref}>
+    <article ref={ref} className="overflow-x-clip">
       <ToneSection tone="dark" className="px-[var(--gutter)] pb-[clamp(4rem,3rem+5vw,8rem)] pt-32">
         <div className="mb-14 flex items-center justify-between">
           <TransitionLink href="/#work" transitionLabel="EG" className="mono-label opacity-60 hover:opacity-100">

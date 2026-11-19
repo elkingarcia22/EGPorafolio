@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { BookingCase } from '@/components/case/barberlytics/booking/booking-case'
+import { ThemaCase } from '@/components/case/barberlytics/thema/thema-case'
 
 interface PartPageProps {
   params: Promise<{ parte: string }>
@@ -8,6 +9,7 @@ interface PartPageProps {
 
 /** Proyectos de Barberlytics con caso propio (los demás se suman al terminarlos). */
 const PARTS = {
+  thema: { title: 'Thema, sistema de diseño · Barberlytics — Elkin Garcia', Case: ThemaCase },
   reserva: { title: 'Reserva en línea · Barberlytics — Elkin Garcia', Case: BookingCase },
 } as const
 
