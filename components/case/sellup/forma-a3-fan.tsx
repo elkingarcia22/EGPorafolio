@@ -17,10 +17,10 @@ const FAN_AT = 6
 
 /** Posición de cada aparato en el abanico (centro, en px de diseño) y su giro. */
 const SLOTS: Record<Channel, { x: number; y: number; r: number }> = {
-  email: { x: 185, y: 335, r: -7 },
-  linkedin: { x: 430, y: 300, r: -2.5 },
-  call: { x: 680, y: 305, r: 2.5 },
-  whatsapp: { x: 905, y: 345, r: 7 },
+  email: { x: 170, y: 325, r: -4 },
+  linkedin: { x: 430, y: 305, r: -1.5 },
+  call: { x: 690, y: 305, r: 1.5 },
+  whatsapp: { x: 920, y: 325, r: 4 },
 }
 
 export function FanScene({ u }: { u: number }) {
@@ -93,7 +93,7 @@ export function FanScene({ u }: { u: number }) {
               opacity: fanned ? (active ? 1 : 0.62) : 0,
               filter: fanned && !active ? 'saturate(0.6)' : 'none',
               transform: fanned
-                ? `translate(-50%, -50%) rotate(${active ? 0 : s.r}deg) scale(${active ? 1.12 : 0.92}) translateY(${active ? -14 : 0}px)`
+                ? `translate(-50%, -50%) rotate(${active ? 0 : s.r}deg) scale(${active ? 1.04 : 0.8}) translateY(${active ? -12 : 0}px)`
                 : `translate(-50%, -50%) translate(${FAN_W / 2 - s.x}px, ${300 - s.y}px) scale(0.3) rotate(0deg)`,
             }}
           >
