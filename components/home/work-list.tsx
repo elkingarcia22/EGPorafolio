@@ -7,6 +7,7 @@ import { TransitionLink } from '@/components/transition/page-transition'
 import { MockScreen } from '@/components/mock/mock-screen'
 import { BarberlyticsPreview } from './previews/barberlytics-preview'
 import { SellUpPreview } from './previews/sellup-preview'
+import { ObjetivosPreview } from './previews/objetivos-preview'
 import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
@@ -17,6 +18,7 @@ import type { Project } from '@/lib/content/projects'
 const PREVIEWS: Partial<Record<string, () => React.JSX.Element>> = {
   barberlytics: BarberlyticsPreview,
   sellup: SellUpPreview,
+  objetivos: ObjetivosPreview,
 }
 
 function ProjectPreview({ project, className = '' }: { project: Project; className?: string }) {
