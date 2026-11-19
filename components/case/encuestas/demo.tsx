@@ -52,13 +52,13 @@ function StagingFrame({ entry }: { entry: Entry }) {
   // Bajo 1.200 px de ventana el playground pliega su menú al riel de 72 px (RootLayout, NARROW_WINDOW): por eso el
   // iframe mide 1.196. En pantallas angostas se dibuja a 1.024 para no quedar diminuto.
   const width = size && size.w < 768 ? 1024 : 1196
-  const scale = size ? size.w / width : 1
+  // A tamaño real cuando cabe; solo se achica si el modal es más angosto. Si sobra espacio, queda centrado.
+  const scale = size ? Math.min(1, size.w / width) : 1
   const height = size ? size.h / scale : 800
-  const [hint, setHint] = useState(false)
-  const blocked = t({ es: 'En esta demo solo está habilitado Encuestas', en: 'Only Surveys is enabled in this demo' })
+  const left = size ? Math.max(0, (size.w - width * scale) / 2) : 0
 
   return (
-    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden bg-[#f8faff]">
+    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden bg-[#e9edf5]">
       {!loaded && (
         <p className="absolute inset-0 flex items-center justify-center gap-3 font-mono text-xs text-[#5c646f]" role="status">
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0c5bef] border-t-transparent" />
@@ -71,32 +71,15 @@ function StagingFrame({ entry }: { entry: Entry }) {
           src={urlOf(entry)}
           title={t({ es: `Encuestas en staging: ${entry.name.es}`, en: `Surveys on staging: ${entry.name.en}` })}
           onLoad={() => setLoaded(true)}
-          className="absolute left-0 top-0 origin-top-left border-0 transition-opacity duration-500"
-          style={{ width, height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
+          className="absolute top-0 origin-top-left border-0 transition-opacity duration-500"
+          style={{ left, width, height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
         />
       )}
-      {/* Capas que tapan los clics del riel y de la barra superior: se ven, pero no llevan a otros productos. */}
+      {/* Capas invisibles sobre el riel y la barra superior: se ven, pero no llevan a otros productos. */}
       {size && (
         <>
-          <span
-            className="absolute left-0 top-0 h-full cursor-not-allowed"
-            style={{ width: RAIL * scale }}
-            onPointerEnter={() => setHint(true)}
-            onPointerLeave={() => setHint(false)}
-            title={blocked}
-            aria-hidden="true"
-          />
-          <span
-            className="absolute top-0 cursor-not-allowed"
-            style={{ left: RAIL * scale, right: 0, height: TOPBAR * scale }}
-            onPointerEnter={() => setHint(true)}
-            onPointerLeave={() => setHint(false)}
-            title={blocked}
-            aria-hidden="true"
-          />
-          <p className={`pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-[#303a47] px-3 py-1.5 text-[11px] text-white shadow-lg transition-opacity duration-200 ${hint ? 'opacity-100' : 'opacity-0'}`} role="status">
-            🔒 {blocked}
-          </p>
+          <span className="absolute top-0 h-full cursor-not-allowed" style={{ left, width: RAIL * scale }} aria-hidden="true" />
+          <span className="absolute top-0 cursor-not-allowed" style={{ left: left + RAIL * scale, width: (width - RAIL) * scale, height: TOPBAR * scale }} aria-hidden="true" />
         </>
       )}
     </div>
