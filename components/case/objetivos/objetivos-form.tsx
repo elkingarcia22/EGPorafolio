@@ -7,9 +7,7 @@ import { OBJ_CASE, type Shot } from '@/lib/content/cases/objetivos/objetivos-cas
 import { Block, Body, SubHead } from '@/components/case/barberlytics/ui'
 import { ESCALA, tramoDe } from './cascade-model'
 import { HOME_SPOTS } from './form-spots'
-import { BuilderLive } from './forma-builder'
-import { FocusGoal } from './forma-focus'
-import { ResultsLive } from './forma-results'
+import { CycleReading } from './forma-lectura'
 import { ShotStage } from './shot-stage'
 
 /** Dos capturas en abanico: al pasar el cursor se abren y la elegida pasa al frente. */
@@ -97,30 +95,18 @@ export function ObjetivosForm() {
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(form.lead)}</p>
 
       <Block className="!mt-12">
-        <SubHead index="5.1">{t({ es: 'Un objetivo, de cerca', en: 'One goal, up close' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'El objetivo se destaca de la lista del ciclo y se ve su vida entera: Ricardo lo propone, su líder lo devuelve porque está escrito como tarea, lo reescribe como resultado, se aprueba y recién ahí empieza a contar. Color, frase y botón cambian con cada momento.', en: 'The goal stands out from the cycle list and you watch its whole life: Ricardo proposes it, his lead returns it because it’s written as a task, he rewrites it as a result, it’s approved and only then starts to count. Color, sentence and button change at each moment.' })}</Body>
-        <FocusGoal />
+        <SubHead index="5.1">{t({ es: 'Leer un ciclo en cinco preguntas', en: 'Reading a cycle in five questions' })}</SubHead>
+        <Body className="mb-8">{t({ es: 'Resultados no es un tablero de cifras sueltas: está ordenado por las preguntas que se hace quien administra. Cada pregunta enciende su bloque real, con su gráfico y las cifras de un ciclo del staging. Avanza solo o toca un número.', en: 'Results isn’t a board of loose figures: it’s ordered by the questions an admin asks. Each question lights up its real block, with its chart and the figures of a staging cycle. It advances on its own, or tap a number.' })}</Body>
+        <CycleReading />
       </Block>
 
       <Block>
-        <SubHead index="5.2">{t({ es: 'El constructor, llenándose solo', en: 'The builder, filling itself in' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'Cinco pasos y un panel, «Así va el ciclo», que cuenta lo que falta antes de continuar. Toca un paso para saltar a él.', en: 'Five steps and a panel, “How the cycle is going”, that counts what’s missing before moving on. Tap a step to jump to it.' })}</Body>
-        <BuilderLive />
-      </Block>
-
-      <Block>
-        <SubHead index="5.3">{t({ es: 'Medir: una escala que se entiende', en: 'Measure: a scale people understand' })}</SubHead>
+        <SubHead index="5.2">{t({ es: 'Medir: una escala que se entiende', en: 'Measure: a scale people understand' })}</SubHead>
         <ScaleExplorer />
       </Block>
 
       <Block>
-        <SubHead index="5.4">{t({ es: 'Siete pestañas del mismo ciclo', en: 'Seven tabs of the same cycle' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'Del resumen a los accionables, cada pestaña responde una pregunta distinta. Son las pestañas reales de resultados, recreadas: rotan solas o tócalas.', en: 'From summary to actions, each tab answers a different question. These are the real results tabs, recreated: they cycle on their own, or tap them.' })}</Body>
-        <ResultsLive />
-      </Block>
-
-      <Block>
-        <SubHead index="5.5">{t({ es: 'Y así se ve en el playground', en: 'And this is how it looks in the playground' })}</SubHead>
+        <SubHead index="5.3">{t({ es: 'Y así se ve en el playground', en: 'And this is how it looks in the playground' })}</SubHead>
         <Body className="mb-8">{t({ es: 'La captura real del inicio, recorrida zona por zona: «Para atender» ordena por prioridad lo que pide acción y el pulso compara cada cifra con los ciclos anteriores.', en: 'The real home screenshot, toured area by area: “To attend” ranks what needs action and the pulse compares each figure with past cycles.' })}</Body>
         <div data-reveal="device">
           <ShotStage shot={form.home} spots={HOME_SPOTS} />
