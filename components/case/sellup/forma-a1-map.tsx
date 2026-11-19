@@ -109,6 +109,14 @@ function Radar({ x, y, k, spin }: { x: number; y: number; k: number; spin: boole
   )
 }
 
+/** Dónde está el radar (px de diseño) en el tick `t`: lo sigue la cámara en pantallas chicas. */
+export function radarAt(tick: number, still = false): readonly [number, number] {
+  return px(STOPS[stopAt(still ? FLY_AT - 1 : tick)].at)
+}
+
+/** Encuadre de la columna derecha (países, fuentes y contadores). */
+export const MAP_SIDE_VIEW = { cx: MAP_W - 24 - 150, cy: 78 + 166, w: 316, h: 336 } as const
+
 /** `t`: ticks desde que empieza la escena (0–10). */
 export function SearchMap({ t: tick, still = false }: { t: number; still?: boolean }) {
   const t = still ? FLY_AT - 1 : tick

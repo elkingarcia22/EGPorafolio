@@ -17,6 +17,13 @@ const STEPS: readonly StoryStep[] = [
 ]
 const LOOP = 20
 
+/** Encuadre en pantallas chicas: la fuente nueva, su prueba y cómo queda. */
+const VIEWS = [
+  { cx: 470, cy: 330, w: 420, h: 420 },
+  { cx: 840, cy: 330, w: 420, h: 420 },
+  { cx: 640, cy: 330, w: 420, h: 420 },
+] as const
+
 const ROWS = [
   { name: 'Supersociedades SIIS', country: 'Colombia', next: 'Snapshot SIIS 2024 cargado con 10.000 empresas. Primera fuente de NIT por nombre en cada corrida del Agente 1; alimenta la capa gratuita por industria.', use: 'Conectada' },
   { name: 'Entidades públicas (CHIP + SIGEP II)', country: 'Colombia', next: 'Conectada en el código: en cada corrida del Agente 1 da el NIT de alcaldías, ministerios y entidades públicas con su número de servidores.', use: 'Conectada · número fiscal por' },
@@ -108,7 +115,7 @@ export function CatalogScreen() {
   const [ref, time] = useStoryTime(LOOP, 14)
   return (
     <div ref={ref}>
-      <RealFrame active="catalogo" crumb={['Catálogo de fuentes']} height={820}>
+      <RealFrame active="catalogo" crumb={['Catálogo de fuentes']} height={820} view={VIEWS[stepAt(STEPS, time)]}>
         <Screen time={time} />
       </RealFrame>
     </div>

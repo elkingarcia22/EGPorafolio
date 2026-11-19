@@ -4,9 +4,19 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { DESKTOP_QUERY, TABLET_QUERY, useMedia } from './use-media'
 
-/** Proporción de la ventana del navegador (alto / ancho). */
-const FRAME = 10 / 16
+/**
+ * La ventana del navegador según la pantalla: proporción (alto / ancho), cuánto se acerca la captura y
+ * cuánto se corre a la izquierda (en % del ancho de la ventana) para saltarse el menú lateral. En
+ * escritorio la página se ve entera; en teléfono una ventana vertical se acerca a la columna de
+ * contenido para que los títulos y cifras de la página se alcancen a leer.
+ */
+const VIEW = {
+  desktop: { frame: 10 / 16, zoom: 1, offset: 0 },
+  tablet: { frame: 10 / 16, zoom: 1.45, offset: 7 },
+  phone: { frame: 5 / 4, zoom: 2.1, offset: 12 },
+} as const
 
 interface Page {
   id: string
@@ -35,9 +45,12 @@ export function PlaygroundReel() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const [active, setActive] = useState(1)
+  const desktop = useMedia(DESKTOP_QUERY)
+  const tablet = useMedia(TABLET_QUERY)
+  const view = desktop ? VIEW.desktop : tablet ? VIEW.tablet : VIEW.phone
   const page = PAGES[active]
-  // Lo que se ve de la página: el alto de la ventana sobre el alto de la captura, a igual ancho.
-  const visible = Math.min(1, (FRAME * page.w) / page.h)
+  // Lo que se ve de la página: el alto de la ventana sobre el alto de la captura (ya acercada).
+  const visible = Math.min(1, (view.frame * page.w) / (view.zoom * page.h))
   const shift = `${-(1 - visible) * 100}%`
   const rectShift = `${((1 - visible) / visible) * 100}%`
   const seconds = Math.max(10, Math.round(page.h / 180))
@@ -71,9 +84,13 @@ export function PlaygroundReel() {
             <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
             <span className="ml-3 h-5 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[10px] leading-5 text-black/45">staging-playground.ubits.co{page.path}</span>
           </div>
-          <div className="relative overflow-hidden" style={{ aspectRatio: `${1 / FRAME}` }}>
-            <div key={page.id} className={`absolute inset-x-0 top-0 ${motion ? 'obj-pan group-hover:[animation-play-state:paused]' : ''}`} style={{ animationDuration: `${seconds}s` }}>
-              <Image src={page.src} width={page.w} height={page.h} alt={t(page.label)} sizes="(min-width: 1024px) 60vw, 100vw" quality={90} className="obj-fade block h-auto w-full" />
+          <div className="relative overflow-hidden" style={{ aspectRatio: `${1 / view.frame}` }}>
+            <div
+              key={`${page.id}-${view.zoom}`}
+              className={`absolute inset-x-0 top-0 ${motion ? 'obj-pan group-hover:[animation-play-state:paused]' : ''}`}
+              style={view.zoom === 1 ? { animationDuration: `${seconds}s` } : { animationDuration: `${seconds}s`, width: `${view.zoom * 100}%`, left: `${-view.offset}%`, right: 'auto' }}
+            >
+              <Image src={page.src} width={page.w} height={page.h} alt={t(page.label)} sizes="(min-width: 1024px) 60vw, 210vw" quality={90} className="obj-fade block h-auto w-full" />
             </div>
           </div>
         </div>

@@ -10,7 +10,8 @@ import { AgentStructure, type StructureItem } from './forma-structure'
 import { FakeCursor, ReplicaNote, StorySteps, stepAt, type StoryStep } from './real-story'
 import { DetailScene, Scaled, useSceneTime } from './forma-stage'
 import { FastStage } from './forma-a1-stage'
-import { MAP_H, MAP_W, SearchMap } from './forma-a1-map'
+import { MAP_H, MAP_SIDE_VIEW, MAP_W, SearchMap, radarAt } from './forma-a1-map'
+import { useCompact } from './camera'
 
 /**
  * 5.2 · Agente 1: arranca cuando Rumbo ya busca (radar que recorre varios países),
@@ -42,6 +43,36 @@ const STRUCTURE: readonly StructureItem[] = TYPES.map((o, i) => ({
   body: { es: o.body, en: ['Searches companies by country, industry and specific criteria.', 'Up to 200 companies from one country and industry, in rounds, with a credit cap you confirm.', 'From one company, finds its group and parent, its subsidiaries and where it operates abroad.', 'Finds companies that compete with a reference one.', 'Companies that sell to a company you pick.', 'Paste the HubSpot link: I bring it, complete its data and assign it to you if it has no owner.'][i] },
 }))
 
+/**
+ * El radar sobre el mapa. En pantallas chicas se parte en dos encuadres apilados a
+ * tamaño legible: el mapa sigue al radar de país en país y, debajo, la columna de fuentes.
+ */
+function MapScene({ t, still }: { t: number; still: boolean }) {
+  const compact = useCompact()
+  if (!compact) return <Scaled width={MAP_W} height={MAP_H}><SearchMap t={t} still={still} /></Scaled>
+  const [rx, ry] = radarAt(t, still)
+  return (
+    <div className="grid gap-2 overflow-hidden rounded-[22px] bg-[#0b0c10] md:grid-cols-[minmax(0,1fr)_316px] md:items-center">
+      <Scaled width={MAP_W} height={MAP_H} view={{ cx: Math.max(rx + 60, 200), cy: ry - 10, w: 380, h: 290 }}><SearchMap t={t} still={still} /></Scaled>
+      <Scaled width={MAP_W} height={MAP_H} view={MAP_SIDE_VIEW}><SearchMap t={t} still={still} /></Scaled>
+    </div>
+  )
+}
+
+/** Encuadres de la bandeja en pantallas chicas: la fila nueva y, un momento, su estado. */
+function reviewView(time: number) {
+  if (time >= 13 && time < 15) return { cx: 1060, cy: 300, w: 400, h: 560 }
+  return { cx: 460, cy: 300, w: 400, h: 560 }
+}
+
+/** Recorrido por el detalle en pantallas chicas: cabecera, datos, por qué entró y acciones. */
+function detailView(time: number) {
+  if (time < 21) return { cx: 250, cy: 0, w: 440, h: 520 }
+  if (time < 24) return { cx: 250, cy: 600, w: 440, h: 520 }
+  if (time < 27) return { cx: 720, cy: 300, w: 440, h: 520 }
+  return { cx: 760, cy: 600, w: 440, h: 520 }
+}
+
 export function SearchReview() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
@@ -55,19 +86,19 @@ export function SearchReview() {
       <FastStage
         active={scene}
         scenes={[
-          { node: <Scaled width={MAP_W} height={MAP_H}><SearchMap t={scene === 0 ? time : 10} still={reducedMotion} /></Scaled>, from: 0.6 },
+          { node: <MapScene t={scene === 0 ? time : 10} still={reducedMotion} />, from: 0.6 },
           {
             from: 1.18,
             bounce: true,
             node: (
               <div key={scene === 1 ? 'land' : 'idle'} className={scene === 1 && !reducedMotion ? 'a1-land' : ''}>
-                <RealFrame active="revisar" crumb={['Empresas', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 262 : 560} click={time === 18} show={onRow} />}>
+                <RealFrame active="revisar" crumb={['Empresas', 'Por revisar']} height={600} view={reviewView(time)} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 262 : 560} click={time === 18} show={onRow} />}>
                   <CompanyReview arrived={time >= 12} focus={time >= 12} />
                 </RealFrame>
               </div>
             ),
           },
-          { node: <DetailScene><CompanyDetail show inline /></DetailScene>, from: 0.22, origin: '30% 43%' },
+          { node: <DetailScene view={detailView(time)}><CompanyDetail show inline /></DetailScene>, from: 0.22, origin: '30% 43%' },
         ]}
       />
       <ReplicaNote />

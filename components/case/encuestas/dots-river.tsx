@@ -132,7 +132,7 @@ export function ParticipationRiver({ stations, active, onPick }: RiverProps) {
             <span className={`font-mono text-[10px] transition-opacity ${on ? 'text-signal opacity-100' : 'opacity-40 group-hover:opacity-80'}`}>{String(i + 1).padStart(2, '0')}</span>
             <span className="flex flex-col items-center gap-1">
               <span className={`text-sm leading-tight transition-opacity xl:text-base ${on ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>{t(s.name)}</span>
-              <span className={`rounded-full border px-2 py-0.5 text-[9px] leading-tight transition-colors ${on ? 'border-signal text-signal' : 'border-fg/20 opacity-60'}`}>{t(s.who)}</span>
+              <span className={`rounded-full border px-2 py-0.5 text-[9px] leading-tight transition-colors max-lg:text-[11px] ${on ? 'border-signal text-signal' : 'border-fg/20 opacity-60'}`}>{t(s.who)}</span>
             </span>
           </button>
         )

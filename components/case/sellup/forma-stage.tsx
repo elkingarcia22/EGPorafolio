@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useTick } from '../barberlytics/thema/live-pieces'
 import { useInView } from './ui'
+import { Camera, useCompact, type View } from './camera'
 
 /**
  * Escenario por escenas: una sola pantalla visible a la vez (panel de Rumbo,
@@ -31,7 +32,13 @@ export function useSceneTime(loop: number, still: number): [React.RefObject<HTML
 }
 
 /** Escala un bloque de medidas fijas (px de diseño) al ancho disponible, centrado. */
-export function Scaled({ width, height, children, className = '' }: { width: number; height: number; children: ReactNode; className?: string }) {
+export function Scaled({ width, height, children, className = '', view }: { width: number; height: number; children: ReactNode; className?: string; view?: View }) {
+  const compact = useCompact()
+  if (compact && view) return <Camera width={width} height={height} view={view} className={className}>{children}</Camera>
+  return <ScaledFull width={width} height={height} className={className}>{children}</ScaledFull>
+}
+
+function ScaledFull({ width, height, children, className = '' }: { width: number; height: number; children: ReactNode; className?: string }) {
   const box = useRef<HTMLDivElement>(null)
   const [w, setW] = useState(width)
   useEffect(() => {
@@ -99,10 +106,10 @@ export function PanelScene({ children, height = 780 }: { children: ReactNode; he
 }
 
 /** Escena 3: solo el detalle (modal real), centrado y grande. */
-export function DetailScene({ children, width = 960, height = 600 }: { children: ReactNode; width?: number; height?: number }) {
+export function DetailScene({ children, width = 960, height = 600, view }: { children: ReactNode; width?: number; height?: number; view?: View }) {
   return (
     <div className="py-2">
-      <Scaled width={width} height={height}>{children}</Scaled>
+      <Scaled width={width} height={height} view={view}>{children}</Scaled>
     </div>
   )
 }

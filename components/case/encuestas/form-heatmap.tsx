@@ -169,7 +169,7 @@ export function HeatmapReal() {
             <div ref={scroller} className="overflow-x-auto">
               <table className="w-max border-collapse text-left">
                 <thead>
-                  <tr className="text-[10px] uppercase tracking-wider text-[#303a47]">
+                  <tr className="text-[10px] uppercase tracking-wider text-[#303a47] max-lg:text-[11px]">
                     <th className="sticky left-0 z-10 w-[15rem] min-w-[15rem] bg-white px-2 py-2 font-medium">Sección</th>
                     <th className="w-16 border-r border-black/[0.08] px-2 py-2 text-center font-medium">Total</th>
                     {AREAS.map((a) => (

@@ -117,13 +117,13 @@ export function Trajectory() {
 
   return (
     <ToneSection tone="light" id="about" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
-      <div ref={ref} className="grid gap-16 md:grid-cols-12">
-        <div className="md:col-span-12">
+      <div ref={ref} className="grid gap-16 lg:grid-cols-12">
+        <div className="lg:col-span-12">
           <SectionLabel index="03">{t(COPY.about.label)}</SectionLabel>
         </div>
 
         {/* Experiencia */}
-        <div className="md:col-span-7">
+        <div className="lg:col-span-7">
           <h2 className="brand-title mb-10 overflow-hidden text-3xl md:text-4xl">
             <span data-reveal-title className="block">{t(COPY.about.experience)}</span>
           </h2>
@@ -185,7 +185,7 @@ export function Trajectory() {
         </div>
 
         {/* Columna lateral */}
-        <div data-side className="space-y-14 md:col-span-4 md:col-start-9 md:border-l md:border-fg/20 md:pl-10">
+        <div data-side className="space-y-14 md:grid md:grid-cols-2 md:gap-x-12 md:gap-y-14 md:space-y-0 lg:block lg:col-span-4 lg:col-start-9 lg:space-y-14 lg:border-l lg:border-fg/20 lg:pl-10">
           <section aria-labelledby="edu-title" data-reveal-group>
             <h2 id="edu-title" className="brand-title mb-6 overflow-hidden text-2xl">
               <span data-reveal-title className="block">{t(COPY.about.education)}</span>

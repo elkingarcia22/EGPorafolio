@@ -36,7 +36,7 @@ function WeekView() {
   const { t } = useLocale()
   return (
     <div className="h-full p-4">
-      <div className="grid h-full grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] grid-rows-[auto_repeat(5,minmax(0,1fr))] gap-1.5">
+      <div className="grid h-full grid-cols-[3.4rem_repeat(7,minmax(0,1fr))] grid-rows-[auto_repeat(5,minmax(0,1fr))] gap-1 sm:grid-cols-[4.5rem_repeat(7,minmax(0,1fr))] sm:gap-1.5">
         <span />
         {DAYS.map((d, i) => (
           <p key={d.es} className={`flex items-center justify-between rounded-md px-2 py-1.5 text-[11px] ${i === TODAY ? 'bg-[#d9b36a] font-semibold text-[#16130f]' : 'text-white/60'}`}>
@@ -48,7 +48,7 @@ function WeekView() {
           <div key={b} className="contents">
             <p className="flex items-center text-[11px] text-white/70">{b}</p>
             {WEEK[r].map((occ, c) => (
-              <div key={c} className="relative overflow-hidden rounded-md bg-white/[0.04] p-1.5" style={{ outline: c === TODAY ? `1px solid ${GOLD}55` : undefined }}>
+              <div key={c} className="relative overflow-hidden rounded-md bg-white/[0.04] p-1 sm:p-1.5" style={{ outline: c === TODAY ? `1px solid ${GOLD}55` : undefined }}>
                 {occ === 0 ? (
                   <span className="text-[10px] text-white/30">{t({ es: 'Libre', en: 'Off' })}</span>
                 ) : (
@@ -57,8 +57,9 @@ function WeekView() {
                       className="absolute inset-x-0 bottom-0 origin-bottom animate-[bar-rise_0.9s_cubic-bezier(0.16,1,0.3,1)_both]"
                       style={{ height: `${occ * 100}%`, background: `rgba(217,179,106,${0.1 + occ * 0.28})`, animationDelay: `${(r * 7 + c) * 22}ms` }}
                     />
-                    <span className="relative font-mono text-[10px] text-white/80">{Math.round(occ * 100)} %</span>
-                    <span className="relative block text-[9px] text-white/45">{Math.round(occ * 14)} {t({ es: 'citas', en: 'visits' })}</span>
+                    {/* En el celular, solo el porcentaje y sin cortes: la barra cuenta el resto. */}
+                    <span className="relative whitespace-nowrap font-mono text-[10px] text-white/80 max-sm:text-[11px]">{Math.round(occ * 100)}<span className="max-sm:hidden"> </span>%</span>
+                    <span className="relative block text-[9px] text-white/45 max-sm:hidden">{Math.round(occ * 14)} {t({ es: 'citas', en: 'visits' })}</span>
                   </>
                 )}
               </div>
@@ -112,8 +113,8 @@ function MonthView() {
           >
             {occ >= 0 && (
               <>
-                <span className="font-mono text-[10px] text-white/80">{i - 1}</span>
-                <span className="absolute bottom-1 right-1.5 text-[9px] text-white/55">{Math.round(occ * 100)}%</span>
+                <span className="font-mono text-[10px] text-white/80 max-sm:text-[11px]">{i - 1}</span>
+                <span className="absolute bottom-1 right-1.5 text-[9px] text-white/55 max-sm:hidden">{Math.round(occ * 100)}%</span>
               </>
             )}
           </div>
@@ -143,7 +144,7 @@ function AgendaView({ now }: { now: number }) {
           const stage = stageAt(a, now)
           const s = STAGE[stage]
           return (
-            <li key={a.client} className="grid grid-cols-[3.4rem_minmax(0,1fr)_auto_auto] items-center gap-3 px-3 py-2 text-[11px] transition-colors duration-500" style={{ background: stage === 'seated' ? 'rgba(224,180,74,0.08)' : undefined }}>
+            <li key={a.client} className="grid grid-cols-[2.9rem_minmax(0,1fr)_auto] items-center gap-2 px-3 py-2 text-[11px] sm:grid-cols-[3.4rem_minmax(0,1fr)_auto_auto] sm:gap-3 transition-colors duration-500" style={{ background: stage === 'seated' ? 'rgba(224,180,74,0.08)' : undefined }}>
               <span className="font-mono text-white/50">{fmt(a.start)}</span>
               <span className="min-w-0 truncate">
                 <span className="font-medium text-white/90">{a.client}</span>
@@ -153,7 +154,7 @@ function AgendaView({ now }: { now: number }) {
                 <span className="h-1.5 w-1.5 rounded-full" style={{ background: s.hue }} />
                 {s.label}
               </span>
-              <span className="w-16 text-right">
+              <span className="w-16 text-right max-sm:hidden">
                 {s.next ? <span className="rounded-md bg-white/10 px-2 py-1 text-[10px] text-white/85">{s.next}</span> : <span className="text-[10px] text-[#4cc98d]">✓</span>}
               </span>
             </li>
@@ -209,8 +210,9 @@ export function CalendarViews() {
             <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
           </span>
           <span className="text-sm font-medium">{t({ es: 'Calendario', en: 'Calendar' })}</span>
-          <span className="text-[11px] text-white/45">{t({ es: 'Miércoles 18', en: 'Wednesday 18' })} · {fmt(now)}</span>
-          <span className="ml-auto flex rounded-lg bg-white/[0.05] p-0.5 text-[11px]">
+          <span className="whitespace-nowrap text-[11px] text-white/45">{t({ es: 'Miércoles 18', en: 'Wednesday 18' })} · {fmt(now)}</span>
+          {/* En el celular las pestañas de arriba ya cambian la vista: no se repiten apretadas aquí. */}
+          <span className="ml-auto flex rounded-lg max-sm:hidden bg-white/[0.05] p-0.5 text-[11px]">
             {VIEWS.map((x, k) => (
               <span key={x.id} className={`rounded-md px-2.5 py-1 transition-colors duration-300 ${k === i ? 'bg-[#d9b36a] text-[#16130f]' : 'text-white/55'}`}>{t(x.label)}</span>
             ))}

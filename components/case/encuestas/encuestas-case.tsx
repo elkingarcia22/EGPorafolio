@@ -59,11 +59,12 @@ export function EncuestasCase({ next }: { next: Project }) {
   return (
     <article ref={ref} className="overflow-x-clip">
       <EncuestasHero />
-      <div className="grid gap-10 px-[var(--gutter)] md:grid-cols-12">
-        <aside className="md:col-span-3">
+      <div className="grid gap-10 px-[var(--gutter)] lg:grid-cols-12">
+        {/* El índice fijo solo cabe en escritorio: en tableta el contenido usa todo el ancho. */}
+        <aside className="hidden lg:col-span-3 lg:block">
           <ChapterNav chapters={chapters} label={t(ENCUESTAS_CASE.title)} />
         </aside>
-        <div className="min-w-0 md:col-span-9">
+        <div className="min-w-0 lg:col-span-9">
           {chapters.map((meta, i) => {
             const { Content } = CHAPTERS[i]
             return (

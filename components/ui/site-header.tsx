@@ -172,7 +172,7 @@ export function SiteHeader() {
           <Monogram />
         </TransitionLink>
 
-        <nav aria-label="Principal" className="hidden md:block">
+        <nav aria-label="Principal" className="hidden lg:block">
           <ul className="flex items-center gap-7">
             {NAV.map((item) =>
               item.id === 'home' ? (
@@ -230,7 +230,7 @@ export function SiteHeader() {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMenuOpen((v) => !v)}
-            className="mono-label md:hidden"
+            className="mono-label lg:hidden"
           >
             {menuOpen ? '✕' : 'Menu'}
           </button>
@@ -238,7 +238,7 @@ export function SiteHeader() {
       </div>
 
       {menuOpen && (
-        <nav id="mobile-menu" aria-label="Principal móvil" className="relative border-t border-fg/15 bg-bg px-[var(--gutter)] py-6 md:hidden">
+        <nav id="mobile-menu" aria-label="Principal móvil" className="relative border-t border-fg/15 bg-bg px-[var(--gutter)] py-6 lg:hidden">
           <ul className="space-y-4">
             {NAV.map((item, i) => (
               <li key={item.id} className="flex items-baseline gap-4">

@@ -59,11 +59,12 @@ export function SellUpShell({ title, hero, content, next }: SellUpShellProps) {
   return (
     <article ref={ref} className="overflow-x-clip">
       {hero}
-      <div className="grid gap-10 px-[var(--gutter)] md:grid-cols-12">
-        <aside className="md:col-span-3">
+      <div className="grid gap-10 px-[var(--gutter)] lg:grid-cols-12">
+        {/* En tableta el índice lateral se oculta y el capítulo usa todo el ancho, como en teléfono. */}
+        <aside className="hidden lg:col-span-3 lg:block">
           <ChapterNav chapters={chapters} label={title} />
         </aside>
-        <div className="min-w-0 md:col-span-9">
+        <div className="min-w-0 lg:col-span-9">
           {chapters.map((meta) => {
             const Content = content[meta.id as ChapterKey]
             return (

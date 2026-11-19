@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { TABLET_QUERY, useMedia } from './use-media'
 
 const AUTO_MS = 6000
 const BLUE = 'rgb(64,96,255)'
@@ -27,25 +28,35 @@ const LEAVES = [
   { label: 'Ordenar el archivo', x: 380, aligned: false },
 ]
 
+/** Medidas del escenario: ancho en escritorio y tableta, angosto (las hojas más altas) en teléfono. */
+const NORTH = {
+  wide: { w: 560, h: 300, root: { x: 120, w: 320 }, rootFont: 20, leafX: (x: number) => x, leafW: 160, leafY: 200, leafH: 70, leafFont: 15, mid: 280 },
+  narrow: { w: 340, h: 300, root: { x: 20, w: 300 }, rootFont: 19, leafX: (x: number) => 4 + (x / 180) * 114, leafW: 104, leafY: 168, leafH: 98, leafFont: 15, mid: 170 },
+} as const
+
 function NorthScene() {
   const step = useTick(1300, 4)
+  const narrow = !useMedia(TABLET_QUERY)
+  const g = narrow ? NORTH.narrow : NORTH.wide
   return (
-    <svg viewBox="0 0 560 300" className="h-full w-full" role="img" aria-label="Tres objetivos: dos cuelgan del norte de la empresa y uno queda sin alinear">
-      <rect x="120" y="16" width="320" height="60" rx="14" fill={BLUE} />
-      <text x="280" y="53" textAnchor="middle" fontSize="20" fill="#fff">Crecer los ingresos un 15 %</text>
+    <svg viewBox={`0 0 ${g.w} ${g.h}`} className="h-full w-full" role="img" aria-label="Tres objetivos: dos cuelgan del norte de la empresa y uno queda sin alinear">
+      <rect x={g.root.x} y="16" width={g.root.w} height="60" rx="14" fill={BLUE} />
+      <text x={g.mid} y="53" textAnchor="middle" fontSize={g.rootFont} fill="#fff">Crecer los ingresos un 15 %</text>
       {LEAVES.map((leaf, i) => {
         const shown = step > i
-        const path = `M${leaf.x + 80} 200 C${leaf.x + 80} 140 280 130 280 76`
+        const x = g.leafX(leaf.x)
+        const cx = x + g.leafW / 2
+        const path = `M${cx} ${g.leafY} C${cx} ${g.leafY - 60} ${g.mid} ${g.leafY - 70} ${g.mid} 76`
         return (
           <g key={leaf.label} className="transition-opacity duration-700" style={{ opacity: shown ? 1 : 0.15 }}>
             <path d={path} fill="none" stroke={leaf.aligned ? BLUE : 'currentColor'} strokeOpacity={leaf.aligned ? 0.9 : 0.35} strokeWidth={leaf.aligned ? 3 : 1.5} strokeDasharray={leaf.aligned ? undefined : '5 6'} />
             {leaf.aligned && shown && <path d={path} fill="none" stroke={BLUE} strokeWidth={7} strokeLinecap="round" pathLength={1} strokeDasharray="0.04 0.96" className="obj-flow" />}
-            <rect x={leaf.x} y="200" width="160" height="70" rx="12" fill="var(--obj-card)" stroke={leaf.aligned ? BLUE : 'currentColor'} strokeOpacity={leaf.aligned ? 0.6 : 0.25} />
-            <foreignObject x={leaf.x + 10} y="208" width="140" height="56">
-              <p style={{ fontSize: 15, lineHeight: 1.2, margin: 0 }}>{leaf.label}</p>
+            <rect x={x} y={g.leafY} width={g.leafW} height={g.leafH} rx="12" fill="var(--obj-card)" stroke={leaf.aligned ? BLUE : 'currentColor'} strokeOpacity={leaf.aligned ? 0.6 : 0.25} />
+            <foreignObject x={x + 10} y={g.leafY + 8} width={g.leafW - 20} height={g.leafH - 14}>
+              <p style={{ fontSize: g.leafFont, lineHeight: 1.2, margin: 0 }}>{leaf.label}</p>
             </foreignObject>
             {!leaf.aligned && (
-              <text x={leaf.x + 80} y="292" textAnchor="middle" fontSize="15" fill="#e8743b">sin alinear</text>
+              <text x={cx} y={g.leafY + g.leafH + 22} textAnchor="middle" fontSize="15" fill="#e8743b">sin alinear</text>
             )}
           </g>
         )
@@ -144,10 +155,10 @@ function CountScene() {
         {CELLS.map((c) => {
           const reserved = c.n < 3
           return (
-            <div key={c.area} className={`rounded-xl p-3 ${reserved ? 'border border-dashed border-fg/30' : 'bg-[var(--obj-card)] ring-1 ring-fg/10'}`}>
+            <div key={c.area} className={`min-w-0 rounded-xl p-2 md:p-3 ${reserved ? 'border border-dashed border-fg/30' : 'bg-[var(--obj-card)] ring-1 ring-fg/10'}`}>
               <span className="block truncate text-[11px] opacity-60">{c.area}</span>
               <span className="mt-1 block text-lg font-light leading-none">{reserved ? '🔒' : c.n}</span>
-              <span className="mt-1 block truncate font-mono text-[10px] opacity-50">{reserved ? 'reservado' : 'personas'}</span>
+              <span className="mt-1 block truncate font-mono text-[11px] opacity-50 md:text-[10px]">{reserved ? 'reservado' : 'personas'}</span>
             </div>
           )
         })}

@@ -49,8 +49,8 @@ function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project 
         >
           ↗
         </span>
-        <div className="col-span-12 mt-4 md:hidden">
-          <ProjectPreview project={project} className="rounded-md" />
+        <div className="col-span-12 mt-4 md:col-span-10 md:col-start-3 lg:hidden">
+          <ProjectPreview project={project} className="rounded-md" compact />
         </div>
       </TransitionLink>
     </li>
@@ -104,7 +104,7 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
       <div
         ref={previewRef}
         aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-40 hidden md:block ${active && hasCustomPreview(active.slug) ? 'w-[min(32rem,38vw)]' : 'w-[min(26rem,32vw)]'}`}
+        className={`pointer-events-none fixed left-0 top-0 z-40 hidden lg:block ${active && hasCustomPreview(active.slug) ? 'w-[min(32rem,38vw)]' : 'w-[min(26rem,32vw)]'}`}
         style={{ clipPath: 'inset(50% 50% 50% 50%)' }}
       >
         {active && (

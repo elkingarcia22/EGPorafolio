@@ -29,7 +29,9 @@ export function NextProject({ project }: { project: Project }) {
         {/* La misma vista previa animada de la lista de proyectos de la portada */}
         <div className="overflow-hidden rounded-md shadow-[0_40px_90px_-35px_rgba(0,0,0,0.7)] ring-1 ring-white/10 md:col-span-5">
           <div className="transition-transform duration-700 ease-expo group-hover:scale-[1.03]">
-            <ProjectPreview project={project} />
+            {/* En celular y tablet, la versión compacta que se lee; en escritorio, la de la portada */}
+            <ProjectPreview project={project} compact className="lg:hidden" />
+            <ProjectPreview project={project} className="hidden lg:block" />
           </div>
         </div>
       </TransitionLink>

@@ -11,6 +11,7 @@ import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 import { CascadeGraph } from './cascade-graph'
 import { OBJETIVOS, cuenta, tramoDe, type ObjetivoPersona } from './cascade-model'
 import { useCheckinLoop } from './use-checkin-loop'
+import { DESKTOP_QUERY, useMedia } from './use-media'
 
 /** Tarjeta flotante del último reporte: quién, qué objetivo y cuánto subió. */
 function ReportToast({ last }: { last: { o: ObjetivoPersona; from: number } | null }) {
@@ -40,6 +41,7 @@ export function ObjetivosHero() {
   const ref = useRef<HTMLDivElement>(null)
   const { objetivos, pulse, pulseKey, last } = useCheckinLoop(OBJETIVOS, { enabled: !reducedMotion, every: 2600 })
   const [inView, setInView] = useState(true)
+  const desktop = useMedia(DESKTOP_QUERY)
 
   useEffect(() => {
     const el = ref.current
@@ -80,6 +82,7 @@ export function ObjetivosHero() {
           <p data-hero-fade className="text-lg leading-relaxed opacity-85 md:col-span-5">{t(OBJ_CASE.tagline)}</p>
         </div>
 
+        {desktop ? (
         <div data-hero-stage className="relative mx-auto mt-14 max-w-6xl">
           <CascadeGraph objetivos={objetivos} pulse={inView ? pulse : null} pulseKey={pulseKey} reducedMotion={reducedMotion} />
           <div className="mt-6 flex flex-wrap items-start justify-between gap-6">
@@ -93,6 +96,23 @@ export function ObjetivosHero() {
           </div>
           </div>
         </div>
+        ) : (
+          /* Teléfono y tableta: la cascada de lado (empresa → áreas → personas) a tamaño legible y,
+             en tableta, el último reporte al lado en vez de debajo. */
+          <div data-hero-stage className="relative mt-12 md:flex md:items-center md:justify-center md:gap-8">
+            <CascadeGraph layout="tall" objetivos={objetivos} pulse={inView ? pulse : null} pulseKey={pulseKey} reducedMotion={reducedMotion} className="mx-auto max-w-[400px] md:mx-0 md:w-[380px] md:shrink-0" />
+            <div className="mt-6 md:mt-0">
+              <div className="hidden min-h-[150px] md:block" aria-live="polite">
+                <ReportToast last={last} />
+              </div>
+              <p data-hero-fade className="flex flex-col gap-1 pt-2 font-mono text-[11px] text-white/55 md:mt-4">
+                <span>{t({ es: 'Ciclo de ejemplo', en: 'Sample cycle' })} · KPIs corporativos 2026</span>
+                <span>{approved} / {objetivos.length} {t({ es: 'objetivos aprobados', en: 'goals approved' })}</span>
+                <span>{t({ es: 'Lo que no está aprobado no suma', en: 'Unapproved goals don’t count' })}</span>
+              </p>
+            </div>
+          </div>
+        )}
 
         <dl className="relative mt-16 grid grid-cols-2 gap-6 border-t border-fg/15 pt-8 md:grid-cols-5">
           {OBJ_CASE.meta.map((m) => (

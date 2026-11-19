@@ -64,7 +64,7 @@ export function Screen({ shot, route, className = '', sizes = '(min-width: 1024p
 export function ReferenceTag() {
   const { t } = useLocale()
   return (
-    <span className="ml-2 inline-flex items-center rounded-full border border-current px-1.5 py-px align-middle font-mono text-[9px] uppercase tracking-wider opacity-60">
+    <span className="ml-2 inline-flex items-center rounded-full border border-current px-1.5 py-px align-middle font-mono text-[9px] uppercase tracking-wider opacity-60 max-lg:text-[11px]">
       {t({ es: 'referencia', en: 'reference' })}
     </span>
   )
@@ -78,4 +78,46 @@ export function Lock({ className = '' }: { className?: string }) {
       <path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" />
     </svg>
   )
+}
+
+/** Verdadero mientras la consulta de medios se cumpla (falso en el servidor y en el primer pintado). */
+export function useMedia(query: string): boolean {
+  const [matches, setMatches] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const update = () => setMatches(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [query])
+  return matches
+}
+
+interface ZoomInput {
+  /** Punto a centrar, en % de la imagen. */
+  cx: number
+  cy: number
+  /** Acercamiento (1 = la imagen ocupa el ancho de la ventana). */
+  zoom: number
+  /** Ancho / alto de la ventana y de la imagen. */
+  frameRatio: number
+  imageRatio: number
+}
+
+/** Desplazamiento (en anchos de la ventana) y acercamiento que centran un punto de la captura sin dejar bordes vacíos. */
+export function zoomBox({ cx, cy, zoom, frameRatio, imageRatio }: ZoomInput): { tx: number; ty: number; zoom: number } {
+  const frameH = 1 / frameRatio
+  const imgH = zoom / imageRatio
+  const tx = Math.min(0, Math.max(1 - zoom, 0.5 - (zoom * cx) / 100))
+  const ty = Math.min(0, Math.max(Math.min(0, frameH - imgH), frameH / 2 - (imgH * cy) / 100))
+  return { tx, ty, zoom }
+}
+
+/**
+ * Transformación (con `transform-origin: 0 0`) que acerca una captura dentro de su ventana y centra un punto,
+ * sin dejar ver bordes vacíos. Sirve para recortar en el celular lo que importa de una pantalla de escritorio.
+ */
+export function zoomTransform(input: ZoomInput): string {
+  const { tx, ty, zoom } = zoomBox(input)
+  return `translate(${tx * 100}%, ${ty * input.imageRatio * 100}%) scale(${zoom})`
 }

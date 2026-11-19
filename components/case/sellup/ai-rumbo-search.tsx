@@ -4,6 +4,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { APP, Pill, RumboOrb } from './platform'
 import { useInView } from './ui'
 import { useLoop } from './ai-hooks'
+import { useCompact } from './camera'
 
 interface Source {
   name: string
@@ -22,6 +23,23 @@ const SOURCES: readonly Source[] = [
   { name: 'Apollo', cost: 'paid', found: { es: 'No hizo falta', en: 'Not needed' }, x: 54, y: 226 },
   { name: 'Lusha', cost: 'paid', found: { es: 'No hizo falta', en: 'Not needed' }, x: 54, y: 104 },
 ]
+
+/**
+ * Composición del diagrama. En escritorio, las fuentes rodean a Rumbo; en teléfono y
+ * tableta se apilan en dos filas (lo gratis arriba, lo que cuesta abajo) para que
+ * el diagrama no se encoja y sus textos se lean.
+ */
+interface Layout {
+  box: readonly [number, number]
+  center: readonly [number, number]
+  pos: readonly (readonly [number, number])[]
+  node: readonly [number, number]
+  font: readonly [number, number]
+  /** Línea base del nombre y de la nota dentro del nodo. */
+  textY: readonly [number, number]
+}
+const WIDE: Layout = { box: [400, 324], center: [200, 162], pos: SOURCES.map((s) => [s.x, s.y] as const), node: [96, 34], font: [10.5, 8.5], textY: [-2, 10] }
+const TALL: Layout = { box: [330, 360], center: [165, 180], pos: [[56, 40], [165, 40], [274, 40], [165, 320], [274, 320], [56, 320]], node: [104, 42], font: [12.5, 11.5], textY: [-3, 13] }
 
 const COST_COLOR = { free: '#10b981', low: '#5b7eff', paid: '#f59e0b' } as const
 
@@ -51,6 +69,10 @@ export function RumboSearch() {
   const [ref, seen] = useInView<HTMLDivElement>(0.35)
   const [step] = useLoop(TOTAL, 750, seen)
   const goal = step >= 6
+  const compact = useCompact()
+  const L = compact ? TALL : WIDE
+  const [cx, cy] = L.center
+  const [nw, nh] = L.node
   const active = step >= 1 && step <= 4 ? step - 1 : -1
 
   const state = (i: number): 'idle' | 'busy' | 'done' | 'skip' => {
@@ -61,14 +83,15 @@ export function RumboSearch() {
 
   return (
     <div ref={ref} className="grid gap-4 overflow-hidden rounded-[20px] p-4 ring-1 ring-white/10 md:p-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]" style={{ background: APP.bg, color: APP.text }} data-reveal="device">
-      <svg viewBox="0 0 400 324" className="h-auto w-full" role="img" aria-label={t({ es: 'Rumbo consultando fuentes en cascada', en: 'Rumbo querying sources in a cascade' })}>
+      <svg viewBox={`0 0 ${L.box[0]} ${L.box[1]}`} className="h-auto w-full" role="img" aria-label={t({ es: 'Rumbo consultando fuentes en cascada', en: 'Rumbo querying sources in a cascade' })}>
         <defs>
           <radialGradient id="rumbo-halo"><stop offset="0" stopColor="#7e2be0" stopOpacity="0.45" /><stop offset="1" stopColor="#7e2be0" stopOpacity="0" /></radialGradient>
         </defs>
-        <circle cx="200" cy="162" r={goal ? 90 : 70} fill="url(#rumbo-halo)" style={{ transition: 'r 900ms' }} />
+        <circle cx={cx} cy={cy} r={goal ? 90 : 70} fill="url(#rumbo-halo)" style={{ transition: 'r 900ms' }} />
         {SOURCES.map((s, i) => {
           const st = state(i)
-          const path = `M200 162 L${s.x} ${s.y}`
+          const [sx, sy] = L.pos[i]
+          const path = `M${cx} ${cy} L${sx} ${sy}`
           return (
             <g key={s.name}>
               <path d={path} stroke={st === 'skip' ? 'rgba(255,255,255,0.08)' : COST_COLOR[s.cost]} strokeOpacity={st === 'idle' ? 0.18 : 0.8} strokeWidth={st === 'busy' ? 2 : 1} strokeDasharray={st === 'skip' ? '3 5' : st === 'busy' ? '6 4' : undefined} fill="none">
@@ -76,21 +99,21 @@ export function RumboSearch() {
               </path>
               {st === 'busy' && (
                 <circle r="3.5" fill={COST_COLOR[s.cost]}>
-                  <animateMotion dur="0.9s" repeatCount="indefinite" path={`M${s.x} ${s.y} L200 162`} />
+                  <animateMotion dur="0.9s" repeatCount="indefinite" path={`M${sx} ${sy} L${cx} ${cy}`} />
                 </circle>
               )}
-              <g transform={`translate(${s.x} ${s.y})`} opacity={st === 'skip' ? 0.35 : st === 'idle' ? 0.55 : 1} style={{ transition: 'opacity 500ms' }}>
-                <rect x="-48" y="-17" width="96" height="34" rx="9" fill={APP.card} stroke={st === 'busy' || st === 'done' ? COST_COLOR[s.cost] : 'rgba(255,255,255,0.12)'} />
-                <text y="-2" textAnchor="middle" fontSize="10.5" fill={APP.text}>{s.name}</text>
-                <text y="10" textAnchor="middle" fontSize="8.5" fill={st === 'done' ? COST_COLOR[s.cost] : 'rgba(232,233,236,0.5)'}>
+              <g transform={`translate(${sx} ${sy})`} opacity={st === 'skip' ? 0.35 : st === 'idle' ? 0.55 : 1} style={{ transition: 'opacity 500ms' }}>
+                <rect x={-nw / 2} y={-nh / 2} width={nw} height={nh} rx="9" fill={APP.card} stroke={st === 'busy' || st === 'done' ? COST_COLOR[s.cost] : 'rgba(255,255,255,0.12)'} />
+                <text y={L.textY[0]} textAnchor="middle" fontSize={L.font[0]} fill={APP.text}>{s.name}</text>
+                <text y={L.textY[1]} textAnchor="middle" fontSize={L.font[1]} fill={st === 'done' ? COST_COLOR[s.cost] : 'rgba(232,233,236,0.5)'}>
                   {st === 'done' || st === 'skip' ? t(s.found) : st === 'busy' ? t({ es: 'consultando…', en: 'querying…' }) : s.cost === 'paid' ? t({ es: 'de pago', en: 'paid' }) : t({ es: 'gratis', en: 'free' })}
                 </text>
               </g>
             </g>
           )
         })}
-        <foreignObject x="176" y="138" width="48" height="48"><RumboOrb size={48} pulse={!goal} /></foreignObject>
-        <text x="200" y="208" textAnchor="middle" fontSize="11" fill={APP.text}>Rumbo</text>
+        <foreignObject x={cx - 24} y={cy - 24} width="48" height="48"><RumboOrb size={48} pulse={!goal} /></foreignObject>
+        <text x={cx} y={cy + 46} textAnchor="middle" fontSize={compact ? 13 : 11} fill={APP.text}>Rumbo</text>
       </svg>
 
       <div className="flex min-w-0 flex-col">
@@ -100,7 +123,7 @@ export function RumboSearch() {
             const shown = i <= step
             return (
               <li key={th.es} className={`flex gap-2 transition-all duration-500 ${shown ? 'opacity-100' : 'translate-y-1 opacity-0'} ${i === Math.min(step, THOUGHTS.length - 1) ? '' : 'text-white/50'}`}>
-                <span className="font-mono text-[10px] text-[#a78bfa]">{String(i + 1).padStart(2, '0')}</span>
+                <span className="font-mono text-[11px] text-[#a78bfa] lg:text-[10px]">{String(i + 1).padStart(2, '0')}</span>
                 <span className="leading-snug">{t(th)}</span>
               </li>
             )

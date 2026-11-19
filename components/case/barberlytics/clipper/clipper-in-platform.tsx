@@ -7,6 +7,7 @@ import { PhoneBody, StatusBar } from '@/components/case/kit/device'
 import { ClipperOrb } from '../clipper-orb'
 import { useTick } from '../thema/live-pieces'
 import { AI_GRADIENT } from './clipper-pieces'
+import { useNarrow } from '../use-narrow'
 
 const GOLD = '#d9b36a'
 
@@ -43,23 +44,25 @@ function Laptop({ step }: { step: number }) {
   const { t } = useLocale()
   const open = step >= 1 && step <= 6
   const applied = step === 6
+  // En el celular se hace zoom a la mitad derecha de la pantalla: el panel de Clipper ocupa casi todo y se lee.
+  const narrow = useNarrow()
   return (
     <div data-reveal="device">
       {/* Pantalla con bisel y cámara */}
       <div className="relative mx-auto rounded-t-[18px] bg-[#0b0c0e] p-[1.4%] pb-[2%] shadow-[0_50px_90px_-35px_rgba(0,0,0,0.75),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
         <span className="absolute left-1/2 top-[0.6%] h-[5px] w-[5px] -translate-x-1/2 rounded-full bg-[#23252b]" aria-hidden="true" />
-        <div className="relative overflow-hidden rounded-[6px]">
-          <Image src="/cases/barberlytics/role-owner-metrics.webp" width={2000} height={1250} alt={t({ es: 'Métricas del dueño en la plataforma, con el panel de Clipper abierto.', en: 'Owner metrics in the platform, with the Clipper panel open.' })} sizes="(min-width: 1024px) 60vw, 100vw" className={`block h-auto w-full transition-[filter] duration-700 ${open ? 'brightness-[0.55]' : ''}`} />
-          <Pulse x={81.5} y={11.4} w={7.2} h={4.6} on={step === 0} />
+        <div className="relative overflow-hidden rounded-[6px] max-sm:aspect-[4/5]">
+          <Image src="/cases/barberlytics/role-owner-metrics.webp" width={2000} height={1250} alt={t({ es: 'Métricas del dueño en la plataforma, con el panel de Clipper abierto.', en: 'Owner metrics in the platform, with the Clipper panel open.' })} sizes="(min-width: 1024px) 60vw, 100vw" className={`block h-auto w-full transition-[filter] duration-700 max-sm:h-full max-sm:object-cover max-sm:object-right-top ${open ? 'brightness-[0.55]' : ''}`} />
+          <Pulse x={narrow ? 63 : 81.5} y={11.4} w={narrow ? 14.4 : 7.2} h={4.6} on={step === 0} />
 
           {/* El panel de Clipper */}
-          <aside className={`absolute inset-y-0 right-0 flex w-[38%] flex-col border-l border-white/10 bg-[#141210]/95 p-[1.4%] text-[#efe9dd] backdrop-blur transition-transform duration-700 ease-expo ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+          <aside className={`absolute inset-y-0 right-0 flex w-[38%] flex-col border-l border-white/10 bg-[#141210]/95 p-[1.4%] max-sm:w-[86%] max-sm:p-3 text-[#efe9dd] backdrop-blur transition-transform duration-700 ease-expo ${open ? 'translate-x-0' : 'translate-x-full'}`}>
             <div className="flex items-center gap-2 border-b border-white/10 pb-2">
               <ClipperOrb size={20} state={step === 2 ? 'thinking' : 'idle'} />
-              <span className="bg-clip-text text-[clamp(9px,1vw,13px)] font-medium text-transparent" style={{ backgroundImage: AI_GRADIENT }}>Clipper</span>
-              <span className="ml-auto text-[clamp(8px,0.8vw,10px)] text-white/40">{t({ es: 'Dueño', en: 'Owner' })}</span>
+              <span className="bg-clip-text text-[clamp(9px,1vw,13px)] font-medium max-sm:text-[14px] text-transparent" style={{ backgroundImage: AI_GRADIENT }}>Clipper</span>
+              <span className="ml-auto text-[clamp(8px,0.8vw,10px)] text-white/40 max-sm:text-[11px]">{t({ es: 'Dueño', en: 'Owner' })}</span>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col justify-end gap-[2.5%] overflow-hidden py-1.5 text-[clamp(7px,0.72vw,11px)] leading-snug">
+            <div className="flex min-h-0 flex-1 flex-col justify-end gap-[2.5%] overflow-hidden py-1.5 text-[clamp(7px,0.72vw,11px)] leading-snug max-sm:text-[12.5px]">
               <Show on={step >= 2} className="ml-auto max-w-[88%]">
                 <p className="rounded-xl rounded-tr-sm bg-white/[0.09] px-2.5 py-1.5">{t({ es: 'Pásale la de Santiago a la tarde con Lorena', en: 'Move Santiago’s to the afternoon with Lorena' })}</p>
               </Show>
@@ -86,7 +89,7 @@ function Laptop({ step }: { step: number }) {
                 </div>
               </Show>
             </div>
-            <div className="rounded-lg border border-white/10 px-2 py-1.5 text-[clamp(8px,0.8vw,11px)] text-white/35">{t({ es: 'Pregúntale a Clipper…', en: 'Ask Clipper…' })}</div>
+            <div className="rounded-lg border border-white/10 px-2 py-1.5 text-[clamp(8px,0.8vw,11px)] text-white/35 max-sm:text-[12px]">{t({ es: 'Pregúntale a Clipper…', en: 'Ask Clipper…' })}</div>
           </aside>
         </div>
       </div>

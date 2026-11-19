@@ -73,7 +73,7 @@ export function UsageMetrics() {
   return (
     <div ref={ref}>
       {/* Collage: costo protagonista, cifras clave, cuándo y cómo se usa, y la matriz por rol */}
-      <div className="grid gap-3 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
         <div className="relative overflow-hidden rounded-[24px] border border-[#6b8cff]/40 bg-gradient-to-br from-[#18203d] via-[#141826] to-[#121318] p-6 lg:col-span-4 lg:row-span-2">
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 animate-pulse rounded-full bg-[radial-gradient(closest-side,rgba(126,43,224,0.4),transparent)] motion-reduce:animate-none" aria-hidden="true" />
           <p className="mono-label text-white/50">{t({ es: 'Costo estimado de IA', en: 'Estimated AI cost' })}</p>
@@ -93,11 +93,11 @@ export function UsageMetrics() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:col-span-8">
           {TOP.map((k, i) => <KpiCard key={k.label.es} k={k} on={on} i={i} />)}
         </div>
-        <div className="grid gap-3 md:grid-cols-2 lg:col-span-8">
+        <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2 lg:col-span-8">
           <UsageHeatmap />
           <UsageTimeline />
         </div>
-        <div className="lg:col-span-9"><UsageMatrix /></div>
+        <div className="min-w-0 lg:col-span-9"><UsageMatrix /></div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 lg:col-span-3 lg:grid-cols-1">
           {SIDE.map((k, i) => <KpiCard key={k.label.es} k={k} on={on} i={i + 4} />)}
         </div>

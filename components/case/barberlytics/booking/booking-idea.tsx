@@ -61,7 +61,8 @@ function VersionsDemo() {
   const { t } = useLocale()
   const { step } = useStep(1100, VERSIONS.length)
   return (
-    <div className="grid h-full grid-cols-[minmax(0,1.3fr)_56px_minmax(0,0.8fr)] items-center">
+    // En el celular se apila: las cuatro preguntas arriba y el motor debajo, sin cortar las frases.
+    <div className="grid h-full items-center gap-2 sm:grid-cols-[minmax(0,1.3fr)_56px_minmax(0,0.8fr)] sm:gap-0">
       <ul className="space-y-1.5">
         {VERSIONS.map((v, i) => (
           <li key={v.name.es} className={`flex items-baseline justify-between gap-2 rounded-md border px-3 py-1.5 text-[12px] transition-colors duration-500 ${i === step ? 'border-fg/40 bg-bg' : 'border-fg/10'}`}>
@@ -70,7 +71,8 @@ function VersionsDemo() {
           </li>
         ))}
       </ul>
-      <svg viewBox="0 0 56 120" className="h-[120px] w-full" preserveAspectRatio="none" aria-hidden="true">
+      <span className="text-center text-sm opacity-40 sm:hidden" aria-hidden="true">↓</span>
+      <svg viewBox="0 0 56 120" className="hidden h-[120px] w-full sm:block" preserveAspectRatio="none" aria-hidden="true">
         {[15, 45, 75, 105].map((y, i) => (
           <path key={y} d={`M0 ${y} C 30 ${y}, 26 60, 56 60`} fill="none" strokeWidth={i === step ? 1.6 : 0.8} stroke={i === step ? GOLD : 'currentColor'} strokeOpacity={i === step ? 1 : 0.25} vectorEffect="non-scaling-stroke" className="transition-all duration-500" />
         ))}

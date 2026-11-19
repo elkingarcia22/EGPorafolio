@@ -24,7 +24,7 @@ export function CoverageGrid() {
       <span className="pointer-events-none absolute -left-24 top-1/3 h-96 w-96 rounded-full bg-signal opacity-25 blur-3xl" aria-hidden="true" />
       <span className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#7b5cff] opacity-20 blur-3xl" aria-hidden="true" />
       <figcaption className="relative mb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Lo que cubre para que nadie cambie su forma de trabajar', en: 'What it covers so nobody changes how they work' })}</figcaption>
-      <ul className="relative grid grid-cols-2 gap-2 sm:grid-cols-5">
+      <ul className="relative grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
         {COVERAGE.map((c, i) => (
           <li
             key={c.label.es}

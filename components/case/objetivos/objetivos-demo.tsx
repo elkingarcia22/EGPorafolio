@@ -17,6 +17,7 @@ const DEMO_URL = 'https://staging-playground.ubits.co/admin/desempeno-cultura/ob
 const RAIL = 72
 const TOPBAR = 60
 const NARROW_WINDOW = 1200
+const PHONE_MAX = 600
 
 function ModuleOnly() {
   const { t } = useLocale()
@@ -32,9 +33,13 @@ function ModuleOnly() {
     return () => ro.disconnect()
   }, [])
 
-  const width = size && size.w < 768 ? 1024 : NARROW_WINDOW - 1
+  // En teléfono (hasta 600 px, donde el playground ya no muestra el riel) se dibuja a su tamaño real,
+  // con su propia vista móvil, sin escalar, para que se lea. Más ancho, la vista de escritorio escalada.
+  const phone = !!size && size.w <= PHONE_MAX
+  const width = phone && size ? size.w : size && size.w < 768 ? 1024 : NARROW_WINDOW - 1
   const scale = size ? size.w / width : 1
   const height = size ? size.h / scale : 800
+  const rail = phone ? 0 : RAIL
 
   return (
     <div ref={box} className="relative min-h-0 flex-1 overflow-hidden bg-white">
@@ -56,8 +61,8 @@ function ModuleOnly() {
       {/* Capas invisibles sobre el riel y la barra superior: se ven, pero no llevan a otros productos. */}
       {size && (
         <>
-          <span className="absolute left-0 top-0 h-full cursor-not-allowed" style={{ width: RAIL * scale }} aria-hidden="true" />
-          <span className="absolute right-0 top-0 cursor-not-allowed" style={{ left: RAIL * scale, height: TOPBAR * scale }} aria-hidden="true" />
+          {rail > 0 && <span className="absolute left-0 top-0 h-full cursor-not-allowed" style={{ width: rail * scale }} aria-hidden="true" />}
+          <span className="absolute right-0 top-0 cursor-not-allowed" style={{ left: rail * scale, height: TOPBAR * scale }} aria-hidden="true" />
         </>
       )}
     </div>
@@ -71,6 +76,9 @@ export function ObjetivosDemo() {
 
   return (
     <>
+      {/* Debajo de lg la grilla de CaseDemo no tiene columnas explícitas y la URL larga (sin cortes) la
+          ensanchaba más que la pantalla; una columna minmax(0,1fr) la contiene. */}
+      <div className="max-lg:[&>div]:grid-cols-[minmax(0,1fr)]">
       <CaseDemo
         title={{ es: 'El producto real, como administrador.', en: 'The real product, as admin.' }}
         lead={OBJ_CASE.demo.lead}
@@ -79,6 +87,7 @@ export function ObjetivosDemo() {
         accent="12 91 239"
         onOpen={() => setOpen('objetivos')}
       />
+      </div>
       <RecordModal
         ids={['objetivos']}
         openId={open}

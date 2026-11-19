@@ -23,7 +23,13 @@ const SLOTS: Record<Channel, { x: number; y: number; r: number }> = {
   whatsapp: { x: 920, y: 325, r: 4 },
 }
 
-export function FanScene({ u }: { u: number }) {
+/** Encuadre en pantallas chicas: el mensaje base y, al abrirse el abanico, el aparato del canal activo. */
+export function fanView(u: number, c: Channel) {
+  if (u < FAN_AT) return { cx: FAN_W / 2, cy: 255, w: 620, h: 290 }
+  return { cx: SLOTS[c].x, cy: 300, w: 360, h: 440 }
+}
+
+export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel) => void }) {
   const [pick, setPick] = useState<{ p?: number; c?: Channel }>({})
   useEffect(() => {
     if (u === 0) setPick({})
@@ -33,6 +39,9 @@ export function FanScene({ u }: { u: number }) {
   const autoP = u >= 18 ? 1 : 0
   const c = pick.c ?? autoC
   const p = pick.p ?? autoP
+  useEffect(() => {
+    onChannel?.(c)
+  }, [c, onChannel])
   const sentences = Math.min(BASE[p].length, Math.max(0, u))
 
   return (

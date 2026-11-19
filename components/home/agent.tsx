@@ -162,9 +162,9 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
         </div>
 
         <div className="min-w-0 lg:col-span-7">
-          <div className="flex h-[min(40rem,80svh)] flex-col border border-fg/20 bg-fg/[0.03]">
+          <div className="flex h-[min(30rem,72svh)] flex-col lg:h-[min(40rem,80svh)] border border-fg/20 bg-fg/[0.03]">
             <div className="flex items-center justify-between gap-4 border-b border-fg/15 px-4 py-3">
-              <span className="mono-label flex items-center gap-2">
+              <span className="mono-label flex shrink-0 items-center gap-2 whitespace-nowrap">
                 <span className={`h-2 w-2 rounded-full bg-signal ${busy ? 'animate-pulse' : ''}`} aria-hidden="true" />
                 EG · agent
               </span>

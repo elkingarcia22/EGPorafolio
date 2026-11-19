@@ -104,7 +104,7 @@ function EvalSwarm() {
 
       <svg viewBox={`0 0 ${W} ${H + 40}`} className="mt-6 block h-auto w-full" role="img" aria-label={groups.map((g) => `${t(g.label)}: ${g.value}`).join(', ')}>
         {heads.map((h, gi) => (
-          <g key={`${mode}-${gi}`} className="animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: '350ms' }}>
+          <g key={`${mode}-${gi}`} className="animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] max-sm:hidden" style={{ animationDelay: '350ms' }}>
             <text x={h.x + h.w / 2} y={H + 22} textAnchor="middle" fontSize="13" fill="rgba(239,233,221,0.85)">{t(groups[gi].label)}</text>
             <text x={h.x + h.w / 2} y={H + 38} textAnchor="middle" fontSize="11" fontFamily="var(--font-mono, monospace)" fill={groups[gi].color}>{groups[gi].value}</text>
           </g>
@@ -123,6 +123,16 @@ function EvalSwarm() {
           )
         })}
       </svg>
+      {/* En el celular las etiquetas del SVG quedarían diminutas: van como leyenda en texto. */}
+      <ul key={`legend-${mode}`} className="mt-4 grid animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] gap-2 sm:hidden">
+        {groups.map((g) => (
+          <li key={g.label.es} className="flex items-center gap-2.5 text-[13px] text-white/85">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: g.color }} />
+            {t(g.label)}
+            <span className="ml-auto font-mono text-[12px]" style={{ color: g.color }}>{g.value}</span>
+          </li>
+        ))}
+      </ul>
 
       <div className="mt-6 flex flex-wrap items-center gap-1.5">
         {evals.categories.map((c) => <span key={c} className="rounded-full border border-white/10 px-2.5 py-1 font-mono text-[10px] text-white/60">{c}</span>)}

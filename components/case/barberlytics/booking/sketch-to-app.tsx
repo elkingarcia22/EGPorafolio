@@ -53,11 +53,13 @@ export function SketchToApp() {
         <h3 data-reveal="mask" className="text-[clamp(1.35rem,1rem+1vw,1.9rem)]">{t({ es: 'Del tablero a la app', en: 'From the board to the app' })}</h3>
         <span data-reveal className="mono-label opacity-50">{t({ es: 'Capturas reales · datos de prueba', en: 'Real screens · test data' })}</span>
       </div>
-      <ol className="grid grid-cols-2 gap-x-5 gap-y-12 lg:grid-cols-4">
+      {/* En el celular, un carrusel que se desliza: una pantalla grande a la vez en vez de cuatro diminutas. */}
+      <p className="mono-label -mt-6 mb-4 opacity-50 md:hidden" aria-hidden="true">{t({ es: 'Desliza →', en: 'Swipe →' })}</p>
+      <ol className="-mx-[var(--gutter)] flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain px-[var(--gutter)] pb-4 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:gap-x-5 md:gap-y-12 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-4">
         {STEPS.map((s, i) => (
-          <li key={s.image} data-reveal className={`group ${i % 2 ? 'lg:translate-y-14' : ''}`}>
+          <li key={s.image} data-reveal className={`group w-[74%] shrink-0 snap-center md:w-auto ${i % 2 ? 'lg:translate-y-14' : ''}`}>
             <PhoneBody className="mx-auto w-full max-w-[250px] transition-transform duration-700 ease-expo group-hover:-translate-y-2">
-              <Image src={`/cases/barberlytics/${s.image}.webp`} width={780} height={1688} alt={t(s.alt)} sizes="(min-width: 1024px) 250px, 45vw" className="block h-auto w-full" />
+              <Image src={`/cases/barberlytics/${s.image}.webp`} width={780} height={1688} alt={t(s.alt)} sizes="(min-width: 1024px) 250px, (min-width: 768px) 45vw, 74vw" className="block h-auto w-full" />
             </PhoneBody>
             <div className="mt-5">
               <span className="mono-label text-signal">0{i + 1}</span>

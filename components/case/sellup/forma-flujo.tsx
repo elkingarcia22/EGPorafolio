@@ -28,6 +28,10 @@ const NEXT = [
 const GAP = 16
 const COL_X = COLS.map((_, i) => COLS.slice(0, i).reduce((x, c) => x + c.w + GAP, 0))
 const CARD_H = 104
+/** Ancho de la barra lateral más el margen del tablero (px de diseño de la app). */
+const BOARD_X = 236 + 32
+/** Encuadre en pantallas chicas: la columna donde está la empresa destacada. */
+const viewAt = (phase: number) => ({ cx: Math.max(BOARD_X + COL_X[phase] + COLS[phase].w / 2, BOARD_X + 190), cy: 330, w: 420, h: 470 })
 
 const ENRICH = [
   { name: 'Grupo Vital Salud', where: '🇲🇽 México · hace 2 días' },
@@ -172,7 +176,7 @@ export function PipelineFlow() {
       </ol>
       <div className="relative">
         <Monitor>
-          <RealFrame active="flujo" crumb={['Flujo de prospección']} height={640}>
+          <RealFrame active="flujo" crumb={['Flujo de prospección']} height={640} view={viewAt(phase)}>
             <FlowScreen time={time} />
           </RealFrame>
         </Monitor>

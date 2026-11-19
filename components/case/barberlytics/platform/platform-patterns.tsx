@@ -31,7 +31,7 @@ function CalendarRadar() {
     return () => io.disconnect()
   }, [])
   const { matrix } = PLATFORM_CASE.patterns
-  const rows = matrix.rows.map((r) => ({ fn: r.fn, own: ownOf(r.marks[0]), sector: shareOf(r.marks) }))
+  const rows = matrix.rows.map((r, i) => ({ n: i + 1, fn: r.fn, own: ownOf(r.marks[0]), sector: shareOf(r.marks) }))
   const n = rows.length
   const groups = [
     { title: { es: 'Donde lidera', en: 'Where it leads' }, hue: '#d9b36a', items: rows.filter((r) => r.own - r.sector >= 0.4) },
@@ -59,7 +59,9 @@ function CalendarRadar() {
               <g key={r.fn.es}>
                 <line x1={C} y1={C} x2={x} y2={y} stroke="rgba(255,255,255,0.08)" />
                 <foreignObject x={lx - 55} y={ly - 16} width="110" height="34">
-                  <p className="text-center text-[10px] leading-tight text-white/60">{t(r.fn)}</p>
+                  <p className="text-center text-[10px] leading-tight text-white/60 max-sm:hidden">{t(r.fn)}</p>
+                  {/* En el celular el texto quedaría ilegible: un número grande que la lista de abajo explica. */}
+                  <p className="hidden h-full items-center justify-center font-mono text-[22px] text-white/70 max-sm:flex">{r.n}</p>
                 </foreignObject>
               </g>
             )
@@ -83,7 +85,7 @@ function CalendarRadar() {
               <ul className="space-y-1.5">
                 {g.items.map((r) => (
                   <li key={r.fn.es} className="grid grid-cols-[1fr_6rem] items-center gap-3 text-sm">
-                    <span className="text-white/85">{t(r.fn)}</span>
+                    <span className="text-white/85"><span className="mr-2 font-mono text-white/45 sm:hidden">{r.n}</span>{t(r.fn)}</span>
                     <span className="relative h-2 rounded-full bg-white/[0.06]">
                       <span className="absolute inset-y-0 left-0 rounded-full bg-white/30" style={{ width: `${r.sector * 100}%` }} />
                       <span className="absolute -top-0.5 h-3 w-1 rounded-full bg-[#d9b36a]" style={{ left: `calc(${r.own * 100}% - 2px)` }} />

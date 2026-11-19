@@ -67,7 +67,39 @@ export function ModelStudy() {
         </p>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Teléfono y tableta: en vez de una tabla de seis columnas que hay que deslizar, las reglas del
+          modelo activo, cada una con los cinco modelos marcados según la compartan o no. */}
+      <dl className="divide-y divide-fg/10 lg:hidden">
+        {RULES.map((r, ri) => (
+          <div key={r.id} className="grid gap-2 px-5 py-4">
+            <dt className="text-[12px] leading-snug opacity-60">{t(r.label)}</dt>
+            <dd key={`${current.id}-${r.id}`} className="obj-fade text-[16px] leading-snug" style={{ animationDelay: `${ri * 40}ms` }}>{t(current.rules[r.id])}</dd>
+            <dd className="flex flex-wrap gap-1.5" aria-label={t({ es: 'Modelos con la misma regla', en: 'Models with the same rule' })}>
+              {MODELS.map((m, i) => {
+                const same = m.rules[r.id].es === current.rules[r.id].es
+                const tone = i === active ? 'border-signal bg-signal text-paper' : same ? 'border-signal/50 bg-signal/10 text-signal' : 'border-fg/15 opacity-40'
+                return (
+                  <span key={m.id} className={`rounded-sm border px-2 py-0.5 font-mono text-[11px] transition-colors duration-500 ${tone}`}>
+                    {m.label}
+                  </span>
+                )
+              })}
+            </dd>
+          </div>
+        ))}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 px-5 py-4 font-mono text-[11px] tabular-nums">
+          <span className="opacity-60">{t({ es: 'Reglas en común', en: 'Rules in common' })}</span>
+          {MODELS.map((m, i) =>
+            i === active ? null : (
+              <span key={m.id}>
+                {m.label} {shared(current, m)}/6
+              </span>
+            ),
+          )}
+        </div>
+      </dl>
+
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[640px] border-collapse text-[13px]">
           <caption className="sr-only">{t({ es: 'Reglas de cada modelo', en: 'Rules of each model' })}</caption>
           <thead>

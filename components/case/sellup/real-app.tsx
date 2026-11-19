@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Bell, Building2, Calculator, ChevronDown, ChevronsUpDown, Compass, Database, LayoutGrid, MessageCircle, PanelLeft, Search, Settings2, Users } from 'lucide-react'
 import { SellUpMark } from './ui'
+import { Camera, useCompact, type View } from './camera'
 
 /**
  * Réplica fiel de la app SellUp (modo oscuro, noviembre de 2026): se dibuja a
@@ -116,10 +117,41 @@ interface RealFrameProps {
   children: ReactNode
   /** Capa encima de todo (cursor, dock flotante). */
   overlay?: ReactNode
+  /** Encuadre legible en teléfono y tableta (px de diseño). Sin él, se escala completa. */
+  view?: View
 }
 
-/** El marco completo de la app, escalado al ancho disponible. */
-export function RealFrame({ active, crumb, height, children, overlay }: RealFrameProps) {
+/** El marco completo de la app, escalado al ancho disponible (o encuadrado con `view` en pantallas chicas). */
+export function RealFrame(props: RealFrameProps) {
+  const compact = useCompact()
+  if (compact && props.view) return <RealFrameCompact {...props} view={props.view} />
+  return <RealFrameFull {...props} />
+}
+
+/** La app a su tamaño de diseño (1240 px). */
+function RealApp({ active, crumb, height, children, overlay }: RealFrameProps) {
+  return (
+    <div className="relative flex text-white antialiased" style={{ width: REAL.width, height, background: REAL.bg, fontFamily: REAL.font }}>
+      <Sidebar active={active} />
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <TopBar crumb={crumb} />
+        <div className="pointer-events-none absolute inset-x-0 top-[58px] h-56 bg-[radial-gradient(ellipse_at_85%_0%,rgba(80,110,255,0.16),transparent_60%)]" />
+        <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
+      </div>
+      {overlay}
+    </div>
+  )
+}
+
+function RealFrameCompact({ view, ...props }: RealFrameProps & { view: View }) {
+  return (
+    <div className="relative w-full overflow-hidden rounded-[14px] ring-1 ring-white/10 shadow-[0_50px_100px_-40px_rgba(0,0,0,0.95)]" style={{ background: REAL.bg }}>
+      <Camera width={REAL.width} height={props.height} view={view}><RealApp {...props} /></Camera>
+    </div>
+  )
+}
+
+function RealFrameFull({ active, crumb, height, children, overlay }: RealFrameProps) {
   const box = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
   useEffect(() => {

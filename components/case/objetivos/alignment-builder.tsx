@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
+import { DESKTOP_QUERY, useMedia } from './use-media'
 
 /**
  * Alinear, en cascada: persona → grupo → objetivo de empresa, como la vista
@@ -167,12 +168,76 @@ export function CascadeCanvas({ phase, className = '' }: { phase: number; classN
   )
 }
 
+/** Un tramo de línea que se dibuja entre dos niveles de la cascada vertical. */
+function Drop({ on }: { on: boolean }) {
+  return (
+    <svg viewBox="0 0 20 36" className="mx-auto block h-9 w-5" aria-hidden="true">
+      <path d="M10 0 L10 36" stroke={BLUE} strokeOpacity={on ? 0.7 : 0.12} strokeWidth={2.5} fill="none" pathLength={1} strokeDasharray={on ? 1 : undefined} className={on ? 'obj-draw' : ''} />
+    </svg>
+  )
+}
+
+/**
+ * La misma toma, en teléfono y tableta: en vez de alejar la cámara sobre un lienzo de 1.500 px
+ * (donde todo quedaría diminuto), la cascada se arma de arriba abajo a tamaño de lectura: la
+ * persona, su grupo, los objetivos a los que empuja y, al final, el resto del ciclo.
+ */
+function CascadeStack({ phase }: { phase: number }) {
+  const all = phase >= 3
+  const others = GROUPS.slice(1)
+  return (
+    <div className="bg-[#fafbfc] px-4 py-5 sm:px-6" style={{ backgroundImage: 'radial-gradient(rgba(22,26,44,0.12) 1px, transparent 1.2px)', backgroundSize: '16px 16px' }}>
+      {/* Persona */}
+      <div className="flex items-center gap-3 rounded-xl border border-[#0c5bef] bg-white px-3 py-2.5 shadow-[0_0_0_4px_rgba(12,91,239,0.15)]">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0c5bef]/10 text-[12px] font-medium text-[#0c5bef]">{FOCUS.name.split(' ').slice(0, 2).map((w) => w[0]).join('')}</span>
+        <span className="min-w-0 leading-tight">
+          <span className="block truncate text-[14px] font-medium">{FOCUS.name}</span>
+          <span className="block truncate text-[12px] text-black/50">{FOCUS.area}</span>
+        </span>
+        <span className={`ml-auto shrink-0 rounded-full border border-dashed border-black/20 px-2 py-0.5 text-[11px] text-black/50 transition-opacity duration-500 ${all ? 'opacity-100' : 'opacity-0'}`}>+ 79</span>
+      </div>
+      <Drop key={`d1-${phase >= 1}`} on={phase >= 1} />
+
+      {/* Grupo, y al final las demás áreas */}
+      <div className={`rounded-xl border bg-white px-3 py-2.5 shadow-sm transition-[opacity,border-color] duration-500 ${phase >= 1 ? 'border-[#0c5bef]/60 opacity-100' : 'border-black/10 opacity-15'}`}>
+        <span className="block text-[14px] font-medium">{FOCUS_GROUP.area}</span>
+        <span className="block text-[12px] text-black/50">Área · {FOCUS_GROUP.people} personas</span>
+      </div>
+      <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Las demás áreas">
+        {others.map((g, i) => (
+          <li key={g.area} className="rounded-lg border border-black/10 bg-white px-2 py-1 text-[11px] text-black/60 shadow-sm transition-opacity duration-500" style={{ opacity: all ? 1 : 0.12, transitionDelay: all ? `${300 + i * 50}ms` : '0ms' }}>
+            {g.area} · {g.people}
+          </li>
+        ))}
+      </ul>
+      <Drop key={`d2-${phase >= 2}`} on={phase >= 2} />
+
+      {/* Objetivos de empresa */}
+      <div className="grid gap-2 sm:grid-cols-3">
+        {GOALS.map((goal, i) => {
+          const on = phase >= 2 ? all || goal.id !== 'eficiencia' : false
+          return (
+            <div key={goal.id} className="rounded-xl border border-[#0c5bef]/30 bg-[#0c5bef] px-3 py-2.5 text-white shadow-[0_14px_30px_-12px_rgba(12,91,239,0.8)] transition-opacity duration-500" style={{ opacity: on ? 1 : 0.12, transitionDelay: on ? `${200 + i * 80}ms` : '0ms' }}>
+              <span className="block text-[14px] font-medium leading-tight">{goal.title}</span>
+              <span className="mt-1 block text-[12px] text-white/75">{goal.meta}</span>
+              <span className={`mt-2 block text-[11px] text-white/85 transition-opacity duration-500 ${all ? 'opacity-100' : 'opacity-0'}`}>
+                Más empujan: {goal.top.map((a) => (a === FOCUS_GROUP.area ? `${a} ★` : a)).join(' · ')}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export function AlignmentBuilder() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const [phase, setPhase] = useState(reducedMotion ? 4 : 0)
   const [inView, setInView] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const desktop = useMedia(DESKTOP_QUERY)
 
   useEffect(() => {
     const el = ref.current
@@ -209,9 +274,9 @@ export function AlignmentBuilder() {
           </span>
         </div>
 
-        <CascadeCanvas phase={phase} />
+        {desktop ? <CascadeCanvas phase={phase} /> : <CascadeStack phase={phase} />}
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-black/[0.06] px-5 py-3 text-[11px] text-black/50">
+        <div className="hidden flex-wrap items-center gap-x-5 gap-y-1 border-t border-black/[0.06] px-5 py-3 text-[11px] text-black/50 lg:flex">
           <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded bg-[#0c5bef]" /> {t({ es: 'Las tres áreas que más empujan', en: 'The three areas that push most' })}</span>
           <span className="flex items-center gap-1.5"><span className="h-px w-5 bg-[#0c5bef]/30" /> {t({ es: 'El resto de las áreas', en: 'The other areas' })}</span>
           <span className="flex items-center gap-1.5"><span className="h-0 w-5 border-t-2 border-dashed border-[#0c5bef]" /> {t({ es: 'Objetivo que aporta a otro', en: 'Goal feeding another' })}</span>

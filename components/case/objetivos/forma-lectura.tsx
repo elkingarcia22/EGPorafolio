@@ -41,11 +41,11 @@ function Pronostico() {
   const y = (v: number) => H - 18 - (v / 100) * (H - 30)
   return (
     <div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`Avance ${avance} % con ${calendario} % del calendario corrido; al ritmo actual cierra en ${alCierre} %`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full overflow-visible" role="img" aria-label={`Avance ${avance} % con ${calendario} % del calendario corrido; al ritmo actual cierra en ${alCierre} %`}>
         {[0, 25, 50, 75, 100].map((v) => (
           <g key={v}>
             <line x1={36} x2={W - 12} y1={y(v)} y2={y(v)} stroke="rgba(22,26,44,0.08)" strokeDasharray="3 3" />
-            <text x={30} y={y(v) + 3} textAnchor="end" fontSize={8} fill={MUTED}>{v} %</text>
+            <text x={30} y={y(v) + 3} textAnchor="end" fontSize={8} fill={MUTED} className="max-md:text-[14px]">{v} %</text>
           </g>
         ))}
         <line x1={36} x2={W - 12} y1={y(100)} y2={y(100)} stroke={SUCCESS} strokeDasharray="4 4" />
@@ -55,7 +55,7 @@ function Pronostico() {
         <path d={`M${x(calendario)} ${y(avance)} L${x(100)} ${y(alCierre)}`} fill="none" stroke={PRIMARY} strokeOpacity={0.5} strokeWidth={2} strokeDasharray="6 4" className={rise} style={later(4)} />
         <circle cx={x(100)} cy={y(alCierre)} r={4} fill={PRIMARY} className={rise} style={later(6)} />
         {['Inicio', 'Hoy', 'Cierre'].map((label, i) => (
-          <text key={label} x={x([0, calendario, 100][i])} y={H - 4} textAnchor="middle" fontSize={8} fill={MUTED}>{label}</text>
+          <text key={label} x={x([0, calendario, 100][i])} y={H - 4} textAnchor="middle" fontSize={8} fill={MUTED} className="max-md:translate-y-[9px] max-md:text-[14px]">{label}</text>
         ))}
       </svg>
       <dl className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
@@ -92,7 +92,7 @@ function BarrasArea() {
         ))}
       </ul>
       <span className="pointer-events-none absolute -bottom-2 -top-5 border-l border-dashed border-black/50" style={{ left: `calc(7.5rem + 0.5rem + (100% - 7.5rem - 3rem - 1rem) * ${cal / tope})` }}>
-        <span className="absolute -top-0.5 left-1 whitespace-nowrap text-[9px] text-black/50">Calendario {cal} %</span>
+        <span className="absolute -top-0.5 left-1 whitespace-nowrap text-[9px] max-lg:text-[11px] text-black/50">Calendario {cal} %</span>
       </span>
     </div>
   )
@@ -118,7 +118,7 @@ function DondeSeJuega() {
             <span key={p.id} className="obj-bar h-full border-r border-white" style={{ width: `${p.v}%`, background: colors[i], animationDelay: `${i * 120}ms` }} />
           ))}
         </div>
-        <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px]">
+        <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] max-lg:text-[11px]">
           {PESO_EMPRESA.map((p, i) => (
             <li key={p.id} className="flex items-center gap-1.5"><span className="h-2 w-2 shrink-0 rounded-sm" style={{ background: colors[i] }} /><span className="truncate text-black/60">{p.label}</span><b className="ml-auto whitespace-nowrap font-medium">{`${p.v}\u00a0%`}</b></li>
           ))}
@@ -135,7 +135,7 @@ function DondeSeJuega() {
             return <circle key={a.area} cx={px} cy={py} r={2.5} fill={PRIMARY} />
           })}
         </svg>
-        <div className="text-[10px]">
+        <div className="text-[10px] max-lg:text-[11px]">
           <p className="text-black/50">Alineación por área</p>
           <p className="text-[11px]">Promedio del ciclo: <b className="font-medium">{fmt(ALINEACION_PROMEDIO)}</b></p>
           <ul className="mt-1.5 space-y-0.5">
@@ -165,7 +165,7 @@ function QueHacer() {
             </div>
           ))}
         </div>
-        <div className="mt-1 flex gap-3 px-2 text-center text-[10px] text-black/55">
+        <div className="mt-1 flex gap-3 px-2 text-center text-[10px] max-lg:text-[11px] text-black/55">
           {APROBACION.map((a) => <span key={a.id} className="flex-1">{a.label}</span>)}
         </div>
       </div>
@@ -178,7 +178,7 @@ function QueHacer() {
               <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
                 <span className="obj-bar block h-full rounded-full" style={{ width: `${d.v}%`, background: PRIMARY, animationDelay: `${200 + i * 100}ms` }} />
               </span>
-              <span className="text-[10px] text-black/45">{d.objetivos} objetivos</span>
+              <span className="text-[10px] max-lg:text-[11px] text-black/45">{d.objetivos} objetivos</span>
             </li>
           ))}
         </ul>
@@ -196,20 +196,24 @@ function QuienReporta() {
         <div className="flex h-28 items-end gap-1.5 border-b border-black/10">
           {PARTICIPACION.map((p, i) => (
             <div key={p.semana} className="flex flex-1 flex-col items-center justify-end">
-              {p.v > 0 && <span className="mb-1 text-[9px] tabular-nums text-black/60">{p.v} %</span>}
+              {p.v > 0 && <span className="mb-1 text-[9px] max-lg:text-[11px] tabular-nums text-black/60">{p.v} %</span>}
               <span className="w-full origin-bottom rounded-t animate-[ramp-in_0.8s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ height: `${Math.max(2, (p.v / 80) * 96)}px`, background: p.semana === 'Esta' ? PRIMARY : p.v ? '#6b8cff' : 'rgba(22,26,44,0.1)', animationDelay: `${i * 70}ms` }} />
             </div>
           ))}
         </div>
-        <div className="mt-1 flex gap-1.5 text-center text-[8px] text-black/45">
-          {PARTICIPACION.map((p) => <span key={p.semana} className="flex-1 truncate">{p.semana}</span>)}
+        <div className="mt-1 flex gap-1.5 text-center text-[8px] max-lg:text-[11px] text-black/45">
+          {PARTICIPACION.map((p) => (
+            <span key={p.semana} className="flex-1 truncate max-md:flex max-md:flex-col max-md:items-center max-md:leading-tight">
+              {p.semana.split(' ').map((w, i) => <span key={w}>{i ? ' ' : ''}{w}</span>)}
+            </span>
+          ))}
         </div>
       </div>
       <div>
         <p className="mb-1.5 text-[11px] text-black/50">Top por área</p>
         <div className="flex items-end justify-center gap-1.5">
           {PODIO.map((p, i) => (
-            <div key={p.area} className="w-[30%] text-center text-[10px]">
+            <div key={p.area} className="w-[30%] text-center text-[10px] max-lg:text-[11px]">
               <p className="truncate font-medium">{p.area}</p>
               <p className="text-black/50">{fmt(p.v)}</p>
               <div className="mt-1 grid origin-bottom place-items-center rounded-t-md text-white animate-[ramp-in_0.8s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ height: [52, 72, 38][i], background: p.lugar === 1 ? PRIMARY : '#6b8cff', animationDelay: `${300 + i * 100}ms` }}>{p.lugar}</div>
@@ -235,11 +239,11 @@ interface Question {
 }
 
 const QUESTIONS: readonly Question[] = [
-  { id: 'como', ask: { es: '¿Cómo va?', en: 'How is it going?' }, block: 'Cómo va', says: PRONOSTICO.lectura, area: 'md:col-span-3', Chart: Pronostico },
-  { id: 'donde', ask: { es: '¿Dónde mirar?', en: 'Where to look?' }, block: 'Dónde mirar', says: 'Los grupos por área que se quedan atrás frente al calendario.', area: 'md:col-span-3', Chart: BarrasArea },
-  { id: 'juega', ask: { es: '¿Dónde se juega?', en: 'Where is it played?' }, block: 'Dónde se juega el ciclo', says: 'De qué objetivos de empresa cuelga el esfuerzo y qué tanto se alinea cada área con ellos.', area: 'md:col-span-3', Chart: DondeSeJuega },
-  { id: 'hacer', ask: { es: '¿Qué hacer?', en: 'What to do?' }, block: 'Qué hacer', says: 'Lo que espera visto bueno: cómo va la aprobación y lo devuelto sin corregir, por líder.', area: 'md:col-span-3', Chart: QueHacer },
-  { id: 'reporta', ask: { es: '¿Quién reporta?', en: 'Who reports?' }, block: 'Ranking', says: 'Qué parte de la gente reportó algo cada semana. Solo nombra para reconocer.', area: 'md:col-span-6', Chart: QuienReporta },
+  { id: 'como', ask: { es: '¿Cómo va?', en: 'How is it going?' }, block: 'Cómo va', says: PRONOSTICO.lectura, area: 'lg:col-span-3', Chart: Pronostico },
+  { id: 'donde', ask: { es: '¿Dónde mirar?', en: 'Where to look?' }, block: 'Dónde mirar', says: 'Los grupos por área que se quedan atrás frente al calendario.', area: 'lg:col-span-3', Chart: BarrasArea },
+  { id: 'juega', ask: { es: '¿Dónde se juega?', en: 'Where is it played?' }, block: 'Dónde se juega el ciclo', says: 'De qué objetivos de empresa cuelga el esfuerzo y qué tanto se alinea cada área con ellos.', area: 'lg:col-span-3', Chart: DondeSeJuega },
+  { id: 'hacer', ask: { es: '¿Qué hacer?', en: 'What to do?' }, block: 'Qué hacer', says: 'Lo que espera visto bueno: cómo va la aprobación y lo devuelto sin corregir, por líder.', area: 'lg:col-span-3', Chart: QueHacer },
+  { id: 'reporta', ask: { es: '¿Quién reporta?', en: 'Who reports?' }, block: 'Ranking', says: 'Qué parte de la gente reportó algo cada semana. Solo nombra para reconocer.', area: 'lg:col-span-6', Chart: QuienReporta },
 ]
 
 /**
@@ -298,7 +302,7 @@ export function CycleReading() {
       </ol>
 
       {/* El tablero: la pregunta activa enciende su bloque. */}
-      <div className="relative mt-4 grid gap-3 md:grid-cols-6">
+      <div className="relative mt-4 grid gap-3 lg:grid-cols-6">
         {QUESTIONS.map((q, i) => {
           const on = i === step
           return (

@@ -10,6 +10,7 @@ import { FakeCursor, ReplicaNote, StorySteps, stepAt, type StoryStep } from './r
 import { DetailScene, SceneStage, Scaled, useSceneTime } from './forma-stage'
 import { PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
 import { PhoneDecoder, type A2Phone } from './forma-a2-phone'
+import { useCompact, type View } from './camera'
 
 /**
  * 5.3 · Agente 2: arranca cuando Rumbo ya busca (radar de decisores), el resultado en
@@ -45,6 +46,34 @@ function Warp({ on, children }: { on: boolean; children: ReactNode }) {
   )
 }
 
+/** La cámara se abre con el barrido: un anillo más de radar en cada paso de la cascada. */
+function radarView(t: number): View {
+  if (t >= 10) return { cx: 390, cy: 140, w: 460, h: 300 }
+  const reach = t < 4 ? 340 : t < 6 ? 440 : 560
+  return { cx: 480, cy: 300, w: reach, h: reach }
+}
+
+/**
+ * El radar de decisores. En pantallas chicas: el radar a tamaño legible (la cámara se
+ * abre a medida que barre) y, debajo, la cascada de fuentes y los créditos.
+ */
+function RadarScene({ t }: { t: number }) {
+  const compact = useCompact()
+  if (!compact) return <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={t} /></Scaled>
+  return (
+    <div className="grid gap-1 overflow-hidden rounded-[22px] bg-[#0b0c10] md:grid-cols-[minmax(0,1fr)_300px] md:items-center">
+      <Scaled width={RADAR_W} height={RADAR_H} view={radarView(t)}><PeopleRadar t={t} /></Scaled>
+      <div className="space-y-1">
+        <Scaled width={RADAR_W} height={RADAR_H} view={{ cx: 160, cy: 470, w: 300, h: 150 }}><PeopleRadar t={t} /></Scaled>
+        <Scaled width={RADAR_W} height={RADAR_H} view={{ cx: 821, cy: 495, w: 260, h: 100 }}><PeopleRadar t={t} /></Scaled>
+      </div>
+    </div>
+  )
+}
+
+/** Encuadre del detalle del contacto: cabecera y luego «Revelar teléfono». */
+const detailView = (time: number): View => (time < 20 ? { cx: 250, cy: 0, w: 440, h: 520 } : { cx: 250, cy: 600, w: 440, h: 520 })
+
 export function ContactEnrichment() {
   const { t } = useLocale()
   const [ref, time, jump] = useSceneTime(LOOP, 25)
@@ -58,15 +87,15 @@ export function ContactEnrichment() {
         active={scene}
         scenes={[
           <Warp key="radar" on={scene === 0}>
-            <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={scene === 0 ? time : 13} /></Scaled>
+            <RadarScene t={scene === 0 ? time : 13} />
           </Warp>,
           <Warp key="table" on={scene === 1}>
-            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 258 : 560} click={time === 17} show={onRow} />}>
+            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} view={{ cx: 520, cy: 300, w: 400, h: 560 }} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 258 : 560} click={time === 17} show={onRow} />}>
               <ContactReview arrived={time >= 14} focus={time >= 14} />
             </RealFrame>
           </Warp>,
           <Warp key="detail" on={scene === 2}>
-            <DetailScene>
+            <DetailScene view={detailView(time)}>
               <div className="relative h-full">
                 <ContactDetail show inline phone="idle" phoneSlot={<PhoneDecoder state={phoneAt(time)} pressed={time === 20} />} />
                 <FakeCursor x={onPhone ? A2_BTN.x + 60 : 600} y={onPhone ? A2_BTN.y + 18 : 520} click={time === 20} show={onPhone} />

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { SHOTS, type ShotKey } from '@/lib/content/cases/encuestas/case'
-import { UBITS_BLUE } from './shared'
+import { UBITS_BLUE, useMedia, zoomTransform } from './shared'
 
 /** Un recuadro sobre la captura, en % del tamaño real de la imagen. */
 interface Spot {
@@ -85,6 +85,18 @@ const TOUR: readonly Stop[] = [
 const SPOT_MS = 2800
 /** Proporción de la ventana: la de las capturas de 1403 × 900. */
 const FRAME_RATIO = 1403 / 900
+/** En el celular la ventana es casi cuadrada y la captura se acerca al recuadro activo en vez de encogerse entera. */
+const MOBILE_RATIO = 1.05
+/** En tableta, una ventana más apaisada y un acercamiento más suave. */
+const TABLET_RATIO = 1.35
+const MOBILE_FILL = 88
+
+/** Acercamiento y centro de un recuadro en celular o tableta: si es muy ancho se lee su arranque, no se encoge todo. */
+function mobileFocus(s: Spot, phone: boolean): { zoom: number; cx: number; cy: number } {
+  const [min, max] = phone ? [2.2, 3] : [1.5, 2.2]
+  const zoom = Math.min(max, Math.max(min, MOBILE_FILL / s.w))
+  return { zoom, cx: s.x + Math.min(s.w, MOBILE_FILL / zoom) / 2, cy: s.y + s.h / 2 }
+}
 
 /** Recorre paradas y recuadros mientras está a la vista; se queda quieto si alguien elige una parada. */
 function useTour(box: React.RefObject<HTMLElement | null>) {
@@ -128,6 +140,9 @@ export function ProductTour() {
   const current = TOUR[stop]
   const s = current.spots[spot]
   const below = s.y + s.h < 62
+  const phone = useMedia('(max-width: 767px)')
+  const mobile = useMedia('(max-width: 1023px)')
+  const frameRatio = !mobile ? FRAME_RATIO : phone ? MOBILE_RATIO : TABLET_RATIO
 
   return (
     <div ref={box} data-reveal className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
@@ -169,7 +184,7 @@ export function ProductTour() {
             <span className="ml-2 min-w-0 truncate rounded-md bg-white px-2 py-0.5 font-mono text-[10px] text-black/45">ubits.co/admin/encuestas · {t(current.label)}</span>
           </div>
 
-          <div className="relative overflow-hidden bg-white" style={{ aspectRatio: FRAME_RATIO }}>
+          <div className="relative overflow-hidden bg-white" style={{ aspectRatio: frameRatio }}>
             {TOUR.map((st, i) => {
               const shot = SHOTS[st.shot]
               const on = i === stop
@@ -177,25 +192,30 @@ export function ProductTour() {
               // Si la captura es más alta que la ventana, sube lo justo para que el recuadro activo quede a la vista.
               const visiblePct = Math.min(1, shot.width / shot.height / FRAME_RATIO) * 100
               const shift = Math.max(0, Math.min(100 - visiblePct, focus.y + focus.h + 5 - visiblePct))
+              const m = mobileFocus(focus, phone)
+              const transform = mobile
+                ? zoomTransform({ ...m, frameRatio, imageRatio: shot.width / shot.height })
+                : `translateY(-${shift}%) ${on ? 'scale(1.03)' : 'scale(1)'}`
+              const ring = mobile ? 2 / m.zoom : 2
               return (
                 <div key={st.id} className="absolute inset-x-0 top-0 transition-opacity duration-700" style={{ opacity: on ? 1 : 0 }} aria-hidden={!on}>
                   {/* La captura con su proporción real; el acercamiento sigue al recuadro activo. */}
                   <div
                     className="relative w-full transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-                    style={{ aspectRatio: `${shot.width} / ${shot.height}`, transform: `translateY(-${shift}%) ${on ? 'scale(1.03)' : 'scale(1)'}`, transformOrigin: `${focus.x + focus.w / 2}% ${focus.y + focus.h / 2}%` }}
+                    style={{ aspectRatio: `${shot.width} / ${shot.height}`, transform, transformOrigin: mobile ? '0 0' : `${focus.x + focus.w / 2}% ${focus.y + focus.h / 2}%` }}
                   >
-                    <Image src={shot.src} width={shot.width} height={shot.height} alt={on ? t(shot.alt) : ''} sizes="(min-width: 1280px) 1200px, (min-width: 768px) 80vw, 100vw" quality={90} priority={i === 0} className="block h-auto w-full" />
+                    <Image src={shot.src} width={shot.width} height={shot.height} alt={on ? t(shot.alt) : ''} sizes="(min-width: 1280px) 1200px, (min-width: 1024px) 80vw, 300vw" quality={90} priority={i === 0} className="block h-auto w-full" />
                     {on && (
                       <span
                         className="pointer-events-none absolute rounded-lg transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, height: `${s.h}%`, boxShadow: `0 0 0 2px ${UBITS_BLUE}, 0 0 0 7px rgba(12,91,239,0.18), 0 0 0 9999px rgba(15,23,42,0.38)` }}
+                        style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.w}%`, height: `${s.h}%`, boxShadow: `0 0 0 ${ring}px ${UBITS_BLUE}, 0 0 0 ${ring * 3.5}px rgba(12,91,239,0.18), 0 0 0 9999px rgba(15,23,42,0.38)` }}
                         aria-hidden="true"
                       />
                     )}
                     {on && (
                       <span
                         key={`${stop}-${spot}`}
-                        className="enc-fade absolute z-10 hidden w-[18rem] rounded-xl bg-[#0f172a] px-4 py-3 text-sm leading-snug text-white shadow-[0_20px_40px_-12px_rgba(0,0,0,0.6)] md:block"
+                        className="enc-fade absolute z-10 hidden w-[18rem] rounded-xl bg-[#0f172a] px-4 py-3 text-sm leading-snug text-white shadow-[0_20px_40px_-12px_rgba(0,0,0,0.6)] lg:block"
                         style={{ left: `min(${s.x}%, calc(100% - 19rem))`, top: below ? `calc(${s.y + s.h}% + 14px)` : undefined, bottom: below ? undefined : `calc(${100 - s.y}% + 14px)` }}
                       >
                         <span className="mb-1 block font-mono text-[10px] uppercase tracking-[0.14em] text-[#8fb3ff]">{String(spot + 1).padStart(2, '0')} / {String(current.spots.length).padStart(2, '0')}</span>
@@ -211,9 +231,9 @@ export function ProductTour() {
         </div>
       </div>
 
-      {/* En pantallas chicas la nota va debajo de la ventana. */}
-      <p key={`m-${stop}-${spot}`} className="enc-fade mt-4 text-sm leading-snug md:hidden">
-        <span className="mr-2 font-mono text-[10px] text-signal">{String(spot + 1).padStart(2, '0')}/{String(current.spots.length).padStart(2, '0')}</span>
+      {/* En celular y tableta la nota va debajo de la ventana. */}
+      <p key={`m-${stop}-${spot}`} className="enc-fade mt-4 text-base leading-snug lg:hidden">
+        <span className="mr-2 font-mono text-[11px] text-signal">{String(spot + 1).padStart(2, '0')}/{String(current.spots.length).padStart(2, '0')}</span>
         {t(s.note)}
       </p>
     </div>

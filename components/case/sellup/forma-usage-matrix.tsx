@@ -100,13 +100,13 @@ export function UsageMatrix() {
       <div className="-mx-4 mt-4 overflow-x-auto px-4 md:mx-0 md:px-0">
         <div className="min-w-[620px]">
           <div className="grid grid-cols-[minmax(0,1.6fr)_4.5rem_repeat(4,minmax(0,1fr))] gap-1.5 pb-2 text-[11px] text-white/45">
-            <span>{t({ es: 'Métrica', en: 'Metric' })}</span>
+            <span className="max-lg:sticky max-lg:left-0 max-lg:z-10 max-lg:bg-[#141517]">{t({ es: 'Métrica', en: 'Metric' })}</span>
             <span className="text-right">Total</span>
             {ROLES.map((r) => <span key={r.es} className="truncate text-center">{t(r)}</span>)}
           </div>
           {GROUPS.map((g, gi) => (
             <div key={g.name.es} className="mt-2">
-              <p className="mb-1 text-[12px] font-medium text-white/70">{t(g.name)}</p>
+              <p className="mb-1 text-[12px] font-medium text-white/70"><span className="max-lg:sticky max-lg:left-0 max-lg:z-10 max-lg:bg-[#141517] max-lg:pr-2">{t(g.name)}</span></p>
               {g.rows.map((row, ri) => {
                 const idx = flat(gi, ri)
                 const lit = seen && idx === story.row
@@ -115,7 +115,7 @@ export function UsageMatrix() {
                     key={row.label.es}
                     className={`grid grid-cols-[minmax(0,1.6fr)_4.5rem_repeat(4,minmax(0,1fr))] items-center gap-1.5 rounded-lg py-0.5 transition-colors duration-300 ${lit ? 'bg-white/[0.05]' : ''}`}
                   >
-                    <span className={`truncate pl-1 text-[12px] transition-colors duration-300 ${lit ? 'text-white' : 'text-white/65'}`}>{t(row.label)}</span>
+                    <span className={`truncate pl-1 text-[12px] transition-colors duration-300 max-lg:sticky max-lg:left-0 max-lg:z-10 max-lg:bg-[#141517] ${lit ? 'text-white' : 'text-white/65'}`}>{t(row.label)}</span>
                     <span className="text-right text-[12px] font-medium tabular-nums">{row.total}</span>
                     {row.cells.map(([v, tone], ci) => {
                       const hot = lit && ci === story.col

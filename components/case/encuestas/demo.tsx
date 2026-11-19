@@ -21,6 +21,8 @@ const RAIL = 72
 const TOPBAR = 60
 /** `NARROW_WINDOW` del RootLayout del playground. */
 const NARROW_WINDOW = 1200
+/** Por debajo de este ancho del modal el playground se ve a tamaño real, con su diseño de celular. */
+const PHONE_MAX = 768
 
 interface Entry {
   id: string
@@ -52,9 +54,11 @@ function StagingFrame({ entry }: { entry: Entry }) {
   }, [])
 
   // El playground se dibuja a 1.199 px, justo bajo el `NARROW_WINDOW` de su RootLayout, para que el menú quede plegado
-  // al riel de 72 px; después se escala al ancho del modal, sin márgenes. En pantallas angostas se dibuja a 1.024.
-  const width = size && size.w < 768 ? 1024 : NARROW_WINDOW - 1
-  const scale = size ? size.w / width : 1
+  // al riel de 72 px; después se escala al ancho del modal, sin márgenes. En el celular se dibuja a su ancho real, sin
+  // escalar: el playground es responsivo y así se lee y se toca como en un teléfono, en vez de encoger el escritorio.
+  const native = size !== null && size.w < PHONE_MAX
+  const width = size ? (native ? size.w : NARROW_WINDOW - 1) : NARROW_WINDOW - 1
+  const scale = size && !native ? size.w / width : 1
   const height = size ? size.h / scale : 800
 
   return (
@@ -78,8 +82,9 @@ function StagingFrame({ entry }: { entry: Entry }) {
       {/* Capas invisibles sobre el riel y la barra superior: se ven, pero no llevan a otros productos. */}
       {size && (
         <>
-          <span className="absolute left-0 top-0 h-full cursor-not-allowed" style={{ width: RAIL * scale }} aria-hidden="true" />
-          <span className="absolute right-0 top-0 cursor-not-allowed" style={{ left: RAIL * scale, height: TOPBAR * scale }} aria-hidden="true" />
+          {/* En el celular no hay riel: el menú se abre desde la barra superior, que queda entera bajo la capa. */}
+          {!native && <span className="absolute left-0 top-0 h-full cursor-not-allowed" style={{ width: RAIL * scale }} aria-hidden="true" />}
+          <span className="absolute right-0 top-0 cursor-not-allowed" style={{ left: native ? 0 : RAIL * scale, height: TOPBAR * scale }} aria-hidden="true" />
         </>
       )}
     </div>
@@ -94,6 +99,8 @@ export function SurveyDemo() {
 
   return (
     <>
+      {/* La columna de la demo no debe crecer con la URL larga de la barra: en celular el texto se salía por la derecha. */}
+      <div className="max-lg:[&>div]:grid-cols-[minmax(0,1fr)]">
       <CaseDemo
         title={{ es: 'El módulo real de Encuestas.', en: 'The real Surveys module.' }}
         lead={{
@@ -105,6 +112,7 @@ export function SurveyDemo() {
         accent="64 96 255"
         onOpen={() => setOpen(ENTRIES[0].id)}
       />
+      </div>
       <RecordModal
         ids={ENTRIES.map((e) => e.id)}
         openId={open}

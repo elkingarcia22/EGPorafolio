@@ -58,11 +58,12 @@ export function CaseShell({ title, hero, content }: CaseShellProps) {
   return (
     <article ref={ref} className="overflow-x-clip">
       {hero}
-      <div className="grid gap-10 px-[var(--gutter)] md:grid-cols-12">
-        <aside className="md:col-span-3">
+      {/* En tablet el índice se oculta: el contenido usa todo el ancho en vez de apretarse a 9 columnas. */}
+      <div className="grid gap-10 px-[var(--gutter)] lg:grid-cols-12">
+        <aside className="hidden lg:col-span-3 lg:block">
           <ChapterNav chapters={chapters} label={title} />
         </aside>
-        <div className="min-w-0 md:col-span-9">
+        <div className="min-w-0 lg:col-span-9">
           {chapters.map((meta) => {
             const Content = content[meta.id as ChapterKey]
             return (

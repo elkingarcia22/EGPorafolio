@@ -31,7 +31,36 @@ export function AutonomySpectrum() {
       <p data-reveal className="mb-10 max-w-[62ch] text-lg leading-relaxed opacity-80">{t(patterns.lead)}</p>
       <div ref={ref} data-reveal="device" className={STAGE}>
         <p className="mb-8 text-lg">{t({ es: '¿Cuánto deja actuar a la máquina?', en: 'How much does it let the machine act?' })}</p>
-        <div className="overflow-x-auto">
+        {/* Celular: el eje se vuelve vertical; cada zona es una fila con sus productos a tamaño legible. */}
+        <ol className="space-y-2 sm:hidden">
+          {patterns.zones.map((z, zi) => {
+            const inZone = patterns.products.filter((p) => Math.min(3, Math.floor(p.at * 4)) === zi)
+            const hasClipper = Math.min(3, Math.floor(patterns.clipperAt * 4)) === zi
+            return (
+              <li key={z.id} className={`rounded-xl px-3.5 py-3 ${z.id === 'propose' ? 'bg-[#de8c3a]/15 ring-1 ring-[#de8c3a]/50' : 'bg-white/[0.04]'}`}>
+                <p className={`text-[15px] ${z.id === 'propose' ? 'text-[#f0ce86]' : ''}`}>{t(z.label)}</p>
+                <p className="mt-0.5 text-[12px] text-white/50">{t(z.note)}</p>
+                {hasClipper && (
+                  <p className="mt-3 flex items-center gap-2 transition-all duration-1000 ease-expo" style={{ opacity: seen ? 1 : 0, transform: seen ? 'none' : 'translateY(8px)', transitionDelay: '600ms' }}>
+                    <ClipperOrb size={30} />
+                    <span className="bg-clip-text text-sm font-medium text-transparent" style={{ backgroundImage: AI_GRADIENT }}>Clipper</span>
+                  </p>
+                )}
+                {inZone.length > 0 && (
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {inZone.map((p, i) => (
+                      <li key={p.name} className="transition-all duration-700 ease-expo" style={{ opacity: seen ? 1 : 0, transform: seen ? 'none' : 'translateY(8px)', transitionDelay: `${(zi * 2 + i) * 90}ms` }}>
+                        <span className={`inline-block rounded-full px-2.5 py-1 text-[12px] ${p.bad ? 'bg-[#ff6b72]/15 text-[#ff8a8e]' : 'bg-white/[0.07] text-white/80'}`}>{p.name}</span>
+                        <span className="ml-1.5 text-[11px] text-white/45">{t(p.note)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+        <div className="hidden overflow-x-auto sm:block">
           <div className="relative min-w-[760px] pb-4 pt-40">
             {/* Zonas */}
             <div className="grid grid-cols-4 gap-1">

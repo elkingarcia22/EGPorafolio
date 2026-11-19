@@ -185,6 +185,12 @@ export function PlatformHero() {
               <LiveCalendar now={now} colorBy={view.colorBy} style={view.style} density={view.density} fields={view.fields} columns={narrow ? 3 : 4} intro={reducedMotion ? undefined : 1.1} className="shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9)]" />
             </div>
           </div>
+          {/* Sin espacio para las tarjetas flotantes: debajo, solo el ajuste que está cambiando, a buen tamaño. */}
+          {floats.filter((f) => f.id === view.knob).map((f) => (
+            <div key={`m-${f.id}`} className="relative z-20 mx-auto mt-4 max-w-[340px] animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] lg:hidden">
+              <Knobcard title={f.title} active>{f.body}</Knobcard>
+            </div>
+          ))}
           {floats.map((f) => (
             <div key={f.id} data-depth={f.depth} className={`absolute z-20 hidden lg:block ${f.cls}`}>
               <div data-hero-float>

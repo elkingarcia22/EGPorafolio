@@ -5,6 +5,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { SELLUP_CASE, type AgentId, type CascadeStep } from '@/lib/content/cases/sellup/sellup-case'
 import { Arrows, Board, Hand, Pin, Sketchy, Sticky, type StickyColor } from '@/components/case/kit/sketch'
 import { useInView } from './ui'
+import { SwipeBoard } from './swipe-board'
 
 /** Medidas de diseño del tablero. */
 const W = 1520
@@ -184,6 +185,7 @@ export function CascadeBoard() {
         </button>
       </div>
 
+      <SwipeBoard designW={W} stops={COL_X.map((x) => x - 20)} focus={col}>
       <Board title={t({ es: 'SellUp · la cadena de los tres agentes', en: 'SellUp · the three-agent chain' })} w={W} h={H} label={t({ es: 'Boceto de los tres agentes en cascada, conectados a sus fuentes', en: 'Sketch of the three agents in cascade, connected to their sources' })}>
         <Pin x={60} y={30}><Hand size={2.3} className="font-bold">{t({ es: 'Tres agentes, una cadena: cada uno baja de lo gratis a lo de pago', en: 'Three agents, one chain: each steps down from free to paid' })}</Hand></Pin>
         <Pin x={1120} y={36} w={360}>
@@ -219,6 +221,7 @@ export function CascadeBoard() {
         <Pin x={1040} y={918} w={430} rotate={-0.8}><Sticky color="green">{t({ es: 'Cada dato con su cita. Sin cita, no es un hecho', en: 'Every fact with its quote. No quote, not a fact' })}</Sticky></Pin>
         <Pin x={60} y={1030}><Hand size={1.15} className="text-[#e8743b]">{t({ es: 'Una persona aprueba entre cada agente · nada se escribe en HubSpot sin ella', en: 'A person approves between each agent · nothing is written to HubSpot without them' })}</Hand></Pin>
       </Board>
+      </SwipeBoard>
 
       <p role="status" className="max-w-[70ch] text-sm leading-relaxed opacity-80">
         <span className="mono-label mr-2 text-signal">{scenario === 'real' ? t({ es: 'Corrida real', en: 'Real run' }) : t({ es: 'Si falta', en: 'If short' })}</span>

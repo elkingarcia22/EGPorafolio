@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { SignalNetwork } from './signal-network'
@@ -62,8 +62,9 @@ function ChannelRow({ channel, index }: { channel: Channel; index: number }) {
         </svg>
         <span className="relative min-w-0 flex-1 transition-transform duration-500 ease-expo group-hover:translate-x-1.5">
           <span className="mono-label block opacity-60 transition-colors group-hover:text-paper group-hover:opacity-80">{t(channel.label)}</span>
-          <span className="block break-all text-[clamp(1rem,0.8rem+1vw,1.75rem)] font-light leading-snug transition-colors group-hover:text-paper">
-            {channel.value}
+          <span className="block text-[clamp(1rem,0.8rem+1vw,1.75rem)] font-light leading-snug transition-colors [overflow-wrap:anywhere] group-hover:text-paper">
+            {/* El correo parte antes de la @, nunca a mitad de palabra */}
+            {channel.value.split('@').map((part, i) => (i === 0 ? part : <Fragment key={i}><wbr />@{part}</Fragment>))}
           </span>
         </span>
         <span

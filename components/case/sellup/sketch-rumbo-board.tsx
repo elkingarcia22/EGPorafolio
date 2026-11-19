@@ -2,6 +2,7 @@
 
 import { useLocale } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Doodle, Guides, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
+import { SwipeBoard } from './swipe-board'
 
 /**
  * Boceto de cómo se construyó Rumbo: la marca, la conversación, un solo Rumbo
@@ -18,6 +19,7 @@ export function RumboSketchBoard() {
   const { t } = useLocale()
   const steps = ['Tipo', 'País', 'Industria', 'Criterios', 'Resumen', 'Revisión']
   return (
+    <SwipeBoard designW={1400} stops={[20, 490, 920, 990]}>
     <Board title={t({ es: 'Rumbo · cómo se construyó', en: 'Rumbo · how it was built' })} w={1400} h={850} label={t({ es: 'Bocetos de la construcción de Rumbo', en: 'Sketches of how Rumbo was built' })}>
       <Pin x={36} y={26}><Hand size={2.4} className="font-bold">{t({ es: 'Rumbo: una sola IA que te dice qué sigue', en: 'Rumbo: one AI that tells you what’s next' })}</Hand></Pin>
 
@@ -98,5 +100,6 @@ export function RumboSketchBoard() {
         ]}
       />
     </Board>
+    </SwipeBoard>
   )
 }

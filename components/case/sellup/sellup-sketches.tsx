@@ -4,6 +4,7 @@ import { useLocale } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { CascadeBoard } from './sketch-cascade-board'
 import { RumboSketchBoard } from './sketch-rumbo-board'
+import { SwipeBoard } from './swipe-board'
 
 /** Una celda dibujada de la matriz decisor × canal. */
 function Cell({ state }: { state: 'done' | 'empty' | 'review' }) {
@@ -45,6 +46,7 @@ export function SellUpSketches() {
           en: 'And at every point where the chain stops, I drew the queue where the person decides.',
         })}
       </p>
+      <SwipeBoard designW={1400} stops={[20, 494, 968]}>
       <Board title={t({ es: 'SellUp · donde decide la persona', en: 'SellUp · where the person decides' })} w={1400} h={820} label={t({ es: 'Bocetos de las tres bandejas de revisión', en: 'Sketches of the three review queues' })}>
         <Pin x={36} y={26}><Hand size={2.4} className="font-bold">{t({ es: 'Tres bandejas, una regla: nada entra solo', en: 'Three queues, one rule: nothing gets in on its own' })}</Hand></Pin>
 
@@ -105,6 +107,7 @@ export function SellUpSketches() {
         <Pin x={432} y={250}><Hand size={1.2} className="text-[#e8743b]">{t({ es: 'aprobar', en: 'approve' })}</Hand></Pin>
         <Pin x={906} y={250}><Hand size={1.2} className="text-[#e8743b]">{t({ es: 'aprobar', en: 'approve' })}</Hand></Pin>
       </Board>
+      </SwipeBoard>
     </div>
   )
 }

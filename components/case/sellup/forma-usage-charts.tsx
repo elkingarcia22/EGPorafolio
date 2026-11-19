@@ -33,7 +33,7 @@ export function UsageHeatmap() {
     <div ref={ref} className="rounded-[20px] border border-white/10 bg-[#141517]/90 p-4 md:p-5">
       <p className="text-[15px] font-medium">{t({ es: 'Cuándo se usa', en: 'When it’s used' })}</p>
       <p className="mt-0.5 text-xs text-white/45">{t({ es: 'Hora pico: jueves a las 09:00 (hora de Colombia)', en: 'Peak: Thursday 09:00 (Colombia time)' })}</p>
-      <div className="mt-4 grid grid-cols-[2rem_repeat(24,minmax(0,1fr))] gap-[3px] text-[10px] text-white/40">
+      <div className="mt-4 grid grid-cols-[2rem_repeat(24,minmax(0,1fr))] gap-[3px] text-[11px] text-white/40 lg:text-[10px]">
         <span />
         {Array.from({ length: 24 }, (_, h) => <span key={h} className="text-center">{h % 3 === 0 ? h : ''}</span>)}
         {DAYS.map((d, di) => {
@@ -56,7 +56,7 @@ export function UsageHeatmap() {
           ]
         })}
       </div>
-      <p className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-white/40">
+      <p className="mt-3 flex items-center justify-end gap-1.5 text-[11px] text-white/40 lg:text-[10px]">
         {t({ es: 'Menos', en: 'Less' })}
         {LEVEL_BG.map((c) => <span key={c} className={`h-2.5 w-2.5 rounded-full ${c}`} />)}
         {t({ es: 'Más', en: 'More' })}
@@ -113,14 +113,14 @@ export function UsageTimeline() {
     <div ref={ref} className="rounded-[20px] border border-white/10 bg-[#141517]/90 p-4 md:p-5">
       <p className="text-[15px] font-medium">{t({ es: 'Uso de los agentes en el tiempo', en: 'Agent usage over time' })}</p>
       <p className="mt-0.5 text-xs text-white/45">{t({ es: 'Consultas por día, apiladas por agente (valores aproximados)', en: 'Queries per day, stacked by agent (approximate values)' })}</p>
-      <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 block h-auto w-full" role="img" aria-label={t({ es: 'Pico de unas 1.000 consultas el 17 de noviembre', en: 'Peak of about 1,000 queries on 17 November' })}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="mt-3 block h-auto w-full max-lg:overflow-visible" role="img" aria-label={t({ es: 'Pico de unas 1.000 consultas el 17 de noviembre', en: 'Peak of about 1,000 queries on 17 November' })}>
         {[0, 250, 500, 750, 1000].map((v) => (
           <g key={v}>
             <line x1={PAD.l} x2={W - PAD.r} y1={y(v)} y2={y(v)} stroke="rgba(255,255,255,0.07)" strokeDasharray="3 4" />
-            <text x={PAD.l - 6} y={y(v) + 3} textAnchor="end" fontSize="9" fill="rgba(255,255,255,0.4)">{v.toLocaleString('es-CO')}</text>
+            <text x={PAD.l - 6} y={y(v) + 3} textAnchor="end" fontSize="9" className="max-lg:text-[17px]" fill="rgba(255,255,255,0.4)">{v.toLocaleString('es-CO')}</text>
           </g>
         ))}
-        {SERIES.map((s, i) => <text key={s.day} x={x(i)} y={H - 8} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.4)">{s.day}</text>)}
+        {SERIES.map((s, i) => <text key={s.day} x={x(i)} y={H - 8} textAnchor="middle" fontSize="9" className="max-lg:text-[17px]" fill="rgba(255,255,255,0.4)">{s.day}</text>)}
         <path d={`${TOTAL_LINE} ${BASE}`} fill="rgba(16,185,129,0.22)" style={fill(700)} />
         <path d={`${A1_LINE} ${BASE}`} fill="rgba(40,94,230,0.35)" style={fill(500)} />
         <path d={TOTAL_LINE} fill="none" stroke="#34d399" strokeWidth="1.8" pathLength={1} style={draw(150)} />

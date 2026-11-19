@@ -7,6 +7,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { ENCUESTAS_CASE, SHOTS, type ShotKey } from '@/lib/content/cases/encuestas/case'
 import type { Iteration } from '@/lib/content/cases/encuestas/types'
+import { useMedia, zoomBox } from './shared'
 import './patterns-sketches.css'
 
 const INK = '#2a2d33'
@@ -158,6 +159,13 @@ function Wire({ marks, ratio }: { marks: readonly Mark[]; ratio: number }) {
   )
 }
 
+/** En el celular la comparación se ve casi cuadrada y acercada a la nota elegida, no la pantalla entera encogida. */
+const MOBILE_RATIO = 1
+const MOBILE_ZOOM = 2.2
+/** En tableta, ventana apaisada y acercamiento suave. */
+const TABLET_RATIO = 1.35
+const TABLET_ZOOM = 1.6
+
 /** Boceto encima, plataforma debajo: la cortina se arrastra (o se mueve con el teclado). */
 function CompareSlider({ shape }: { shape: Iteration['shape'] }) {
   const { t } = useLocale()
@@ -166,11 +174,15 @@ function CompareSlider({ shape }: { shape: Iteration['shape'] }) {
   const shot = SHOTS[c.shot]
   const [pos, setPos] = useState(55)
   const [pin, setPin] = useState<number | null>(null)
+  const [picked, setPicked] = useState(0)
+  const phone = useMedia('(max-width: 767px)')
+  const mobile = useMedia('(max-width: 1023px)')
   const ref = useRef<HTMLDivElement>(null)
 
   // Al aparecer, la cortina barre de boceto a plataforma y vuelve al centro.
   useEffect(() => {
     const el = ref.current
+    setPicked(0)
     if (!el || reducedMotion) return
     const state = { v: 100 }
     setPos(100)
@@ -181,36 +193,55 @@ function CompareSlider({ shape }: { shape: Iteration['shape'] }) {
     }
   }, [shape, reducedMotion])
 
+  // Ventana y acercamiento: en escritorio la captura entera; en el celular, acercada a la nota activa.
+  const imageRatio = shot.width / shot.height
+  const frameRatio = !mobile ? imageRatio : phone ? MOBILE_RATIO : TABLET_RATIO
+  const focus = c.pins[mobile ? picked : (pin ?? picked)] ?? c.pins[0]
+  const z = mobile ? zoomBox({ cx: focus.x, cy: focus.y, zoom: phone ? MOBILE_ZOOM : TABLET_ZOOM, frameRatio, imageRatio }) : { tx: 0, ty: 0, zoom: 1 }
+  // La cortina vive en la ventana; el boceto, en la captura acercada: se traduce la posición de una a la otra.
+  const paperPos = Math.min(100, Math.max(0, ((pos / 100 - z.tx) / z.zoom) * 100))
+  const toFrame = (p: Pin) => ({ left: (z.tx + (z.zoom * p.x) / 100) * 100, top: (z.ty + (z.zoom * p.y) / 100 / imageRatio) * frameRatio * 100 })
+
   return (
     <div>
-      <div ref={ref} className="relative overflow-hidden rounded-xl bg-white shadow-[0_30px_70px_-35px_rgba(10,11,13,0.6)] ring-1 ring-black/10" style={{ aspectRatio: `${shot.width} / ${shot.height}` }}>
-        <Image src={shot.src} alt={t(shot.alt)} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-        <div className="enc-paper absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-          <Wire marks={c.marks} ratio={shot.width / shot.height} />
-          <span className="absolute left-3 top-3 -rotate-2 font-hand text-xl text-[#b0412a]">{t({ es: 'boceto', en: 'sketch' })}</span>
+      <div ref={ref} className="relative overflow-hidden rounded-xl bg-white shadow-[0_30px_70px_-35px_rgba(10,11,13,0.6)] ring-1 ring-black/10" style={{ aspectRatio: frameRatio }}>
+        <div
+          className="absolute inset-x-0 top-0 origin-top-left transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          style={{ aspectRatio: `${shot.width} / ${shot.height}`, transform: mobile ? `translate(${z.tx * 100}%, ${z.ty * imageRatio * 100}%) scale(${z.zoom})` : undefined }}
+        >
+          <Image src={shot.src} alt={t(shot.alt)} fill sizes="(min-width: 1024px) 50vw, 220vw" className="object-cover" />
+          <div className="enc-paper absolute inset-0" style={{ clipPath: `inset(0 ${100 - paperPos}% 0 0)` }}>
+            <Wire marks={c.marks} ratio={imageRatio} />
+            <span className="absolute left-3 top-3 -rotate-2 font-hand text-xl text-[#b0412a] max-md:origin-top-left max-md:scale-[0.5]">{t({ es: 'boceto', en: 'sketch' })}</span>
+          </div>
         </div>
-        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-[#0c5bef] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-white" style={{ opacity: pos > 88 ? 0 : 1 }}>
+        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-[#0c5bef] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-white max-md:text-[11px]" style={{ opacity: pos > 88 ? 0 : 1 }}>
           {t({ es: 'plataforma', en: 'platform' })}
         </span>
         <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-[#0c5bef]" style={{ left: `${pos}%` }}>
           <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#0c5bef] text-sm text-white shadow-lg">⇆</span>
         </div>
-        {c.pins.map((p, i) => (
-          <button
-            key={p.label.es}
-            type="button"
-            data-on={String(pin === i)}
-            onMouseEnter={() => setPin(i)}
-            onMouseLeave={() => setPin(null)}
-            onFocus={() => setPin(i)}
-            onBlur={() => setPin(null)}
-            aria-label={`${i + 1}. ${t(p.label)}`}
-            className={`enc-pin absolute z-20 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-[#0c5bef] font-mono text-[11px] font-semibold text-white shadow-md ${pin === null ? 'enc-pin-pulse' : ''}`}
-            style={{ left: `${p.x}%`, top: `${p.y}%` }}
-          >
-            {i + 1}
-          </button>
-        ))}
+        {c.pins.map((p, i) => {
+          const at = toFrame(p)
+          const inside = at.left > 2 && at.left < 98 && at.top > 2 && at.top < 98
+          return (
+            <button
+              key={p.label.es}
+              type="button"
+              data-on={String(pin === i)}
+              onMouseEnter={() => setPin(i)}
+              onMouseLeave={() => setPin(null)}
+              onFocus={() => !mobile && setPin(i)}
+              onBlur={() => setPin(null)}
+              onClick={() => setPicked(i)}
+              aria-label={`${i + 1}. ${t(p.label)}`}
+              className={`enc-pin absolute z-20 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-[#0c5bef] font-mono text-[11px] font-semibold text-white shadow-md transition-[left,top,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${pin === null ? 'enc-pin-pulse' : ''}`}
+              style={{ left: `${at.left}%`, top: `${at.top}%`, opacity: inside ? 1 : 0, pointerEvents: inside ? undefined : 'none' }}
+            >
+              {i + 1}
+            </button>
+          )
+        })}
         <input
           type="range"
           min={0}
@@ -222,12 +253,24 @@ function CompareSlider({ shape }: { shape: Iteration['shape'] }) {
         />
       </div>
       <ol className="mt-4 space-y-2">
-        {c.pins.map((p, i) => (
-          <li key={p.label.es} className={`flex gap-3 text-sm leading-snug transition-opacity ${pin !== null && pin !== i ? 'opacity-40' : ''}`}>
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0c5bef] font-mono text-[10px] text-white">{i + 1}</span>
-            {t(p.label)}
-          </li>
-        ))}
+        {c.pins.map((p, i) => {
+          const dim = mobile ? picked !== i : pin !== null && pin !== i
+          return (
+            <li key={p.label.es}>
+              {/* En el celular cada nota es un botón que lleva la ventana a su punto. */}
+              <button
+                type="button"
+                onClick={() => setPicked(i)}
+                aria-pressed={mobile ? picked === i : undefined}
+                tabIndex={mobile ? undefined : -1}
+                className={`flex w-full gap-3 text-left text-sm leading-snug transition-opacity max-md:text-[15px] ${dim ? 'opacity-40' : ''} ${mobile ? '' : 'cursor-default'}`}
+              >
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0c5bef] font-mono text-[10px] text-white max-md:h-6 max-md:w-6 max-md:text-[11px]">{i + 1}</span>
+                {t(p.label)}
+              </button>
+            </li>
+          )
+        })}
       </ol>
     </div>
   )

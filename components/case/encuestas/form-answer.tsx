@@ -142,7 +142,7 @@ function Nps({ nps, typed = 0 }: { nps: number | null; typed?: number }) {
               <span key={i} className={`flex h-8 items-center justify-center rounded-md border text-[11px] tabular-nums transition-colors duration-300 ${nps === i ? 'encf-tap border-[#0c5bef] bg-[#0c5bef]/10 font-semibold text-[#0c5bef]' : 'border-black/10'}`}>{i}</span>
             ))}
           </div>
-          <p className="mt-1 flex justify-between text-[9.5px] text-[#5c646f]"><span>{PAGE_NPS.minLabel}</span><span>{PAGE_NPS.maxLabel}</span></p>
+          <p className="mt-1 flex justify-between text-[9.5px] text-[#5c646f] max-lg:text-[11px]"><span>{PAGE_NPS.minLabel}</span><span>{PAGE_NPS.maxLabel}</span></p>
           {prompt && (
             <div className="enc-fade mt-3">
               <p className="text-[11px] font-medium">{prompt}</p>

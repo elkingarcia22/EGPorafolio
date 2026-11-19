@@ -111,7 +111,7 @@ export function SourceCatalog() {
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
             <SellUpMark size={72} className="shadow-[0_0_60px_rgba(91,126,255,0.5)]" />
             <p className="mt-2 text-sm font-medium">SellUp</p>
-            <p className="font-mono text-[10px] text-white/45">{c.code} · {c.taxId}</p>
+            <p className="font-mono text-[11px] text-white/45 lg:text-[10px]">{c.code} · {c.taxId}</p>
           </div>
         </div>
 

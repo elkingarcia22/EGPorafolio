@@ -31,7 +31,7 @@ function HeroPhone({ src, alt, tilt }: { src: string; alt: L; tilt: string }) {
     <div style={{ transform: tilt }}>
       <PhoneBody>
         <StatusBar />
-        <Image src={src} width={780} height={1688} alt={t(alt)} sizes="(min-width: 768px) 18vw, 30vw" className="block h-auto w-full" priority />
+        <Image src={src} width={780} height={1688} alt={t(alt)} sizes="(min-width: 768px) 18vw, 60vw" className="block h-auto w-full" priority />
       </PhoneBody>
     </div>
   )
@@ -96,8 +96,9 @@ export function BookingHero() {
         </div>
 
         {/* Composición de aparatos */}
-        <div data-hero-stage className="relative mx-auto mt-16 h-[clamp(380px,50vw,720px)] max-w-6xl [perspective:1400px]">
-          <div data-depth="0.12" className="absolute left-1/2 top-[4%] z-10 w-[52%] -translate-x-1/2 md:w-[38%]">
+        <div data-hero-stage className="relative mx-auto mt-16 h-[540px] max-w-6xl md:h-[clamp(380px,50vw,720px)] [perspective:1400px]">
+          {/* En el celular, la tablet se oculta y los dos celulares crecen: menos piezas, legibles. */}
+          <div data-depth="0.12" className="absolute left-1/2 top-[4%] z-10 hidden w-[38%] -translate-x-1/2 md:block">
             <div data-hero-device>
               <div style={{ transform: 'perspective(1400px) rotateX(12deg) rotateZ(-1.5deg)' }} className="rounded-[30px] bg-[#0b0c0e] p-[12px] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
                 <div className="overflow-hidden rounded-[18px]">
@@ -107,13 +108,13 @@ export function BookingHero() {
             </div>
           </div>
 
-          <div data-depth="0.35" className="absolute left-[1%] top-[22%] z-20 w-[31%] md:left-[9%] md:w-[19%]">
+          <div data-depth="0.35" className="absolute left-[2%] top-[9%] z-20 w-[58%] md:left-[9%] md:top-[22%] md:w-[19%]">
             <div data-hero-device>
               <HeroPhone src={`${IMG}/booking-return.webp`} alt={BOOKING_CASE.form.screens[0].image.alt} tilt="perspective(1200px) rotateY(24deg) rotateX(6deg) rotateZ(-6deg)" />
             </div>
           </div>
 
-          <div data-depth="0.55" className="absolute right-[1%] top-[12%] z-20 w-[31%] md:right-[9%] md:w-[19%]">
+          <div data-depth="0.55" className="absolute right-[2%] top-0 z-10 w-[48%] md:right-[9%] md:top-[12%] md:z-20 md:w-[19%]">
             <div data-hero-device>
               <HeroPhone src={`${IMG}/clipper-thread.webp`} alt={BOOKING_CASE.form.screens[2].image.alt} tilt="perspective(1200px) rotateY(-24deg) rotateX(6deg) rotateZ(5deg)" />
             </div>
@@ -123,8 +124,8 @@ export function BookingHero() {
             <ClipperOrb size={58} />
           </div>
           <Chip className="left-[2%] top-[6%] hidden md:flex">{t({ es: '15 productos comparados', en: '15 products compared' })}</Chip>
-          <Chip className="right-[2%] top-[66%]">{t({ es: '4 versiones · 1 motor', en: '4 versions · 1 engine' })}</Chip>
-          <Chip className="bottom-[14%] left-[3%] md:bottom-[18%]">{t({ es: 'Demo en vivo al final ↓', en: 'Live demo at the end ↓' })}</Chip>
+          <Chip className="right-[2%] top-[72%] md:top-[66%]">{t({ es: '4 versiones · 1 motor', en: '4 versions · 1 engine' })}</Chip>
+          <Chip className="bottom-[2%] left-[3%] md:bottom-[18%]">{t({ es: 'Demo en vivo al final ↓', en: 'Live demo at the end ↓' })}</Chip>
         </div>
 
         <dl className="relative mt-16 grid grid-cols-2 gap-6 border-t border-fg/15 pt-8 md:grid-cols-5">

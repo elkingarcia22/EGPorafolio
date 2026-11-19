@@ -35,7 +35,7 @@ export function CaseDemo({ title, lead, url, image, preview, accent, tryIt, onOp
   const { t } = useLocale()
   const color = `rgb(${accent})`
   return (
-    <div className="grid items-center gap-12 lg:grid-cols-12">
+    <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-12">
       <div className="lg:col-span-5">
         <p data-reveal className="mono-label mb-5 flex items-center gap-2 opacity-70">
           <span className="relative flex h-2 w-2" aria-hidden="true">

@@ -70,9 +70,9 @@ export function LifecycleRing() {
   const coveredCount = MOMENTS.filter(covered).length
 
   return (
-    <figure data-reveal className="grid items-center gap-10 border border-fg/15 p-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:p-10">
+    <figure data-reveal className="grid items-center gap-10 border border-fg/15 p-6 md:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
       <div className="relative mx-auto w-full max-w-[420px]">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="h-auto w-full" role="group" aria-label={t({ es: 'Momentos del ciclo de objetivos', en: 'Goal cycle moments' })}>
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="h-auto w-full overflow-visible" role="group" aria-label={t({ es: 'Momentos del ciclo de objetivos', en: 'Goal cycle moments' })}>
           {MOMENTS.map((m, i) => {
             const from = i * step + GAP / 2
             const to = (i + 1) * step - GAP / 2
@@ -92,7 +92,7 @@ export function LifecycleRing() {
                     setActive(i)
                   }}
                 />
-                <text x={label.x} y={label.y} textAnchor="middle" dy="0.35em" fontSize={13} className={`pointer-events-none fill-current transition-opacity duration-500 ${on ? 'opacity-90' : 'opacity-35'}`}>
+                <text x={label.x} y={label.y} textAnchor="middle" dy="0.35em" fontSize={13} className={`pointer-events-none fill-current transition-opacity duration-500 max-md:text-[18px] ${on ? 'opacity-90' : 'opacity-35'}`}>
                   {t(m.name)}
                 </text>
               </g>
@@ -102,7 +102,7 @@ export function LifecycleRing() {
             {coveredCount}
             <tspan fontSize={24} className="opacity-50">/7</tspan>
           </text>
-          <text x={CX} y={CX + 26} textAnchor="middle" fontSize={12} className="fill-current opacity-60">
+          <text x={CX} y={CX + 26} textAnchor="middle" fontSize={12} className="fill-current opacity-60 max-md:text-[17px]">
             {mode === 'antes' ? t({ es: 'momentos cubiertos hoy', en: 'moments covered today' }) : t({ es: 'en el rediseño', en: 'in the redesign' })}
           </text>
         </svg>
