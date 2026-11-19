@@ -32,6 +32,8 @@ export function TransitionOverlay() {
         router.push(href)
         return
       }
+      // Pide la página mientras la cortina cubre: al terminar ya está lista.
+      router.prefetch(href)
       setLabel(nextLabel)
       isCovering.current = true
       gsap.set(rootRef.current, { visibility: 'visible' })
@@ -40,9 +42,9 @@ export function TransitionOverlay() {
         { scaleY: 0, transformOrigin: '50% 100%' },
         {
           scaleY: 1,
-          duration: 0.55,
+          duration: 0.42,
           ease: 'expo.inOut',
-          stagger: 0.05,
+          stagger: 0.03,
           onComplete: () => router.push(href),
         },
       )
@@ -66,10 +68,9 @@ export function TransitionOverlay() {
     gsap.to(bars(), {
       scaleY: 0,
       transformOrigin: '50% 0%',
-      duration: 0.7,
-      delay: 0.15,
+      duration: 0.55,
       ease: 'expo.inOut',
-      stagger: 0.05,
+      stagger: 0.03,
       onComplete: () => {
         gsap.set(root, { visibility: 'hidden' })
       },
@@ -98,11 +99,17 @@ interface TransitionLinkProps extends Omit<React.ComponentProps<typeof Link>, 'h
 }
 
 /** Link interno que pasa por la cortina antes de navegar. */
-export function TransitionLink({ href, transitionLabel, onClick, ...rest }: TransitionLinkProps) {
+export function TransitionLink({ href, transitionLabel, onClick, onMouseEnter, ...rest }: TransitionLinkProps) {
   const pathname = usePathname()
+  const router = useRouter()
   return (
     <Link
       href={href}
+      onMouseEnter={(event) => {
+        onMouseEnter?.(event)
+        // Precarga al pasar el cursor: el clic ya no espera a la red.
+        if (href.startsWith('/') && !href.startsWith('/#')) router.prefetch(href)
+      }}
       onClick={(event) => {
         onClick?.(event)
         const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0

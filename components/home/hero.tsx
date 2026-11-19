@@ -7,7 +7,7 @@ import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
-import { gsap, scrambleText } from '@/lib/motion'
+import { gsap, getLenis, ScrollTrigger, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -22,6 +22,15 @@ const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
 
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
+
+/** Punto del hero donde el EG ya está armado y la firma se ve completa. */
+const SIGNATURE_AT = 0.9
+
+/**
+ * La carga solo se ve una vez por visita. Si vuelves al inicio desde otra página,
+ * el hero aparece ya armado.
+ */
+let hasBooted = false
 
 /**
  * Arranque: no hay pantalla de carga aparte. La estática aparece en
@@ -42,11 +51,13 @@ function useBoot(
     const header = document.querySelector<HTMLElement>('[data-site-header]')
     const targets = [...q('[data-boot]'), ...(header ? [header] : [])]
 
-    if (reducedMotion) {
+    if (reducedMotion || hasBooted) {
       gsap.set(targets, { opacity: 1 })
       gsap.set(q('[data-boot-counter]'), { autoAlpha: 0 })
+      loaderProgress.current = 0
       return
     }
+    hasBooted = true
 
     const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
     const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
@@ -123,7 +134,25 @@ export function Hero() {
   const headline = t(COPY.hero.noise)
 
   const loaderProgress = useRef(0)
+  // Se decide al montar, antes de que useBoot marque la carga como vista.
+  const [isReturn] = useState(() => hasBooted)
   useBoot(sectionRef, headline, loaderProgress, reducedMotion)
+
+  // De vuelta desde otra página (el logo): directo al EG con la firma, no al titular.
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!isReturn || !section || window.location.hash) return
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        const y = section.offsetTop + (section.offsetHeight - window.innerHeight) * SIGNATURE_AT
+        const lenis = getLenis()
+        if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
+        else window.scrollTo(0, y)
+        ScrollTrigger.update()
+      })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [isReturn])
 
   // La etiqueta del EG nunca debe verse fuera del hero.
   useEffect(() => {
