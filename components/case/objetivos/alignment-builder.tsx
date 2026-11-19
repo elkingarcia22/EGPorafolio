@@ -46,7 +46,7 @@ const GROUPS = [
   { area: 'Finanzas', people: 9 },
 ].map((g, i) => ({ ...g, y: 40 + i * 98 }))
 
-const GOALS = [
+export const GOALS = [
   { id: 'ingresos', title: 'Crecer los ingresos un 15 %', meta: '48,6 % del peso · avance 9,8 %', top: ['Operaciones', 'Tecnología', 'Logística'], y: 150 },
   { id: 'marca', title: 'Ser la marca preferida de los clientes', meta: '26,2 % del peso · avance 11 %', top: ['Tecnología', 'Operaciones', 'Logística'], y: 380 },
   { id: 'eficiencia', title: 'Operar con más eficiencia', meta: '23,8 % del peso · avance 8,3 %', top: ['Marketing', 'Logística', 'Finanzas'], y: 610 },
