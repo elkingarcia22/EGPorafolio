@@ -1,0 +1,25 @@
+/* Movimientos propios del caso Objetivos. Todos respetan prefers-reduced-motion. */
+@keyframes obj-fade-in {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes obj-grow {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+@keyframes obj-travel {
+  from { left: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  to { left: calc(100% - 2.5rem); opacity: 0; }
+}
+.obj-fade { animation: obj-fade-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.obj-toast { animation: obj-fade-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.obj-travel { animation: obj-travel 3.2s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .obj-fade, .obj-toast, .obj-travel { animation: none; }
+}
+html[data-motion='reduced'] .obj-fade,
+html[data-motion='reduced'] .obj-toast,
+html[data-motion='reduced'] .obj-travel { animation: none; }
