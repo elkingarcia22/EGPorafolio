@@ -1,22 +1,26 @@
 import type { Project } from './types'
 
-/** CONTENIDO PROVISIONAL — caso de ejemplo mientras se documentan los reales. */
+/**
+ * Ficha de Barberlytics para el listado y la base de datos. El caso completo
+ * (real) vive en lib/content/cases/barberlytics y se muestra con BarberlyticsCase;
+ * los campos de proceso de abajo quedan solo para cumplir el tipo Project.
+ */
 export const barberlytics: Project = {
   slug: 'barberlytics',
   frequency: '02.23',
   title: { es: 'Barberlytics', en: 'Barberlytics' },
   client: 'Barberlytics',
-  year: '2022 — 2025',
+  year: '2022 — 2026',
   accent: '232 140 48',
   mock: 'mobile',
   tagline: {
-    es: 'Una app para que la barbería deje de vivir en el WhatsApp del dueño: agenda, equipo, pagos y una IA que sugiere cómo llenar la silla vacía.',
-    en: 'An app so the barbershop stops living in the owner’s WhatsApp: schedule, staff, payments and an AI that suggests how to fill the empty chair.',
+    es: 'Software para barberías de punta a punta: sistema de diseño de 218 componentes, reserva en cuatro versiones, plataforma por roles y Clipper, su IA.',
+    en: 'End-to-end barbershop software: a 218-component design system, booking in four versions, a role-based platform and Clipper, its AI.',
   },
-  role: { es: 'Lead UX/UI · producto end-to-end', en: 'UX/UI Lead · end-to-end product' },
-  team: { es: 'Fundadores, 3 devs', en: 'Founders, 3 devs' },
-  duration: { es: '3 años, entregas continuas', en: '3 years, continuous delivery' },
-  tools: ['Figma', 'Claude', 'Cursor', 'n8n', 'Stripe'],
+  role: { es: 'Lead UX/UI · diseño y construcción con IA', en: 'UX/UI Lead · design and build with AI' },
+  team: { es: 'Equipo de Barberlytics', en: 'Barberlytics team' },
+  duration: { es: '2022 — 2026', en: '2022 — 2026' },
+  tools: ['Figma', 'Claude Code', 'React', 'TypeScript', 'Vercel'],
   problem: {
     context: {
       es: 'Las barberías gestionaban citas por chat y libreta. Las sillas vacías y los clientes que no llegaban eran pérdidas invisibles.',
