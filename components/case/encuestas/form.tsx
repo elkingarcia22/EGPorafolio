@@ -3,7 +3,8 @@
 import { useLocale } from '@/lib/i18n'
 import { LiveBuilder } from './form-builder'
 import { ResultsTabs, UploadPipeline } from './form-flows'
-import { AnonymityHeatmap, BrowserFrame, Moment, TemplatesFan } from './form-moments'
+import { AnonymityHeatmap, BrowserFrame, Moment } from './form-moments'
+import { TemplatesReal } from './form-templates'
 import { PhoneAnswer } from './form-answer'
 import { ProductTour } from './form-tour'
 import './form.css'
@@ -27,7 +28,7 @@ export function SurveyForm() {
         title={{ es: 'Empezar nunca es una hoja en blanco', en: 'Starting is never a blank page' }}
         why={{ es: 'Cinco atajos en la portada, con NOM 035 primero porque es lo que más piden los clientes de México. Cada plantilla trae sus reglas: la de la norma llega de solo lectura y exige participación completa.', en: 'Five shortcuts on the home page, NOM 035 first because it’s what Mexican customers ask for most. Each template carries its rules: the norm’s arrives read-only and requires full participation.' }}
       >
-        <TemplatesFan />
+        <TemplatesReal />
       </Moment>
 
       <Moment
