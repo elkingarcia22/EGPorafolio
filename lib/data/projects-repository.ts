@@ -46,7 +46,20 @@ export async function listProjects(): Promise<ProjectsResult> {
   if (valid.length < rows.length) {
     console.error(`[projects] ${rows.length - valid.length} fila(s) con formato inválido fueron omitidas`)
   }
-  return valid.length > 0 ? { projects: valid, source: 'supabase' } : LOCAL
+  return valid.length > 0 ? { projects: withCodeCases(valid), source: 'supabase' } : LOCAL
+}
+
+/** Casos con diseño propio: viven en el código y se listan aunque no tengan fila en Supabase. */
+const CODE_CASES: ReadonlySet<string> = new Set(['sellup'])
+
+/** Suma los casos del código que falten, en la posición que tienen en el orden local. */
+function withCodeCases(projects: readonly Project[]): readonly Project[] {
+  const present = new Set(projects.map((p) => p.slug))
+  return LOCAL_PROJECTS.reduce<readonly Project[]>((acc, local, index) => {
+    if (!CODE_CASES.has(local.slug) || present.has(local.slug)) return acc
+    const at = Math.min(index, acc.length)
+    return [...acc.slice(0, at), local, ...acc.slice(at)]
+  }, projects)
 }
 
 export async function findProject(slug: string): Promise<{ project: Project; next: Project } | null> {
