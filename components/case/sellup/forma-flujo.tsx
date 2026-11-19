@@ -31,7 +31,7 @@ const CARD_H = 104
 /** Ancho de la barra lateral más el margen del tablero (px de diseño de la app). */
 const BOARD_X = 236 + 32
 /** Encuadre en pantallas chicas: la columna donde está la empresa destacada. */
-const viewAt = (phase: number) => ({ cx: Math.max(BOARD_X + COL_X[phase] + COLS[phase].w / 2, BOARD_X + 190), cy: 330, w: 420, h: 470 })
+const viewAt = (phase: number) => (phase === 0 ? { cx: 0, x: BOARD_X - 16, cy: 330, w: 420, h: 470 } : { cx: BOARD_X + COL_X[phase] + COLS[phase].w / 2, cy: 330, w: 420, h: 470 })
 
 const ENRICH = [
   { name: 'Grupo Vital Salud', where: '🇲🇽 México · hace 2 días' },

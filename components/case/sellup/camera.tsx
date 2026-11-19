@@ -46,6 +46,8 @@ export interface View {
   cy: number
   w: number
   h: number
+  /** Borde izquierdo fijo (px de diseño): alinea el encuadre con el inicio del contenido en vez de centrarlo. */
+  x?: number
 }
 
 /** Nunca se amplía por encima del tamaño de diseño. */
@@ -57,10 +59,26 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 export function frame(boxW: number, width: number, height: number, view: View) {
   const scale = Math.min(MAX_SCALE, boxW / view.w)
   const visW = boxW / scale
-  const x0 = visW >= width ? (width - visW) / 2 : clamp(view.cx - visW / 2, 0, width - visW)
+  const left = view.x ?? view.cx - visW / 2
+  const x0 = visW >= width ? (width - visW) / 2 : clamp(left, 0, width - visW)
   const y0 = view.h >= height ? 0 : clamp(view.cy - view.h / 2, 0, height - view.h)
   const visH = Math.min(view.h, height)
-  return { scale, x0, y0, boxH: visH * scale }
+  return { scale, x0, y0, boxH: visH * scale, cut: { left: x0 > 1, right: x0 + visW < width - 1, bottom: y0 + visH < height - 1 } }
+}
+
+/** Largo del desvanecido en el borde donde la composición sigue (px reales). */
+const FADE = 28
+
+/**
+ * Máscara que desvanece los bordes donde la pantalla continúa: así el corte se lee
+ * como «la pantalla sigue», no como una pieza rota.
+ */
+function edgeMask(cut: { left: boolean; right: boolean; bottom: boolean }): React.CSSProperties {
+  if (!cut.left && !cut.right && !cut.bottom) return {}
+  const h = `linear-gradient(to right, ${cut.left ? 'transparent' : '#000'} 0, #000 ${FADE}px, #000 calc(100% - ${FADE}px), ${cut.right ? 'transparent' : '#000'} 100%)`
+  const v = `linear-gradient(to bottom, #000 calc(100% - ${FADE}px), ${cut.bottom ? 'transparent' : '#000'} 100%)`
+  const image = `${h}, ${v}`
+  return { maskImage: image, WebkitMaskImage: image, maskComposite: 'intersect', WebkitMaskComposite: 'source-in' }
 }
 
 interface CameraProps {
@@ -77,7 +95,7 @@ export function Camera({ width, height, view, children, className = '' }: Camera
   const [box, boxW] = useWidth<HTMLDivElement>()
   const f = frame(boxW, width, height, view)
   return (
-    <div ref={box} className={`relative w-full overflow-hidden ${className}`} style={{ height: boxW ? f.boxH : undefined }}>
+    <div ref={box} className={`relative w-full overflow-hidden ${className}`} style={{ height: boxW ? f.boxH : undefined, ...edgeMask(f.cut) }}>
       {boxW > 0 && (
         <div
           className="absolute left-0 top-0 origin-top-left transition-transform duration-700 ease-expo motion-reduce:transition-none"

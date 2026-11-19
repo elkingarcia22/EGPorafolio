@@ -14,21 +14,21 @@ export const RADAR_W = 960
 export const RADAR_H = 560
 const CX = 480
 const CY = 300
-const RINGS = [
+export const RINGS = [
   { name: 'HubSpot', r: 92, at: 2, note: '1 decisora · gratis' },
   { name: 'Lo ya conocido', r: 150, at: 4, note: '1 decisora · gratis' },
   { name: 'Apollo', r: 208, at: 6, note: '2 decisores · 3 créditos' },
   { name: 'Lusha', r: 262, at: 8, note: 'No hizo falta' },
 ] as const
 
-interface Person {
+export interface Person {
   i: string
   ring: number
   deg: number
   role?: string
 }
 
-const PEOPLE: readonly Person[] = [
+export const PEOPLE: readonly Person[] = [
   { i: 'VO', ring: 0, deg: 205, role: 'Directora de Talento' },
   { i: 'MR', ring: 0, deg: 320 },
   { i: 'JP', ring: 0, deg: 70 },
@@ -49,7 +49,7 @@ const POS = PEOPLE.map((p) => {
 const DECIDERS = PEOPLE.map((p, k) => (p.role ? k : -1)).filter((k) => k >= 0)
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)'
-const CREDITS = 8
+export const CREDITS = 8
 
 /** `t`: segundos (ticks) desde que empieza la escena del radar. */
 export function PeopleRadar({ t }: { t: number }) {

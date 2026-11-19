@@ -80,16 +80,6 @@ function FragmentCard({ f, state }: { f: Fragment; state: 'idle' | 'pull' | 'gon
   )
 }
 
-/** Encuadre en pantallas chicas: Rumbo y el fragmento que está atrayendo. */
-export function magnetView(time: number) {
-  const i = Math.min(FRAGMENTS.length - 1, Math.max(0, Math.round((time - fragAt(0)) / 2)))
-  const f = FRAGMENTS[i]
-  return { cx: (f.x + MX) / 2, cy: (f.y + MY) / 2, w: 430, h: 400 }
-}
-
-/** Encuadre de la columna de hechos citados. */
-export const MAGNET_FACTS_VIEW = { cx: MAGNET_W - 145, cy: 200, w: 290, h: 400 } as const
-
 export function MagnetScene({ time }: { time: number }) {
   const stateOf = (i: number): 'idle' | 'pull' | 'gone' | 'struck' => {
     const at = fragAt(i)

@@ -19,7 +19,7 @@ const LOOP = 20
 
 /** Encuadre en pantallas chicas: la fuente nueva, su prueba y cómo queda. */
 const VIEWS = [
-  { cx: 470, cy: 330, w: 420, h: 420 },
+  { cx: 0, x: 248, cy: 330, w: 420, h: 420 },
   { cx: 840, cy: 330, w: 420, h: 420 },
   { cx: 640, cy: 330, w: 420, h: 420 },
 ] as const

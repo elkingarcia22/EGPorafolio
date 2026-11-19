@@ -53,7 +53,7 @@ function MapScene({ t, still }: { t: number; still: boolean }) {
   const [rx, ry] = radarAt(t, still)
   return (
     <div className="grid gap-2 overflow-hidden rounded-[22px] bg-[#0b0c10] md:grid-cols-[minmax(0,1fr)_316px] md:items-center">
-      <Scaled width={MAP_W} height={MAP_H} view={{ cx: Math.max(rx + 60, 200), cy: ry - 10, w: 380, h: 290 }}><SearchMap t={t} still={still} /></Scaled>
+      <Scaled width={MAP_W} height={MAP_H} view={{ cx: Math.max(rx + 20, 206), cy: ry - 10, w: 380, h: 290 }}><SearchMap t={t} still={still} /></Scaled>
       <Scaled width={MAP_W} height={MAP_H} view={MAP_SIDE_VIEW}><SearchMap t={t} still={still} /></Scaled>
     </div>
   )
@@ -62,15 +62,7 @@ function MapScene({ t, still }: { t: number; still: boolean }) {
 /** Encuadres de la bandeja en pantallas chicas: la fila nueva y, un momento, su estado. */
 function reviewView(time: number) {
   if (time >= 13 && time < 15) return { cx: 1060, cy: 300, w: 400, h: 560 }
-  return { cx: 460, cy: 300, w: 400, h: 560 }
-}
-
-/** Recorrido por el detalle en pantallas chicas: cabecera, datos, por qué entró y acciones. */
-function detailView(time: number) {
-  if (time < 21) return { cx: 250, cy: 0, w: 440, h: 520 }
-  if (time < 24) return { cx: 250, cy: 600, w: 440, h: 520 }
-  if (time < 27) return { cx: 720, cy: 300, w: 440, h: 520 }
-  return { cx: 760, cy: 600, w: 440, h: 520 }
+  return { cx: 0, x: 252, cy: 300, w: 400, h: 560 }
 }
 
 export function SearchReview() {
@@ -79,6 +71,7 @@ export function SearchReview() {
   const [ref, time, jump] = useSceneTime(LOOP, 15)
   const scene = stepAt(STEPS, time)
   const onRow = time >= 15 && time < 19
+  const compact = useCompact()
   return (
     <div ref={ref}>
       <style>{LANDING_CSS}</style>
@@ -98,7 +91,12 @@ export function SearchReview() {
               </div>
             ),
           },
-          { node: <DetailScene view={detailView(time)}><CompanyDetail show inline /></DetailScene>, from: 0.22, origin: '30% 43%' },
+          {
+            // En teléfono el detalle se dibuja a su tamaño (sin escalar), con los paneles turnándose.
+            node: compact ? <div className="py-2"><CompanyDetail show inline stack panel={time < 24 ? 0 : 1} /></div> : <DetailScene><CompanyDetail show inline /></DetailScene>,
+            from: 0.22,
+            origin: '30% 43%',
+          },
         ]}
       />
       <ReplicaNote />

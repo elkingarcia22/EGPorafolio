@@ -3,7 +3,8 @@
 import { ReplicaNote, StorySteps, stepAt, type StoryStep } from './real-story'
 import { DetailScene, SceneStage, useSceneTime } from './forma-stage'
 import { useState } from 'react'
-import { MAGNET_FACTS_VIEW, MAGNET_H, MAGNET_W, MagnetScene, magnetView } from './forma-a3-magnet'
+import { MAGNET_H, MAGNET_W, MagnetScene } from './forma-a3-magnet'
+import { MagnetMobile } from './forma-a3-magnet-mobile'
 import { FAN_H, FAN_W, FanScene, fanView } from './forma-a3-fan'
 import type { Channel } from './forma-a3-devices'
 import { useCompact } from './camera'
@@ -22,18 +23,13 @@ const STEPS: readonly StoryStep[] = [
 const LOOP = 37
 
 /**
- * El imán. En pantallas chicas: Rumbo con el fragmento que atrae, a tamaño legible,
- * y debajo la columna de hechos citados que se va llenando.
+ * El imán. En pantallas chicas no se recorta el de escritorio: se usa una versión
+ * hecha para el ancho del teléfono (un fragmento a la vez y la lista de hechos debajo).
  */
 function Magnet({ time }: { time: number }) {
   const compact = useCompact()
   if (!compact) return <DetailScene width={MAGNET_W} height={MAGNET_H}><MagnetScene time={time} /></DetailScene>
-  return (
-    <div className="grid gap-2 py-2 md:grid-cols-[minmax(0,1fr)_290px] md:items-start">
-      <DetailScene width={MAGNET_W} height={MAGNET_H} view={magnetView(time)}><MagnetScene time={time} /></DetailScene>
-      <DetailScene width={MAGNET_W} height={MAGNET_H} view={MAGNET_FACTS_VIEW}><MagnetScene time={time} /></DetailScene>
-    </div>
-  )
+  return <MagnetMobile time={time} />
 }
 
 export function FirstContactPrep() {

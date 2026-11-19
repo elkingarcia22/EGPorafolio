@@ -9,8 +9,9 @@ import { AgentStructure, type StructureItem } from './forma-structure'
 import { FakeCursor, ReplicaNote, StorySteps, stepAt, type StoryStep } from './real-story'
 import { DetailScene, SceneStage, Scaled, useSceneTime } from './forma-stage'
 import { PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
+import { PeopleRadarMobile } from './forma-a2-radar-mobile'
 import { PhoneDecoder, type A2Phone } from './forma-a2-phone'
-import { useCompact, type View } from './camera'
+import { useCompact } from './camera'
 
 /**
  * 5.3 · Agente 2: arranca cuando Rumbo ya busca (radar de decisores), el resultado en
@@ -46,33 +47,15 @@ function Warp({ on, children }: { on: boolean; children: ReactNode }) {
   )
 }
 
-/** La cámara se abre con el barrido: un anillo más de radar en cada paso de la cascada. */
-function radarView(t: number): View {
-  if (t >= 10) return { cx: 390, cy: 140, w: 460, h: 300 }
-  const reach = t < 4 ? 340 : t < 6 ? 440 : 560
-  return { cx: 480, cy: 300, w: reach, h: reach }
-}
-
 /**
- * El radar de decisores. En pantallas chicas: el radar a tamaño legible (la cámara se
- * abre a medida que barre) y, debajo, la cascada de fuentes y los créditos.
+ * El radar de decisores. En pantallas chicas no se recorta el de escritorio: se usa
+ * una versión hecha para el ancho del teléfono (radar completo y tarjetas debajo).
  */
 function RadarScene({ t }: { t: number }) {
   const compact = useCompact()
   if (!compact) return <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={t} /></Scaled>
-  return (
-    <div className="grid gap-1 overflow-hidden rounded-[22px] bg-[#0b0c10] md:grid-cols-[minmax(0,1fr)_300px] md:items-center">
-      <Scaled width={RADAR_W} height={RADAR_H} view={radarView(t)}><PeopleRadar t={t} /></Scaled>
-      <div className="space-y-1">
-        <Scaled width={RADAR_W} height={RADAR_H} view={{ cx: 160, cy: 470, w: 300, h: 150 }}><PeopleRadar t={t} /></Scaled>
-        <Scaled width={RADAR_W} height={RADAR_H} view={{ cx: 821, cy: 495, w: 260, h: 100 }}><PeopleRadar t={t} /></Scaled>
-      </div>
-    </div>
-  )
+  return <PeopleRadarMobile t={t} />
 }
-
-/** Encuadre del detalle del contacto: cabecera y luego «Revelar teléfono». */
-const detailView = (time: number): View => (time < 20 ? { cx: 250, cy: 0, w: 440, h: 520 } : { cx: 250, cy: 600, w: 440, h: 520 })
 
 export function ContactEnrichment() {
   const { t } = useLocale()
@@ -80,6 +63,7 @@ export function ContactEnrichment() {
   const scene = stepAt(STEPS, time)
   const onRow = time >= 15 && time < 18
   const onPhone = time >= 18 && time < 21
+  const compact = useCompact()
   return (
     <div ref={ref}>
       <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 2', en: 'Agent 2' }} onPick={jump} />
@@ -90,17 +74,22 @@ export function ContactEnrichment() {
             <RadarScene t={scene === 0 ? time : 13} />
           </Warp>,
           <Warp key="table" on={scene === 1}>
-            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} view={{ cx: 520, cy: 300, w: 400, h: 560 }} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 258 : 560} click={time === 17} show={onRow} />}>
+            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} view={{ cx: 0, x: 252, cy: 300, w: 400, h: 560 }} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 258 : 560} click={time === 17} show={onRow} />}>
               <ContactReview arrived={time >= 14} focus={time >= 14} />
             </RealFrame>
           </Warp>,
           <Warp key="detail" on={scene === 2}>
-            <DetailScene view={detailView(time)}>
-              <div className="relative h-full">
-                <ContactDetail show inline phone="idle" phoneSlot={<PhoneDecoder state={phoneAt(time)} pressed={time === 20} />} />
-                <FakeCursor x={onPhone ? A2_BTN.x + 60 : 600} y={onPhone ? A2_BTN.y + 18 : 520} click={time === 20} show={onPhone} />
-              </div>
-            </DetailScene>
+            {compact ? (
+              // En teléfono el detalle se dibuja a su tamaño (sin escalar): el panel del teléfono es el protagonista.
+              <div className="py-2"><ContactDetail show inline stack phone="idle" phoneSlot={<PhoneDecoder state={phoneAt(time)} pressed={time === 20} />} /></div>
+            ) : (
+              <DetailScene>
+                <div className="relative h-full">
+                  <ContactDetail show inline phone="idle" phoneSlot={<PhoneDecoder state={phoneAt(time)} pressed={time === 20} />} />
+                  <FakeCursor x={onPhone ? A2_BTN.x + 60 : 600} y={onPhone ? A2_BTN.y + 18 : 520} click={time === 20} show={onPhone} />
+                </div>
+              </DetailScene>
+            )}
           </Warp>,
         ]}
       />

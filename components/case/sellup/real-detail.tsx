@@ -39,14 +39,14 @@ function Head({ Icon, title, tag, sub }: { Icon: typeof User; title: string; tag
   )
 }
 
-function Strip({ items }: { items: readonly { Icon: typeof User; label: string; value: ReactNode }[] }) {
+function Strip({ items, stack = false }: { items: readonly { Icon: typeof User; label: string; value: ReactNode }[]; stack?: boolean }) {
   return (
-    <div className="mx-5 mt-4 rounded-[16px] border border-white/10 p-[3px]">
-      <div className="grid grid-cols-4 rounded-[13px] border border-white/10 bg-[#141414] px-4 py-3.5">
+    <div className={`${stack ? 'mx-4' : 'mx-5'} mt-4 rounded-[16px] border border-white/10 p-[3px]`}>
+      <div className={`grid ${stack ? 'grid-cols-2 gap-x-3 gap-y-3 px-3' : 'grid-cols-4 px-4'} rounded-[13px] border border-white/10 bg-[#141414] py-3.5`}>
         {items.map(({ Icon, label, value }) => (
           <div key={label} className="flex gap-2.5">
             <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/45" />
-            <span><span className="block text-[11.5px] text-white/55">{label}</span><span className="block text-[13px]">{value}</span></span>
+            <span className={stack ? 'min-w-0' : undefined}><span className="block text-[11.5px] text-white/55">{label}</span><span className="block text-[13px]">{value}</span></span>
           </div>
         ))}
       </div>
@@ -54,9 +54,12 @@ function Strip({ items }: { items: readonly { Icon: typeof User; label: string; 
   )
 }
 
-function Tabs({ items }: { items: readonly { label: string; Icon: typeof User }[] }) {
+/** En teléfono la fila de pestañas sigue fuera del marco: se desvanece en vez de cortarse. */
+const TABS_FADE = { maskImage: 'linear-gradient(to right,#000 80%,transparent)', WebkitMaskImage: 'linear-gradient(to right,#000 80%,transparent)' } as const
+
+function Tabs({ items, stack = false }: { items: readonly { label: string; Icon: typeof User }[]; stack?: boolean }) {
   return (
-    <div className="mx-5 mt-4 flex gap-0.5 overflow-hidden text-[12.5px]">
+    <div className={`${stack ? 'mx-4' : 'mx-5'} mt-4 flex gap-0.5 overflow-hidden text-[12.5px]`} style={stack ? TABS_FADE : undefined}>
       {items.map(({ label, Icon }, i) => (
         <span key={label} className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 ${i === 0 ? 'bg-[#6b8cff] font-medium text-[#0a0a0a]' : 'text-white/65'}`}><Icon className="h-3.5 w-3.5" />{label}</span>
       ))}
@@ -79,8 +82,23 @@ const Row = ({ Icon, k, v }: { Icon: typeof User; k: string; v: string }) => (
   <p className="flex items-center gap-2 py-1.5 text-[12.5px]"><Icon className="h-3.5 w-3.5 text-white/45" /><span className="text-white/65">{k}</span><span className="ml-auto">{v}</span></p>
 )
 
+/**
+ * Los dos paneles del detalle. En escritorio van lado a lado; apilados (teléfono)
+ * ocupan el mismo lugar y se turnan con un fundido según `panel`, para no alargar la escena.
+ */
+function Panels({ stack, panel, children }: { stack: boolean; panel: number; children: readonly [ReactNode, ReactNode] }) {
+  if (!stack) return <div className="mx-5 mt-4 grid grid-cols-2 gap-4">{children[0]}{children[1]}</div>
+  return (
+    <div className="mx-4 mt-4 grid">
+      {children.map((child, i) => (
+        <div key={i} className="transition-[opacity,transform] duration-500 ease-expo [grid-area:1/1]" style={{ opacity: i === panel ? 1 : 0, transform: i === panel ? 'none' : 'translateY(8px)' }} aria-hidden={i !== panel}>{child}</div>
+      ))}
+    </div>
+  )
+}
+
 /** Detalle de la empresa nueva que trajo el Agente 1. */
-export function CompanyDetail({ show, inline = false }: { show: boolean; inline?: boolean }) {
+export function CompanyDetail({ show, inline = false, stack = false, panel = 0 }: { show: boolean; inline?: boolean; stack?: boolean; panel?: number }) {
   return (
     <Modal show={show} inline={inline}>
       <Head Icon={Building2} title="Agrícola Río Claro" tag={<span className="text-[12px] font-normal text-white/70">Nueva</span>} />
@@ -91,22 +109,23 @@ export function CompanyDetail({ show, inline = false }: { show: boolean; inline?
           { Icon: Globe, label: 'Sitio web', value: <span className="text-[#7fa0ff]">agricolarioclaro.cl</span> },
           { Icon: Users, label: 'Contactos', value: '0' },
         ]}
+        stack={stack}
       />
-      <Tabs items={[{ label: 'Resumen', Icon: Building2 }, { label: 'Contactos', Icon: Users }, { label: 'Primer contacto', Icon: PhoneCall }, { label: 'Actividad', Icon: Activity }, { label: 'Agentes', Icon: Database }, { label: 'Árbol', Icon: Network }, { label: 'Comentarios', Icon: MessageCircle }]} />
-      <div className="mx-5 mt-4 grid grid-cols-2 gap-4">
-        <Panel Icon={Building2} title="Datos de la empresa">
+      <Tabs stack={stack} items={[{ label: 'Resumen', Icon: Building2 }, { label: 'Contactos', Icon: Users }, { label: 'Primer contacto', Icon: PhoneCall }, { label: 'Actividad', Icon: Activity }, { label: 'Agentes', Icon: Database }, { label: 'Árbol', Icon: Network }, { label: 'Comentarios', Icon: MessageCircle }]} />
+      <Panels stack={stack} panel={panel}>{[
+        <Panel key="datos" Icon={Building2} title="Datos de la empresa">
           <Row Icon={Briefcase} k="Industria" v="Agroindustria" />
           <Row Icon={Users} k="Tamaño" v="640" />
           <Row Icon={Hash} k="ID fiscal" v="76.4XX.XXX-K" />
           <Row Icon={Tag} k="Fuente" v="Agente 1 · Registro oficial" />
           <Row Icon={Globe} k="Libre en HubSpot" v="Sí, sin dueño" />
           <Row Icon={Calendar} k="Creada" v="19 de nov de 2026" />
-        </Panel>
-        <Panel Icon={StickyNote} title="Por qué entró">
+        </Panel>,
+        <Panel key="por-que" Icon={StickyNote} title="Por qué entró" className={stack ? 'h-full' : ''}>
           <p className="text-[12.5px] leading-relaxed text-white/70">Encaja con el ICP: agroindustria en Chile, más de 200 empleados. Verificada en el registro oficial y sin responsable en HubSpot. No es duplicada.</p>
-        </Panel>
-      </div>
-      <div className="mt-auto flex items-center justify-end gap-2 border-t border-white/10 px-5 py-3 text-[13px]">
+        </Panel>,
+      ]}</Panels>
+      <div className={`mt-auto flex items-center justify-end gap-2 border-t border-white/10 py-3 text-[13px] ${stack ? 'mt-4 flex-wrap px-4' : 'px-5'}`}>
         <span className="grid h-8 w-8 place-items-center rounded-lg border border-white/15">···</span>
         <span className="flex items-center gap-2 rounded-lg border border-white/15 px-3 py-1.5"><RumboMark size={16} />Buscar contactos con Rumbo IA</span>
         <span className="flex items-center gap-2 rounded-lg px-3 py-1.5 font-medium" style={{ background: RUMBO_GRADIENT }}><RumboMark size={16} />Preparar primer contacto con Rumbo IA</span>
@@ -118,7 +137,7 @@ export function CompanyDetail({ show, inline = false }: { show: boolean; inline?
 export type PhoneState = 'idle' | 'apollo' | 'lusha' | 'done'
 
 /** Detalle del contacto nuevo que trajo el Agente 2, con «Revelar teléfono». */
-export function ContactDetail({ show, phone, pressed = false, prepHighlight = false, inline = false, phoneSlot }: { show: boolean; phone: PhoneState; pressed?: boolean; prepHighlight?: boolean; inline?: boolean; phoneSlot?: React.ReactNode }) {
+export function ContactDetail({ show, phone, pressed = false, prepHighlight = false, inline = false, phoneSlot, stack = false, panel = 0 }: { show: boolean; phone: PhoneState; pressed?: boolean; prepHighlight?: boolean; inline?: boolean; phoneSlot?: React.ReactNode; stack?: boolean; panel?: number }) {
   return (
     <Modal show={show} inline={inline}>
       <Head Icon={User} title="Valeria Ortiz Lagos" tag={<span className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 text-[12px] font-normal text-emerald-300">Activo</span>} sub="Directora de Talento · Clínica Andina" />
@@ -129,10 +148,11 @@ export function ContactDetail({ show, phone, pressed = false, prepHighlight = fa
           { Icon: Tag, label: 'Rol en la empresa', value: 'Decisora' },
           { Icon: User, label: 'Seniority', value: 'Dirección' },
         ]}
+        stack={stack}
       />
-      <Tabs items={[{ label: 'Resumen', Icon: User }, { label: 'Actividad', Icon: Activity }, { label: 'Origen y calidad', Icon: Database }, { label: 'HubSpot', Icon: Globe }, { label: 'Comentarios', Icon: MessageCircle }]} />
-      <div className="mx-5 mt-4 grid grid-cols-2 gap-4">
-        <Panel Icon={Mail} title="Datos de contacto" className="min-h-[220px]">
+      <Tabs stack={stack} items={[{ label: 'Resumen', Icon: User }, { label: 'Actividad', Icon: Activity }, { label: 'Origen y calidad', Icon: Database }, { label: 'HubSpot', Icon: Globe }, { label: 'Comentarios', Icon: MessageCircle }]} />
+      <Panels stack={stack} panel={panel}>{[
+        <Panel key="contacto" Icon={Mail} title="Datos de contacto" className="min-h-[220px]">
           <p className="text-[11.5px] text-white/55">Email</p>
           <p className="text-[13px] text-[#7fa0ff]">valeria.ortiz@clinicaandina.mx</p>
           {phoneSlot ? (
@@ -148,17 +168,17 @@ export function ContactDetail({ show, phone, pressed = false, prepHighlight = fa
             </span>
           )}
           <p className="mt-2.5 text-[11.5px] leading-relaxed text-white/55">Consulta Apollo y, si no hay número, Lusha. Los créditos se reservan antes de llamar y lo que no se usa se devuelve.</p>
-        </Panel>
-        <Panel Icon={Briefcase} title="Otros datos">
+        </Panel>,
+        <Panel key="otros" Icon={Briefcase} title="Otros datos" className={stack ? 'h-full' : ''}>
           <Row Icon={Briefcase} k="Área" v="Recursos Humanos" />
           <Row Icon={Tag} k="Fuente" v="Apollo" />
           <Row Icon={Calendar} k="Creado" v="19 de nov de 2026" />
           <Row Icon={StickyNote} k="Relevancia" v="Alta · 85%" />
-        </Panel>
-      </div>
-      <div className="mt-auto flex items-center border-t border-white/10 px-5 py-3 text-[13px]">
+        </Panel>,
+      ]}</Panels>
+      <div className={`mt-auto flex items-center border-t border-white/10 py-3 text-[13px] ${stack ? 'mt-4 flex-wrap gap-2 px-4' : 'px-5'}`}>
         <span className="flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-1.5">Más acciones<ChevronDown className="h-3.5 w-3.5" /></span>
-        <span className={`mx-auto flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-500 ${prepHighlight ? 'border-[#6b8cff] bg-[#6b8cff]/15 shadow-[0_0_0_4px_rgba(107,140,255,0.2)]' : 'border-white/15'}`}><PhoneCall className="h-3.5 w-3.5" />Preparar primer contacto</span>
+        <span className={`${stack ? '' : 'mx-auto '}flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-500 ${prepHighlight ? 'border-[#6b8cff] bg-[#6b8cff]/15 shadow-[0_0_0_4px_rgba(107,140,255,0.2)]' : 'border-white/15'}`}><PhoneCall className="h-3.5 w-3.5" />Preparar primer contacto</span>
         <span className="flex items-center gap-1.5 rounded-lg bg-[#6b8cff] px-3 py-1.5 font-medium text-[#0a0a0a]"><Pencil className="h-3.5 w-3.5" />Editar contacto</span>
       </div>
     </Modal>
