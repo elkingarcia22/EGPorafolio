@@ -118,7 +118,7 @@ export function CompanyDetail({ show, inline = false }: { show: boolean; inline?
 export type PhoneState = 'idle' | 'apollo' | 'lusha' | 'done'
 
 /** Detalle del contacto nuevo que trajo el Agente 2, con «Revelar teléfono». */
-export function ContactDetail({ show, phone, pressed = false, prepHighlight = false, inline = false }: { show: boolean; phone: PhoneState; pressed?: boolean; prepHighlight?: boolean; inline?: boolean }) {
+export function ContactDetail({ show, phone, pressed = false, prepHighlight = false, inline = false, phoneSlot }: { show: boolean; phone: PhoneState; pressed?: boolean; prepHighlight?: boolean; inline?: boolean; phoneSlot?: React.ReactNode }) {
   return (
     <Modal show={show} inline={inline}>
       <Head Icon={User} title="Valeria Ortiz Lagos" tag={<span className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 text-[12px] font-normal text-emerald-300">Activo</span>} sub="Directora de Talento · Clínica Andina" />
@@ -135,7 +135,9 @@ export function ContactDetail({ show, phone, pressed = false, prepHighlight = fa
         <Panel Icon={Mail} title="Datos de contacto" className="min-h-[220px]">
           <p className="text-[11.5px] text-white/55">Email</p>
           <p className="text-[13px] text-[#7fa0ff]">valeria.ortiz@clinicaandina.mx</p>
-          {phone === 'done' ? (
+          {phoneSlot ? (
+            <div className="mt-3">{phoneSlot}</div>
+          ) : phone === 'done' ? (
             <div className="mt-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-[13px]">
               <span className="block text-[11.5px] text-emerald-300">Teléfono · Lusha</span>+52 55 4821 0937
             </div>
