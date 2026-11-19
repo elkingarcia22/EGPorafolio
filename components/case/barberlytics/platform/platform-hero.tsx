@@ -79,8 +79,8 @@ export function PlatformHero() {
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
       tl.from('[data-hero-word]', { yPercent: 115, duration: 1.3, stagger: 0.08 }, 0.15)
         .from('[data-hero-fade]', { autoAlpha: 0, y: 24, duration: 1, stagger: 0.06 }, 0.45)
-        // El calendario se abre de arriba hacia abajo, sin giros.
-        .fromTo('[data-hero-calendar]', { clipPath: 'inset(0 0 100% 0 round 16px)' }, { clipPath: 'inset(0 0 0% 0 round 16px)', duration: 1.6, ease: 'power3.inOut' }, 0.5)
+        // El calendario está desde el inicio, vacío; luego las citas caen en sus horas.
+        .from('[data-hero-calendar]', { autoAlpha: 0, duration: 0.5, ease: 'power2.out' }, 0.2)
         .from('[data-hero-panel]', { autoAlpha: 0, x: 30, duration: 1 }, 1.4)
     }, el)
     return () => ctx.revert()
@@ -113,7 +113,7 @@ export function PlatformHero() {
 
         <div className="relative mt-16 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
           <div data-hero-calendar>
-            <LiveCalendar now={now} colorBy={view.colorBy} density={view.density} columns={narrow ? 3 : 5} intro={reducedMotion ? undefined : 0.9} />
+            <LiveCalendar now={now} colorBy={view.colorBy} density={view.density} columns={narrow ? 3 : 5} intro={reducedMotion ? undefined : 1.1} />
           </div>
           <aside data-hero-panel className="rounded-2xl border border-white/10 bg-[#141210]/90 p-4 backdrop-blur" aria-label={t({ es: 'Ajustes de la vista', en: 'View settings' })}>
             <p className="text-sm font-medium">{t({ es: 'Ajustes de la vista', en: 'View settings' })}</p>

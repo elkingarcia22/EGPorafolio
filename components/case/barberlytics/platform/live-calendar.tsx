@@ -215,7 +215,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', fiel
               </div>
             ))}
             {APPTS.filter((a) => a.col === c).map((a) => (
-              <Card key={a.client} a={a} now={now} colorBy={colorBy} fields={fields} px={px} introAt={intro === undefined ? undefined : intro + a.start * 0.16 + c * 0.07} />
+              <Card key={a.client} a={a} now={now} colorBy={colorBy} fields={fields} px={px} introAt={intro === undefined ? undefined : intro + a.start * 0.22 + c * 0.09} />
             ))}
           </div>
         ))}
