@@ -170,3 +170,11 @@ html[data-motion='reduced'] [class*='animate-[motion-run'],
 html[data-motion='reduced'] [class*='animate-[bar-rise'],
 html[data-motion='reduced'] [class*='animate-[type-in'],
 html[data-motion='reduced'] [class*='animate-[ramp-in'] { animation: none !important; }
+@keyframes logo-scan {
+  from { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  to { top: 100%; opacity: 0; }
+}
+html[data-motion='reduced'] [class*='animate-[logo-scan'] { animation: none !important; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { [class*='animate-[logo-scan'] { animation: none !important; opacity: 0; } }
