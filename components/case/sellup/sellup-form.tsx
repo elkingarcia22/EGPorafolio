@@ -5,8 +5,8 @@ import { PipelineFlow } from './forma-flujo'
 import { SearchReview } from './forma-busquedas'
 import { ContactEnrichment } from './forma-enriquecimiento'
 import { FirstContactPrep } from './forma-preparacion'
-import { SourceCatalog } from './forma-catalogo'
-import { UsageMetrics } from './forma-uso'
+import { SourceCatalog } from './forma-catalog-map'
+import { UsageMetrics } from './forma-metrics'
 
 /** 05 · La forma: réplicas interactivas de la plataforma, en modo oscuro como la app. */
 export function SellUpForm() {
@@ -15,7 +15,7 @@ export function SellUpForm() {
       <Section
         n="5.1"
         title={{ es: 'Una empresa recorre el flujo', en: 'One company moves through the flow' }}
-        body={{ es: 'La pantalla de inicio de SellUp, tal cual. Sigue a una empresa: Rumbo la encuentra, busca a sus decisores y prepara el primer contacto. En el tablero, la tarjeta salta de columna en columna: cada etapa la mueve un agente.', en: 'SellUp’s home screen, as is. Follow one company: Rumbo finds it, looks for its decision-makers and prepares the first contact. On the board, the card jumps from column to column: each stage is moved by an agent.' }}
+        body={{ es: 'La pantalla de inicio de SellUp en el escritorio del vendedor. Sigue a una empresa: Rumbo la encuentra, busca a sus decisores y prepara el primer contacto. En el tablero, la tarjeta salta de columna en columna: cada etapa la mueve un agente.', en: 'SellUp’s home screen on the rep’s desk. Follow one company: Rumbo finds it, looks for its decision-makers and prepares the first contact. On the board, the card jumps from column to column: each stage is moved by an agent.' }}
       >
         <PipelineFlow />
       </Section>
@@ -42,15 +42,15 @@ export function SellUpForm() {
       </Section>
       <Section
         n="5.5"
-        title={{ es: 'Catálogo de fuentes', en: 'Source catalog' }}
-        body={{ es: 'Cada fuente oficial que la IA puede consultar, país por país, con su estado. Una fuente nueva no se usa hasta probarla con datos reales.', en: 'Every official source the AI can query, country by country, with its status. A new source isn’t used until it’s tested with real data.' }}
+        title={{ es: '20 países y 132 fuentes, conectados', en: '20 countries and 132 sources, connected' }}
+        body={{ es: 'Antes de pagar un crédito, Rumbo consulta los registros oficiales de cada país: el número fiscal de la empresa y su tamaño real. Son millones de filas gratis que nadie usaba. Toca un país para ver sus fuentes.', en: 'Before paying a credit, Rumbo checks each country’s official registries: the company’s tax ID and its real size. Millions of free rows nobody was using. Tap a country to see its sources.' }}
       >
         <SourceCatalog />
       </Section>
       <Section
         n="5.6"
-        title={{ es: 'Control total de uso y costos', en: 'Full control of usage and cost' }}
-        body={{ es: 'Cada corrida deja su costo, sus consultas y su resultado en el mismo panel. Así se sabe cuánto cuesta una empresa aprobada, no solo cuánto se gastó.', en: 'Every run logs its cost, queries and outcome on the same panel. So you know what an approved company costs, not just what was spent.' }}
+        title={{ es: 'Uso y efectividad, medidos', en: 'Usage and effectiveness, measured' }}
+        body={{ es: 'Cada corrida deja su costo, sus consultas y su resultado. Así se sabe cuánto cuesta una empresa aprobada, no solo cuánto se gastó.', en: 'Every run logs its cost, queries and outcome. So you know what an approved company costs, not just what was spent.' }}
       >
         <UsageMetrics />
       </Section>
