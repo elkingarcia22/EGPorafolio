@@ -4,7 +4,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { useA11y } from '@/lib/a11y'
 import { SELLUP_CASE } from '@/lib/content/cases/sellup/sellup-case'
 import { useTick } from '../barberlytics/thema/live-pieces'
-import { RumboOrb } from './platform'
+import { Building2, PhoneCall, Users } from 'lucide-react'
 import { useInView } from './ui'
 
 /** 03 · La idea: tres preguntas, tres agentes y una persona entre cada uno. */
@@ -41,7 +41,7 @@ function Chain() {
           return (
             <li key={c.q.es} className="relative text-center">
               <div className={`mx-auto grid h-[92px] w-[92px] place-items-center rounded-full ring-1 transition-all duration-700 ${lit ? 'ring-[#7e2be0]/70 shadow-[0_0_60px_rgba(126,43,224,0.45)]' : 'ring-white/10'}`} style={{ background: '#0d0e10' }}>
-                <RumboOrb size={lit ? 56 : 40} pulse={lit && !approved} />
+                {(() => { const Icon = [Building2, Users, PhoneCall][i]; return <Icon className={`transition-all duration-700 ${lit ? 'h-9 w-9 text-white' : 'h-7 w-7 text-white/35'}`} strokeWidth={1.5} /> })()}
               </div>
               <p className="mono-label mt-4 text-white/50">{t(c.agent)}</p>
               <p className={`mt-1 text-[clamp(1.6rem,1rem+1.6vw,2.6rem)] font-light leading-tight transition-colors duration-700 ${lit ? 'text-white' : 'text-white/35'}`}>{t(c.q)}</p>

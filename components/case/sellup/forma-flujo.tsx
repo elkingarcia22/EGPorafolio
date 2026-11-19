@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { useA11y } from '@/lib/a11y'
 import { useTick } from '../barberlytics/thema/live-pieces'
-import { RumboOrb } from './platform'
 import { RealFrame, RealTag } from './real-app'
 import { useInView } from './ui'
 
@@ -164,7 +163,7 @@ export function PipelineFlow() {
           const past = i < phase || done
           return (
             <li key={p.dock} className={`flex items-center gap-3 rounded-[14px] px-4 py-3 ring-1 transition-all duration-500 ${on ? 'bg-[#6b8cff]/[0.14] ring-[#6b8cff]/60' : 'bg-white/[0.02] ring-white/10'}`}>
-              <RumboOrb size={22} pulse={on && !reducedMotion} />
+              <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full font-mono text-xs ring-1 ${on ? 'bg-[#6b8cff] text-white ring-[#6b8cff]' : past ? 'bg-white/10 text-white ring-white/20' : 'text-white/45 ring-white/15'}`}>{i + 1}</span>
               <span>
                 <span className="mono-label block text-white/45">{t({ es: `Agente ${i + 1}`, en: `Agent ${i + 1}` })}</span>
                 <span className={`text-sm ${on || past ? 'text-white' : 'text-white/45'}`}>{t(p.label)}{on ? '…' : past ? ' ✓' : ''}</span>
