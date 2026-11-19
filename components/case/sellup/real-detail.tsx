@@ -3,13 +3,17 @@
 import type { ReactNode } from 'react'
 import { Activity, Briefcase, Building2, Calendar, ChevronDown, Database, Globe, Hash, Loader2, Mail, MapPin, MessageCircle, Network, Pencil, PhoneCall, StickyNote, Tag, User, Users, X } from 'lucide-react'
 import { RumboMark, RUMBO_GRADIENT } from './platform'
+import { REAL } from './real-app'
 
 /**
  * Detalles de empresa y de contacto de SellUp, como modales sobre la pantalla
  * (coordenadas de 1240 px). Copiados de las pantallas reales; datos de ejemplo.
  */
 
-function Modal({ show, children }: { show: boolean; children: ReactNode }) {
+function Modal({ show, children, inline = false }: { show: boolean; children: ReactNode; inline?: boolean }) {
+  if (inline) {
+    return <div className="relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#1c1c1c] text-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.95)]" style={{ fontFamily: REAL.font }}>{children}</div>
+  }
   return (
     <div className={`absolute inset-0 z-20 transition-opacity duration-500 ${show ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
       <div className="absolute inset-0 bg-black/60" />
@@ -76,9 +80,9 @@ const Row = ({ Icon, k, v }: { Icon: typeof User; k: string; v: string }) => (
 )
 
 /** Detalle de la empresa nueva que trajo el Agente 1. */
-export function CompanyDetail({ show }: { show: boolean }) {
+export function CompanyDetail({ show, inline = false }: { show: boolean; inline?: boolean }) {
   return (
-    <Modal show={show}>
+    <Modal show={show} inline={inline}>
       <Head Icon={Building2} title="Agrícola Río Claro" tag={<span className="text-[12px] font-normal text-white/70">Nueva</span>} />
       <Strip
         items={[
@@ -114,9 +118,9 @@ export function CompanyDetail({ show }: { show: boolean }) {
 export type PhoneState = 'idle' | 'apollo' | 'lusha' | 'done'
 
 /** Detalle del contacto nuevo que trajo el Agente 2, con «Revelar teléfono». */
-export function ContactDetail({ show, phone, pressed = false, prepHighlight = false }: { show: boolean; phone: PhoneState; pressed?: boolean; prepHighlight?: boolean }) {
+export function ContactDetail({ show, phone, pressed = false, prepHighlight = false, inline = false }: { show: boolean; phone: PhoneState; pressed?: boolean; prepHighlight?: boolean; inline?: boolean }) {
   return (
-    <Modal show={show}>
+    <Modal show={show} inline={inline}>
       <Head Icon={User} title="Valeria Ortiz Lagos" tag={<span className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 text-[12px] font-normal text-emerald-300">Activo</span>} sub="Directora de Talento · Clínica Andina" />
       <Strip
         items={[

@@ -2,7 +2,7 @@
 
 import { ArrowRight, ArrowUpDown, Check, GripVertical, Loader2, MoreHorizontal, Search, Sheet } from 'lucide-react'
 import { RealCard, RealFrame, RealTag } from './real-app'
-import { HIGHLIGHT, ReplicaNote, StorySteps, stepAt, useStoryTime, type StoryStep } from './real-story'
+import { HIGHLIGHT, stepAt, useStoryTime, type StoryStep } from './real-story'
 
 /**
  * 5.5 · Catálogo de fuentes, como la pantalla real: una fuente nueva llega
@@ -103,15 +103,14 @@ function Screen({ time }: { time: number }) {
   )
 }
 
-export function SourceCatalog() {
+/** La pantalla real sola (para ir dentro de un dispositivo). */
+export function CatalogScreen() {
   const [ref, time] = useStoryTime(LOOP, 14)
   return (
     <div ref={ref}>
-      <StorySteps steps={STEPS} time={time} kicker={{ es: 'Catálogo', en: 'Catalog' }} />
       <RealFrame active="catalogo" crumb={['Catálogo de fuentes']} height={820}>
         <Screen time={time} />
       </RealFrame>
-      <ReplicaNote />
     </div>
   )
 }
