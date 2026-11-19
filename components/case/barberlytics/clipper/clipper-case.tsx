@@ -9,7 +9,8 @@ import { ClipperInPlatform } from './clipper-in-platform'
 import { OrbConstructionBoard, OrbLayersBoard } from './clipper-orb-sketches'
 import { ClipperHero } from './clipper-hero'
 import { AgentLoop, ProposalFlow, ToolsByRole, VoiceMode } from './clipper-pieces'
-import { AnswerBoard, AutonomySpectrum, BuildSection, ClipperDemo, ClipperImpact, OrbSection } from './clipper-sections'
+import { AnswerBoard, AutonomySpectrum, ClipperDemo, ClipperImpact, OrbSection } from './clipper-sections'
+import { ClipperAiProcess } from './clipper-ai-process'
 
 const H3 = 'mb-4 flex items-baseline gap-4 text-[clamp(1.35rem,1rem+1vw,1.9rem)]'
 
@@ -78,7 +79,7 @@ export function ClipperCase() {
         idea: ClipperIdea,
         bocetos: ClipperSketches,
         forma: ClipperForm,
-        ia: BuildSection,
+        ia: ClipperAiProcess,
         impacto: ClipperImpact,
         demo: ClipperDemo,
       }}
