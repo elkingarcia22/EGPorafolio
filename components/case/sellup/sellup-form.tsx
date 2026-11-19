@@ -50,7 +50,7 @@ export function SellUpForm() {
       <Section
         n="5.6"
         title={{ es: 'Uso y efectividad, medidos', en: 'Usage and effectiveness, measured' }}
-        body={{ es: 'Cada corrida deja su costo, sus consultas y su resultado. Así se sabe cuánto cuesta una empresa aprobada, no solo cuánto se gastó.', en: 'Every run logs its cost, queries and outcome. So you know what an approved company costs, not just what was spent.' }}
+        body={{ es: 'Cada corrida deja su costo, sus consultas y su resultado. El mapa de uso cruza eso por rol: quién busca, quién aprueba y cuánto cuesta cada empresa aprobada, no solo cuánto se gastó.', en: 'Every run logs its cost, queries and outcome. The usage map crosses that by role: who searches, who approves and what each approved company costs, not just what was spent.' }}
       >
         <UsageMetrics />
       </Section>
