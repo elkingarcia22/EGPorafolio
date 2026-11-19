@@ -4,7 +4,7 @@ import { useLocale } from '@/lib/i18n'
 import { LiveBuilder } from './form-builder'
 import { ResultsTabs, UploadPipeline } from './form-flows'
 import { AnonymityHeatmap, BrowserFrame, Moment, TemplatesFan } from './form-moments'
-import { PhoneAnswer } from './form-phone'
+import { PhoneAnswer } from './form-answer'
 import { ProductTour } from './form-tour'
 import './form.css'
 
@@ -50,7 +50,7 @@ export function SurveyForm() {
       </Moment>
 
       <Moment
-        flip
+        wide
         index={t({ es: 'Momento 04 · Responder', en: 'Moment 04 · Answering' })}
         title={{ es: 'Terminar se siente como terminar', en: 'Finishing feels like finishing' }}
         why={{ es: 'Responder no tenía ni historia de usuario. Ahora la promesa de privacidad va al empezar, cada subsección es una página, el 0–10 abre una pregunta según la banda elegida y el envío cierra con una celebración, no con un «Enviado».', en: 'Answering didn’t even have a user story. Now the privacy promise comes first, each subsection is a page, the 0–10 opens a follow-up by band, and sending ends in a celebration, not a “Sent”.' }}

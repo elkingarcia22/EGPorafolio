@@ -39,3 +39,9 @@ html[data-motion='reduced'] .encf-piece { display: none; }
 
 /* Entrada de La forma: la barra de la parada activa avanza de un recuadro al siguiente. */
 @keyframes encf-tourbar { from { transform: scaleX(var(--from)); } to { transform: scaleX(var(--to)); } }
+
+/* Responder: cada página de la vista previa entra como en el producto, deslizándose un poco. */
+@keyframes encf-page { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.encf-page { animation: encf-page 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@media (prefers-reduced-motion: reduce) { .encf-page { animation: none; } }
+html[data-motion='reduced'] .encf-page { animation: none; }

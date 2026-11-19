@@ -11,12 +11,28 @@ interface MomentProps {
   title: L
   why: L
   flip?: boolean
+  /** La pieza ocupa todo el ancho y el texto va arriba, en dos columnas. */
+  wide?: boolean
   children: React.ReactNode
 }
 
 /** Un momento ganador: la pieza animada grande y por qué gana. */
-export function Moment({ index, title, why, flip = false, children }: MomentProps) {
+export function Moment({ index, title, why, flip = false, wide = false, children }: MomentProps) {
   const { t } = useLocale()
+  if (wide) {
+    return (
+      <section>
+        <div className="grid gap-6 lg:grid-cols-12 lg:items-end">
+          <div className="lg:col-span-5">
+            <p data-reveal className="mono-label text-signal">{index}</p>
+            <h3 data-reveal="mask" className="mt-3 text-[clamp(1.6rem,1rem+1.6vw,2.4rem)] font-light leading-[1.05]">{t(title)}</h3>
+          </div>
+          <p data-reveal className="leading-relaxed opacity-75 lg:col-span-7">{t(why)}</p>
+        </div>
+        <div data-reveal="device" className="mt-8 min-w-0">{children}</div>
+      </section>
+    )
+  }
   return (
     <section className="grid items-center gap-8 lg:grid-cols-12 lg:gap-12">
       <div data-reveal="device" className={`min-w-0 lg:col-span-8 ${flip ? 'lg:order-2' : ''}`}>{children}</div>
