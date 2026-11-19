@@ -51,7 +51,7 @@ export function HoverTuneLabel({ visible }: { visible: boolean }) {
       ease: 'expo.out',
       // Cancela la animación anterior: si mostrar (más larga) terminara
       // después de ocultar, la etiqueta se quedaría pegada al cursor.
-      overwrite: true,
+      overwrite: 'auto',
     })
   }, [visible, mounted])
 

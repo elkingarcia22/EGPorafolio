@@ -52,9 +52,9 @@ export function Cursor() {
       const text = target?.dataset.cursor ?? ''
       if (text) setLabel(text)
       // Con etiqueta: un disco sólido que se lee sobre cualquier fondo; el anillo y el punto se esconden.
-      gsap.to(ring, { scale: text ? 0.4 : target ? 1.8 : 1, autoAlpha: text ? 0 : 1, duration: 0.4, ease: 'expo.out', overwrite: true })
-      gsap.to(dot, { autoAlpha: text ? 0 : 1, duration: 0.2, overwrite: true })
-      gsap.to(badgeInner, { scale: text ? 1 : 0, autoAlpha: text ? 1 : 0, duration: text ? 0.5 : 0.3, ease: 'expo.out', overwrite: true })
+      gsap.to(ring, { scale: text ? 0.4 : target ? 1.8 : 1, autoAlpha: text ? 0 : 1, duration: 0.4, ease: 'expo.out', overwrite: 'auto' })
+      gsap.to(dot, { autoAlpha: text ? 0 : 1, duration: 0.2, overwrite: 'auto' })
+      gsap.to(badgeInner, { scale: text ? 1 : 0, autoAlpha: text ? 1 : 0, duration: text ? 0.5 : 0.3, ease: 'expo.out', overwrite: 'auto' })
     }
 
     window.addEventListener('pointermove', onMove)
