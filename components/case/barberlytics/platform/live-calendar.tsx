@@ -230,7 +230,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', fiel
 export function LiveCalendarCard() {
   const now = useCalendarClock(700, 1, 8.5)
   return (
-    <div className="flex h-full items-start justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_120%,rgba(217,179,106,0.3),transparent_60%)] px-6 pt-8">
+    <div className="flex h-full items-start justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_120%,rgba(217,179,106,0.3),transparent_60%)] px-6 pt-20">
       <LiveCalendar now={now} columns={3} density="compacta" className="w-full max-w-[560px] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9)]" />
     </div>
   )
