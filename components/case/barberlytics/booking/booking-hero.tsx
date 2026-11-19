@@ -25,10 +25,10 @@ function Chip({ children, className }: { children: React.ReactNode; className: s
 }
 
 /** Celular de la composición: el giro va por dentro para no chocar con las animaciones. */
-function HeroPhone({ src, alt, tilt }: { src: string; alt: L; tilt: number }) {
+function HeroPhone({ src, alt, tilt }: { src: string; alt: L; tilt: string }) {
   const { t } = useLocale()
   return (
-    <div style={{ transform: `rotate(${tilt}deg)` }}>
+    <div style={{ transform: tilt }}>
       <PhoneBody>
         <StatusBar />
         <Image src={src} width={780} height={1688} alt={t(alt)} sizes="(min-width: 768px) 18vw, 30vw" className="block h-auto w-full" priority />
@@ -99,9 +99,9 @@ export function BookingHero() {
         <div data-hero-stage className="relative mx-auto mt-16 h-[clamp(380px,50vw,720px)] max-w-6xl [perspective:1400px]">
           <div data-depth="0.12" className="absolute left-1/2 top-[4%] z-10 w-[52%] -translate-x-1/2 md:w-[38%]">
             <div data-hero-device>
-              <div style={{ transform: 'rotate(-2deg)' }} className="rounded-[30px] bg-[#0b0c0e] p-[12px] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
+              <div style={{ transform: 'perspective(1400px) rotateX(12deg) rotateZ(-1.5deg)' }} className="rounded-[30px] bg-[#0b0c0e] p-[12px] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
                 <div className="overflow-hidden rounded-[18px]">
-                  <Image src={`${IMG}/surface-tablet.webp`} width={1200} height={1615} alt={t(BOOKING_CASE.form.surfaces.tablet.alt)} sizes="(min-width: 768px) 38vw, 52vw" className="block h-auto w-full" priority />
+                  <Image src={`${IMG}/surface-tablet.webp`} width={1200} height={1615} alt={t({ es: 'La reserva en una tablet: «Reserva tu cita».', en: 'Booking on a tablet: “Book your appointment”.' })} sizes="(min-width: 768px) 38vw, 52vw" className="block h-auto w-full" priority />
                 </div>
               </div>
             </div>
@@ -109,13 +109,13 @@ export function BookingHero() {
 
           <div data-depth="0.35" className="absolute left-[1%] top-[22%] z-20 w-[31%] md:left-[9%] md:w-[19%]">
             <div data-hero-device>
-              <HeroPhone src={`${IMG}/booking-return.webp`} alt={BOOKING_CASE.form.screens[0].image.alt} tilt={-8} />
+              <HeroPhone src={`${IMG}/booking-return.webp`} alt={BOOKING_CASE.form.screens[0].image.alt} tilt="perspective(1200px) rotateY(24deg) rotateX(6deg) rotateZ(-6deg)" />
             </div>
           </div>
 
           <div data-depth="0.55" className="absolute right-[1%] top-[12%] z-20 w-[31%] md:right-[9%] md:w-[19%]">
             <div data-hero-device>
-              <HeroPhone src={`${IMG}/clipper-thread.webp`} alt={BOOKING_CASE.form.screens[2].image.alt} tilt={7} />
+              <HeroPhone src={`${IMG}/clipper-thread.webp`} alt={BOOKING_CASE.form.screens[2].image.alt} tilt="perspective(1200px) rotateY(-24deg) rotateX(6deg) rotateZ(5deg)" />
             </div>
           </div>
 

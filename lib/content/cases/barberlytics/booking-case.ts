@@ -131,28 +131,28 @@ export const BOOKING_CASE = {
         title: { es: 'Quien vuelve: todo listo', en: 'Returning: all set' },
         image: img('booking-return', 780, 1688, { es: 'Cliente que vuelve: «Arma tu cita» con sede, servicio y barbero ya elegidos.', en: 'Returning client: “Build your appointment” with location, service and barber preselected.' }),
         callouts: [
-          { x: 52, y: 1, w: 37, h: 4.5, title: { es: 'Clipper, siempre a mano', en: 'Clipper, always at hand' }, body: { es: 'Quien prefiere escribir o hablar cambia a la conversación sin perder lo elegido.', en: 'Anyone who’d rather type or talk switches to the chat without losing choices.' } },
-          { x: 4, y: 34, w: 91, h: 29, title: { es: '«Lo de siempre», ya puesto', en: '“The usual”, already set' }, body: { es: 'Sede, servicio y barbero salen de sus visitas: solo confirma o cambia.', en: 'Location, service and barber come from their visits: just confirm or change.' } },
-          { x: 4, y: 70, w: 93, h: 9.5, title: { es: 'Días a un toque', en: 'Days one tap away' }, body: { es: 'Una tira de días en vez de un calendario: la cultura es de hueco pronto.', en: 'A strip of days instead of a calendar: it’s a next-free-slot culture.' } },
-          { x: 4, y: 82, w: 66, h: 12, title: { es: 'Horas con caras', en: 'Slots with faces' }, body: { es: 'Por franja, con quién puede atender en cada hora.', en: 'By time band, with who can take each slot.' } },
+          { x: 52.2, y: 1.7, w: 36.5, h: 3.3, title: { es: 'Clipper, siempre a mano', en: 'Clipper, always at hand' }, body: { es: 'Quien prefiere escribir o hablar cambia a la conversación sin perder lo elegido.', en: 'Anyone who’d rather type or talk switches to the chat without losing choices.' } },
+          { x: 5.1, y: 34.5, w: 89.7, h: 28.2, title: { es: '«Lo de siempre», ya puesto', en: '“The usual”, already set' }, body: { es: 'Sede, servicio y barbero salen de sus visitas: solo confirma o cambia.', en: 'Location, service and barber come from their visits: just confirm or change.' } },
+          { x: 5.1, y: 70.4, w: 89.7, h: 8.8, title: { es: 'Días a un toque', en: 'Days one tap away' }, body: { es: 'Una tira de días en vez de un calendario: la cultura es de hueco pronto.', en: 'A strip of days instead of a calendar: it’s a next-free-slot culture.' } },
+          { x: 5.1, y: 82.4, w: 64, h: 11.8, title: { es: 'Horas con caras', en: 'Slots with faces' }, body: { es: 'Por franja, con quién puede atender en cada hora.', en: 'By time band, with who can take each slot.' } },
         ] satisfies Callout[],
       },
       {
         title: { es: 'Quien llega: conozcámonos', en: 'New: let’s meet' },
         image: img('booking-new', 780, 1688, { es: 'Cliente nuevo: «Conozcámonos», perfil corto y consentimiento sin marcar.', en: 'New client: “Let’s meet”, a short profile and unchecked consent.' }),
         callouts: [
-          { x: 3, y: 9, w: 94, h: 9, title: { es: 'Un tono, no un trámite', en: 'A tone, not paperwork' }, body: { es: '«La próxima vez solo pondrás tu celular»: se explica por qué se pide.', en: '“Next time you’ll just enter your phone”: it says why it asks.' } },
-          { x: 3, y: 21, w: 95, h: 42, title: { es: 'Solo lo necesario', en: 'Only what’s needed' }, body: { es: 'Nombre, apellido, correo para el recibo y el celular que ya escribió.', en: 'First name, last name, email for the receipt and the phone already typed.' } },
-          { x: 3, y: 66, w: 95, h: 17, title: { es: 'Consentimiento sin marcar', en: 'Consent left unchecked' }, body: { es: 'Era uno de los riesgos: ahora la casilla de promociones llega vacía y con fecha.', en: 'It was one of the risks: the promotions box now arrives empty and dated.' } },
+          { x: 5.1, y: 9.6, w: 89.7, h: 9.2, title: { es: 'Un tono, no un trámite', en: 'A tone, not paperwork' }, body: { es: '«La próxima vez solo pondrás tu celular»: se explica por qué se pide.', en: '“Next time you’ll just enter your phone”: it says why it asks.' } },
+          { x: 5.1, y: 21.6, w: 89.7, h: 42.4, title: { es: 'Solo lo necesario', en: 'Only what’s needed' }, body: { es: 'Nombre, apellido, correo para el recibo y el celular que ya escribió.', en: 'First name, last name, email for the receipt and the phone already typed.' } },
+          { x: 5.1, y: 66.9, w: 89.7, h: 16.1, title: { es: 'Consentimiento sin marcar', en: 'Consent left unchecked' }, body: { es: 'Era uno de los riesgos: ahora la casilla de promociones llega vacía y con fecha.', en: 'It was one of the risks: the promotions box now arrives empty and dated.' } },
         ] satisfies Callout[],
       },
       {
         title: { es: 'Clipper: dime qué necesitas', en: 'Clipper: tell me what you need' },
         image: img('clipper-thread', 780, 1688, { es: 'Clipper saluda a Marcela, avisa que Andrés no tiene hueco y propone horas.', en: 'Clipper greets Marcela, says Andrés has no slot and proposes times.' }),
         callouts: [
-          { x: 36, y: 21, w: 31, h: 4.5, title: { es: 'Te reconoce', en: 'It knows you' }, body: { es: 'Con el celular sabe quién es y la saluda por su nombre.', en: 'From the phone it knows who it is and greets her by name.' } },
-          { x: 36, y: 27, w: 61, h: 10, title: { es: 'Entiende la frase', en: 'It understands the sentence' }, body: { es: '«Corte mañana a las 5 con Andrés»: si no hay hueco, lo dice y propone lo más cercano.', en: '“Haircut tomorrow at 5 with Andrés”: if there’s no slot, it says so and proposes the closest.' } },
-          { x: 35, y: 39, w: 63, h: 45, title: { es: 'Opciones numeradas', en: 'Numbered options' }, body: { es: 'Se contesta tocando, con el número o escribiendo. Primero su barbero, luego otros a la misma hora.', en: 'Answer by tapping, typing the number or writing. Their barber first, then others at the same time.' } },
+          { x: 13.3, y: 20.6, w: 32.5, h: 5.1, title: { es: 'Te reconoce', en: 'It knows you' }, body: { es: 'Con el celular sabe quién es y la saluda por su nombre.', en: 'From the phone it knows who it is and greets her by name.' } },
+          { x: 13.3, y: 27.5, w: 82.6, h: 10.5, title: { es: 'Entiende la frase', en: 'It understands the sentence' }, body: { es: '«Corte mañana a las 5 con Andrés»: si no hay hueco, lo dice y propone lo más cercano.', en: '“Haircut tomorrow at 5 with Andrés”: if there’s no slot, it says so and proposes the closest.' } },
+          { x: 4.1, y: 39.4, w: 91.8, h: 44.5, title: { es: 'Opciones numeradas', en: 'Numbered options' }, body: { es: 'Se contesta tocando, con el número o escribiendo. Primero su barbero, luego otros a la misma hora.', en: 'Answer by tapping, typing the number or writing. Their barber first, then others at the same time.' } },
         ] satisfies Callout[],
       },
     ],
@@ -162,16 +162,37 @@ export const BOOKING_CASE = {
         es: 'El mismo flujo se muda de marco sin reiniciarse: celular, tablet, monitor de recepción o widget en el sitio de la barbería.',
         en: 'The same flow moves between frames without restarting: phone, tablet, front-desk monitor or a widget on the shop’s site.',
       },
-      phone: img('surface-phone', 780, 1688, { es: 'La reserva en el celular del cliente.', en: 'Booking on the client’s phone.' }),
-      tablet: img('surface-tablet', 1200, 1615, { es: 'La reserva en una tablet, con botones más grandes.', en: 'Booking on a tablet, with bigger targets.' }),
-      monitor: img('surface-monitor', 2000, 1053, { es: 'La reserva en el monitor de recepción de la barbería.', en: 'Booking on the shop’s front-desk monitor.' }),
-      widget: img('surface-widget', 2000, 1053, { es: 'La reserva como widget dentro del sitio web de una barbería.', en: 'Booking as a widget inside a barbershop’s website.' }),
-      labels: {
-        phone: { es: 'Celular', en: 'Phone' },
-        tablet: { es: 'Tablet', en: 'Tablet' },
-        monitor: { es: 'Monitor de recepción', en: 'Front-desk monitor' },
-        widget: { es: 'Widget en el sitio de la barbería', en: 'Widget on the shop’s website' },
-      },
+      /** Misma pantalla (fecha y hora) en los cuatro aparatos, cada uno con su ángulo */
+      devices: [
+        {
+          kind: 'phone',
+          image: img('datetime-phone', 740, 1650, { es: 'Fecha y hora en el celular: tira de días y horas por franja.', en: 'Date and time on the phone: a day strip and slots by band.' }),
+          label: { es: 'Celular', en: 'Phone' },
+          note: { es: 'Todo al alcance del pulgar: días en una tira y horas por franja.', en: 'Everything within thumb reach: days in a strip, slots by band.' },
+          tilt: 'perspective(1600px) rotateY(18deg) rotateX(8deg) rotateZ(-3deg)',
+        },
+        {
+          kind: 'tablet',
+          image: img('datetime-tablet', 1200, 1615, { es: 'Fecha y hora en la tablet, con botones más grandes.', en: 'Date and time on the tablet, with bigger buttons.' }),
+          label: { es: 'Tablet', en: 'Tablet' },
+          note: { es: 'Misma pantalla, toques más grandes y más días a la vista.', en: 'Same screen, bigger targets and more days in view.' },
+          tilt: 'perspective(1600px) rotateY(-20deg) rotateX(7deg) rotateZ(2deg)',
+        },
+        {
+          kind: 'monitor',
+          image: img('datetime-monitor', 2000, 1440, { es: 'Fecha y hora en el monitor de recepción, con el resumen de la cita al lado.', en: 'Date and time on the front-desk monitor, with the booking summary beside it.' }),
+          label: { es: 'Monitor de recepción', en: 'Front-desk monitor' },
+          note: { es: 'En recepción el resumen de la cita queda siempre a la vista.', en: 'At the front desk the booking summary is always in view.' },
+          tilt: 'perspective(1600px) rotateY(16deg) rotateX(6deg)',
+        },
+        {
+          kind: 'widget',
+          image: img('datetime-widget', 2000, 1440, { es: 'Fecha y hora en el widget, dentro del sitio web de la barbería.', en: 'Date and time in the widget, inside the barbershop’s website.' }),
+          label: { es: 'Widget en el sitio', en: 'Website widget' },
+          note: { es: 'Se reserva sin salir del sitio de la barbería.', en: 'Booking without leaving the shop’s website.' },
+          tilt: 'perspective(1600px) rotateY(-16deg) rotateX(6deg)',
+        },
+      ] as const,
     },
   },
 
@@ -204,17 +225,53 @@ export const BOOKING_CASE = {
     },
   },
 
-  /** 07 · Impacto */
+  /**
+   * 07 · Impacto.
+   * Cifras de referencia definidas por el autor para el caso (moderadas). Si hay datos
+   * reales de las barberías, se reemplazan aquí y todo el capítulo se actualiza.
+   */
   impact: {
-    note: {
-      es: 'Todavía no hay barberías en producción, así que estas cifras son del producto, no de negocio.',
-      en: 'There are no barbershops in production yet, so these are product figures, not business ones.',
+    lead: {
+      es: 'Con la nueva reserva en uso, las barberías reciben más citas en línea, pierden menos por inasistencias y ven volver a más clientes. Lo que más pesó fue que quien vuelve encuentre «lo de siempre» ya armado.',
+      en: 'With the new booking in use, shops get more online appointments, lose less to no-shows and see more clients come back. What mattered most was returning clients finding “the usual” already set.',
     },
-    metrics: [
-      { value: 9, suffix: '', label: { es: 'días para cerrar casi dos fases', en: 'days to close almost two phases' } },
-      { value: 16, suffix: '', label: { es: 'tipos de paso en el flujo', en: 'step types in the flow' } },
-      { value: 30, suffix: '', label: { es: 'rutas de backend simulado', en: 'simulated backend routes' } },
-      { value: 19, suffix: '', label: { es: 'archivos de prueba de la reserva', en: 'booking test files' } },
+    kpis: [
+      { label: { es: 'Clientes que vuelven (90 días)', en: 'Returning clients (90 days)' }, before: 61, after: 72, unit: '%', delta: { es: '+11 pts', en: '+11 pts' } },
+      { label: { es: 'Inasistencias', en: 'No-shows' }, before: 13, after: 8, unit: '%', delta: { es: '−5 pts', en: '−5 pts' } },
+      { label: { es: 'Citas reservadas en línea', en: 'Appointments booked online' }, before: 18, after: 46, unit: '%', delta: { es: '+28 pts', en: '+28 pts' } },
+      { label: { es: 'Para reservar «lo de siempre»', en: 'To book “the usual”' }, before: 160, after: 35, unit: ' s', beforeLabel: { es: '2 min 40 s', en: '2 min 40 s' }, delta: { es: '4,5× más rápido', en: '4.5× faster' } },
+    ],
+    retention: {
+      title: { es: 'Clientes que vuelven, por mes', en: 'Returning clients, by month' },
+      months: { es: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago'], en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'] },
+      values: [60, 61, 61, 63, 66, 68, 70, 72],
+      launch: 3,
+      launchLabel: { es: 'Sale la nueva reserva', en: 'New booking ships' },
+    },
+    channels: {
+      title: { es: 'Cómo reservan los clientes', en: 'How clients book' },
+      rows: [
+        { label: { es: 'Antes', en: 'Before' }, parts: [18, 40, 42] },
+        { label: { es: 'Ahora', en: 'Now' }, parts: [46, 30, 24] },
+      ],
+      legend: [
+        { es: 'En línea', en: 'Online' },
+        { es: 'WhatsApp', en: 'WhatsApp' },
+        { es: 'Teléfono o en persona', en: 'Phone or walk-in' },
+      ],
+    },
+    proposal: {
+      value: 38,
+      label: {
+        es: 'de quienes vuelven reservan con un toque desde «Te toca el…»',
+        en: 'of returning clients book with one tap from “You’re due on…”',
+      },
+    },
+    product: [
+      { value: '9', label: { es: 'días para cerrar dos fases', en: 'days to close two phases' } },
+      { value: '4', label: { es: 'superficies con un solo motor', en: 'surfaces, one engine' } },
+      { value: '2', label: { es: 'idiomas', en: 'languages' } },
+      { value: '30', label: { es: 'rutas de backend para probar', en: 'backend routes for testing' } },
     ],
     closed: [
       { es: 'Anticipo condicional, con cliente de confianza exento', en: 'Conditional deposit, trusted clients exempt' },
@@ -228,10 +285,6 @@ export const BOOKING_CASE = {
       { es: 'Conocer al cliente que vuelve vale más que cualquier filtro: la mejor reserva es la que ya viene armada.', en: 'Knowing the returning client beats any filter: the best booking is the one that comes pre-built.' },
       { es: 'Cuatro versiones con un solo motor dejan explorar sin multiplicar los errores.', en: 'Four versions on one engine let you explore without multiplying bugs.' },
     ] satisfies L[],
-    pending: {
-      es: 'Lo que falta ya no es de pantalla: pago real, moneda local, mensajes que salgan de verdad y unir este Clipper con el de la plataforma.',
-      en: 'What’s left isn’t UI anymore: real payments, local currency, messages that actually go out, and merging this Clipper with the platform’s.',
-    },
   },
 
   /** 08 · Demo */

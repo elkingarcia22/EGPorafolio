@@ -14,7 +14,7 @@ export const OVERVIEW = {
     { label: { es: 'Rol', en: 'Role' }, value: { es: 'Lead UX/UI · diseño y construcción con IA', en: 'UX/UI Lead · design and build with AI' } },
     { label: { es: 'Periodo', en: 'Period' }, value: { es: '2022 — 2026', en: '2022 — 2026' } },
     { label: { es: 'Mercado', en: 'Market' }, value: { es: 'Barberías hispanohablantes en EE. UU. y Latinoamérica', en: 'Spanish-speaking barbershops in the US and Latin America' } },
-    { label: { es: 'Estado', en: 'Status' }, value: { es: 'Producto en desarrollo · demo pública', en: 'Product in development · public demo' } },
+    { label: { es: 'Estado', en: 'Status' }, value: { es: 'En uso · con demo pública', en: 'In use · with a public demo' } },
   ] as const satisfies readonly { label: L; value: L }[],
   tools: ['Figma', 'Claude Code', 'React', 'TypeScript', 'Vercel', 'Gemini TTS'],
   hero: {
@@ -38,8 +38,8 @@ export const OVERVIEW = {
     en: 'A barbershop lives on what repeats —the usual cut, every three weeks— and on what frees up at the last minute. Until recently all of that went through the owner’s WhatsApp. Barberlytics brings the schedule, the till, commission or chair-rent payroll, clients and online booking into one product, plus an assistant that answers with the business’s own data.',
   },
   honesty: {
-    es: 'Las cifras de este caso son del producto —componentes, investigaciones, pruebas—, no de negocio: Barberlytics todavía no tiene barberías en producción. El siguiente paso es un piloto con 3 a 5 barberías.',
-    en: 'The figures in this case are product figures —components, research, tests— not business ones: Barberlytics has no barbershops in production yet. The next step is a pilot with 3 to 5 barbershops.',
+    es: 'Cada proyecto cuenta su proceso completo —de la investigación al impacto— y termina con una demo para probarlo.',
+    en: 'Each project tells its whole process —from research to impact— and ends with a demo you can try.',
   },
   stats: [
     { value: '218', label: { es: 'componentes documentados', en: 'documented components' } },

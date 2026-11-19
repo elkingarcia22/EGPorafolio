@@ -1,20 +1,23 @@
 'use client'
 
-import { useLocale, type L } from '@/lib/i18n'
+import { useLocale } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BrowserMockup, MonitorMockup, PhoneMockup, TabletMockup } from '@/components/case/kit/device'
 
-function DeviceLabel({ index, label }: { index: number; label: L }) {
-  const { t } = useLocale()
-  return (
-    <p data-reveal className="mono-label mt-4 flex items-center gap-2 opacity-70">
-      <span className="text-signal">0{index}</span>
-      {t(label)}
-    </p>
-  )
+type SurfaceDevice = (typeof BOOKING_CASE.form.surfaces.devices)[number]
+
+/** El aparato que corresponde a cada modo. */
+function DeviceFor({ device }: { device: SurfaceDevice }) {
+  if (device.kind === 'phone') return <PhoneMockup image={device.image} withLegend={false} sizes="(min-width: 768px) 18vw, 60vw" className="mx-auto w-[30%]" />
+  if (device.kind === 'tablet') return <TabletMockup image={device.image} sizes="(min-width: 768px) 25vw, 70vw" className="mx-auto w-[52%]" />
+  if (device.kind === 'monitor') return <MonitorMockup image={device.image} sizes="(min-width: 768px) 35vw, 90vw" className="w-[94%]" />
+  return <BrowserMockup image={device.image} withLegend={false} sizes="(min-width: 768px) 35vw, 90vw" className="w-[94%]" />
 }
 
-/** Los cuatro modos de la reserva, cada uno en su aparato. */
+/**
+ * La misma pantalla (fecha y hora) en los cuatro modos, en una grilla de 2×2.
+ * Cada aparato tiene su ángulo y se pone de frente al pasar el cursor.
+ */
 function Surfaces() {
   const { t } = useLocale()
   const { surfaces } = BOOKING_CASE.form
@@ -26,25 +29,27 @@ function Surfaces() {
       </h3>
       <p data-reveal className="mb-12 max-w-[62ch] leading-relaxed opacity-80">{t(surfaces.body)}</p>
 
-      <div className="grid items-end gap-10 md:grid-cols-12 md:gap-8">
-        <div className="md:col-span-7">
-          <MonitorMockup image={surfaces.monitor} />
-          <DeviceLabel index={3} label={surfaces.labels.monitor} />
-        </div>
-        <div className="md:col-span-3">
-          <TabletMockup image={surfaces.tablet} sizes="(min-width: 768px) 25vw, 70vw" />
-          <DeviceLabel index={2} label={surfaces.labels.tablet} />
-        </div>
-        <div className="md:col-span-2">
-          <PhoneMockup image={surfaces.phone} withLegend={false} sizes="(min-width: 768px) 15vw, 60vw" />
-          <DeviceLabel index={1} label={surfaces.labels.phone} />
-        </div>
-      </div>
-
-      <div className="mt-14">
-        <BrowserMockup image={surfaces.widget} withLegend={false} sizes="(min-width: 1024px) 70vw, 100vw" />
-        <DeviceLabel index={4} label={surfaces.labels.widget} />
-      </div>
+      <ul className="grid gap-px overflow-hidden border border-fg/15 bg-fg/15 md:grid-cols-2">
+        {surfaces.devices.map((device, i) => (
+          <li key={device.kind} className="group flex flex-col bg-bg">
+            <div className="flex aspect-[5/4] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_50%_60%,rgba(217,179,106,0.16),transparent_65%)] px-6 py-8 [perspective:1600px]">
+              <div
+                className="flex w-full items-center justify-center transition-transform duration-[900ms] ease-expo [transform-style:preserve-3d] group-hover:![transform:none]"
+                style={{ transform: device.tilt }}
+              >
+                <DeviceFor device={device} />
+              </div>
+            </div>
+            <div data-reveal className="flex items-baseline gap-4 border-t border-fg/15 p-5">
+              <span className="mono-label text-signal">0{i + 1}</span>
+              <p>
+                <span className="block font-medium">{t(device.label)}</span>
+                <span className="mt-1 block text-sm leading-relaxed opacity-70">{t(device.note)}</span>
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

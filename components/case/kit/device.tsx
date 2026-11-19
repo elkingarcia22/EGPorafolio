@@ -21,6 +21,9 @@ interface Highlightable {
   setActive: (i: number | null) => void
 }
 
+/** Aire alrededor de cada zona destacada (en % de la pantalla) */
+const PAD = 1.2
+
 /** Recuadros numerados encima de la captura; entran uno a uno. */
 function Highlights({ callouts = [], active, setActive }: Highlightable) {
   return (
@@ -31,8 +34,8 @@ function Highlights({ callouts = [], active, setActive }: Highlightable) {
           data-reveal="pop"
           onMouseEnter={() => setActive(i)}
           onMouseLeave={() => setActive(null)}
-          className={`absolute rounded-[10px] transition-[background-color,box-shadow] duration-300 ${active === i ? 'bg-signal/15 ring-2 ring-signal' : 'ring-[1.5px] ring-signal/70'}`}
-          style={{ left: `${c.x}%`, top: `${c.y}%`, width: `${c.w}%`, height: `${c.h}%` }}
+          className={`pointer-events-auto absolute rounded-[10px] transition-[background-color,box-shadow] duration-300 ${active === i ? 'bg-signal/15 ring-2 ring-signal' : 'ring-[1.5px] ring-signal/70'}`}
+          style={{ left: `${c.x - PAD}%`, top: `${c.y - PAD / 2}%`, width: `${c.w + PAD * 2}%`, height: `${c.h + PAD}%` }}
         >
           <span className="absolute -left-2.5 -top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-signal font-mono text-[10px] text-paper shadow-[0_0_0_3px_rgba(64,96,255,0.25)]">
             {i + 1}
@@ -114,14 +117,16 @@ export function PhoneMockup({ image, callouts, withLegend = true, className = ''
   const { t } = useLocale()
   const [active, setActive] = useState<number | null>(null)
   const phone = (
-    <div data-reveal="device" className="mx-auto w-full max-w-[300px]">
+    <div data-reveal="device" className="relative mx-auto w-full max-w-[300px]">
       <PhoneBody>
         <StatusBar />
-        <div className="relative">
-          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
-          <Highlights callouts={callouts} active={active} setActive={setActive} />
-        </div>
+        <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
       </PhoneBody>
+      {/* Los destacados van encima del aparato (fuera del recorte de la pantalla), alineados con la captura:
+          9 px de bisel a cada lado y 34 px de barra de estado arriba. */}
+      <div className="pointer-events-none absolute inset-x-[9px] bottom-[9px] top-[43px]">
+        <Highlights callouts={callouts} active={active} setActive={setActive} />
+      </div>
     </div>
   )
   if (!withLegend || !callouts?.length) return <div className={className}>{phone}</div>
@@ -176,7 +181,7 @@ export function BrowserMockup({ image, callouts, withLegend = true, className = 
         <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
         <span className="ml-3 h-5 flex-1 rounded-md bg-white/[0.06]" />
       </div>
-      <div className="relative">
+      <div className="pointer-events-none relative">
         <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
         <Highlights callouts={callouts} active={active} setActive={setActive} />
       </div>
