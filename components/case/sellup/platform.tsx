@@ -19,7 +19,7 @@ export const APP = {
 } as const
 
 /** Degradado del botón «Generar con Rumbo IA». */
-export const RUMBO_GRADIENT = 'linear-gradient(90deg,#5b7eff 0%,#8b5cf6 55%,#ef4444 100%)'
+export const RUMBO_GRADIENT = 'linear-gradient(90deg,#2d5cf7 0%,#7c3aed 30%,#c026d3 55%,#e11d48 80%,#f97316 100%)'
 
 /** Logo completo: el ícono de la U imán y la palabra «SellUp» con «Up» en azul. */
 export function SellUpLogo({ size = 40, className = '' }: { size?: number; className?: string }) {
@@ -42,14 +42,14 @@ export function SellUpLogo({ size = 40, className = '' }: { size?: number; class
 export function RumboOrb({ size = 24, pulse = false, className = '' }: { size?: number; pulse?: boolean; className?: string }) {
   return (
     <span className={`relative inline-block shrink-0 ${className}`} style={{ width: size, height: size }} aria-hidden="true">
-      {pulse && <span className="absolute inset-0 animate-ping rounded-full bg-[#8b5cf6]/40" />}
+      {pulse && <span className="absolute inset-0 animate-ping rounded-full bg-[#7c3aed]/40" />}
       <span
         className="absolute inset-0 rounded-full"
         style={{
           background: [
             'radial-gradient(ellipse at 68% 26%, rgba(165,215,255,0.95) 0%, rgba(110,175,255,0.55) 18%, transparent 42%)',
             'radial-gradient(ellipse at 28% 74%, rgba(220,50,255,0.65) 0%, transparent 46%)',
-            'radial-gradient(circle at 50% 50%, #8b5cf6 0%, #6d28d9 38%, #4c1d95 62%, #2e0a7c 83%, #0e0025 100%)',
+            'radial-gradient(circle at 50% 50%, #7c3aed 0%, #6d28d9 38%, #4c1d95 62%, #2e0a7c 83%, #0e0025 100%)',
           ].join(', '),
           boxShadow: '0 2px 14px rgba(109,40,217,0.55), inset 0 1px 3px rgba(255,255,255,0.25)',
         }}
@@ -137,4 +137,21 @@ export function Pill({ tone = 'blue', children }: { tone?: 'blue' | 'amber' | 'g
     gray: 'bg-white/5 text-white/60 ring-white/15',
   }[tone]
   return <span className={`inline-flex items-center whitespace-nowrap rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ${cls}`}>{children}</span>
+}
+
+/** Ícono de Rumbo como aparece en la app: brújula blanca sobre un degradado azul → morado → rosa. */
+export function RumboMark({ size = 40, glow = false, className = '' }: { size?: number; glow?: boolean; className?: string }) {
+  return (
+    <span className={`relative inline-grid shrink-0 place-items-center ${className}`} style={{ width: size, height: size }} aria-hidden="true">
+      {glow && <span className="absolute -inset-[30%] animate-pulse rounded-full bg-[radial-gradient(closest-side,rgba(124,58,237,0.55),rgba(225,29,72,0.22)_60%,transparent)] motion-reduce:animate-none" />}
+      <span
+        className="absolute inset-0 rounded-full"
+        style={{ background: 'linear-gradient(140deg,#2d5cf7 0%,#7c3aed 38%,#c026d3 68%,#e11d48 100%)', boxShadow: '0 10px 40px -8px rgba(124,58,237,0.7), inset 0 1px 2px rgba(255,255,255,0.35)' }}
+      />
+      <svg viewBox="0 0 24 24" className="relative" style={{ width: '56%', height: '56%' }} fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="white" fillOpacity="0.9" />
+      </svg>
+    </span>
+  )
 }
