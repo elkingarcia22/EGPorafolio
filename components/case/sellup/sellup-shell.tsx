@@ -15,11 +15,11 @@ export type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 
 const CHAPTERS: readonly { id: ChapterKey; tone: 'dark' | 'light' }[] = [
   { id: 'puntos', tone: 'dark' },
   { id: 'patrones', tone: 'dark' },
-  { id: 'idea', tone: 'light' },
-  { id: 'bocetos', tone: 'light' },
-  { id: 'forma', tone: 'light' },
+  { id: 'idea', tone: 'dark' },
+  { id: 'bocetos', tone: 'dark' },
+  { id: 'forma', tone: 'dark' },
   { id: 'ia', tone: 'dark' },
-  { id: 'impacto', tone: 'light' },
+  { id: 'impacto', tone: 'dark' },
   { id: 'demo', tone: 'dark' },
 ]
 
