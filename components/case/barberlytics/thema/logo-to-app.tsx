@@ -24,13 +24,13 @@ function ClasicoEmblem({ primary, secondary }: { primary: string; secondary: str
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden="true">
       <circle cx="100" cy="100" r="92" fill={primary} />
       <circle cx="100" cy="100" r="80" fill="none" stroke={secondary} strokeWidth="2" strokeDasharray="4 6" />
-      <g stroke={secondary} strokeWidth="6" fill="none" strokeLinecap="round">
+      <g transform="translate(100 108) scale(0.6) translate(-100 -92)" stroke={secondary} strokeWidth="7" fill="none" strokeLinecap="round">
         <circle cx="80" cy="122" r="12" />
         <circle cx="120" cy="122" r="12" />
         <path d="M88 112 L130 62 M112 112 L70 62" />
       </g>
-      <text x="100" y="60" textAnchor="middle" fill={secondary} fontSize="15" fontWeight="800" textLength="112" lengthAdjust="spacingAndGlyphs">EL CLÁSICO</text>
-      <text x="100" y="158" textAnchor="middle" fill={secondary} fontSize="9" textLength="90" lengthAdjust="spacingAndGlyphs">BARBERÍA · 1998</text>
+      <text x="100" y="66" textAnchor="middle" fill={secondary} fontSize="15" fontWeight="800" letterSpacing="1.5">EL CLÁSICO</text>
+      <text x="100" y="152" textAnchor="middle" fill={secondary} fontSize="9" letterSpacing="2">BARBERÍA · 1998</text>
     </svg>
   )
 }
@@ -41,8 +41,8 @@ function NavajaEmblem({ primary, secondary }: { primary: string; secondary: stri
       <path d="M100 10 L176 38 L170 120 Q160 168 100 192 Q40 168 30 120 L24 38 Z" fill={primary} />
       <path d="M58 118 L120 86 L148 96 L86 128 Z" fill={secondary} />
       <path d="M120 86 L150 70" stroke={secondary} strokeWidth="7" strokeLinecap="round" />
-      <text x="100" y="64" textAnchor="middle" fill={secondary} fontSize="16" fontWeight="800" textLength="88" lengthAdjust="spacingAndGlyphs">NAVAJA</text>
-      <text x="100" y="154" textAnchor="middle" fill={secondary} fontSize="14" fontWeight="700" textLength="56" lengthAdjust="spacingAndGlyphs">AZUL</text>
+      <text x="100" y="64" textAnchor="middle" fill={secondary} fontSize="17" fontWeight="800" letterSpacing="2">NAVAJA</text>
+      <text x="100" y="154" textAnchor="middle" fill={secondary} fontSize="15" fontWeight="700" letterSpacing="4">AZUL</text>
     </svg>
   )
 }
@@ -51,9 +51,8 @@ function AndesEmblem({ primary, secondary }: { primary: string; secondary: strin
   return (
     <svg viewBox="0 0 200 200" className="h-full w-full" aria-hidden="true">
       <path d="M100 8 L182 54 L182 146 L100 192 L18 146 L18 54 Z" fill={secondary} stroke={primary} strokeWidth="4" />
-      <path d="M44 132 L82 78 L102 104 L122 70 L160 132 Z" fill={primary} />
-      <path d="M116 80 L122 70 L128 80" stroke={secondary} strokeWidth="4" fill="none" />
-      <text x="100" y="156" textAnchor="middle" fill={primary} fontSize="14" fontWeight="800" textLength="96" lengthAdjust="spacingAndGlyphs">LOS ANDES</text>
+      <path d="M52 120 L86 72 L104 96 L122 64 L148 120 Z" fill={primary} />
+      <text x="100" y="146" textAnchor="middle" fill={primary} fontSize="15" fontWeight="800" letterSpacing="2">LOS ANDES</text>
     </svg>
   )
 }
@@ -66,8 +65,8 @@ function VerdeEmblem({ primary, secondary }: { primary: string; secondary: strin
       <g stroke={primary} strokeWidth="7">
         <path d="M88 64 L112 52 M88 86 L112 74 M88 108 L112 96 M88 130 L112 118" />
       </g>
-      <text x="100" y="158" textAnchor="middle" fill={secondary} fontSize="14" fontWeight="800" textLength="80" lengthAdjust="spacingAndGlyphs">VERDE</text>
-      <text x="100" y="174" textAnchor="middle" fill={secondary} fontSize="9" fontWeight="600" textLength="96" lengthAdjust="spacingAndGlyphs">BARBER CLUB</text>
+      <text x="100" y="158" textAnchor="middle" fill={secondary} fontSize="17" fontWeight="800" letterSpacing="2">VERDE</text>
+      <text x="100" y="174" textAnchor="middle" fill={secondary} fontSize="9" fontWeight="600" letterSpacing="2.5">BARBER CLUB</text>
     </svg>
   )
 }
