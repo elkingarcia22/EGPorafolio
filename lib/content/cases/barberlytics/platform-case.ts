@@ -143,14 +143,29 @@ export const PLATFORM_CASE = {
       id: 'checkout',
       title: { es: 'Cobrar en una sola pantalla', en: 'Charging on a single screen' },
       body: { es: 'Las citas de la visita, los servicios con su precio, cómo paga y el total: todo en un panel. La propina se pide al tocar «Cobrar».', en: 'The visit’s appointments, services with prices, how they pay and the total: all in one panel. The tip is asked when tapping “Charge”.' },
-      image: img('cal-checkout', 2000, 1250, { es: 'Panel «Cobrar visita»: citas de la visita, servicios, forma de pago y total.', en: '“Charge visit” panel: the visit’s appointments, services, payment method and total.' }),
+      image: img('cal-checkout-drawer', 575, 1178, { es: 'Panel «Cobrar visita»: los pasos, las citas de la visita, los servicios, la forma de pago y el total.', en: '“Charge visit” panel: the steps, the visit’s appointments, services, payment method and total.' }),
       callouts: [
-        { x: 73.2, y: 33.5, w: 24, h: 16.5, title: { es: 'Toda la visita junta', en: 'The whole visit together' }, body: { es: 'Dos citas enlazadas se cobran de una vez.', en: 'Two linked appointments are charged at once.' } },
-        { x: 73.2, y: 55, w: 24, h: 13, title: { es: 'Precios a la vista y editables', en: 'Prices visible and editable' }, body: { es: 'Agregar un producto, un descuento con motivo o una tarjeta de regalo sin salir.', en: 'Add a product, a discount with a reason or a gift card without leaving.' } },
-        { x: 73.2, y: 75.5, w: 24, h: 9, title: { es: '¿Cómo paga?', en: 'How do they pay?' }, body: { es: 'Efectivo con el cambio a la vista, tarjeta, Nequi o Daviplata, mixto o en partes.', en: 'Cash with change shown, card, Nequi or Daviplata, mixed or split.' } },
+        { x: 4, y: 8.7, w: 92, h: 8, title: { es: 'El último paso', en: 'The last step' }, body: { es: 'Agendada, Llegó, En silla… y ahora Cobrada.', en: 'Booked, Arrived, In chair… and now Paid.' } },
+        { x: 6.8, y: 29.4, w: 83.5, h: 17.5, title: { es: 'Toda la visita junta', en: 'The whole visit together' }, body: { es: 'Dos citas enlazadas se cobran de una vez.', en: 'Two linked appointments are charged at once.' } },
+        { x: 6.8, y: 52.2, w: 83.5, h: 13.8, title: { es: 'Precios a la vista y editables', en: 'Prices visible and editable' }, body: { es: 'Agregar un producto, un descuento con motivo o una tarjeta de regalo sin salir.', en: 'Add a product, a discount with a reason or a gift card without leaving.' } },
+        { x: 6.8, y: 74, w: 83.5, h: 9.6, title: { es: '¿Cómo paga?', en: 'How do they pay?' }, body: { es: 'Efectivo con el cambio a la vista, tarjeta, Nequi o Daviplata, mixto o en partes.', en: 'Cash with change shown, card, Nequi or Daviplata, mixed or split.' } },
+        { x: 4.3, y: 94.5, w: 91.5, h: 3.6, title: { es: 'El total, en el botón', en: 'The total, on the button' }, body: { es: '«Cobrar US$ 125,38»: la propina se pide justo al tocarlo.', en: '“Charge US$ 125.38”: the tip is asked right when it’s tapped.' } },
       ],
     },
   ] satisfies CalendarScreen[],
+
+  /** El resumen real de un día (al tocarlo en la semana o el mes). */
+  dayPanel: {
+    image: img('cal-day-panel', 575, 1178, { es: 'Resumen del miércoles 18 de noviembre: día pesado, cifras del día, el equipo, para mirar y las citas.', en: 'Wednesday, November 18 summary: heavy day, the day’s figures, the team, worth a look and the visits.' }),
+    callouts: [
+      { x: 3, y: 1.5, w: 94, h: 10.5, title: { es: 'Qué día es y cómo suele ser', en: 'Which day and how it usually goes' }, body: { es: 'La fecha y sus marcas: «Día pesado» (la llama) u «Hoy».', en: 'The date and its marks: “Heavy day” (the flame) or “Today”.' } },
+      { x: 3.8, y: 13.7, w: 90, h: 9.8, title: { es: 'Cuatro cifras con contexto', en: 'Four figures with context' }, body: { es: 'Citas frente a lo que suele tener, por atender, canceladas o no vino, y lo del día frente a lo cobrado.', en: 'Visits versus what it usually has, still to serve, canceled or no-show, and the day’s total versus collected.' } },
+      { x: 3.8, y: 25.5, w: 90, h: 26, title: { es: 'El equipo', en: 'The team' }, body: { es: 'Quién trabaja ese día, qué tan llena está su silla y cuántas citas tiene.', en: 'Who works that day, how full their chair is and how many visits they have.' } },
+      { x: 3.8, y: 53.5, w: 90, h: 14.5, title: { es: 'Para mirar', en: 'Worth a look' }, body: { es: 'Lo que pide atención: cobros pendientes, horas libres, VIP y clientes nuevos.', en: 'What needs attention: pending charges, free hours, VIPs and new clients.' } },
+      { x: 3.8, y: 70, w: 90, h: 22.5, title: { es: 'Citas, clientes, bloqueos y ausencias', en: 'Visits, clients, blocks and absences' }, body: { es: 'El detalle del día en pestañas, cada cita con su estado.', en: 'The day’s detail in tabs, each visit with its status.' } },
+      { x: 1, y: 96.5, w: 98, h: 3.5, title: { es: 'Agendar o abrir el día', en: 'Book or open the day' }, body: { es: 'Desde el resumen se agenda en ese día o se abre en la vista Día.', en: 'From the summary you book on that day or open it in Day view.' } },
+    ] satisfies Callout[],
+  },
 
   /** Lo que la barbería puede ajustar del calendario (de la plataforma). */
   personalization: {

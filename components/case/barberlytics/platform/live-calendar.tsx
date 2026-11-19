@@ -108,11 +108,13 @@ interface LiveCalendarProps {
   intro?: number
   /** Cita resaltada: las demás se atenúan */
   focus?: string
+  /** Cita resaltada sin atenuar las demás */
+  highlight?: string
   className?: string
 }
 
 /** El día de una barbería, en vivo y personalizable. */
-export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', style = 'pastel', fields = ALL_FIELDS, columns = BARBERS.length, intro, focus, className = '' }: LiveCalendarProps) {
+export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', style = 'pastel', fields = ALL_FIELDS, columns = BARBERS.length, intro, focus, highlight, className = '' }: LiveCalendarProps) {
   const px = DENSITY_PX[density]
   const cols = BARBERS.slice(0, columns)
   const counts = cols.map((_, c) => APPTS.filter((a) => a.col === c && stageAt(a, now) !== 'paid').length)
@@ -161,7 +163,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
                 fields={fields}
                 px={px}
                 dim={focus !== undefined && focus !== a.client}
-                lit={focus === a.client}
+                lit={focus === a.client || highlight === a.client}
                 introAt={intro === undefined ? undefined : intro + a.start * 0.22 + c * 0.09}
               />
             ))}

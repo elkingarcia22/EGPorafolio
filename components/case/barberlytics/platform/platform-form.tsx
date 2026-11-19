@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
-import { BrowserMockup } from '@/components/case/kit/device'
+import { PanelMockup } from '@/components/case/kit/device'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import { ALL_FIELDS, LiveCalendar, useCalendarClock, type CardFields, type CardStyle, type ColorBy, type Density } from './live-calendar'
 import { CalendarViews, FocusAppointment } from './platform-focus'
+import { APPTS, CLIENT, SERVICE, STAGE, cardHue, fmt, stageAt } from './calendar-model'
 import { ModulesRipple } from './platform-modules'
 
 const H3 = 'mb-4 flex items-baseline gap-4 text-[clamp(1.35rem,1rem+1vw,1.9rem)]'
@@ -76,9 +77,45 @@ function Toggle({ label, on, onChange }: { label: string; on: boolean; onChange:
   )
 }
 
+const FEATURED = APPTS.find((a) => a.client === 'Mariana Ramírez') ?? APPTS[0]
+const BIG_PAD: Record<Density, string> = { compacta: 'p-4 min-h-[150px]', normal: 'p-6 min-h-[200px]', amplia: 'p-7 min-h-[260px]' }
+
+/** La misma cita en grande: cada ajuste se ve aplicado sobre ella. */
+function BigCard({ now, colorBy, style, density, fields }: { now: number; colorBy: ColorBy; style: CardStyle; density: Density; fields: CardFields }) {
+  const stage = stageAt(FEATURED, now)
+  const s = STAGE[stage]
+  const hue = cardHue(FEATURED, stage, colorBy)
+  const bg = hue ? `${hue}${style === 'vivo' ? '66' : '24'}` : 'rgba(255,255,255,0.06)'
+  const edge = hue ?? 'rgba(255,255,255,0.3)'
+  return (
+    <div className={`relative flex flex-col rounded-2xl text-[#efe9dd] transition-all duration-500 ease-expo ${BIG_PAD[density]}`} style={{ background: bg, boxShadow: `inset 0 0 0 1.5px ${edge}, 0 40px 90px -30px ${hue ?? '#000'}` }}>
+      <div className="flex items-center gap-2">
+        <span className="h-2.5 w-2.5 rounded-full" style={{ background: SERVICE[FEATURED.services[0]].hue }} />
+        <span className="text-xl font-medium">{FEATURED.client}</span>
+        {fields.hints && <span className="animate-[ramp-in_0.4s_both] text-sm text-white/60" title="Pidió a su barbero · tiene notas">☆ ✎</span>}
+        {fields.type && <span className="ml-auto animate-[ramp-in_0.4s_both] rounded-full bg-black/35 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide" style={{ color: CLIENT[FEATURED.type] }}>{FEATURED.type}</span>}
+      </div>
+      {(fields.service || fields.price) && (
+        <p className="mt-2 animate-[ramp-in_0.4s_both] text-sm text-white/65">
+          {[fields.service ? FEATURED.services.map((sv) => SERVICE[sv].name).join(' + ') : null, fields.price ? `US$ ${FEATURED.price}` : null].filter(Boolean).join(' · ')}
+        </p>
+      )}
+      {fields.time && <p className="mt-1 animate-[ramp-in_0.4s_both] font-mono text-xs text-white/45">{fmt(FEATURED.start)} – {fmt(FEATURED.start + FEATURED.len)}</p>}
+      <div className="mt-auto flex items-center justify-between pt-6">
+        {fields.status ? (
+          <span className="inline-flex animate-[ramp-in_0.4s_both] items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-sm" style={{ color: s.hue }}>
+            {stage === 'paid' ? '✓' : <span className="h-1.5 w-1.5 rounded-full" style={{ background: s.hue }} />} {s.label}
+          </span>
+        ) : <span />}
+        {fields.next && s.next && <span className="animate-[ramp-in_0.4s_both] rounded-lg bg-white/15 px-4 py-2 text-sm font-semibold">{s.next}</span>}
+      </div>
+    </div>
+  )
+}
+
 function Personalize() {
   const { t } = useLocale()
-  const now = useCalendarClock(900, 1.5, 8)
+  const now = useCalendarClock(1100, 0.2, 3.2, 0.6)
   const [colorBy, setColorBy] = useState<ColorBy>('estado')
   const [style, setStyle] = useState<CardStyle>('pastel')
   const [density, setDensity] = useState<Density>('normal')
@@ -87,20 +124,27 @@ function Personalize() {
   const { personalization } = PLATFORM_CASE
   return (
     <>
-      <div data-reveal="device" className="grid gap-4 rounded-3xl bg-[#0f0d0b] p-4 text-white md:p-6 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <LiveCalendar now={now} colorBy={colorBy} style={style} density={density} fields={fields} />
-        <div className="space-y-4 rounded-2xl border border-white/10 bg-[#141210] p-4">
-          <p className="text-sm font-medium">{t({ es: 'Ajustes de la vista', en: 'View settings' })}</p>
-          <Choice options={COLOR} value={colorBy} onChange={setColorBy} label={t({ es: 'Colorear tarjetas por', en: 'Color cards by' })} />
-          <Choice options={STYLE} value={style} onChange={setStyle} label={t({ es: 'Estilo', en: 'Style' })} />
-          <Choice options={DENSITY} value={density} onChange={setDensity} label={t({ es: 'Densidad', en: 'Density' })} />
+      <div data-reveal="device" className="relative overflow-hidden rounded-3xl bg-[#0f0d0b] p-4 text-[#efe9dd] md:p-8">
+        <span className="pointer-events-none absolute right-[8%] top-[30%] h-[460px] w-[460px] rounded-full bg-[#d9b36a] opacity-[0.12] blur-3xl" aria-hidden="true" />
+        <div className="relative grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
+          <LiveCalendar now={now} columns={3} colorBy={colorBy} style={style} density={density} fields={fields} highlight={FEATURED.client} />
           <div>
-            <p className="mb-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Qué muestra la tarjeta', en: 'What the card shows' })}</p>
-            {SHOWS.map((f) => <Toggle key={f.id} label={t(f.label)} on={fields[f.id]} onChange={set(f.id)} />)}
-          </div>
-          <div>
-            <p className="mb-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Avisos con icono', en: 'Icon hints' })}</p>
-            <Toggle label={t({ es: 'Notas y barbero pedido', en: 'Notes and requested barber' })} on={fields.hints} onChange={set('hints')} />
+            <BigCard now={now} colorBy={colorBy} style={style} density={density} fields={fields} />
+            <div className="mt-6 grid gap-5 rounded-2xl border border-white/10 bg-[#141210] p-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Choice options={COLOR} value={colorBy} onChange={setColorBy} label={t({ es: 'Colorear tarjetas por', en: 'Color cards by' })} />
+              </div>
+              <div className="space-y-4">
+                <Choice options={STYLE} value={style} onChange={setStyle} label={t({ es: 'Estilo', en: 'Style' })} />
+                <Choice options={DENSITY} value={density} onChange={setDensity} label={t({ es: 'Densidad', en: 'Density' })} />
+              </div>
+              <div>
+                <p className="mb-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Qué muestra la tarjeta', en: 'What the card shows' })}</p>
+                {SHOWS.map((f) => <Toggle key={f.id} label={t(f.label)} on={fields[f.id]} onChange={set(f.id)} />)}
+                <p className="mb-1 mt-3 text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Avisos con icono', en: 'Icon hints' })}</p>
+                <Toggle label={t({ es: 'Notas y barbero pedido', en: 'Notes and requested barber' })} on={fields.hints} onChange={set('hints')} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -126,7 +170,8 @@ function Personalize() {
 
 /** 05 · Forma: el calendario por dentro. */
 export function PlatformForm() {
-  const screens = PLATFORM_CASE.screens.filter((s) => s.id !== 'grid')
+  const checkout = PLATFORM_CASE.screens.find((s) => s.id === 'checkout')
+  const { dayPanel } = PLATFORM_CASE
   return (
     <div>
       <Section
@@ -142,27 +187,38 @@ export function PlatformForm() {
 
       <Section
         n="5.2"
-        title={{ es: 'Cuatro vistas y el día de un vistazo', en: 'Four views and the day at a glance' }}
+        title={{ es: 'Cuatro vistas del mismo día', en: 'Four views of the same day' }}
         body={{
-          es: 'Día, semana, mes o agenda —con atajo de teclado—, y al lado el detalle del día: el pulso por etapa, lo cobrado frente a lo del día y la ocupación de cada silla. En la semana, el calendario avisa qué día viene pesado y cuál suave.',
-          en: 'Day, week, month or agenda —with a keyboard shortcut—, and next to it the day’s detail: the pulse by stage, collected versus today’s total and each chair’s occupancy. In week view, the calendar flags heavy and light days.',
+          es: 'Día, semana, mes o agenda, cada una con su atajo de teclado. Son las vistas reales de la plataforma: cambian solas o tócalas.',
+          en: 'Day, week, month or agenda, each with a keyboard shortcut. These are the platform’s real views: they cycle on their own, or tap them.',
         }}
       >
         <CalendarViews />
       </Section>
 
-      {screens.map((screen, i) => (
-        <Section key={screen.id} n={`5.${i + 3}`} title={screen.title} body={screen.body}>
-          <BrowserMockup image={screen.image} callouts={screen.callouts} />
+      <Section
+        n="5.3"
+        title={{ es: 'El día de un vistazo', en: 'The day at a glance' }}
+        body={{
+          es: 'En la semana o el mes, tocar un día abre su resumen al lado. Así está armado, de arriba abajo.',
+          en: 'In week or month view, tapping a day opens its summary alongside. This is how it’s built, top to bottom.',
+        }}
+      >
+        <PanelMockup image={dayPanel.image} callouts={dayPanel.callouts} />
+      </Section>
+
+      {checkout && (
+        <Section n="5.4" title={checkout.title} body={checkout.body}>
+          <PanelMockup image={checkout.image} callouts={checkout.callouts} />
         </Section>
-      ))}
+      )}
 
       <Section
         n="5.5"
         title={{ es: 'La app se adapta a la barbería', en: 'The app adapts to the shop' }}
         body={{
-          es: 'Es la gran promesa: que la barbería no tenga que trabajar como dice el software. Pruébalo: cada ajuste cambia el calendario al momento, igual que en la plataforma, donde cada persona guarda su vista.',
-          en: 'It’s the big promise: the shop shouldn’t have to work the way the software says. Try it: each setting changes the calendar instantly, just like in the platform, where each person keeps their own view.',
+          es: 'Es la gran promesa: que la barbería no tenga que trabajar como dice el software. Una cita destacada y todo lo que se le puede ajustar: color, estilo, densidad, qué muestra y sus avisos. Pruébalo; el calendario cambia a la vez.',
+          en: 'It’s the big promise: the shop shouldn’t have to work the way the software says. One featured visit and everything you can adjust on it: color, style, density, what it shows and its hints. Try it; the calendar changes too.',
         }}
       >
         <Personalize />

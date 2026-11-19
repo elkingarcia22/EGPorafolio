@@ -1,9 +1,10 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
-import { APPTS, BARBERS, CLIENT, HALF_HOURS, SERVICE, STAGE, fmt, stageAt, useCalendarClock, type Stage } from './calendar-model'
+import { APPTS, CLIENT, SERVICE, STAGE, fmt, stageAt, useCalendarClock, type Stage } from './calendar-model'
 import { LiveCalendar } from './live-calendar'
 
 const FOCUS = APPTS.find((a) => a.client === 'Andrés Vargas') ?? APPTS[0]
@@ -80,171 +81,72 @@ export function FocusAppointment() {
   )
 }
 
-/* ── 5.2 · Vistas del calendario, detalle y ocupación del día ────────── */
+/* ── 5.2 · Las cuatro vistas (capturas reales de la plataforma) ──────── */
 
-type View = 'agenda' | 'dia' | 'semana' | 'mes'
-const VIEWS: readonly { id: View; label: L; key: string }[] = [
-  { id: 'dia', label: { es: 'Día', en: 'Day' }, key: 'D' },
-  { id: 'semana', label: { es: 'Semana', en: 'Week' }, key: 'W' },
-  { id: 'mes', label: { es: 'Mes', en: 'Month' }, key: 'M' },
-  { id: 'agenda', label: { es: 'Agenda', en: 'Agenda' }, key: 'A' },
+type View = 'dia' | 'semana' | 'mes' | 'agenda'
+const VIEWS: readonly { id: View; label: L; key: string; src: string; note: L }[] = [
+  { id: 'dia', label: { es: 'Día', en: 'Day' }, key: 'D', src: 'cal-states', note: { es: 'Una columna por barbero, la línea de ahora y cada cita con su siguiente paso.', en: 'One column per barber, the now line and every visit with its next step.' } },
+  { id: 'semana', label: { es: 'Semana', en: 'Week' }, key: 'W', src: 'cal-week', note: { es: 'Cada celda es la parte de la jornada reservada y las citas. La llama marca los días que suelen ser pesados; la pluma, los suaves.', en: 'Each cell is the booked share of the day and its visits. The flame marks usually heavy days; the feather, light ones.' } },
+  { id: 'mes', label: { es: 'Mes', en: 'Month' }, key: 'M', src: 'cal-month', note: { es: 'Citas del mes, ocupación media y el día más lleno, con cada día pintado por su ocupación.', en: 'Visits this month, average occupancy and the fullest day, with every day shaded by occupancy.' } },
+  { id: 'agenda', label: { es: 'Agenda', en: 'Agenda' }, key: 'A', src: 'cal-agenda', note: { es: 'La lista del día, con el estado de cada cita y el botón para seguir.', en: 'The day as a list, with each visit’s status and the button to move on.' } },
 ]
-
-const WEEK = [
-  { d: 'Lun 16', load: [3, 4, 2, 5, 3], tag: null },
-  { d: 'Mar 17', load: [5, 5, 4, 6, 5], tag: 'Día pesado' },
-  { d: 'Mié 18', load: [4, 3, 2, 3, 3], tag: 'Hoy' },
-  { d: 'Jue 19', load: [6, 6, 5, 6, 4], tag: 'Día pesado' },
-  { d: 'Vie 20', load: [6, 5, 6, 6, 6], tag: 'Día pesado' },
-  { d: 'Sáb 21', load: [2, 3, 1, 2, 3], tag: 'Día suave' },
-] as const
-
-function WeekView() {
-  return (
-    <div className="grid h-full grid-cols-6 gap-2">
-      {WEEK.map((day, i) => (
-        <div key={day.d} className={`flex flex-col rounded-xl border p-2 ${day.tag === 'Hoy' ? 'border-[#d9b36a]/60 bg-[#d9b36a]/[0.06]' : 'border-white/[0.07]'}`}>
-          <p className="text-[11px] font-medium">{day.d}</p>
-          <span className={`mt-1 h-4 text-[9px] ${day.tag === 'Día pesado' ? 'text-[#f2a03a]' : day.tag === 'Día suave' ? 'text-[#4cc98d]' : 'text-[#d9b36a]'}`}>{day.tag ?? ''}</span>
-          <div className="mt-2 flex flex-1 items-end gap-[3px]">
-            {day.load.map((n, b) => (
-              <span key={b} className="flex-1 origin-bottom animate-[bar-rise_0.8s_cubic-bezier(0.16,1,0.3,1)_both] rounded-t-[3px]" style={{ height: `${(n / 6) * 100}%`, background: `${['#5b8def', '#3fae7c', '#b07ad6', '#e0b44a', '#4fb8dc'][b]}aa`, animationDelay: `${i * 70 + b * 30}ms` }} />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function MonthView() {
-  const days = Array.from({ length: 30 }, (_, i) => i + 1)
-  return (
-    <div className="grid h-full grid-cols-7 gap-1.5">
-      {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => <span key={`${d}-${i}`} className="text-center text-[10px] text-white/40">{d}</span>)}
-      {days.map((d) => {
-        const sunday = d % 7 === 1
-        const load = sunday ? 0 : ((d * 37) % 10) / 10
-        return (
-          <span key={d} className={`flex flex-col justify-between rounded-lg p-1 text-[10px] ${d === 18 ? 'ring-1 ring-[#d9b36a]' : ''}`} style={{ background: sunday ? 'transparent' : `rgba(217,179,106,${0.08 + load * 0.45})` }}>
-            {d}
-            {!sunday && <span className="h-1 rounded-full bg-white/50" style={{ width: `${30 + load * 70}%` }} />}
-          </span>
-        )
-      })}
-    </div>
-  )
-}
-
-function AgendaView({ now }: { now: number }) {
-  const list = [...APPTS].sort((a, b) => a.start - b.start).filter((a) => stageAt(a, now) !== 'paid').slice(0, 6)
-  return (
-    <ul className="space-y-1.5">
-      {list.map((a) => {
-        const s = STAGE[stageAt(a, now)]
-        return (
-          <li key={a.client} className="grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 rounded-lg bg-white/[0.04] px-3 py-2 text-xs">
-            <span className="font-mono text-white/50">{fmt(a.start)}</span>
-            <span className="truncate"><b className="font-medium">{a.client}</b> <span className="text-white/45">· {BARBERS[a.col]}</span></span>
-            <span className="rounded-full bg-black/30 px-2 py-0.5 text-[10px]" style={{ color: s.hue }}>{s.label}</span>
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-/** Detalle del día: el pulso por etapa, lo cobrado y la ocupación de cada barbero. */
-function DayDetail({ now }: { now: number }) {
-  const { t } = useLocale()
-  const stages = APPTS.map((a) => stageAt(a, now))
-  const count = (st: Stage) => stages.filter((x) => x === st).length
-  const paid = APPTS.filter((a) => stageAt(a, now) === 'paid').reduce((n, a) => n + a.price, 0)
-  const total = APPTS.reduce((n, a) => n + a.price, 0)
-  const pulse: readonly Stage[] = ['late', 'waiting', 'seated', 'toCollect', 'paid']
-  return (
-    <div className="space-y-6 rounded-2xl border border-white/10 bg-[#141210] p-5">
-      <div>
-        <p className="mb-3 text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'El pulso del día', en: 'The day’s pulse' })}</p>
-        <div className="flex flex-wrap gap-1.5">
-          {pulse.map((st) => (
-            <span key={st} className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.05] px-2.5 py-1 text-[11px]">
-              <span className="h-1.5 w-1.5 rounded-full" style={{ background: STAGE[st].hue }} />
-              {STAGE[st].label}
-              <b className="font-mono tabular-nums" style={{ color: STAGE[st].hue }}>{count(st)}</b>
-            </span>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="mb-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Cobrado / del día', en: 'Collected / today' })}</p>
-        <p className="font-mono text-2xl tabular-nums">US$ {paid} <span className="text-base text-white/40">/ {total}</span></p>
-        <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/[0.06]"><span className="block h-full rounded-full bg-[#4cc98d] transition-[width] duration-700" style={{ width: `${(paid / total) * 100}%` }} /></span>
-      </div>
-      <div>
-        <p className="mb-3 text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Ocupación de cada silla', en: 'Each chair’s occupancy' })}</p>
-        <ul className="space-y-2.5">
-          {BARBERS.map((b, c) => {
-            const booked = APPTS.filter((a) => a.col === c).reduce((n, a) => n + a.len, 0)
-            const pct = Math.round((booked / HALF_HOURS) * 100)
-            return (
-              <li key={b} className="grid grid-cols-[4.5rem_1fr_2.5rem] items-center gap-2 text-[11px]">
-                <span className="truncate">{b}</span>
-                <span className="h-2 overflow-hidden rounded-full bg-white/[0.06]"><span data-reveal="right" className="block h-full rounded-full" style={{ width: `${pct}%`, background: pct > 60 ? '#f2a03a' : '#d9b36a' }} /></span>
-                <span className="text-right font-mono text-white/60">{pct}%</span>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
-    </div>
-  )
-}
+const VIEW_MS = 4200
 
 export function CalendarViews() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
-  const now = useCalendarClock(700, 1.5, 8, 3)
-  const [view, setView] = useState<View>('dia')
+  const [i, setI] = useState(0)
   const [pinned, setPinned] = useState(false)
-
   useEffect(() => {
     if (pinned || reducedMotion) return
-    const id = window.setInterval(() => setView((v) => VIEWS[(VIEWS.findIndex((x) => x.id === v) + 1) % VIEWS.length].id), 4200)
+    const id = window.setInterval(() => setI((k) => (k + 1) % VIEWS.length), VIEW_MS)
     return () => window.clearInterval(id)
   }, [pinned, reducedMotion])
-
+  const v = VIEWS[i]
   return (
-    <div data-reveal="device" className="rounded-3xl bg-[#0f0d0b] p-4 text-[#efe9dd] md:p-6">
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div role="tablist" aria-label={t({ es: 'Vista del calendario', en: 'Calendar view' })} className="flex rounded-lg bg-white/[0.05] p-0.5">
-          {VIEWS.map((v) => (
-            <button
-              key={v.id}
-              type="button"
-              role="tab"
-              aria-selected={view === v.id}
-              onClick={() => {
-                setView(v.id)
-                setPinned(true)
-              }}
-              className="rounded-md px-3 py-1.5 text-xs text-white/65 transition-colors hover:text-white aria-selected:bg-[#d9b36a] aria-selected:text-[#16130f]"
-            >
-              {t(v.label)} <span className="ml-1 font-mono text-[9px] opacity-60">{v.key}</span>
-            </button>
+    <div data-reveal="device">
+      <div role="tablist" aria-label={t({ es: 'Vista del calendario', en: 'Calendar view' })} className="mb-4 flex flex-wrap items-center gap-2">
+        {VIEWS.map((x, k) => (
+          <button
+            key={x.id}
+            type="button"
+            role="tab"
+            aria-selected={k === i}
+            onClick={() => {
+              setI(k)
+              setPinned(true)
+            }}
+            className="relative overflow-hidden rounded-full border border-fg/20 px-4 py-2 text-sm transition-colors hover:border-fg/50 aria-selected:border-[#d9b36a] aria-selected:text-[#b58a3a]"
+          >
+            {t(x.label)} <span className="ml-1 font-mono text-[10px] opacity-60">{x.key}</span>
+            {k === i && !pinned && !reducedMotion && <span key={i} className="absolute inset-x-0 bottom-0 h-[2px] origin-left animate-[view-progress_4.2s_linear_both] bg-[#d9b36a]" aria-hidden="true" />}
+          </button>
+        ))}
+      </div>
+      <div className="relative overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_40px_90px_-35px_rgba(0,0,0,0.7)] ring-1 ring-white/10">
+        <div className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+          <span className="ml-3 h-5 flex-1 rounded-md bg-white/[0.06]" />
+        </div>
+        <div className="relative aspect-[16/10]">
+          {VIEWS.map((x, k) => (
+            <Image
+              key={x.id}
+              src={`/cases/barberlytics/${x.src}.webp`}
+              width={2000}
+              height={1250}
+              alt={t({ es: `Vista ${x.label.es} del calendario.`, en: `Calendar ${x.label.en} view.` })}
+              sizes="(min-width: 1024px) 60vw, 100vw"
+              className={`absolute inset-0 h-full w-full object-cover object-top transition-[opacity,transform] duration-700 ease-expo ${k === i ? 'scale-100 opacity-100' : 'scale-[1.02] opacity-0'}`}
+            />
           ))}
         </div>
-        <span className="text-xs text-white/45">{t({ es: 'Miércoles 18 nov · Trabajando', en: 'Wed Nov 18 · Working' })}</span>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <div key={view} className="min-h-[440px] animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both]">
-          {view === 'dia' && <LiveCalendar now={now} />}
-          {view === 'semana' && <WeekView />}
-          {view === 'mes' && <MonthView />}
-          {view === 'agenda' && <AgendaView now={now} />}
-        </div>
-        <DayDetail now={now} />
-      </div>
+      <p key={v.id} className="mt-4 max-w-[62ch] animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] text-sm leading-relaxed opacity-75">
+        <b className="font-medium">{t(v.label)}.</b> {t(v.note)}
+      </p>
     </div>
   )
 }

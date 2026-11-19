@@ -195,3 +195,20 @@ export function BrowserMockup({ image, callouts, withLegend = true, className = 
     </div>
   )
 }
+
+/** Un panel lateral suelto (sin el resto de la pantalla), con sus destacados y la leyenda al lado. */
+export function PanelMockup({ image, callouts, className = '', sizes = '(min-width: 1024px) 26vw, 80vw' }: DeviceProps) {
+  const { t } = useLocale()
+  const [active, setActive] = useState<number | null>(null)
+  return (
+    <div className={`grid items-center gap-10 md:grid-cols-[minmax(0,360px)_1fr] md:gap-14 ${className}`}>
+      <div data-reveal="device" className="relative mx-auto w-full max-w-[360px] overflow-hidden rounded-2xl bg-[#0b0c0e] shadow-[0_50px_100px_-35px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.1)]">
+        <div className="pointer-events-none relative">
+          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
+          <Highlights callouts={callouts} active={active} setActive={setActive} />
+        </div>
+      </div>
+      <Legend callouts={callouts} active={active} setActive={setActive} />
+    </div>
+  )
+}
