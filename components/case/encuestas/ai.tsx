@@ -2,6 +2,7 @@
 
 import { useLocale, type L } from '@/lib/i18n'
 import { OrbitBuilder } from './ai-orbit'
+import { OrbitMobile } from './ai-orbit-mobile'
 import './ai-impact.css'
 
 const PROCESS: readonly { value: string; label: L }[] = [
@@ -56,7 +57,7 @@ export function SurveyAi() {
       <section>
         <p data-reveal className="mono-label mb-5 text-signal">{t({ es: 'Orbit, el agente de UBITS · Crear encuesta con IA', en: 'Orbit, UBITS’s agent · Create survey with AI' })}</p>
         <div data-reveal>
-          <OrbitBuilder />
+          <OrbitBuilder mobile={OrbitMobile} />
         </div>
       </section>
 

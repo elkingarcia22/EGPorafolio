@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { SHOTS, type ShotKey } from '@/lib/content/cases/encuestas/case'
-import { UBITS_BLUE, useMedia, zoomTransform } from './shared'
+import { UBITS_BLUE, useMedia } from './shared'
+import { NativeStop } from './form-tour-native'
 
 /** Un recuadro sobre la captura, en % del tamaño real de la imagen. */
 interface Spot {
@@ -85,19 +86,6 @@ const TOUR: readonly Stop[] = [
 const SPOT_MS = 2800
 /** Proporción de la ventana: la de las capturas de 1403 × 900. */
 const FRAME_RATIO = 1403 / 900
-/** En el celular la ventana es casi cuadrada y la captura se acerca al recuadro activo en vez de encogerse entera. */
-const MOBILE_RATIO = 1.05
-/** En tableta, una ventana más apaisada y un acercamiento más suave. */
-const TABLET_RATIO = 1.35
-const MOBILE_FILL = 88
-
-/** Acercamiento y centro de un recuadro en celular o tableta: si es muy ancho se lee su arranque, no se encoge todo. */
-function mobileFocus(s: Spot, phone: boolean): { zoom: number; cx: number; cy: number } {
-  const [min, max] = phone ? [2.2, 3] : [1.5, 2.2]
-  const zoom = Math.min(max, Math.max(min, MOBILE_FILL / s.w))
-  return { zoom, cx: s.x + Math.min(s.w, MOBILE_FILL / zoom) / 2, cy: s.y + s.h / 2 }
-}
-
 /** Recorre paradas y recuadros mientras está a la vista; se queda quieto si alguien elige una parada. */
 function useTour(box: React.RefObject<HTMLElement | null>) {
   const { reducedMotion } = useA11y()
@@ -140,9 +128,8 @@ export function ProductTour() {
   const current = TOUR[stop]
   const s = current.spots[spot]
   const below = s.y + s.h < 62
-  const phone = useMedia('(max-width: 767px)')
-  const mobile = useMedia('(max-width: 1023px)')
-  const frameRatio = !mobile ? FRAME_RATIO : phone ? MOBILE_RATIO : TABLET_RATIO
+  // En celular y tableta no se encoge la captura: cada parada se dibuja en HTML nítido.
+  const native = useMedia('(max-width: 1023px)')
 
   return (
     <div ref={box} data-reveal className="relative" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
@@ -184,7 +171,10 @@ export function ProductTour() {
             <span className="ml-2 min-w-0 truncate rounded-md bg-white px-2 py-0.5 font-mono text-[10px] text-black/45">ubits.co/admin/encuestas · {t(current.label)}</span>
           </div>
 
-          <div className="relative overflow-hidden bg-white" style={{ aspectRatio: frameRatio }}>
+          {native ? (
+            <NativeStop stop={stop} spot={spot} />
+          ) : (
+          <div className="relative overflow-hidden bg-white" style={{ aspectRatio: FRAME_RATIO }}>
             {TOUR.map((st, i) => {
               const shot = SHOTS[st.shot]
               const on = i === stop
@@ -192,19 +182,16 @@ export function ProductTour() {
               // Si la captura es más alta que la ventana, sube lo justo para que el recuadro activo quede a la vista.
               const visiblePct = Math.min(1, shot.width / shot.height / FRAME_RATIO) * 100
               const shift = Math.max(0, Math.min(100 - visiblePct, focus.y + focus.h + 5 - visiblePct))
-              const m = mobileFocus(focus, phone)
-              const transform = mobile
-                ? zoomTransform({ ...m, frameRatio, imageRatio: shot.width / shot.height })
-                : `translateY(-${shift}%) ${on ? 'scale(1.03)' : 'scale(1)'}`
-              const ring = mobile ? 2 / m.zoom : 2
+              const transform = `translateY(-${shift}%) ${on ? 'scale(1.03)' : 'scale(1)'}`
+              const ring = 2
               return (
                 <div key={st.id} className="absolute inset-x-0 top-0 transition-opacity duration-700" style={{ opacity: on ? 1 : 0 }} aria-hidden={!on}>
                   {/* La captura con su proporción real; el acercamiento sigue al recuadro activo. */}
                   <div
                     className="relative w-full transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-                    style={{ aspectRatio: `${shot.width} / ${shot.height}`, transform, transformOrigin: mobile ? '0 0' : `${focus.x + focus.w / 2}% ${focus.y + focus.h / 2}%` }}
+                    style={{ aspectRatio: `${shot.width} / ${shot.height}`, transform, transformOrigin: `${focus.x + focus.w / 2}% ${focus.y + focus.h / 2}%` }}
                   >
-                    <Image src={shot.src} width={shot.width} height={shot.height} alt={on ? t(shot.alt) : ''} sizes="(min-width: 1280px) 1200px, (min-width: 1024px) 80vw, 300vw" quality={90} priority={i === 0} className="block h-auto w-full" />
+                    <Image src={shot.src} width={shot.width} height={shot.height} alt={on ? t(shot.alt) : ''} sizes="(min-width: 1280px) 1200px, (min-width: 768px) 80vw, 100vw" quality={90} priority={i === 0} className="block h-auto w-full" />
                     {on && (
                       <span
                         className="pointer-events-none absolute rounded-lg transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
@@ -228,6 +215,7 @@ export function ProductTour() {
             })}
 
           </div>
+          )}
         </div>
       </div>
 

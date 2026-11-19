@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
+import { useMedia } from './shared'
 import { AI_GRADIENT, BUILDER, HOME, ORB, QUESTION_TYPE, REQUEST, SECTIONS, STEPS } from '@/lib/content/cases/encuestas/orbit-real'
 
 type Msg =
@@ -14,7 +15,7 @@ type Msg =
   | { kind: 'actions' }
   | { kind: 'discard' }
 
-interface Frame {
+export interface Frame {
   part: 1 | 2
   context: { label: string; detail: string }
   msgs: readonly Msg[]
@@ -26,7 +27,7 @@ interface Frame {
 }
 
 /** El orden en que Orbit crea: sección, subsección, sus preguntas; la sección se pliega al terminar. */
-const UNITS = ['s1', 's1.1', 'q', 'q', 'q', 'q', 's1-done', 's2', 's2.1', 's2.2', 'q', 'q', 'q', 'q', 's2-done'] as const
+export const UNITS = ['s1', 's1.1', 'q', 'q', 'q', 'q', 's1-done', 's2', 's2.1', 's2.2', 'q', 'q', 'q', 'q', 's2-done'] as const
 
 function buildFrames(): Frame[] {
   const f: Frame[] = []
@@ -72,7 +73,7 @@ function buildFrames(): Frame[] {
 const FRAMES = buildFrames()
 const LAST = FRAMES.length - 1
 
-function Orb({ className = 'h-6 w-6' }: { className?: string }) {
+export function Orb({ className = 'h-6 w-6' }: { className?: string }) {
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={ORB} alt="" aria-hidden="true" width={48} height={48} draggable={false} className={`shrink-0 select-none rounded-full ${className}`} />
 }
@@ -86,7 +87,7 @@ const ACTION_ICONS = [
   'M12 5h.01M12 12h.01M12 19h.01',
 ]
 
-function Message({ m }: { m: Msg }) {
+export function Message({ m }: { m: Msg }) {
   if (m.kind === 'agent')
     return (
       <div className="enc-ai-in flex items-start gap-2.5">
@@ -94,7 +95,7 @@ function Message({ m }: { m: Msg }) {
         <p className={`text-[13px] leading-relaxed ${m.muted ? 'text-[#5c646f]' : 'text-[#414a5c]'}`}>{m.text}</p>
       </div>
     )
-  if (m.kind === 'kicker') return <p className="enc-ai-in text-[10px] font-medium uppercase tracking-[0.12em] text-[#5c646f]">{m.text}</p>
+  if (m.kind === 'kicker') return <p className="enc-ai-in text-[10px] font-medium max-md:text-[11px] uppercase tracking-[0.12em] text-[#5c646f]">{m.text}</p>
   if (m.kind === 'user')
     return (
       <p className="enc-ai-in ml-auto max-w-[85%] rounded-[16px_16px_6px_16px] bg-[#f1f3f6] px-3.5 py-2.5 text-[13px] leading-relaxed text-[#303a47]">{m.text}</p>
@@ -273,8 +274,12 @@ function Platform({ built }: { built: number }) {
 const SPEED = 0.6
 
 /** Orbit creando una encuesta: primero el panel solo, después acoplado mientras la encuesta crece en la plataforma. */
-export function OrbitBuilder() {
+/** Versión para celular del escenario: recibe el mismo cuadro del guion (se inyecta para no crear un ciclo de imports). */
+export type OrbitMobileView = React.ComponentType<{ f: Frame; working: boolean }>
+
+export function OrbitBuilder({ mobile: Mobile }: { mobile?: OrbitMobileView }) {
   const { t } = useLocale()
+  const phone = useMedia('(max-width: 767px)')
   const { reducedMotion } = useA11y()
   const box = useRef<HTMLDivElement>(null)
   const [i, setI] = useState(0)
@@ -311,7 +316,10 @@ export function OrbitBuilder() {
           </button>
         )}
       </div>
-      {/* El escenario: un halo con los cuatro colores de la IA de Flux UI, como `cn-ai-halo`. */}
+      {Mobile && phone ? (
+        <Mobile f={f} working={working} />
+      ) : (
+      /* El escenario: un halo con los cuatro colores de la IA de Flux UI, como `cn-ai-halo`. */
       <div className="relative h-[38rem] overflow-hidden rounded-3xl bg-[#f7f8fb] [container-type:inline-size]">
         <div
           className="enc-ai-aurora pointer-events-none absolute -inset-[8%] transition-opacity duration-700"
@@ -348,6 +356,7 @@ export function OrbitBuilder() {
           )}
         </div>
       </div>
+      )}
     </div>
   )
 }

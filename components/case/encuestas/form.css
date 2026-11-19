@@ -45,3 +45,9 @@ html[data-motion='reduced'] .encf-piece { display: none; }
 .encf-page { animation: encf-page 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @media (prefers-reduced-motion: reduce) { .encf-page { animation: none; } }
 html[data-motion='reduced'] .encf-page { animation: none; }
+
+/* Recorrido nativo en celular: la opción «De acuerdo» se elige sola un instante después de encenderse. */
+@keyframes enc-tour-pick { 0%, 45% { border-color: rgba(0, 0, 0, 0.1); background: #fff; } 100% { border-color: #0c5bef; background: #e8effd; color: #0c5bef; } }
+.enc-tour-pick { animation: enc-tour-pick 1.4s ease both; }
+@media (prefers-reduced-motion: reduce) { .enc-tour-pick { animation: none; border-color: #0c5bef; } }
+html[data-motion='reduced'] .enc-tour-pick { animation: none; border-color: #0c5bef; }

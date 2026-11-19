@@ -8,6 +8,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 import { ResultsDashboard } from './hero-mock'
+import { useMedia } from './shared'
 import { AiPromptCard, EnpsGauge, FloatCard, NomBadge, PhoneCard, ThanksCard } from './hero-floats'
 import './hero-dots.css'
 
@@ -54,6 +55,8 @@ export function EncuestasHero() {
     return () => ctx.revert()
   }, [reducedMotion])
 
+  // Sin las tarjetas flotantes (celular y tableta), el tablero lleva las animaciones al frente.
+  const lively = useMedia('(max-width: 1023px)') && !reducedMotion
   const step = reducedMotion ? TOUR.length - 1 : tick % TOUR.length
   const moment: Moment = TOUR[step]
   const answered = step >= 2 ? BASE_ANSWERED + 1 : BASE_ANSWERED
@@ -107,7 +110,7 @@ export function EncuestasHero() {
         <div data-hero-stage className="relative mx-auto mt-16 max-w-6xl lg:mb-32 lg:mt-24">
           <div data-depth="0.12" className="relative z-10 mx-auto w-full lg:w-[62%]">
             <div data-hero-board className="shadow-[0_60px_120px_-40px_rgba(0,0,0,0.9)]">
-              <ResultsDashboard answered={answered} growingN={growingN} enps={enps} pulse={moment === 'thanks'} />
+              <ResultsDashboard answered={answered} growingN={growingN} enps={enps} pulse={moment === 'thanks'} lively={lively} cycle={Math.floor(tick / TOUR.length)} />
             </div>
           </div>
           {floats.map((f) => (
@@ -126,6 +129,10 @@ export function EncuestasHero() {
         <ol className="relative mx-auto mt-6 flex max-w-md justify-center gap-1.5 lg:hidden" aria-hidden="true">
           {TOUR.map((m, i) => <li key={m} className={`h-1 flex-1 rounded-full transition-colors duration-500 ${i <= step ? 'bg-signal' : 'bg-fg/15'}`} />)}
         </ol>
+        {/* En celular y tableta el momento de la vida de la encuesta se nombra bajo la barra. */}
+        <p key={moment} className="enc-fade relative mt-3 text-center font-mono text-[12px] uppercase tracking-[0.14em] text-signal lg:hidden" aria-hidden="true">
+          {floats[step].label}
+        </p>
 
         <dl className="relative mt-16 grid grid-cols-2 gap-6 border-t border-fg/15 pt-8 md:grid-cols-4">
           {c.meta.map((m) => (
