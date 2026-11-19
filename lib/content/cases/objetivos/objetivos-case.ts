@@ -145,8 +145,8 @@ export const OBJ_CASE = {
 
   demo: {
     lead: {
-      es: 'El ciclo entero en una sola demo: entra como admin, como líder o como colaborador. Lo que reporta una persona sube por la cascada hasta el objetivo de la empresa.',
-      en: 'The whole cycle in one demo: enter as admin, lead or employee. What one person reports climbs the cascade up to the company goal.',
+      es: 'El módulo real, en el staging del playground de UBITS: la vista del administrador de Objetivos con el alcance completo activado. Entra por el inicio, por la creación de un ciclo o por los resultados de uno.',
+      en: 'The real module, on UBITS’ playground staging: the Goals admin view with the full scope switched on. Enter through the home, through creating a cycle or through a cycle’s results.',
     } as L,
   },
 } as const
