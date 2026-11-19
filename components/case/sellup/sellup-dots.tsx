@@ -3,7 +3,8 @@
 import { useLocale, type L } from '@/lib/i18n'
 import { useA11y } from '@/lib/a11y'
 import { useTick } from '../barberlytics/thema/live-pieces'
-import { APP, RumboOrb } from './platform'
+import { Building2, PhoneCall, Users } from 'lucide-react'
+import { APP } from './platform'
 import { useInView } from './ui'
 
 /**
@@ -125,7 +126,7 @@ function PainRow({ p, index }: { p: Pain; index: number }) {
         }`}
         style={{ background: swapped ? 'linear-gradient(160deg,#1c2246,#17132b 60%,#121318)' : 'linear-gradient(160deg,rgba(91,126,255,0.14),rgba(126,43,224,0.06) 60%,#0d0e10)' }}
       >
-        <p className="flex items-center gap-2.5 text-sm font-medium text-[#b7c6ff]"><RumboOrb size={20} pulse={swapped && !reducedMotion} />{t(p.agent)}</p>
+        <p className="flex items-center gap-2.5 text-sm font-medium text-[#b7c6ff]">{(() => { const Icon = [Building2, Users, PhoneCall][index]; return <span className="grid h-6 w-6 place-items-center rounded-md bg-white/10"><Icon className="h-3.5 w-3.5" /></span> })()}{t(p.agent)}</p>
         <p className="mt-3 text-lg leading-snug">{t(p.fix)}</p>
         <div className={`mt-5 flex items-center gap-4 transition-opacity duration-500 ${swapped ? 'opacity-100' : 'opacity-0'}`}>
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">

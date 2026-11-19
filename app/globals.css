@@ -219,3 +219,15 @@ html[data-motion='reduced'] [class*='animate-[wave'], html[data-motion='reduced'
   from { transform: translateX(-100%); }
   to { transform: translateX(250%); }
 }
+/* Escenarios de Clipper: dos luces del gradiente de IA que se mueven despacio */
+@keyframes aurora-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(18%, -12%) scale(1.15); }
+  66% { transform: translate(-14%, 10%) scale(0.92); }
+}
+@keyframes ripple-out {
+  from { transform: translate(-50%, -50%) scale(0.6); opacity: 0.55; }
+  to { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+html[data-motion='reduced'] [class*='animate-[aurora-drift'], html[data-motion='reduced'] [class*='animate-[ripple-out'] { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { [class*='animate-[aurora-drift'], [class*='animate-[ripple-out'] { animation: none !important; } }
