@@ -42,7 +42,17 @@ export function Cursor() {
     const badgeX = gsap.quickTo(badge, 'x', { duration: 0.35, ease: 'expo' })
     const badgeY = gsap.quickTo(badge, 'y', { duration: 0.35, ease: 'expo' })
 
+    const html = document.documentElement
+    const setAway = (away: boolean) => {
+      if (away) html.dataset.cursorAway = 'true'
+      else delete html.dataset.cursorAway
+    }
     const onMove = (e: PointerEvent) => {
+      // Al volver a la página, el cursor salta a donde está el mouse en vez de deslizarse desde donde quedó.
+      if (html.dataset.cursorAway) {
+        setAway(false)
+        gsap.set([dot, ring, badge], { x: e.clientX, y: e.clientY })
+      }
       dotX(e.clientX)
       dotY(e.clientY)
       ringX(e.clientX)
@@ -67,10 +77,26 @@ export function Cursor() {
       if (isTransitioning()) apply(null, '')
     }
 
+    // Fuera de la página o sin foco no llegan movimientos: se muestra el puntero del sistema.
+    const onLeave = (e: PointerEvent) => {
+      if (!e.relatedTarget) setAway(true)
+    }
+    const onBlur = () => setAway(true)
+    const onVisibility = () => document.hidden && setAway(true)
+
     window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerdown', onMove)
     window.addEventListener('pointerover', onOver)
     window.addEventListener('click', onClick)
+    document.addEventListener('pointerout', onLeave)
+    window.addEventListener('blur', onBlur)
+    document.addEventListener('visibilitychange', onVisibility)
     return () => {
+      window.removeEventListener('pointerdown', onMove)
+      document.removeEventListener('pointerout', onLeave)
+      window.removeEventListener('blur', onBlur)
+      document.removeEventListener('visibilitychange', onVisibility)
+      setAway(false)
       window.removeEventListener('click', onClick)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerover', onOver)
