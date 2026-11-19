@@ -6,6 +6,8 @@ import { useLocale } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 import { ParticipationRiver } from './dots-river'
 import { STATION_MOCKS } from './dots-mocks'
+import { STATION_MOCKS_MOBILE } from './dots-mocks-mobile'
+import { useMedia } from './shared'
 import './hero-dots.css'
 
 const ADVANCE_MS = 4200
@@ -19,7 +21,9 @@ function MeasurementJourney() {
   const [pinned, setPinned] = useState(false)
   const [hover, setHover] = useState(false)
   const station = stations[active]
-  const Mock = STATION_MOCKS[station.id]
+  // En celular y tableta, una mini interfaz propia, grande y legible, en vez del dibujo de escritorio encogido.
+  const narrow = useMedia('(max-width: 1023px)')
+  const Mock = (narrow ? STATION_MOCKS_MOBILE : STATION_MOCKS)[station.id]
 
   useEffect(() => {
     if (reducedMotion || pinned || hover) return

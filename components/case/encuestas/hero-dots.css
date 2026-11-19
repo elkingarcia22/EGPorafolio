@@ -29,3 +29,11 @@ html[data-motion='reduced'] :is(.hd-burst, .hd-caret, .hd-unlock, .hd-ping, .hd-
 .hd-pop { animation: hd-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @media (prefers-reduced-motion: reduce) { .hd-pop { animation: none; } }
 html[data-motion='reduced'] .hd-pop { animation: none; }
+
+/* Portada en celular, en vivo: «+1 respuesta» que sube y se apaga, y el destello de una celda que se actualiza. */
+@keyframes hd-plus { 0% { opacity: 0; transform: translateY(6px); } 20% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px); } }
+.hd-plus { animation: hd-plus 1.3s ease-out both; }
+@keyframes hd-flash { 0% { opacity: 0.85; } 100% { opacity: 0; } }
+.hd-flash { animation: hd-flash 0.9s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .hd-plus, .hd-flash { animation: none; opacity: 0; } }
+html[data-motion='reduced'] :is(.hd-plus, .hd-flash) { animation: none; opacity: 0; }

@@ -43,6 +43,28 @@ const SPOTLIGHT: readonly { r: number; c: number; note: L; unlocked?: L }[] = [
 ]
 const SPOT_MS = 1700
 
+/** En vivo (celular): cada cuánto llega una respuesta y cuántas llegan antes de que el ciclo vuelva a empezar. */
+const LIVE_MS = 1500
+const LIVE_SPAN = 24
+/** Pequeños vaivenes del eNPS mientras llegan respuestas. */
+const ENPS_DRIFT = [0, 1, 1, 0, -1, 0, 2, 1] as const
+
+/** Qué celda se actualiza en cada respuesta y cuánto (±0,1), sin azar para que el tablero no tiemble distinto cada vez. */
+function liveCell(k: number): { r: number; c: number; d: number } {
+  const i = (k * 7 + 3) % (SECTIONS.length * 5)
+  return { r: Math.floor(i / 5), c: i % 5, d: k % 3 === 0 ? -0.1 : 0.1 }
+}
+
+/** El puntaje de una celda tras `k` respuestas en vivo. */
+function liveScore(r: number, c: number, base: number, k: number): number {
+  let v = base
+  for (let j = 1; j <= k; j++) {
+    const x = liveCell(j)
+    if (x.r === r && x.c === c) v += x.d
+  }
+  return Math.min(5, Math.max(1, Math.round(v * 10) / 10))
+}
+
 const TABS: readonly L[] = [
   { es: 'Participación', en: 'Participation' },
   { es: 'Mapa de calor', en: 'Heatmap' },
@@ -79,20 +101,25 @@ function useCount(target: number, restart?: number): number {
   return value
 }
 
-function Ring({ answered, restart }: { answered: number; restart?: number }) {
+function Ring({ answered, restart, arrivals }: { answered: number; restart?: number; arrivals?: number }) {
   const { t } = useLocale()
   const shown = useCount(answered, restart)
   const pct = shown / TOTAL_INVITED
   const r = 34
   const c = 2 * Math.PI * r
   return (
-    <div className="flex items-center gap-3 max-sm:gap-2">
+    <div className="relative flex items-center gap-3 max-sm:gap-2">
       <svg viewBox="0 0 84 84" className="h-[4.6rem] w-[4.6rem] shrink-0 -rotate-90 max-sm:h-12 max-sm:w-12" aria-hidden="true">
         <circle cx="42" cy="42" r={r} fill="none" stroke="#ecf1fa" strokeWidth="9" />
         <circle cx="42" cy="42" r={r} fill="none" stroke={UBITS_BLUE} strokeWidth="9" strokeLinecap="round" strokeDasharray={`${c * pct} ${c}`} className="transition-[stroke-dasharray] duration-700" />
       </svg>
       <div>
         <p className="whitespace-nowrap text-[20px] font-semibold leading-none tabular-nums max-sm:text-[18px]">{(pct * 100).toFixed(1).replace('.', ',')} %</p>
+        {arrivals ? (
+          <span key={arrivals} className="hd-plus absolute -top-2 left-9 rounded-full bg-[#e2f1e2] px-1.5 text-[11px] font-semibold text-[#2c6b2f]" aria-hidden="true">
+            +1
+          </span>
+        ) : null}
         <p className="mt-1 text-[10px] text-[#5c646f] max-lg:text-[11px]">
           <span className="tabular-nums">{shown}</span> {t({ es: `de ${TOTAL_INVITED} respondieron`, en: `of ${TOTAL_INVITED} answered` })}
         </p>
@@ -132,8 +159,17 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
     if (lively && cycle > 0) setPlay((n) => n + 1)
   }, [cycle, lively])
 
+  // En vivo: llega una respuesta cada LIVE_MS; mueve participación, eNPS y una celda del mapa.
+  const liveTick = useTicker(LIVE_MS, lively && play > 0)
+  // Cada vez que la entrada se repite, las respuestas en vivo vuelven a contar desde ahí.
+  const [liveBase, setLiveBase] = useState(0)
+  const liveNow = useRef(liveTick)
+  liveNow.current = liveTick
+  useEffect(() => setLiveBase(liveNow.current), [play])
+  const k = lively && play > 0 ? Math.max(0, liveTick - liveBase) % LIVE_SPAN : 0
   const restart = lively ? play : undefined
-  const enpsShown = useCount(enps, restart)
+  const enpsShown = useCount(enps + (k ? ENPS_DRIFT[k % ENPS_DRIFT.length] : 0), restart)
+  const flash = k ? liveCell(k) : null
   const spot = lively && play > 0 ? SPOTLIGHT[spotTick % SPOTLIGHT.length] : null
   return (
     <div ref={box} className="overflow-hidden rounded-2xl bg-white text-[#303a47] ring-1 ring-black/10">
@@ -154,6 +190,15 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
           </div>
           <div className="flex flex-wrap gap-1.5 text-[10px] max-lg:text-[11px]">
             <span className="rounded-full bg-[#e2f1e2] px-2 py-0.5 font-medium text-[#2c6b2f]">{t({ es: 'En progreso', en: 'In progress' })}</span>
+            {lively && (
+              <span className="flex items-center gap-1.5 rounded-full bg-[#fde8ea] px-2 py-0.5 font-medium text-[#b02a37]">
+                <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
+                  <span className="hd-ping absolute inset-0 rounded-full bg-[#e0675f]" />
+                  <span className="relative h-1.5 w-1.5 rounded-full bg-[#e0675f]" />
+                </span>
+                {t({ es: 'En vivo', en: 'Live' })}
+              </span>
+            )}
             <span className="flex items-center gap-1 rounded-full bg-[#ecf1fa] px-2 py-0.5 text-[#0c5bef]">
               <Lock className="h-3 w-3" /> {t({ es: `Anónima · mín. ${MIN_GROUP}`, en: `Anonymous · min ${MIN_GROUP}` })}
             </span>
@@ -170,7 +215,7 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-1">
             <div className="min-w-0 rounded-xl border border-black/[0.07] p-3">
               <p className="mb-2 text-[10px] font-medium text-[#5c646f] max-lg:text-[11px]">{t({ es: 'Participación', en: 'Participation' })}</p>
-              <Ring answered={answered} restart={restart} />
+              <Ring answered={Math.min(TOTAL_INVITED, answered + k)} restart={restart} arrivals={k || undefined} />
             </div>
             <div className="min-w-0 rounded-xl border border-black/[0.07] p-3">
               <p className="text-[10px] font-medium text-[#5c646f] max-lg:text-[11px]">eNPS</p>
@@ -211,7 +256,8 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
                   {AREAS.map((a, c) => {
                     const n = c === GROWING_AREA ? growingN : a.n
                     const reserved = n < MIN_GROUP
-                    const score = a.scores[r]
+                    const score = lively ? liveScore(r, c, a.scores[r], k) : a.scores[r]
+                    const flashing = flash !== null && flash.r === r && flash.c === c && !reserved
                     const fresh = c === GROWING_AREA && !reserved && pulse
                     const lit = spot !== null && spot.r === r && spot.c === c
                     // En celular cada celda entra de a una, fila por fila, la primera vez y en cada vuelta.
@@ -219,11 +265,12 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
                     return (
                       <span
                         key={`${a.name}-${reserved}`}
-                        className={`relative flex h-7 items-center justify-center rounded-md font-mono tabular-nums transition-[transform,box-shadow] duration-300 ${fresh ? 'hd-unlock' : pop ? 'hd-pop' : ''} ${lit ? 'z-10 scale-[1.18] shadow-[0_0_0_2px_#0c5bef,0_8px_18px_-6px_rgba(12,91,239,0.6)]' : ''}`}
+                        className={`relative flex h-7 items-center justify-center rounded-md font-mono tabular-nums transition-[transform,box-shadow,background-color] duration-500 ${fresh ? 'hd-unlock' : pop ? 'hd-pop' : ''} ${lit ? 'z-10 scale-[1.18] shadow-[0_0_0_2px_#0c5bef,0_8px_18px_-6px_rgba(12,91,239,0.6)]' : ''}`}
                         style={{ ...(reserved ? { background: '#f1f2f4', color: '#979ba3' } : { background: favColor(score), color: '#14161a' }), animationDelay: fresh ? `${r * 70}ms` : pop ? `${300 + (r * AREAS.length + c) * 55}ms` : undefined }}
                         title={reserved ? t({ es: 'Reservado: por debajo del mínimo', en: 'Reserved: below the minimum' }) : undefined}
                       >
                         {reserved ? <Lock className="h-3 w-3" /> : score.toFixed(1).replace('.', ',')}
+                        {flashing && <span key={k} className="hd-flash pointer-events-none absolute inset-0 rounded-md bg-white ring-2 ring-[#0c5bef]" aria-hidden="true" />}
                       </span>
                     )
                   })}
@@ -235,7 +282,7 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: UBITS_BLUE }} />
                 <span>
                   <b>{AREAS[spot.c].name} · {t(SECTIONS[spot.r])}</b>
-                  {AREAS[spot.c].n >= MIN_GROUP || (spot.c === GROWING_AREA && growingN >= MIN_GROUP) ? ` ${AREAS[spot.c].scores[spot.r].toFixed(1).replace('.', ',')}` : ''}: {t(spot.unlocked && growingN >= MIN_GROUP ? spot.unlocked : spot.note)}
+                  {AREAS[spot.c].n >= MIN_GROUP || (spot.c === GROWING_AREA && growingN >= MIN_GROUP) ? ` ${liveScore(spot.r, spot.c, AREAS[spot.c].scores[spot.r], k).toFixed(1).replace('.', ',')}` : ''}: {t(spot.unlocked && growingN >= MIN_GROUP ? spot.unlocked : spot.note)}
                 </span>
               </p>
             )}
