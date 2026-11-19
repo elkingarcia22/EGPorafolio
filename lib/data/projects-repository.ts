@@ -50,7 +50,7 @@ export async function listProjects(): Promise<ProjectsResult> {
 }
 
 /** Casos con diseño propio: viven en el código y se listan aunque no tengan fila en Supabase. */
-const CODE_CASES: ReadonlySet<string> = new Set(['sellup'])
+const CODE_CASES: ReadonlySet<string> = new Set(['sellup', 'encuestas'])
 
 /** Suma los casos del código que falten, en la posición que tienen en el orden local. */
 function withCodeCases(projects: readonly Project[]): readonly Project[] {
