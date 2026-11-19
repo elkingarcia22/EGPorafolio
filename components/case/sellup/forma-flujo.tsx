@@ -105,7 +105,7 @@ function FlowScreen({ time }: { time: number }) {
           const list = i === 1 ? ENRICH : i === 2 ? FIRST : []
           const count = i === 1 ? enrichCount : i === 2 ? firstCount : hosting ? 1 : 0
           return (
-            <div key={c.name} className={`shrink-0 rounded-2xl border p-1.5 transition-colors duration-700 ${live && (i > 0 || hosting) ? 'border-white/10 bg-white/[0.02]' : 'border-dashed border-white/10'} ${hosting ? 'border-[#6b8cff]/50' : ''}`} style={{ width: c.w }}>
+            <div key={c.name} className={`shrink-0 rounded-2xl border p-1.5 transition-colors duration-[400ms] ${live && (i > 0 || hosting) ? 'border-white/10 bg-white/[0.02]' : 'border-dashed border-white/10'} ${hosting ? 'border-[#6b8cff]/50' : ''}`} style={{ width: c.w }}>
               <div className="flex items-start gap-2 px-1.5 pb-2 pt-1" style={{ height: 50 }}>
                 <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md ${c.tone || 'bg-white/[0.06] text-white/60'}`}><c.Icon className="h-3.5 w-3.5" /></span>
                 <span className="min-w-0 flex-1">
@@ -115,7 +115,7 @@ function FlowScreen({ time }: { time: number }) {
               </div>
               {live && (
                 <div className="space-y-2">
-                  <div className="transition-[height] duration-700 ease-expo" style={{ height: hosting ? CARD_H - 8 : 0 }} />
+                  <div className="transition-[height] duration-[400ms] ease-expo" style={{ height: hosting ? CARD_H - 8 : 0 }} />
                   {list.map((o, k) => (
                     <Card key={o.name} name={o.name} where={o.where}>
                       {i === 2 && k > 0 ? <RealTag tone="green">Lista para contacto</RealTag> : <RealTag tone="blue">Nueva</RealTag>}
@@ -129,7 +129,7 @@ function FlowScreen({ time }: { time: number }) {
 
         {/* La empresa destacada: se mueve por encima del tablero */}
         <div
-          className="absolute top-[56px] transition-[transform,opacity,width] duration-[1100ms] ease-expo"
+          className="absolute top-[56px] transition-[transform,opacity,width] duration-500 ease-expo"
           style={{ width: COLS[at].w - 12, transform: `translate(${COL_X[at] + 6}px, ${shown ? 0 : -18}px)`, opacity: shown ? 1 : 0 }}
         >
           <div className="relative rounded-xl border px-3 py-2.5" style={{ height: CARD_H - 8, borderColor: '#6b8cff', background: 'linear-gradient(135deg,#1d2440,#1a1530)', boxShadow: '0 0 0 4px rgba(107,140,255,0.22), 0 24px 50px -16px rgba(107,140,255,0.7)' }}>
@@ -159,7 +159,7 @@ function FloatCards({ time }: { time: number }) {
   return (
     <>
       <div
-        className={`pointer-events-none absolute -right-4 top-[14%] hidden w-[240px] rounded-2xl border border-[#6b8cff]/60 bg-[#141826]/95 p-4 shadow-[0_0_0_4px_rgba(107,140,255,0.15),0_30px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur transition-all duration-700 ease-expo xl:block ${shown ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0'}`}
+        className={`pointer-events-none absolute -right-4 top-[14%] hidden w-[240px] rounded-2xl border border-[#6b8cff]/60 bg-[#141826]/95 p-4 shadow-[0_0_0_4px_rgba(107,140,255,0.15),0_30px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur transition-all duration-[400ms] ease-expo xl:block ${shown ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0'}`}
         aria-hidden="true"
       >
         <p className="mono-label text-white/45">{t({ es: 'Empresa destacada', en: 'Highlighted company' })}</p>
@@ -169,7 +169,7 @@ function FloatCards({ time }: { time: number }) {
         <p className="mt-2 text-sm leading-snug text-white/80">{t(f.note)}</p>
       </div>
       <div
-        className={`pointer-events-none absolute -left-4 bottom-[22%] hidden w-[210px] rounded-2xl border border-white/10 bg-[#141517]/95 p-4 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur transition-all duration-700 ease-expo xl:block ${shown ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'}`}
+        className={`pointer-events-none absolute -left-4 bottom-[22%] hidden w-[210px] rounded-2xl border border-white/10 bg-[#141517]/95 p-4 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur transition-all duration-[400ms] ease-expo xl:block ${shown ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'}`}
         aria-hidden="true"
       >
         <p className="mono-label text-white/45">{t({ es: 'Etapas con agente', en: 'Stages with an agent' })}</p>
@@ -190,7 +190,7 @@ export function PipelineFlow() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.25)
-  const tick = useTick(1000)
+  const tick = useTick(560)
   const [start, setStart] = useState<number | null>(null)
   useEffect(() => {
     if (seen && start === null) setStart(tick)

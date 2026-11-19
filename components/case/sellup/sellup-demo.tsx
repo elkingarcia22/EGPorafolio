@@ -28,7 +28,7 @@ const SCENES: readonly Scene[] = [
 ]
 
 const SUBS = 6
-const SUB_MS = 950
+const SUB_MS = 550
 const IDS = SCENES.map((s) => s.id)
 
 interface TourState {

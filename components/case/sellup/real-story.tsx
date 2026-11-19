@@ -17,7 +17,7 @@ import { useInView } from './ui'
 export function useStoryTime(loop: number, still: number): [React.RefObject<HTMLDivElement>, number] {
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.25)
-  const tick = useTick(1000)
+  const tick = useTick(560)
   const [start, setStart] = useState<number | null>(null)
   useEffect(() => {
     if (seen && start === null) setStart(tick)
@@ -103,7 +103,7 @@ export const HIGHLIGHT = {
 /** Cursor simulado que se mueve a (x, y) en coordenadas de la pantalla de 1240 px. */
 export function FakeCursor({ x, y, click, show = true }: { x: number; y: number; click: boolean; show?: boolean }) {
   return (
-    <span className="pointer-events-none absolute z-30 transition-all duration-700 ease-expo" style={{ left: x, top: y, opacity: show ? 1 : 0 }} aria-hidden="true">
+    <span className="pointer-events-none absolute z-30 transition-all duration-[400ms] ease-expo" style={{ left: x, top: y, opacity: show ? 1 : 0 }} aria-hidden="true">
       {click && <span className="absolute -left-3 -top-3 h-7 w-7 animate-ping rounded-full bg-white/40" />}
       <svg width="18" height="22" viewBox="0 0 18 22"><path d="M1 1 L1 17 L5.5 13 L8.5 20 L11 19 L8 12 L14 12 Z" fill="white" stroke="#0a0a0a" strokeWidth="1.2" /></svg>
     </span>

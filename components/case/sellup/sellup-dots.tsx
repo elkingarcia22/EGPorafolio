@@ -102,7 +102,7 @@ function PainRow({ p, index }: { p: Pain; index: number }) {
   const { t, locale } = useLocale()
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLLIElement>(0.35)
-  const tick = useTick(900)
+  const tick = useTick(600)
   const swapped = seen && (reducedMotion || (tick + 9 - index * 2) % 9 >= 4)
   return (
     <li ref={ref} className="relative grid gap-5 border-t border-white/10 pt-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-10">
