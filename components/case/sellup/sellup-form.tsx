@@ -21,8 +21,8 @@ export function SellUpForm() {
       </Section>
       <Section
         n="5.2"
-        title={{ es: 'Agente 1 · De la conversación a la empresa aprobada', en: 'Agent 1 · From conversation to approved company' }}
-        body={{ es: 'Tres pantallas, una tras otra: el vendedor le cuenta a Rumbo qué busca en seis pasos; las candidatas llegan a «Por revisar» con su veredicto; y al abrir una se ve por qué entró. Solo al aprobar se escribe en HubSpot. Toca un paso para saltar.', en: 'Three screens, one after another: the rep tells Rumbo what they’re after in six steps; candidates land in “To review” with their verdict; and opening one shows why it got in. Only approving writes to HubSpot. Tap a step to jump.' }}
+        title={{ es: 'Agente 1 · Un radar que recorre los países', en: 'Agent 1 · A radar sweeping the countries' }}
+        body={{ es: 'Tres pantallas, una tras otra: el radar de Rumbo recorre los países y marca las empresas que encajan, primero en las fuentes gratis; las candidatas llegan a «Por revisar» con su veredicto; y al abrir una se ve por qué entró. Solo al aprobar se escribe en HubSpot. Toca un paso para saltar.', en: 'Three screens, one after another: Rumbo’s radar sweeps the countries and marks the companies that fit, free sources first; candidates land in “To review” with their verdict; and opening one shows why it got in. Only approving writes to HubSpot. Tap a step to jump.' }}
       >
         <SearchReview />
       </Section>
@@ -50,7 +50,7 @@ export function SellUpForm() {
       <Section
         n="5.6"
         title={{ es: 'Uso y efectividad, medidos', en: 'Usage and effectiveness, measured' }}
-        body={{ es: 'Cada corrida deja su costo, sus consultas y su resultado. Así se sabe cuánto cuesta una empresa aprobada, no solo cuánto se gastó.', en: 'Every run logs its cost, queries and outcome. So you know what an approved company costs, not just what was spent.' }}
+        body={{ es: 'Cada corrida deja su costo, sus consultas y su resultado. El mapa de uso cruza eso por rol: quién busca, quién aprueba y cuánto cuesta cada empresa aprobada, no solo cuánto se gastó.', en: 'Every run logs its cost, queries and outcome. The usage map crosses that by role: who searches, who approves and what each approved company costs, not just what was spent.' }}
       >
         <UsageMetrics />
       </Section>
