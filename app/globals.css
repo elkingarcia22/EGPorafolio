@@ -207,3 +207,8 @@ html[data-motion='reduced'] [data-slot-in] { animation: none; }
 @keyframes orbit { to { transform: rotate(360deg); } }
 html[data-motion='reduced'] [class*='animate-[wave'], html[data-motion='reduced'] [class*='animate-[orbit'] { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { [class*='animate-[wave'], [class*='animate-[orbit'] { animation: none !important; } }
+/* La cortina avisa que el caso sigue cargando: una línea que recorre el borde inferior */
+@keyframes curtain-load {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}

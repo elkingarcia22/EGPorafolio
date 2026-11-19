@@ -9,6 +9,9 @@ import { useA11y } from '@/lib/a11y'
  * elementos interactivos. Elementos con data-cursor="Texto" muestran
  * una etiqueta. Solo en dispositivos con puntero fino.
  */
+/** La cortina de transición marca el documento mientras tapa la página (ver page-transition). */
+const isTransitioning = (): boolean => document.documentElement.dataset.transitioning === 'true'
+
 export function Cursor() {
   const { reducedMotion } = useA11y()
   const dotRef = useRef<HTMLDivElement>(null)
@@ -47,19 +50,28 @@ export function Cursor() {
       badgeX(e.clientX)
       badgeY(e.clientY)
     }
-    const onOver = (e: PointerEvent) => {
-      const target = (e.target as HTMLElement).closest<HTMLElement>('a, button, [data-cursor], input, textarea')
-      const text = target?.dataset.cursor ?? ''
+    const apply = (target: HTMLElement | null, text: string) => {
       if (text) setLabel(text)
       // Con etiqueta: un disco sólido que se lee sobre cualquier fondo; el anillo y el punto se esconden.
       gsap.to(ring, { scale: text ? 0.4 : target ? 1.8 : 1, autoAlpha: text ? 0 : 1, duration: 0.4, ease: 'expo.out', overwrite: 'auto' })
       gsap.to(dot, { autoAlpha: text ? 0 : 1, duration: 0.2, overwrite: 'auto' })
       gsap.to(badgeInner, { scale: text ? 1 : 0, autoAlpha: text ? 1 : 0, duration: text ? 0.5 : 0.3, ease: 'expo.out', overwrite: 'auto' })
     }
+    const onOver = (e: PointerEvent) => {
+      if (isTransitioning()) return
+      const target = (e.target as HTMLElement).closest<HTMLElement>('a, button, [data-cursor], input, textarea')
+      apply(target, target?.dataset.cursor ?? '')
+    }
+    // Al seguir un enlace, la cortina tapa la página: el cursor vuelve a su forma simple.
+    const onClick = (e: MouseEvent) => {
+      if (isTransitioning()) apply(null, '')
+    }
 
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerover', onOver)
+    window.addEventListener('click', onClick)
     return () => {
+      window.removeEventListener('click', onClick)
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerover', onOver)
       document.documentElement.classList.remove('has-cursor')
