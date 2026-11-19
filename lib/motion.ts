@@ -28,6 +28,27 @@ export function scrollToTop(): void {
   else window.scrollTo(0, 0)
 }
 
+/**
+ * Salta, sin animación, a la sección del ancla de la URL (`/#work`). Devuelve false si no hay ancla
+ * o la sección no existe. Se repite un momento después porque el hero fijado cambia el alto de la
+ * página cuando termina de montarse.
+ */
+export function jumpToHash(): boolean {
+  const hash = window.location.hash
+  if (hash.length < 2) return false
+  const jump = () => {
+    const el = document.querySelector<HTMLElement>(hash)
+    if (!el) return false
+    if (lenisInstance) lenisInstance.scrollTo(el, { offset: -40, immediate: true, force: true })
+    else el.scrollIntoView()
+    return true
+  }
+  if (!jump()) return false
+  window.setTimeout(jump, 120)
+  window.setTimeout(jump, 600)
+  return true
+}
+
 export function scrollToTarget(target: string | HTMLElement): void {
   if (lenisInstance) {
     lenisInstance.scrollTo(target, { offset: -40, duration: 1.4 })

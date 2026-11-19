@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { gsap, scrollToTop } from '@/lib/motion'
+import { gsap, jumpToHash, scrollToTop } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 
 type Navigate = (href: string, label?: string) => void
@@ -78,9 +78,9 @@ export function TransitionOverlay() {
     }
   }, [navigate])
 
-  // Al cambiar de ruta: arriba del todo y retirar la cortina.
+  // Al cambiar de ruta: a la sección del ancla (Proyectos → /#work) o arriba del todo, y retirar la cortina.
   useEffect(() => {
-    scrollToTop()
+    if (!jumpToHash()) scrollToTop()
     clearTimers()
     setIsWaiting(false)
     if (!isCovering.current || !rootRef.current) return
