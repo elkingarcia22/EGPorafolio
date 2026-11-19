@@ -3,6 +3,7 @@
 import { useLocale } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { CascadeBoard } from './sketch-cascade-board'
+import { RumboSketchBoard } from './sketch-rumbo-board'
 
 /** Una celda dibujada de la matriz decisor × canal. */
 function Cell({ state }: { state: 'done' | 'empty' | 'review' }) {
@@ -31,6 +32,13 @@ export function SellUpSketches() {
         })}
       </p>
       <CascadeBoard />
+      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
+        {t({
+          es: 'Los tres agentes necesitaban una sola voz. Así dibujé a Rumbo: su marca, una conversación en vez de un formulario y un solo asistente para toda la cadena, construido en cuatro días de octubre.',
+          en: 'The three agents needed a single voice. This is how I drew Rumbo: its mark, a conversation instead of a form, and one assistant for the whole chain, built in four days of October.',
+        })}
+      </p>
+      <RumboSketchBoard />
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
         {t({
           es: 'Y en cada punto donde la cadena se detiene, dibujé la bandeja donde decide la persona.',
