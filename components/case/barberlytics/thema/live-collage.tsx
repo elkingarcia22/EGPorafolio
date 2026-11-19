@@ -1,6 +1,6 @@
 'use client'
 
-import { BarberSelect, ConfirmWithToast, PickingCalendar, RisingKpi, Segmented, TimeSlots, Toggles, TypingSearch } from './live-pieces'
+import { AppointmentCard, BarberSelect, ClipperMini, ConfirmWithToast, PickingCalendar, RisingKpi, Segmented, TimeSlots, Toggles, TypingSearch } from './live-pieces'
 
 /**
  * Collage de componentes en uso: piezas reales del sistema (recreadas en vivo)
@@ -8,21 +8,26 @@ import { BarberSelect, ConfirmWithToast, PickingCalendar, RisingKpi, Segmented, 
  * En celular se ordenan en columna.
  */
 const PIECES = [
-  { C: TypingSearch, pos: 'md:left-[3%] md:top-[6%]', tilt: 'md:-rotate-2', float: 'collage-float-a' },
-  { C: PickingCalendar, pos: 'md:left-[34%] md:top-[2%]', tilt: 'md:rotate-1', float: 'collage-float-b' },
-  { C: RisingKpi, pos: 'md:right-[3%] md:top-[5%]', tilt: 'md:rotate-2', float: 'collage-float-c' },
-  { C: TimeSlots, pos: 'md:left-[5%] md:top-[44%]', tilt: 'md:rotate-1', float: 'collage-float-c' },
-  { C: Segmented, pos: 'md:left-[33%] md:bottom-[8%]', tilt: 'md:-rotate-1', float: 'collage-float-a' },
-  { C: BarberSelect, pos: 'md:right-[24%] md:top-[46%]', tilt: 'md:-rotate-2', float: 'collage-float-b' },
-  { C: Toggles, pos: 'md:right-[2%] md:top-[50%]', tilt: 'md:rotate-2', float: 'collage-float-a' },
-  { C: ConfirmWithToast, pos: 'md:left-[8%] md:bottom-[3%]', tilt: 'md:rotate-0', float: 'collage-float-c' },
+  // Columna izquierda
+  { C: TypingSearch, pos: 'md:left-[3%] md:top-[3%]', tilt: 'md:-rotate-2', float: 'collage-float-a' },
+  { C: TimeSlots, pos: 'md:left-[4%] md:top-[29%]', tilt: 'md:rotate-1', float: 'collage-float-c' },
+  { C: Toggles, pos: 'md:left-[2%] md:top-[52%]', tilt: 'md:-rotate-1', float: 'collage-float-b' },
+  { C: ConfirmWithToast, pos: 'md:left-[5%] md:bottom-[3%]', tilt: 'md:rotate-0', float: 'collage-float-c' },
+  // Columna central
+  { C: PickingCalendar, pos: 'md:left-[35%] md:top-[2%]', tilt: 'md:rotate-1', float: 'collage-float-b' },
+  { C: AppointmentCard, pos: 'md:left-[34%] md:top-[48%]', tilt: 'md:-rotate-1', float: 'collage-float-a' },
+  { C: Segmented, pos: 'md:left-[37%] md:bottom-[6%]', tilt: 'md:rotate-1', float: 'collage-float-c' },
+  // Columna derecha
+  { C: RisingKpi, pos: 'md:right-[3%] md:top-[3%]', tilt: 'md:rotate-2', float: 'collage-float-c' },
+  { C: ClipperMini, pos: 'md:right-[2%] md:top-[31%]', tilt: 'md:-rotate-1', float: 'collage-float-a' },
+  { C: BarberSelect, pos: 'md:right-[5%] md:top-[56%]', tilt: 'md:rotate-1', float: 'collage-float-b' },
 ] as const
 
 export function LiveCollage() {
   return (
     <div
       data-reveal="device"
-      className="relative overflow-hidden rounded-3xl p-6 md:h-[clamp(640px,58vw,820px)] md:p-0"
+      className="relative overflow-hidden rounded-3xl p-6 md:h-[clamp(820px,70vw,980px)] md:p-0"
       style={{
         background:
           'radial-gradient(circle at 25% 20%, rgba(217,179,106,0.28), transparent 45%), radial-gradient(circle at 80% 80%, rgba(46,156,176,0.22), transparent 50%), linear-gradient(160deg, #24201a, #0f0e0c 70%)',

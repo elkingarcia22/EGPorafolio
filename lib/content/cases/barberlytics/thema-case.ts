@@ -59,31 +59,35 @@ export const THEMA_CASE = {
     theme('premium-jade', 'Premium Jade', '#7FD8AF', '#7C6CF0'),
   ] satisfies ThemeShot[],
 
-  /** 01 · Los puntos */
+  /** 01 · Los puntos: la personalización como punto de partida */
   dots: {
-    kicker: { es: 'Cada pantalla nueva inventaba sus propias reglas.', en: 'Every new screen invented its own rules.' },
+    kicker: { es: 'Una barbería no quiere usar un software: quiere sentir que es suyo.', en: 'A barbershop doesn’t want to use software: it wants to feel it’s theirs.' },
     lead: {
-      es: 'Thema empezó con un legado de pantallas HTML de otra plataforma y cuatro fuentes de tokens que se contradecían. Al mismo tiempo, cada vez más pantallas las armaban agentes de IA, que sin reglas claras escribían colores a mano o traían otra librería. Y la marca tenía su propio problema: no tenía isotipo y su oro casi no se leía sobre blanco.',
-      en: 'Thema started from a legacy of HTML screens from another platform and four token sources that contradicted each other. Meanwhile, more and more screens were built by AI agents that, without clear rules, hand-wrote colors or pulled in another library. And the brand had its own problem: no isotype, and its gold barely read on white.',
+      es: 'Barberlytics lo usan barberías con identidades muy distintas: la clásica de oro y carbón, la de barrio en rojo, la moderna en verde. Un producto genérico se sentía prestado. Buscábamos que cada barbería pudiera personalizarlo —elegir su tema o sacarlo de su propio logo— para que lo sintiera parte de su negocio, le diera más pertenencia y lo usara más. Y eso tenía que funcionar sin que nadie, ni una persona ni una IA, pudiera romperlo.',
+      en: 'Barberlytics is used by shops with very different identities: the classic gold-and-charcoal one, the neighborhood one in red, the modern one in green. A generic product felt borrowed. We wanted each shop to personalize it —pick its theme or pull it from its own logo— so it felt part of their business, gave them more belonging and got used more. And it had to work without anyone, person or AI, being able to break it.',
     },
     seen: [
-      { title: { es: 'Cuatro verdades distintas', en: 'Four different truths' }, body: { es: 'Starter, comparativo, legado y sistema oficial: cada uno con su fondo, su azul y su radio.', en: 'Starter, comparison, legacy and the official system: each with its own background, blue and radius.' } },
-      { title: { es: 'La IA no sabía qué existía', en: 'The AI didn’t know what existed' }, body: { es: 'Sin un catálogo legible, inventaba una tarjeta nueva en cada pantalla en lugar de usar la que ya estaba.', en: 'Without a readable catalog it invented a new card on every screen instead of using the existing one.' } },
-      { title: { es: 'Una marca que se rompía en chico', en: 'A brand that broke when small' }, body: { es: 'Sin isotipo, a 32 o 16 px no había nada que poner en el menú ni en la pestaña.', en: 'Without an isotype, at 32 or 16 px there was nothing to put in the rail or the tab.' } },
+      { title: { es: 'Cada barbería tiene su marca', en: 'Every shop has its brand' }, body: { es: 'Colores, logo y estilo propios. Con la app de otro color, el dueño la sentía ajena y sus clientes también.', en: 'Its own colors, logo and style. With an app in someone else’s color, owners felt it foreign, and so did their clients.' } },
+      { title: { es: 'Personalizar no podía romper nada', en: 'Personalizing couldn’t break anything' }, body: { es: 'Si cada barbería elige su color, el contraste tiene que seguir pasando y «éxito» o «error» tienen que seguir significando lo mismo.', en: 'If every shop picks its color, contrast must still pass and “success” or “error” must still mean the same.' } },
+      { title: { es: 'Y por dentro, cuatro verdades', en: 'And inside, four truths' }, body: { es: 'Cuatro fuentes de tokens en conflicto y agentes de IA que inventaban piezas en cada pantalla.', en: 'Four conflicting token sources and AI agents inventing pieces on every screen.' } },
     ] satisfies TitledText[],
     stats: [
-      { value: '4', label: { es: 'fuentes de tokens en conflicto', en: 'conflicting token sources' } },
-      { value: '21', label: { es: 'componentes críticos que faltaban', en: 'critical components missing' } },
-      { value: '27', label: { es: 'componentes aprobados al empezar', en: 'components approved at the start' } },
-      { value: '0', label: { es: 'isotipo en la marca', en: 'isotypes in the brand' } },
+      { value: '10', label: { es: 'temas listos para elegir', en: 'ready-made themes' } },
+      { value: '1', label: { es: 'tema propio, sacado del logo', en: 'own theme, taken from the logo' } },
+      { value: '1', label: { es: 'color basta para cambiar todo', en: 'color is enough to change everything' } },
+      { value: '4', label: { es: 'fuentes de tokens en conflicto al empezar', en: 'conflicting token sources at the start' } },
     ] satisfies CaseStat[],
   },
 
   /** 02 · Patrones: inventario, matriz de tokens, lo prohibido y la auditoría */
   patterns: {
     lead: {
-      es: 'Antes de diseñar una sola pieza puse todo sobre la mesa: qué tenía el legado, qué decía cada fuente de tokens y qué no queríamos nunca. De cada token salió una decisión con su motivo.',
-      en: 'Before designing a single piece I put everything on the table: what the legacy had, what each token source said and what we never wanted. Every token got a decision with its reason.',
+      es: 'El patrón que más se repetía: cada barbería quería verse a sí misma en la app. La respuesta fue un sistema de temas donde basta un color —elegido o sacado del logo— para que todo el producto cambie de identidad. Pruébalo: elige un tema o tu propio color.',
+      en: 'The most repeated pattern: every shop wanted to see itself in the app. The answer was a theme system where one color —picked or pulled from the logo— is enough for the whole product to change identity. Try it: pick a theme or your own color.',
+    },
+    matrixLead: {
+      es: 'Por dentro, antes de diseñar una sola pieza, puse todo sobre la mesa: qué decía cada fuente de tokens y qué no queríamos nunca. De cada token salió una decisión con su motivo.',
+      en: 'Inside, before designing a single piece, I put everything on the table: what each token source said and what we never wanted. Every token got a decision with its reason.',
     },
     columns: [
       {
@@ -128,6 +132,7 @@ export const THEMA_CASE = {
       },
     ],
     insights: [
+      { es: 'Personalizar genera pertenencia: cuando la app tiene los colores de la barbería, el dueño la muestra y la usa como suya.', en: 'Personalizing builds belonging: when the app has the shop’s colors, owners show it off and use it as theirs.' },
       { es: 'Un tema no debía ser una paleta entera: con un color primario se podía calcular todo lo demás.', en: 'A theme didn’t have to be a whole palette: from one primary everything else could be computed.' },
       { es: 'Lo que tiene significado —éxito, error, aviso— no cambia con el tema.', en: 'Whatever carries meaning —success, error, warning— doesn’t change with the theme.' },
       { es: 'Si la IA arma pantallas, el sistema tiene que poder leerse y verificarse solo.', en: 'If AI builds screens, the system has to be readable and self-checking.' },
@@ -137,8 +142,8 @@ export const THEMA_CASE = {
   /** 03 · La idea */
   idea: {
     hmw: {
-      es: '¿Cómo podríamos tener un sistema que cambie de identidad con un solo color, y que ni una persona ni una IA puedan romper sin darse cuenta?',
-      en: 'How might we have a system that changes identity with one color, and that neither a person nor an AI can break without noticing?',
+      es: '¿Cómo podríamos hacer que cada barbería sienta la app como suya con un solo color, sin que una persona o una IA puedan romperla?',
+      en: 'How might we make every shop feel the app is theirs with a single color, without a person or an AI being able to break it?',
     },
     principles: [
       { title: { es: 'Un primario, un tema entero', en: 'One primary, a whole theme' }, body: { es: 'Hover, superficies, modo oscuro y el gradiente de la IA se derivan. Añadir un tema es añadir una línea.', en: 'Hover, surfaces, dark mode and the AI gradient are derived. Adding a theme is adding one line.' } },

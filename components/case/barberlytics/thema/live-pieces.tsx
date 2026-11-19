@@ -237,3 +237,59 @@ export function Segmented() {
     </div>
   )
 }
+
+/* ── Tarjeta de cita que cambia de estado ─────────────────────────────── */
+
+const STATUS = [
+  { label: 'Confirmada', color: '#17B16D' },
+  { label: 'En la silla', color: '#d9b36a' },
+  { label: 'Pagada', color: '#3e8ef7' },
+]
+
+export function AppointmentCard() {
+  const tick = useTick(1700)
+  const status = STATUS[tick % STATUS.length]
+  return (
+    <div className={`${CARD} w-[280px]`}>
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2e9cb0]/30 text-xs font-semibold">MR</span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium">Marcela Rojas</p>
+          <p className="text-[11px] text-[#efe9dd]/55">Corte y barba · 45 min</p>
+        </div>
+        <span className="rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors duration-500" style={{ background: `${status.color}26`, color: status.color }}>{status.label}</span>
+      </div>
+      <div className="mt-4 flex items-center justify-between border-t border-[#efe9dd]/10 pt-3 text-xs">
+        <span className="text-[#efe9dd]/60">Jue 19 · 5:00 p. m.</span>
+        <span className="font-semibold">US$ 42</span>
+      </div>
+    </div>
+  )
+}
+
+/* ── Sugerencia de Clipper escribiéndose ──────────────────────────────── */
+
+const SUGGESTION = 'Daniela tiene 3 huecos esta tarde. ¿Aviso a la lista de espera?'
+
+export function ClipperMini() {
+  const tick = useTick(70)
+  const cycle = SUGGESTION.length + 40
+  const shown = SUGGESTION.slice(0, Math.min(SUGGESTION.length, tick % cycle))
+  return (
+    <div className={`${CARD} w-[280px]`}>
+      <div className="mb-2 flex items-center gap-2 text-xs">
+        <span className="h-5 w-5 rounded-full" style={{ background: 'repeating-linear-gradient(135deg,#f0ce86 0 4px,#2e9cb0 4px 8px)' }} aria-hidden="true" />
+        <span className="font-semibold">Clipper</span>
+        <span className="text-[#efe9dd]/40">· sugerencia</span>
+      </div>
+      <p className="min-h-[3.2em] text-xs leading-relaxed text-[#efe9dd]/85">
+        {shown}
+        <span className="ml-0.5 inline-block h-3 w-px animate-pulse bg-[#efe9dd] align-middle" aria-hidden="true" />
+      </p>
+      <div className="mt-3 flex gap-2 text-[11px]">
+        <span className="rounded-lg px-2.5 py-1 font-semibold text-[#1c1915]" style={{ background: GOLD }}>Avisar</span>
+        <span className="rounded-lg border border-[#efe9dd]/15 px-2.5 py-1 text-[#efe9dd]/70">Ahora no</span>
+      </div>
+    </div>
+  )
+}

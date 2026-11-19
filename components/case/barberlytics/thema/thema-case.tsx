@@ -5,7 +5,7 @@ import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
 import { CaseShell } from '../shared/case-shell'
 import { Dots, Idea } from '../shared/sections'
 import { ThemaHero } from './thema-hero'
-import { LogoBoard, LogoConstructionBoard, SystemBoard } from './thema-sketches'
+import { LogoBoard, LogoConstruction, SystemBoard } from './thema-sketches'
 import { TokenMatrix } from './token-matrix'
 import { ThemaForm } from './thema-form'
 import { ThemaAi, ThemaImpact } from './thema-ai-impact'
@@ -22,7 +22,7 @@ function ThemaSketches() {
         })}
       </p>
       <LogoBoard />
-      <LogoConstructionBoard />
+      <LogoConstruction />
       <SystemBoard />
     </div>
   )

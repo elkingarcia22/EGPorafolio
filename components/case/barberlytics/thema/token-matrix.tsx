@@ -2,6 +2,7 @@
 
 import { useLocale, type L } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
+import { ThemePlayground } from './theme-playground'
 
 /** Filas reales de docs/TOKEN_DECISION_MATRIX.md: lo que decía cada fuente y lo que se decidió. */
 const SOURCES = ['Starter', 'Comparativo', 'Legado', 'Oficial'] as const
@@ -40,6 +41,12 @@ export function TokenMatrix() {
   return (
     <div>
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(patterns.lead)}</p>
+      <div className="mt-10">
+        <ThemePlayground />
+      </div>
+
+      <h3 data-reveal="mask" className="mb-4 mt-[clamp(4rem,3rem+4vw,6rem)] text-[clamp(1.35rem,1rem+1vw,1.9rem)]">{t({ es: 'Por dentro: una decisión por token', en: 'Inside: one decision per token' })}</h3>
+      <p data-reveal className="max-w-[62ch] leading-relaxed opacity-80">{t(patterns.matrixLead)}</p>
 
       <div data-reveal="device" className="mt-10 overflow-x-auto rounded-2xl border border-fg/15">
         <table className="w-full min-w-[640px] text-left text-sm">

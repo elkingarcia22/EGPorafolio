@@ -149,3 +149,24 @@ html[data-motion='reduced'] .collage-float-c { animation: none; }
   from { left: 0.25rem; }
   to { left: calc(100% - 1.75rem); }
 }
+@keyframes bar-rise {
+  from { transform: scaleY(0.15); opacity: 0.4; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes type-in {
+  from { opacity: 0; filter: blur(14px); transform: translateY(18px); }
+  to { opacity: 1; filter: none; transform: none; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+/* Las muestras animadas de los casos quedan quietas con «reducir movimiento». */
+@media (prefers-reduced-motion: reduce) {
+  [class*='animate-[marquee'], [class*='animate-[motion-run'], [class*='animate-[bar-rise'], [class*='animate-[type-in'], [class*='animate-[ramp-in'] { animation: none !important; }
+}
+html[data-motion='reduced'] [class*='animate-[marquee'],
+html[data-motion='reduced'] [class*='animate-[motion-run'],
+html[data-motion='reduced'] [class*='animate-[bar-rise'],
+html[data-motion='reduced'] [class*='animate-[type-in'],
+html[data-motion='reduced'] [class*='animate-[ramp-in'] { animation: none !important; }

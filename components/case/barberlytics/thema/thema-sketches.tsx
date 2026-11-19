@@ -1,7 +1,7 @@
 'use client'
 
 import { useLocale, type L } from '@/lib/i18n'
-import { Arrows, Bar, Board, Doodle, Guides, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
+import { Arrows, Bar, Board, Doodle, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 
 /* ── Dibujos ─────────────────────────────────────────────────────────── */
 
@@ -13,7 +13,6 @@ const SCISSORS = [
 ]
 const CHART = ['M12,12 L12,86 L90,86', 'M24,86 L24,62', 'M40,86 L40,52', 'M56,86 L56,40', 'M72,86 L72,30']
 const CHART_ARROW = ['M18,60 L38,48 L52,54 L84,20', 'M70,20 L84,20 L84,34']
-const LOGO_LINE = ['M4,30 L58,30 L66,46 L96,6', 'M84,6 L96,6 L96,18']
 
 /** Las seis direcciones del logo, dibujadas. */
 const DIRECTIONS: readonly { name: L; note: L; paths: readonly string[]; accent?: readonly string[] }[] = [
@@ -47,13 +46,9 @@ export function LogoBoard() {
         <Hand size={1.7} className="mt-2 block text-center">{s('métricas', 'metrics')}</Hand>
       </Pin>
       <Pin x={512} y={150}><Hand size={5}>=</Hand></Pin>
-      <Pin x={600} y={128} w={430}>
-        <span className="block font-bold leading-none" style={{ fontSize: '4.6cqw', fontFamily: 'var(--font-hand)' }}>
-          Barber<span className="text-[#c8862e]">lytics</span>
-        </span>
-        <div className="ml-[45%] w-[52%]">
-          <Doodle paths={[LOGO_LINE[0]]} accent={[LOGO_LINE[1]]} viewBox="0 0 100 50" />
-        </div>
+      <Pin x={590} y={150} w={460}>
+        {/* eslint-disable-next-line @next/next/no-img-element -- SVG oficial del logo */}
+        <img src="/cases/barberlytics/logo-gold-ink.svg" alt="Barberlytics" className="block h-auto w-full" />
       </Pin>
       <Pin x={1090} y={84} w={340} rotate={2}>
         <Sticky color="pink">{s('Hoy: sin isotipo, el oro #F0B669 da 1.8:1 sobre blanco y el gráfico pesa distinto que la letra.', 'Today: no isotype, the gold #F0B669 gives 1.8:1 on white and the mark weighs differently from the type.')}</Sticky>
@@ -186,87 +181,59 @@ export function SystemBoard() {
   )
 }
 
-/* ── Tablero 3 · Construcción del logo (SVG oficial y sus medidas reales) ─ */
+/* ── Construcción del logo (SVG oficial y sus medidas reales) ─────────── */
 
-/** Medidas del logo (src/components/ui/barberlyticsLogoPaths.ts), en unidades del SVG. */
+/** Caja y medidas del logo (src/components/ui/barberlyticsLogoPaths.ts), en unidades del SVG. */
 const LOGO = { x: 44.13, y: 135.57, w: 452.7, h: 102 }
-const METRICS = [
-  { key: 'capTop', y: 137.51, label: { es: 'tope de mayúsculas', en: 'cap height' } },
-  { key: 'xHeight', y: 152.2, label: { es: 'minúsculas = punta de la flecha', en: 'x-height = arrow tip' }, accent: true },
-  { key: 'baseline', y: 188.27, label: { es: 'línea base', en: 'baseline' } },
-  { key: 'descender', y: 201.83, label: { es: 'descendente de la «y»', en: '“y” descender' } },
-  { key: 'pulse', y: 237.57, label: { es: 'fondo del pulso', en: 'pulse bottom' } },
-] as const
-const PULSE_START = 368.12
-const LOGO_X = 188.27 - 137.51
+const GUIDES: readonly { y: number; label: L; strong?: boolean }[] = [
+  { y: 137.51, label: { es: 'mayúsculas · x', en: 'cap height · x' } },
+  { y: 152.2, label: { es: 'minúsculas · punta de la flecha', en: 'x-height · arrow tip' }, strong: true },
+  { y: 188.27, label: { es: 'línea base', en: 'baseline' } },
+  { y: 237.57, label: { es: 'fondo del pulso · −1x', en: 'pulse bottom · −1x' } },
+]
+const pctY = (y: number) => ((y - LOGO.y) / LOGO.h) * 100
 
-/** Ancho de diseño del tablero de construcción */
-const BOARD_W = 1500
-
-/** Posición del logo en el tablero (px de diseño). */
-const PLACE = { x: 170, y: 190, w: 960 }
-const scale = PLACE.w / LOGO.w
-const toY = (y: number) => PLACE.y + (y - LOGO.y) * scale
-const toX = (x: number) => PLACE.x + (x - LOGO.x) * scale
-
-export function LogoConstructionBoard() {
+/**
+ * El logo oficial («lytics» y la flecha en dorado) sobre un panel oscuro, con
+ * sus líneas de construcción: todo se mide en «x», la altura de la B.
+ */
+export function LogoConstruction() {
   const { t } = useLocale()
-  const s = (es: string, en: string): string => t({ es, en } satisfies L)
-  const pad = LOGO_X * scale
-  const height = LOGO.h * scale
-  const palette = [
-    { name: s('Carbón', 'Charcoal'), hex: '#171717' },
-    { name: s('Oro anterior · 1.8:1 ✕', 'Old gold · 1.8:1 ✕'), hex: '#F0B669' },
-    { name: s('Oro tinta · claro', 'Ink gold · light'), hex: '#A86F1F' },
-    { name: s('Gradiente de IA', 'AI gradient'), hex: 'linear-gradient(90deg,#F0CE86,#DE8C3A,#2E9CB0)' },
-  ]
   return (
-    <Board title={s('Construcción · el logo oficial y sus medidas', 'Construction · the official logo and its measures')} w={1500} h={760} label={s('Logo oficial con sus líneas de construcción', 'Official logo with its construction lines')}>
-      <Pin x={40} y={24}>
-        <Hand size={2.4} className="font-bold">{s('Todo el aire se mide en «x»: la altura de la B', 'All space is measured in “x”: the height of the B')}</Hand>
-      </Pin>
-
-      {/* Espacio de respeto: 1x alrededor */}
-      <Pin x={PLACE.x - pad} y={PLACE.y - pad} w={PLACE.w + pad * 2}>
-        <div className="rounded-[0.4cqw] border-[0.12cqw] border-dashed border-[#e8743b]/70" style={{ height: `${((height + pad * 2) / BOARD_W) * 100}cqw` }} />
-      </Pin>
-      <Pin x={PLACE.x} y={PLACE.y} w={PLACE.w}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- SVG oficial, se muestra tal cual */}
-        <img src="/cases/barberlytics/logo-official-ink.svg" alt={s('Logo oficial de Barberlytics', 'Official Barberlytics logo')} className="block h-auto w-full" />
-      </Pin>
-      <Guides
-        lines={[
-          ...METRICS.map((m) => ({ d: `M${PLACE.x - 40},${toY(m.y)} L${PLACE.x + PLACE.w + 30},${toY(m.y)}`, accent: 'accent' in m && m.accent })),
-          { d: `M${toX(PULSE_START)},${toY(LOGO.y) - 30} L${toX(PULSE_START)},${toY(237.57) + 30}` },
-        ]}
-      />
-      {METRICS.map((m) => (
-        <Pin key={m.key} x={PLACE.x + PLACE.w + 40} y={toY(m.y) - 14} w={300}>
-          <Hand size={1.35} className={'accent' in m && m.accent ? 'font-bold text-[#c8642b]' : 'opacity-75'}>{t(m.label)}</Hand>
-        </Pin>
-      ))}
-      <Pin x={toX(PULSE_START) - 70} y={toY(237.57) + 34} w={190}>
-        <Hand size={1.3} className="opacity-75">{s('el pulso nace bajo la «i»', 'the pulse starts under the “i”')}</Hand>
-      </Pin>
-      <Pin x={PLACE.x - pad - 4} y={PLACE.y - pad - 34} w={260}>
-        <Hand size={1.3} className="text-[#c8642b]">{s('1x de aire alrededor', '1x clear space around')}</Hand>
-      </Pin>
-
-      {/* Paleta real del logo */}
-      <Pin x={40} y={600}>
-        <Hand size={1.8} className="font-bold">{s('La paleta', 'The palette')}</Hand>
-      </Pin>
-      {palette.map((p, i) => (
-        <Pin key={p.name} x={40 + i * 260} y={650} w={230}>
-          <span className="flex items-center gap-[0.6cqw]">
-            <span className="h-[3cqw] w-[3cqw] shrink-0 rounded-[0.5cqw] border-[0.12cqw] border-[#2a2d33]" style={{ background: p.hex }} />
-            <Hand size={1.35}>{p.name}</Hand>
+    <figure data-reveal="device" className="overflow-hidden rounded-2xl bg-[#1a1816] px-[6%] py-[7%] text-[#efe9dd] ring-1 ring-white/10">
+      <figcaption className="mono-label mb-10 flex items-center justify-between text-[#d9b36a]">
+        <span>{t({ es: 'Construcción · logo oficial', en: 'Construction · official logo' })}</span>
+        <span className="text-white/40">x = {t({ es: 'altura de la B', en: 'height of the B' })}</span>
+      </figcaption>
+      <div className="relative mr-[24%]" style={{ aspectRatio: `${LOGO.w} / ${LOGO.h}` }}>
+        {/* Guías */}
+        <svg viewBox={`${LOGO.x} ${LOGO.y} ${LOGO.w} ${LOGO.h}`} preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
+          {GUIDES.map((g) => (
+            <path key={g.y} d={`M${LOGO.x - 14},${g.y} L${LOGO.x + LOGO.w + 110},${g.y}`} stroke={g.strong ? '#d9b36a' : '#efe9dd'} strokeOpacity={g.strong ? 0.7 : 0.25} strokeWidth="0.7" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+          ))}
+          <path d={`M${LOGO.x - 9},137.51 L${LOGO.x - 9},188.27`} stroke="#d9b36a" strokeWidth="2" vectorEffect="non-scaling-stroke" pathLength={1} strokeDasharray={1} data-draw="" />
+        </svg>
+        <span className="absolute -left-[5%] font-mono text-xs text-[#d9b36a]" style={{ top: `${(pctY(137.51) + pctY(188.27)) / 2 - 3}%` }}>x</span>
+        {/* eslint-disable-next-line @next/next/no-img-element -- SVG oficial del logo, se muestra tal cual */}
+        <img src="/cases/barberlytics/logo-gold-paper.svg" alt={t({ es: 'Logo oficial de Barberlytics', en: 'Official Barberlytics logo' })} className="relative block h-auto w-full" />
+        {GUIDES.map((g) => (
+          <span key={g.y} className={`absolute left-[calc(100%+4%)] w-[32%] -translate-y-1/2 whitespace-nowrap text-[clamp(0.6rem,0.5rem+0.4vw,0.85rem)] ${g.strong ? 'text-[#d9b36a]' : 'text-white/45'}`} style={{ top: `${pctY(g.y)}%` }}>
+            {t(g.label)}
           </span>
-        </Pin>
-      ))}
-      <Pin x={1120} y={600} w={330} rotate={2}>
-        <Sticky color="yellow" small>{s('Un solo trazo de 0,14 em, puntas redondas: baja a 45° y sube a 67°.', 'One 0.14 em stroke, round caps: down at 45°, up at 67°.')}</Sticky>
-      </Pin>
-    </Board>
+        ))}
+      </div>
+      <div className="mt-14 grid gap-6 border-t border-white/10 pt-8 sm:grid-cols-3">
+        {[
+          { k: { es: 'Un solo trazo', en: 'One stroke' }, v: { es: '0,14 em, puntas redondas', en: '0.14 em, round caps' } },
+          { k: { es: 'Ángulos', en: 'Angles' }, v: { es: 'baja a 45° · sube a 67°', en: 'down at 45° · up at 67°' } },
+          { k: { es: 'Aire', en: 'Clear space' }, v: { es: '1x alrededor, siempre', en: '1x around, always' } },
+        ].map((item) => (
+          <div key={item.k.es}>
+            <p className="mono-label text-white/45">{t(item.k)}</p>
+            <p className="mt-1 text-lg">{t(item.v)}</p>
+          </div>
+        ))}
+      </div>
+    </figure>
   )
 }
