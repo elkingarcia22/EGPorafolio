@@ -37,15 +37,21 @@ function distance(a: string, b: string): number {
 }
 
 /** ¿Esta palabra de la pregunta es la clave, con un error de tipeo o una conjugación cercana? */
+/** Palabras comunes que solo valen exactas: «gente» no es «agente», «tienes» no es «tiene». */
+const EXACT_ONLY = new Set(['gente', 'tienes', 'tiene', 'haces', 'hacer', 'como', 'cuando', 'donde', 'para', 'sobre', 'todo', 'cual', 'esta', 'estas', 'eres', 'mas', 'puedes', 'quieres', 'usas', 'tus', 'que'])
+
 function wordMatches(token: string, key: string): boolean {
   if (token === key) return true
+  if (EXACT_ONLY.has(token)) return false
   if (key.length <= 3) return false // ia, ui, cv, arr…: solo exactas
   if (token.length >= 4 && (token.startsWith(key) || key.startsWith(token)) && Math.abs(token.length - key.length) <= 3) return true
   // Misma raíz: «bocetación» y «bocetas», «prototipado» y «prototipos».
   let common = 0
   while (common < token.length && common < key.length && token[common] === key[common]) common++
   if (common >= 5 && common >= key.length - 2) return true
-  return key.length >= 5 && distance(token, key) <= (key.length >= 8 ? 2 : 1)
+  // Un error de tipeo; dos solo en palabras largas del mismo largo («prospectos» no es «proyectos»).
+  const d = distance(token, key)
+  return key.length >= 5 && (d <= 1 || (d === 2 && key.length >= 9 && token.length === key.length))
 }
 
 function keyMatches(q: string, tokens: readonly string[], rawKey: string): boolean {
@@ -82,13 +88,21 @@ function score(q: string, tokens: readonly string[]): { topic: Topic; points: nu
 
 const withExtras = (text: string, topic: Topic, locale: Locale) => `${text}${topic.extras ? `\n\n${topic.extras[locale]}` : ''}`
 
-export function answerQuestion(question: string, locale: Locale, memory: LocalMemory): string {
+function route(question: string) {
   const q = ` ${fold(question).replace(/[¿?¡!.,;:()«»"]/g, ' ').replace(/\s+/g, ' ').trim()} `
   const tokens = q.trim().split(' ')
   const ranked = score(q, tokens)
-  const greeted = ranked.some((r) => r.topic.id === 'hello')
   // Un saludo solo responde como saludo si no viene con una pregunta real.
   const topic = (ranked.find((r) => !SOCIAL.has(r.topic.id)) ?? ranked[0])?.topic ?? null
+  return { q, ranked, topic }
+}
+
+/** A qué tema va una pregunta (para probar el enrutado). */
+export const routeTopic = (question: string): string | null => route(question).topic?.id ?? null
+
+export function answerQuestion(question: string, locale: Locale, memory: LocalMemory): string {
+  const { q, ranked, topic } = route(question)
+  const greeted = ranked.some((r) => r.topic.id === 'hello')
   const hello = greeted && topic && topic.id !== 'hello' ? (locale === 'en' ? 'Hi! ' : '¡Hola! ') : ''
   const wantsMore = FOLLOW_UP.some((k) => q.includes(fold(k)))
   const previous = TOPICS.find((t) => t.id === memory.lastTopic)

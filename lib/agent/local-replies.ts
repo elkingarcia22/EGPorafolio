@@ -30,7 +30,7 @@ export const TOPICS: readonly Topic[] = [
   {
     id: 'vibe',
     weight: 2,
-    keys: ['vibe coding', 'vibe', 'codigo', 'programas', 'programar', 'construyes', 'construir', 'cursor', 'claude code', 'build', 'coding', 'code'],
+    keys: ['eres desarrollador', 'desarrollador o', 'vibe coding', 'vibe', 'codigo', 'programas', 'programar', 'construyes', 'construir', 'cursor', 'claude code', 'build', 'coding', 'code'],
     replies: [
       s('Diseño y también construyo. Con Claude Code y Cursor paso de la idea a algo que funciona en días: escribo primero las reglas del sistema de diseño para que la IA las respete, armo piezas pequeñas, las pruebo en el navegador y voy subiendo. El vibe coding no reemplaza el criterio; lo acelera.\n\nPor ejemplo, Barberlytics lo diseñé y construí así, y este mismo portafolio también.', 'I design and I also build. With Claude Code and Cursor I go from idea to something that works in days: I first write the design-system rules so AI respects them, build small pieces, test them in the browser and scale up. Vibe coding doesn’t replace judgment; it speeds it up.\n\nFor example, I designed and built Barberlytics that way, and this very portfolio too.'),
       s('Lo que más cambió en mi forma de trabajar es que ya no entrego solo diseños: entrego prototipos que se pueden usar. Así la conversación con negocio y desarrollo es sobre algo real, no sobre una imagen.\n\nPor ejemplo, en Objetivos de UBITS validé el ciclo completo con un prototipo en código antes de pedirle tiempo de desarrollo al equipo.', 'What changed my work the most is that I no longer hand over designs only: I hand over prototypes people can use. That way the conversation with business and engineering is about something real, not a picture.\n\nFor example, in UBITS Goals I validated the full cycle with a coded prototype before asking the team for development time.'),
@@ -40,7 +40,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'process',
-    keys: ['proceso', 'metodologia', 'metodo', 'como trabajas', 'como abordas', 'como empiezas', 'pasos', 'process', 'approach', 'workflow'],
+    keys: ['por donde empiezas', 'empiezas', 'arrancas', 'proceso', 'metodologia', 'metodo', 'como trabajas', 'como abordas', 'como empiezas', 'pasos', 'process', 'approach', 'workflow'],
     replies: [
       s('Voy de puntos sueltos a conexiones, en ocho etapas: escucho el problema sin filtros, busco lo que se repite, lo resumo en una pregunta y pocos principios, bocetos a mano, pantallas reales, diseño cómo piensa la IA si la hay, mido el impacto y cierro con una demo funcionando.\n\nPor ejemplo, en Barberlytics esa pregunta fue: ¿cómo hacer que reservar «lo de siempre» tome un toque?', 'I go from loose dots to connections, in eight stages: I listen to the problem unfiltered, find what repeats, sum it up in one question and a few principles, hand sketch, real screens, design how the AI thinks if there is one, measure impact and close with a working demo.\n\nFor example, in Barberlytics that question was: how do we make booking “the usual” take one tap?'),
     ],
@@ -83,7 +83,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'testing',
-    keys: ['prueba', 'pruebas', 'pruebas de usabilidad', 'usabilidad', 'usability', 'testing', 'validar', 'validacion', 'validate', 'test', 'a/b', 'experimento'],
+    keys: ['pruebas con usuarios', 'test con usuarios', 'prueba', 'pruebas', 'pruebas de usabilidad', 'usabilidad', 'usability', 'testing', 'validar', 'validacion', 'validate', 'test', 'a/b', 'experimento'],
     replies: [
       s('Valido lo más barato primero: un prototipo frente a la tarea real, mirando dónde se traba la persona. Si hay datos de uso, defino antes la señal que confirmaría la hipótesis. Y si el producto lleva IA, la valido con evaluaciones.\n\nPor ejemplo, Clipper tiene 60 preguntas de evaluación en tres variantes de idioma, con una meta del 90 % de acierto que todavía falta correr con la clave de producción.', 'I validate the cheapest way first: a prototype against the real task, watching where the person gets stuck. If there’s usage data, I define upfront the signal that would confirm the hypothesis. And if the product carries AI, I validate it with evaluations.\n\nFor example, Clipper has 60 evaluation questions in three language variants, with a 90% accuracy target still to be run with the production key.'),
     ],
@@ -91,7 +91,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'metrics',
-    keys: ['metrica', 'metricas', 'metrics', 'kpi', 'kpis', 'medir', 'mides', 'medicion', 'measure', 'indicadores', 'exito', 'success', 'resultados', 'outcome', 'outcomes', 'north star'],
+    keys: ['si funciono', 'diseno funciono', 'como sabes si', 'metrica', 'metricas', 'metrics', 'kpi', 'kpis', 'medir', 'mides', 'medicion', 'measure', 'indicadores', 'exito', 'success', 'resultados', 'outcome', 'outcomes', 'north star'],
     replies: [
       s('Empiezo por la métrica, no por la pantalla: qué tiene que moverse en el negocio —adopción, conversión, retención, tiempo ahorrado, ingresos— y qué comportamiento la mueve. Escribo la hipótesis, la señal que la confirma y diseño para esa señal.\n\nPor ejemplo, en Objetivos la métrica de avance en % castigaba a quien se ponía metas ambiciosas; la cambiamos por la constancia de reportar, y eso cambió el diseño entero.', 'I start from the metric, not the screen: what has to move in the business —adoption, conversion, retention, time saved, revenue— and which behavior moves it. I write the hypothesis, the signal that confirms it and design for that signal.\n\nFor example, in Goals the % progress metric punished ambitious goals; we changed it to the habit of reporting, and that changed the whole design.'),
       s('Para mí un diseño está terminado cuando cambia un comportamiento que le importa al negocio. Por eso cada caso tiene su sección de impacto, y aclaro cuando las cifras son de referencia porque el rediseño aún no está en producción.\n\nPor ejemplo, en la reserva de Barberlytics la apuesta fue el tiempo para reservar «lo de siempre»: en el caso lo muestro bajando de 2 min 40 s a unos 35 s, como cifra de referencia.', 'To me a design is done when it changes a behavior the business cares about. That’s why every case has an impact section, and I say when figures are reference values because the redesign isn’t in production yet.\n\nFor example, in Barberlytics booking the bet was time to book “the usual”: in the case I show it dropping from 2 min 40 s to about 35 s, as a reference figure.'),
@@ -111,7 +111,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'adoption',
-    keys: ['adopcion', 'adoption', 'engagement', 'retencion', 'retention', 'uso', 'usage', 'onboarding', 'activacion', 'habito', 'habit'],
+    keys: ['use el producto', 'usen el producto', 'la gente use', 'adopcion', 'adoption', 'engagement', 'retencion', 'retention', 'uso', 'usage', 'onboarding', 'activacion', 'habito', 'habit'],
     replies: [
       s('La adopción se diseña en lo que se repite: si lo de todos los días es rápido y claro, la gente vuelve. Busco el camino más frecuente y lo dejo a un toque, y premio la constancia más que el resultado.\n\nPor ejemplo, en Objetivos premiamos reportar cada semana con rachas, en lugar del % crudo, y en Barberlytics quien vuelve encuentra «lo de siempre» ya armado.', 'Adoption is designed in what repeats: if the everyday thing is fast and clear, people come back. I find the most frequent path and put it one tap away, and reward habit over the result.\n\nFor example, in Goals we reward reporting every week with streaks instead of raw %, and in Barberlytics returning clients find “the usual” already set.'),
     ],
@@ -144,7 +144,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'accessibility',
-    keys: ['accesibilidad', 'accessibility', 'a11y', 'contraste', 'contrast', 'inclusivo', 'inclusive', 'wcag'],
+    keys: ['discapacidad', 'disability', 'daltonismo', 'lectores de pantalla', 'accesibilidad', 'accessibility', 'a11y', 'contraste', 'contrast', 'inclusivo', 'inclusive', 'wcag'],
     replies: [
       s('La accesibilidad la trato como parte del sistema, no como un extra: contraste que siga pasando aunque cambie el tema, foco visible y respeto por «reducir movimiento».\n\nPor ejemplo, en Thema cada barbería elige su color y el contraste tiene que seguir pasando; y este portafolio tiene ajustes de accesibilidad con alto contraste y movimiento reducido.', 'I treat accessibility as part of the system, not an extra: contrast that keeps passing when the theme changes, visible focus and respect for “reduce motion”.\n\nFor example, in Thema every shop picks its color and contrast must still pass; and this portfolio has accessibility settings with high contrast and reduced motion.'),
     ],
@@ -152,7 +152,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'data-viz',
-    keys: ['dashboard', 'dashboards', 'datos', 'data', 'graficos', 'charts', 'visualizacion', 'reportes', 'reports', 'resultados de encuesta', 'heatmap'],
+    keys: ['datos', 'visualizas', 'visualizar', 'dashboard', 'dashboards', 'datos', 'data', 'graficos', 'charts', 'visualizacion', 'reportes', 'reports', 'resultados de encuesta', 'heatmap'],
     replies: [
       s('Un dashboard bueno responde una pregunta, no muestra todos los números. Empiezo por lo que la persona tiene que decidir y ordeno los datos para esa decisión.\n\nPor ejemplo, en Encuestas el mapa de calor por área compara grupos, pero los que tienen menos de cinco respuestas quedan reservados para cuidar el anonimato; y en Objetivos la lectura del ciclo se arma en cinco preguntas.', 'A good dashboard answers a question, it doesn’t show every number. I start from what the person has to decide and order the data for that decision.\n\nFor example, in Surveys the heatmap by area compares groups, but those with fewer than five answers stay reserved to protect anonymity; and in Goals reading a cycle is built around five questions.'),
     ],
@@ -171,7 +171,7 @@ export const TOPICS: readonly Topic[] = [
 
   {
     id: 'motivation',
-    keys: ['te gusta', 'gusta', 'pasion', 'motiva', 'motivacion', 'disfrutas', 'inspira', 'love', 'enjoy', 'passion'],
+    keys: ['gusta', 'pasion', 'motiva', 'motivacion', 'disfrutas', 'inspira', 'love', 'enjoy', 'passion'],
     replies: [
       s('Lo que más disfruto es el momento en que puntos sueltos se conectan: una queja en una reseña, un dato de uso y una idea de negocio que de pronto explican lo mismo. Y ahora, con IA, ver esa idea funcionando el mismo día.\n\nPor ejemplo, en Barberlytics esa conexión fue darme cuenta de que una barbería vive de lo que se repite; de ahí salió casi todo el producto.', 'What I enjoy most is the moment loose dots connect: a complaint in a review, a usage data point and a business idea that suddenly explain the same thing. And now, with AI, seeing that idea working the same day.\n\nFor example, in Barberlytics that connection was realizing a barbershop lives on what repeats; almost the whole product came from there.'),
     ],
@@ -181,6 +181,7 @@ export const TOPICS: readonly Topic[] = [
   /* ── IA ───────────────────────────────────────────────────────────── */
   {
     id: 'ai',
+    weight: 1.2,
     keys: [' ia ', ' ai ', 'inteligencia artificial', 'artificial intelligence', 'llm', 'gpt', 'chatgpt', 'gemini', 'machine learning', 'claude'],
     replies: [
       s('Uso la IA en dos lados. En el proceso: agrupar investigación, generar variantes, prototipar en código y evaluar. Y dentro de los productos, con una regla fija: la IA propone y una persona decide.\n\nPor ejemplo, Clipper, el asistente de Barberlytics, responde con los datos del negocio, nunca adivina una cifra y no cambia nada sin que una persona lo apruebe.', 'I use AI in two places. In the process: clustering research, generating variants, prototyping in code and evaluating. And inside products, with a fixed rule: AI proposes and a person decides.\n\nFor example, Clipper, Barberlytics’ assistant, answers with the business’s data, never guesses a figure and changes nothing without a person approving.'),
@@ -191,7 +192,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'ai-agents',
-    weight: 1.2,
+    weight: 1.5,
     keys: ['agente', 'agentes', 'agent', 'agents', 'asistente', 'assistant', 'chatbot', 'bot', 'clipper', 'rumbo', 'orbit', 'evaluaciones', 'evals', 'guardrails', 'alucin'],
     replies: [
       s('Cuando diseño un agente, diseño tres cosas además de la interfaz: qué puede consultar, qué puede proponer y qué nunca hace solo. Y lo evalúo con preguntas reales antes de soltarlo.\n\nPor ejemplo, Clipper nunca adivina: si una respuesta trae una cifra que no salió de los datos, el servidor la frena; y trata las notas de los clientes como datos, nunca como órdenes.', 'When I design an agent, I design three things besides the interface: what it can look up, what it can propose and what it never does alone. And I evaluate it with real questions before letting it loose.\n\nFor example, Clipper never guesses: if an answer has a figure that didn’t come from the data, the server stops it; and it treats client notes as data, never as orders.'),
@@ -242,7 +243,7 @@ export const TOPICS: readonly Topic[] = [
     id: 'projects',
     /** «¿En qué proyecto…?» no debe tapar el tema real de la pregunta. */
     weight: 0.3,
-    keys: ['proyectos', 'projects', 'casos', 'cases', 'portafolio', 'portfolio', 'trabajos', 'favorito', 'favorite', 'mejor proyecto', 'orgulloso', 'proud'],
+    keys: ['proyectos', 'projects', 'casos', 'cases', 'portafolio', 'portfolio', 'trabajos', 'proyecto favorito', 'favorite project', 'mejor proyecto', 'orgulloso', 'proud'],
     replies: [
       s('En el portafolio hay cuatro: Objetivos y Encuestas de UBITS, SellUp —la plataforma comercial con IA de UBITS— y Barberlytics, software para barberías que diseñé y construí de punta a punta. Si tuviera que elegir uno, Barberlytics, porque ahí junté todo: sistema de diseño, producto, IA y código.', 'There are four in the portfolio: UBITS Goals and Surveys, SellUp —UBITS’ AI sales platform— and Barberlytics, software for barbershops I designed and built end to end. If I had to pick one, Barberlytics, because it brings it all together: design system, product, AI and code.'),
     ],
@@ -260,7 +261,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'stakeholders',
-    keys: ['stakeholders', 'negociar', 'desacuerdo', 'disagree', 'conflicto', 'conflict', 'convencer', 'persuade', 'feedback', 'criticas', 'retroalimentacion', 'jefe', 'cliente dificil'],
+    keys: ['de acuerdo', 'no estas de acuerdo', 'no estan de acuerdo', 'stakeholders', 'negociar', 'desacuerdo', 'disagree', 'conflicto', 'conflict', 'convencer', 'persuade', 'feedback', 'criticas', 'retroalimentacion', 'jefe', 'cliente dificil'],
     replies: [
       s('Cuando hay desacuerdo, bajo la discusión de opiniones a evidencia: qué dice el usuario, qué dice el dato y qué cuesta cada opción. Si sigue abierta, prototipo las dos y que la prueba decida.\n\nPor ejemplo, en una revisión de Objetivos alguien dijo que las métricas no le hacían sentido para incentivar el progreso; esa crítica nos llevó a cambiar el % por la constancia.', 'When there’s disagreement, I bring the discussion from opinions down to evidence: what the user says, what the data says and what each option costs. If it’s still open, I prototype both and let the test decide.\n\nFor example, in a Goals review someone said the metrics didn’t make sense to encourage progress; that critique led us to swap % for habit.'),
     ],
@@ -268,6 +269,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'methodologies',
+    weight: 2.5,
     keys: ['agile', 'scrum', 'design thinking', 'lean', 'lean ux', 'shape up', 'sprint', 'sprints', 'kanban', 'double diamond'],
     replies: [
       s('He trabajado con Design Thinking, Lean UX, Agile UX, Scrum, Agile Inception y Shape Up, sobre todo en Siigo. Más que casarme con una, tomo lo útil de cada una según el momento del producto.\n\nPor ejemplo, hoy combino ciclos cortos de prototipo en código con IA con la disciplina de dejar cada decisión escrita.', 'I’ve worked with Design Thinking, Lean UX, Agile UX, Scrum, Agile Inception and Shape Up, mostly at Siigo. Rather than marrying one, I take what’s useful from each depending on the product’s moment.\n\nFor example, today I combine short coded-prototype cycles with AI with the discipline of writing every decision down.'),
@@ -332,6 +334,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'contact',
+    weight: 1.2,
     keys: ['contacto', 'contactarte', 'contact', 'correo', 'email', 'mail', 'whatsapp', 'telefono', 'phone', 'llamar', 'call', 'linkedin', 'disponible', 'disponibilidad', 'available', 'remoto', 'remote', 'ubicacion', 'donde vives', 'location'],
     replies: [s(`Con gusto. Escríbeme a ${PROFILE.email} o por WhatsApp al ${PROFILE.phoneDisplay}. Estoy en ${PROFILE.location.es} y trabajo en remoto o híbrido.`, `Gladly. Email me at ${PROFILE.email} or WhatsApp me at ${PROFILE.phoneDisplay}. I’m based in ${PROFILE.location.en} and work remote or hybrid.`)],
     extras: s('[[contacto]]', '[[contacto]]'),
