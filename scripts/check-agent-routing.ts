@@ -79,6 +79,18 @@ const cases: [string, string | null][] = [
   ['can I see your resume', 'cv'], ['where are you based', 'contact'], ['do you lead teams', 'leadership'], ['how do you handle privacy', 'privacy'],
   // fuera de tema
   ['cual es tu equipo de futbol', 'personal'], ['que edad tienes', 'personal'],
+  // ── Tercera tanda: lo técnico
+  ['que tecnologias usas', 'stack'], ['usas react o vue', 'stack'], ['sabes de shadcn', 'stack'], ['trabajas con vite', 'stack'], ['que framework usas', 'stack'], ['next js', 'stack'],
+  ['como conectas la base de datos', 'backend'], ['usas supabase', 'backend'], ['sabes de backend', 'backend'], ['como manejas el login', 'backend'], ['haces apis', 'backend'],
+  ['como despliegas', 'deploy'], ['usas vercel', 'deploy'], ['como publicas tus proyectos', 'deploy'], ['como haces deploys', 'deploy'],
+  ['usas github', 'git'], ['como haces los commits', 'git'], ['trabajas con pull requests', 'git'], ['manejas ramas en git', 'git'],
+  ['que construyes tu mismo con codigo e ia', 'vibe'], ['eres full stack', 'vibe'],
+  // ── Cuarta tanda: métodos por su nombre
+  ['usas double diamond', 'frameworks'], ['que es un hmw', 'frameworks'], ['trabajas con jobs to be done', 'frameworks'], ['haces user personas', 'frameworks'],
+  ['haces journey maps', 'frameworks'], ['usas card sorting', 'frameworks'], ['conoces las heuristicas de nielsen', 'frameworks'], ['has hecho un design sprint', 'frameworks'],
+  ['que metodos de investigacion usas', 'research'], ['haces desk research', 'research'], ['como sintetizas los hallazgos', 'research'],
+  ['como haces un analisis competitivo', 'benchmark'], ['cual es tu metrica norte', 'metrics'], ['que es privacy by design', 'privacy'], ['cumples wcag', 'accessibility'],
+  ['que son los design tokens', 'design-system'], ['que es human in the loop', 'ai-agents'], ['como evitas la inyeccion de prompts', 'ai-agents'],
 ]
 let fail = 0
 for (const [q, want] of cases) {

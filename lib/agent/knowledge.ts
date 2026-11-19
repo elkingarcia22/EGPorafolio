@@ -128,13 +128,24 @@ function sellupImpactBlock(): string {
   ].join('\n'))
 }
 
+/** Cómo construye: las tecnologías reales de cada proyecto (verificadas en sus repositorios). */
+function buildBlock(): string {
+  return section('Cómo construyo (tecnología real de cada proyecto)', [
+    '- Este portafolio: Next.js (React), animaciones con GSAP y Lenis, proyectos guardados en Supabase con respaldo local si la base no responde, desplegado en Vercel, código en GitHub con ramas y commits pequeños. El agente es una ruta del servidor que llama a Claude con la clave en variables de entorno, valida las preguntas y limita cuántas hace cada visitante.',
+    '- Barberlytics: React + Vite con TypeScript; Thema parte de shadcn + Radix con identidad propia; la reserva usa datos simulados con MSW para que la demo pública no toque datos reales; voz con Gemini TTS; desplegado en Vercel; pruebas con Vitest y Playwright; «npm run check» valida 9 reglas del sistema.',
+    '- SellUp: Next.js con TypeScript, Tailwind, shadcn y Radix, Supabase como base de datos, desplegado en Vercel; integra HubSpot, Apollo y búsqueda web.',
+    '- Objetivos y Encuestas (playground de UBITS): React + Vite con TypeScript, react-router, Tailwind y shadcn; archivos de contexto para agentes (AGENTS.md, CLAUDE.md); pruebas con Playwright en Objetivos.',
+    '- Forma de explicarlo: el frontend es lo que la persona ve y toca; el backend es donde viven los datos y las reglas (quién puede ver qué); Vercel publica cada cambio con una URL de vista previa; GitHub guarda el historial con ramas, commits y pull requests cuando hay equipo.',
+  ].join('\n'))
+}
+
 const cache = new Map<Locale, string>()
 
 /** Todo lo que el agente sabe, en un solo texto (se arma una vez por idioma). */
 export function buildKnowledge(locale: Locale): string {
   const hit = cache.get(locale)
   if (hit) return hit
-  const text = [profileBlock(locale), processBlock(locale), projectsBlock(locale), casesBlock(locale), sellupImpactBlock()].join('\n\n')
+  const text = [profileBlock(locale), processBlock(locale), projectsBlock(locale), casesBlock(locale), sellupImpactBlock(), buildBlock()].join('\n\n')
   cache.set(locale, text)
   return text
 }
