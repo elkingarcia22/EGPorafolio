@@ -7,7 +7,7 @@ import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
-import { gsap, getLenis, ScrollTrigger, scrambleText } from '@/lib/motion'
+import { gsap, getLenis, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -25,6 +25,9 @@ const BOOT_HIDDEN = 'opacity-0'
 
 /** Punto del hero donde el EG ya está armado y la firma se ve completa. */
 const SIGNATURE_AT = 0.9
+/** Al volver al inicio: espera a que la cortina se retire y baja hasta el EG. */
+const AUTO_SCROLL_DELAY_MS = 900
+const AUTO_SCROLL_S = 2.4
 
 /**
  * La carga solo se ve una vez por visita. Si vuelves al inicio desde otra página,
@@ -138,21 +141,23 @@ export function Hero() {
   const [isReturn] = useState(() => hasBooted)
   useBoot(sectionRef, headline, loaderProgress, reducedMotion)
 
-  // De vuelta desde otra página (el logo): directo al EG con la firma, no al titular.
+  // De vuelta desde otra página: arranca en el titular y, cuando la cortina se retira,
+  // el scroll baja solo hasta el EG con la firma.
   useEffect(() => {
     const section = sectionRef.current
     if (!isReturn || !section || window.location.hash) return
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() => {
-        const y = section.offsetTop + (section.offsetHeight - window.innerHeight) * SIGNATURE_AT
-        const lenis = getLenis()
+    const timer = window.setTimeout(() => {
+      const y = section.offsetTop + (section.offsetHeight - window.innerHeight) * SIGNATURE_AT
+      const lenis = getLenis()
+      if (reducedMotion || !lenis) {
         if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
-        else window.scrollTo(0, y)
-        ScrollTrigger.update()
-      })
-    })
-    return () => cancelAnimationFrame(frame)
-  }, [isReturn])
+        else window.scrollTo({ top: y, behavior: reducedMotion ? 'auto' : 'smooth' })
+        return
+      }
+      lenis.scrollTo(y, { duration: AUTO_SCROLL_S, easing: (t: number) => 1 - Math.pow(1 - t, 4), force: true })
+    }, AUTO_SCROLL_DELAY_MS)
+    return () => window.clearTimeout(timer)
+  }, [isReturn, reducedMotion])
 
   // La etiqueta del EG nunca debe verse fuera del hero.
   useEffect(() => {
