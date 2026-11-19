@@ -14,9 +14,8 @@ const MODULE = '/admin/desempeno-cultura/encuestas'
 const FLAGS = '?ver=todos'
 
 /**
- * El marco del playground que se recorta para dejar solo el módulo: el riel de navegación (72 px) y la barra
- * superior (60 px) llevan a los demás productos de la plataforma; sin ellos, la demo solo puede moverse dentro
- * de Encuestas.
+ * El marco del playground se ve completo, pero el riel de navegación (72 px) y la barra superior (60 px), que llevan a
+ * los demás productos de la plataforma, quedan bajo una capa que no deja tocarlos: solo se puede usar Encuestas.
  */
 const RAIL = 72
 const TOPBAR = 60
@@ -35,7 +34,7 @@ const ENTRIES: readonly Entry[] = [
 
 const urlOf = (e: Entry) => `${STAGING}${MODULE}${e.path}${FLAGS}`
 
-/** El playground real a escala de escritorio, recortado al módulo: se ve igual en cualquier ancho de pantalla. */
+/** El playground real a escala de escritorio, con todo su marco a la vista y solo Encuestas para tocar. */
 function StagingFrame({ entry }: { entry: Entry }) {
   const { t } = useLocale()
   const box = useRef<HTMLDivElement>(null)
@@ -50,11 +49,13 @@ function StagingFrame({ entry }: { entry: Entry }) {
     return () => ro.disconnect()
   }, [])
 
-  // Bajo 1.200 px de ventana el playground pliega su menú al riel de 72 px (RootLayout, NARROW_WINDOW), que es lo que
-  // se recorta: por eso el iframe mide 1.196 en total. En pantallas angostas se dibuja a 1.024 para no quedar diminuto.
-  const logical = (size && size.w < 768 ? 1024 : 1196) - RAIL
-  const scale = size ? size.w / logical : 1
+  // Bajo 1.200 px de ventana el playground pliega su menú al riel de 72 px (RootLayout, NARROW_WINDOW): por eso el
+  // iframe mide 1.196. En pantallas angostas se dibuja a 1.024 para no quedar diminuto.
+  const width = size && size.w < 768 ? 1024 : 1196
+  const scale = size ? size.w / width : 1
   const height = size ? size.h / scale : 800
+  const [hint, setHint] = useState(false)
+  const blocked = t({ es: 'En esta demo solo está habilitado Encuestas', en: 'Only Surveys is enabled in this demo' })
 
   return (
     <div ref={box} className="relative min-h-0 flex-1 overflow-hidden bg-[#f8faff]">
@@ -71,13 +72,32 @@ function StagingFrame({ entry }: { entry: Entry }) {
           title={t({ es: `Encuestas en staging: ${entry.name.es}`, en: `Surveys on staging: ${entry.name.en}` })}
           onLoad={() => setLoaded(true)}
           className="absolute left-0 top-0 origin-top-left border-0 transition-opacity duration-500"
-          style={{
-            width: logical + RAIL,
-            height: height + TOPBAR,
-            transform: `translate(${-RAIL * scale}px, ${-TOPBAR * scale}px) scale(${scale})`,
-            opacity: loaded ? 1 : 0,
-          }}
+          style={{ width, height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
         />
+      )}
+      {/* Capas que tapan los clics del riel y de la barra superior: se ven, pero no llevan a otros productos. */}
+      {size && (
+        <>
+          <span
+            className="absolute left-0 top-0 h-full cursor-not-allowed"
+            style={{ width: RAIL * scale }}
+            onPointerEnter={() => setHint(true)}
+            onPointerLeave={() => setHint(false)}
+            title={blocked}
+            aria-hidden="true"
+          />
+          <span
+            className="absolute top-0 cursor-not-allowed"
+            style={{ left: RAIL * scale, right: 0, height: TOPBAR * scale }}
+            onPointerEnter={() => setHint(true)}
+            onPointerLeave={() => setHint(false)}
+            title={blocked}
+            aria-hidden="true"
+          />
+          <p className={`pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-[#303a47] px-3 py-1.5 text-[11px] text-white shadow-lg transition-opacity duration-200 ${hint ? 'opacity-100' : 'opacity-0'}`} role="status">
+            🔒 {blocked}
+          </p>
+        </>
       )}
     </div>
   )
@@ -96,8 +116,8 @@ export function SurveyDemo() {
           <p data-reveal className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t({ es: 'El módulo real, en staging.', en: 'The real module, on staging.' })}</p>
           <p data-reveal className="mt-4 leading-relaxed opacity-80">
             {t({
-              es: 'Es el playground de UBITS publicado desde la rama staging, con datos de prueba. Solo está habilitado Encuestas: el menú de la plataforma y la barra superior quedan fuera. Ábrelo y recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
-              en: 'This is the UBITS playground published from the staging branch, with test data. Only Surveys is enabled: the platform menu and top bar are left out. Open it and explore freely: create, read results, NOM 035 or compare.',
+              es: 'Es el playground de UBITS publicado desde la rama staging, con datos de prueba. Se ve la plataforma completa, pero solo está habilitado Encuestas: el menú y la barra superior no llevan a ningún lado. Ábrelo y recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
+              en: 'This is the UBITS playground published from the staging branch, with test data. You see the whole platform, but only Surveys is enabled: the menu and top bar don’t go anywhere. Open it and explore freely: create, read results, NOM 035 or compare.',
             })}
           </p>
         </div>
