@@ -1,235 +1,272 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
-import { Block, Body, SubHead } from '@/components/case/barberlytics/ui'
-import { AREAS, EMPRESA, OBJETIVOS, avanceArea, avanceEmpresa, cuenta, pct } from './cascade-model'
+import { useStepper } from './forma-ui'
 
-/** Frentes y semillas del brief de «Crear con IA» (aiObjectiveBrief.ts). */
-const FOCUS = [
-  { id: 'crecimiento', label: 'Crecimiento', seeds: ['Aumentar las ventas de la empresa', 'Aumentar los clientes nuevos de la empresa', 'Aumentar los ingresos totales de la empresa'] },
-  { id: 'rentabilidad', label: 'Rentabilidad', seeds: ['Reducir los costos operativos de la empresa', 'Aumentar el margen de rentabilidad de la empresa', 'Reducir el gasto general de la empresa'] },
-  { id: 'clientes', label: 'Clientes', seeds: ['Subir la satisfacción de los clientes', 'Aumentar la retención de los clientes', 'Reducir los tickets de soporte sin resolver'] },
-  { id: 'personas', label: 'Personas', seeds: ['Reducir la rotación de los colaboradores', 'Subir la cobertura de formación de los colaboradores', 'Mejorar el clima organizacional de la empresa'] },
-  { id: 'operacion', label: 'Operación', seeds: ['Reducir los incidentes operativos de la empresa', 'Subir el cumplimiento de entregas a tiempo', 'Automatizar los procesos internos de la empresa'] },
-  { id: 'producto', label: 'Producto', seeds: ['Lanzar nuevos productos al mercado', 'Aumentar la adopción de nuevas funcionalidades', 'Modernizar la tecnología de la empresa'] },
-] as const
+const STEP_MS = 9000
+const ramp = 'animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both]'
+const after = (ms: number) => ({ animationDelay: `${ms}ms` })
 
-const AMBITION = [
-  { id: 'conservador', label: 'Conservador', tagline: 'Metas que se cumplen' },
-  { id: 'retador', label: 'Retador', tagline: 'Exige mejorar' },
-  { id: 'agresivo', label: 'Agresivo', tagline: 'Metas de ruptura' },
-] as const
-
-/** Lo que el generador deduce del verbo: dirección y tipo de medida. */
-function deduce(title: string): { direction: string; measure: string } {
-  if (/^(Aumentar|Subir|Mejorar)/.test(title)) return { direction: 'Aumentar', measure: 'Porcentaje' }
-  if (/^Reducir/.test(title)) return { direction: 'Reducir', measure: 'Numérico' }
-  return { direction: 'Cumplir', measure: 'Hito (sí / no)' }
-}
-
-function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button type="button" aria-pressed={on} onClick={onClick} className="rounded-full border border-white/15 px-3 py-1.5 text-[12px] text-white/70 transition-colors hover:border-white/40 aria-pressed:border-signal aria-pressed:bg-signal aria-pressed:text-white">
-      {children}
-    </button>
-  )
-}
-
-/** Brief de cinco preguntas → objetivos propuestos, que aparecen uno a uno. */
-function BriefGenerator() {
-  const { t } = useLocale()
+/** Escribe un texto letra a letra a partir de un retraso; sin movimiento, lo muestra entero. */
+function useTyped(text: string, delay: number, speed = 16): string {
   const { reducedMotion } = useA11y()
-  const [focus, setFocus] = useState<(typeof FOCUS)[number]['id']>('clientes')
-  const [ambition, setAmbition] = useState<(typeof AMBITION)[number]['id']>('retador')
-  const [count, setCount] = useState(2)
-  const [shown, setShown] = useState(0)
-  const [run, setRun] = useState(0)
-
-  const proposal = (FOCUS.find((f) => f.id === focus)?.seeds ?? []).slice(0, count)
-
+  const [n, setN] = useState(reducedMotion ? text.length : 0)
   useEffect(() => {
-    if (run === 0) return
     if (reducedMotion) {
-      setShown(proposal.length)
+      setN(text.length)
       return
     }
-    setShown(0)
-    const timers = proposal.map((_, i) => window.setTimeout(() => setShown(i + 1), 450 + i * 650))
-    return () => timers.forEach(window.clearTimeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [run])
-
-  return (
-    <div data-reveal className="grid overflow-hidden rounded-xl bg-[#121318] text-paper ring-1 ring-white/10 lg:grid-cols-2">
-      <div className="space-y-6 border-b border-white/10 p-6 lg:border-b-0 lg:border-r">
-        <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-white/50">
-          <span className="h-2 w-2 rounded-full bg-gradient-to-br from-[#7b5cff] to-[#ff5ca8]" /> {t({ es: 'Crear con IA · brief', en: 'Create with AI · brief' })}
-        </p>
-        <fieldset>
-          <legend className="mb-2 text-sm">{t({ es: '¿En qué se juega el ciclo?', en: 'What’s at stake this cycle?' })}</legend>
-          <div className="flex flex-wrap gap-2">
-            {FOCUS.map((f) => (
-              <Chip key={f.id} on={focus === f.id} onClick={() => setFocus(f.id)}>{f.label}</Chip>
-            ))}
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend className="mb-2 text-sm">{t({ es: '¿Qué tan exigentes deben ser las metas?', en: 'How demanding should targets be?' })}</legend>
-          <div className="flex flex-wrap gap-2">
-            {AMBITION.map((a) => (
-              <Chip key={a.id} on={ambition === a.id} onClick={() => setAmbition(a.id)}>{a.label}</Chip>
-            ))}
-          </div>
-        </fieldset>
-        <fieldset>
-          <legend className="mb-2 text-sm">{t({ es: '¿Cuántos objetivos?', en: 'How many goals?' })}</legend>
-          <div className="flex gap-2">
-            {[1, 2, 3].map((n) => (
-              <Chip key={n} on={count === n} onClick={() => setCount(n)}>{n}</Chip>
-            ))}
-          </div>
-        </fieldset>
-        <p className="text-[12px] leading-relaxed text-white/45">{t({ es: 'Las otras dos preguntas —qué momento vive la empresa y qué más tener en cuenta— son texto libre.', en: 'The other two questions —what moment the company is in and what else to consider— are free text.' })}</p>
-        <button type="button" onClick={() => setRun((r) => r + 1)} className="rounded-md bg-signal px-4 py-2 text-sm text-white transition-transform hover:-translate-y-0.5">
-          {t({ es: 'Proponer objetivos', en: 'Propose goals' })} →
-        </button>
-      </div>
-      <div className="min-h-[320px] p-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/50">{t({ es: 'Propuesta', en: 'Proposal' })} · {AMBITION.find((a) => a.id === ambition)?.tagline}</p>
-        {run === 0 ? (
-          <p className="mt-10 text-sm text-white/40">{t({ es: 'Responde y toca «Proponer objetivos».', en: 'Answer and tap “Propose goals”.' })}</p>
-        ) : (
-          <ul className="mt-5 space-y-3">
-            {proposal.map((title, i) => {
-              const d = deduce(title)
-              return (
-                <li key={`${run}-${title}`} className={`rounded-lg border border-white/10 bg-white/[0.03] p-4 transition-all duration-500 ease-expo ${i < shown ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>
-                  <p className="text-[15px]">{title}</p>
-                  <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-white/50">
-                    <span>{d.direction}</span>
-                    <span>{d.measure}</span>
-                    <span>{t({ es: 'Peso', en: 'Weight' })} {Math.round(100 / proposal.length)} %</span>
-                  </p>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
-    </div>
-  )
+    setN(0)
+    let id = 0
+    const start = window.setTimeout(() => {
+      id = window.setInterval(() => setN((v) => (v >= text.length ? (window.clearInterval(id), v) : v + 2)), speed)
+    }, delay)
+    return () => {
+      window.clearTimeout(start)
+      window.clearInterval(id)
+    }
+  }, [text, delay, speed, reducedMotion])
+  return text.slice(0, n)
 }
 
-type Confidence = 'Alta' | 'Media'
-interface Reading {
-  kind: L
-  text: string
-  evidence: string
-  confidence: Confidence
-}
+/* ── 1 · Propone: «Crear con IA» (aiObjectiveBrief.ts) ── */
 
-/** Las lecturas son reglas sobre las cifras del ciclo de ejemplo, calculadas aquí mismo. */
-function useReadings(): readonly Reading[] {
-  return useMemo(() => {
-    const pending = OBJETIVOS.filter((o) => !cuenta(o))
-    const unaligned = AREAS.filter((a) => OBJETIVOS.some((o) => o.area === a && !o.empresa))
-    const areas = AREAS.map((a) => ({ a, v: avanceArea(OBJETIVOS, a) })).filter((x) => x.v > 0).sort((x, y) => x.v - y.v)
-    const company = EMPRESA.map((e) => ({ e, v: avanceEmpresa(OBJETIVOS, e.id) })).sort((x, y) => x.v - y.v)
-    return [
-      { kind: { es: 'Hallazgo', en: 'Finding' }, text: `«${company[company.length - 1].e.titulo}» es el que más avanza.`, evidence: `${pct(company[company.length - 1].v)} de avance ponderado por peso.`, confidence: 'Alta' },
-      { kind: { es: 'Riesgo', en: 'Risk' }, text: `${areas[0].a} va por detrás del resto.`, evidence: `${pct(areas[0].v)} frente a ${pct(areas[areas.length - 1].v)} de ${areas[areas.length - 1].a}.`, confidence: 'Alta' },
-      { kind: { es: 'Riesgo', en: 'Risk' }, text: `${pending.length} objetivos todavía no cuentan.`, evidence: pending.map((o) => `${o.persona}: ${o.etapa === 'por-aprobar' ? 'por aprobar' : 'por ajustar'}`).join(' · '), confidence: 'Media' },
-      { kind: { es: 'Qué hacer', en: 'What to do' }, text: unaligned.length ? `Alinear ${unaligned.join(', ')} con un objetivo de empresa.` : 'Recordar a los líderes los objetivos por aprobar.', evidence: unaligned.length ? 'Su aporte hoy cae en «sin alinear».' : `${pending.length} pendientes.`, confidence: 'Media' },
-    ]
-  }, [])
-}
-
-/** La lectura de la IA: cada frase con su evidencia y su confiabilidad. */
-function AiReading() {
-  const { t } = useLocale()
-  const readings = useReadings()
-  const [open, setOpen] = useState(1)
-  return (
-    <div data-reveal className="overflow-hidden rounded-xl border border-white/10">
-      <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-        <p className="text-sm">{t({ es: 'Lectura de la IA', en: 'AI reading' })} · <span className="text-white/50">KPIs corporativos 2026</span></p>
-        <span className="font-mono text-[10px] text-white/40">{t({ es: 'reglas sobre las cifras', en: 'rules over the numbers' })}</span>
-      </div>
-      <ol>
-        {readings.map((r, i) => (
-          <li key={r.text} className="border-b border-white/[0.06] last:border-0">
-            <button type="button" aria-expanded={open === i} onClick={() => setOpen(open === i ? -1 : i)} className="grid w-full grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-white/[0.03]">
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-signal">{t(r.kind)}</span>
-              <span className="text-[15px]">{r.text}</span>
-              <span className={`rounded-full px-2 py-0.5 font-mono text-[10px] ${r.confidence === 'Alta' ? 'bg-[#17b26a]/15 text-[#4fd1a1]' : 'bg-[#f38744]/15 text-[#f5a46e]'}`}>{r.confidence}</span>
-            </button>
-            <div className={`grid transition-[grid-template-rows] duration-500 ease-expo ${open === i ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-              <p className="overflow-hidden px-5 text-sm text-white/60">
-                <span className="block pb-4 pl-[6.5rem]">{t({ es: 'Evidencia', en: 'Evidence' })}: {r.evidence}</span>
-              </p>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  )
-}
-
-const PIPE: readonly L[] = [
-  { es: 'Commit en staging del playground', en: 'Commit on playground staging' },
-  { es: 'Se cruza con los casos de uso', en: 'Matched with use cases' },
-  { es: 'Claude redacta la propuesta con pantallazo', en: 'Claude drafts the proposal with a screenshot' },
-  { es: 'Una persona la aprueba', en: 'A person approves it' },
+/** Las cinco preguntas del brief; las respuestas abiertas son un ejemplo de lo que escribiría alguien. */
+const BRIEF = [
+  { q: '¿Cuántos objetivos?', a: '3' },
+  { q: '¿En qué se juega el ciclo?', a: 'Clientes' },
+  { q: '¿Qué momento vive la empresa?', a: 'Entran clientes, pero se van rápido' },
+  { q: '¿Qué tan exigentes deben ser las metas?', a: 'Retador · Exige mejorar' },
+  { q: '¿Qué más hay que tener en cuenta?', a: 'Sin presupuesto nuevo' },
+]
+const SEEDS = [
+  { title: 'Subir la satisfacción de los clientes', dir: 'Aumentar', measure: 'Porcentaje' },
+  { title: 'Aumentar la retención de los clientes', dir: 'Aumentar', measure: 'Porcentaje' },
+  { title: 'Reducir los tickets de soporte sin resolver', dir: 'Reducir', measure: 'Numérico' },
 ]
 
-/** El motor de sincronización: cada 15 minutos, del código al tablero, con una persona al final. */
-function SyncPipeline() {
-  const { t } = useLocale()
-  const { reducedMotion } = useA11y()
+function Seed({ s, i }: { s: (typeof SEEDS)[number]; i: number }) {
+  const typed = useTyped(s.title, 1800 + i * 900)
   return (
-    <figure data-reveal className="rounded-xl border border-white/10 p-6">
-      <ol className="relative grid gap-6 md:grid-cols-4">
-        <span className="absolute left-0 right-0 top-[11px] hidden h-px bg-white/15 md:block" aria-hidden="true">
-          {!reducedMotion && <span className="obj-travel absolute -top-[3px] h-[7px] w-10 rounded-full bg-signal blur-[1px]" />}
-        </span>
-        {PIPE.map((step, i) => (
-          <li key={step.es} className="relative">
-            <span className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full font-mono text-[10px] ${i === PIPE.length - 1 ? 'bg-paper text-ink' : 'bg-signal text-white'}`}>{i + 1}</span>
-            <p className="mt-3 text-sm leading-snug">{t(step)}</p>
-          </li>
-        ))}
-      </ol>
-      <figcaption className="mt-6 font-mono text-[11px] leading-relaxed text-white/50">
-        {t({ es: 'Corre cada 15 minutos en GitHub Actions. Nunca cambia un caso de uso ni escribe en Jira: propone y espera.', en: 'Runs every 15 minutes on GitHub Actions. It never changes a use case or writes to Jira: it proposes and waits.' })}
-      </figcaption>
-    </figure>
+    <li className={`${ramp} rounded-xl bg-white p-3 text-[#161a2c]`} style={after(1700 + i * 900)}>
+      <p className="min-h-[1.3em] text-[13px] font-medium">{typed}</p>
+      <p className="mt-1.5 flex gap-1.5 text-[10px]">
+        <span className="rounded bg-[#0c5bef]/10 px-1.5 py-0.5 text-[#0c5bef]">{s.dir === 'Aumentar' ? '↗' : '↘'} {s.dir}</span>
+        <span className="rounded bg-black/[0.05] px-1.5 py-0.5 text-black/60">{s.measure}</span>
+      </p>
+    </li>
   )
 }
 
-/** 06 · IA: en el producto (crear, leer) y en el proceso (casos de uso y sincronización). */
+function Proposes() {
+  return (
+    <div className="grid gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <ol className="space-y-2.5">
+        {BRIEF.map((b, i) => (
+          <li key={b.q} className={ramp} style={after(i * 260)}>
+            <p className="text-[12px] text-white/50">{b.q}</p>
+            <p className="mt-1 inline-flex rounded-full bg-white px-3 py-1 text-[13px] text-[#0b0d16]">{b.a}</p>
+          </li>
+        ))}
+        <li className={`${ramp} pt-1`} style={after(1350)}>
+          <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#7b5cff] to-[#0c5bef] px-4 py-2 text-[12px] font-medium">✦ Crear con IA</span>
+        </li>
+      </ol>
+      <ul className="space-y-2">
+        {SEEDS.map((s, i) => <Seed key={s.title} s={s} i={i} />)}
+      </ul>
+    </div>
+  )
+}
+
+/* ── 2 · Lee: «Análisis con IA», lectura real del staging (19 nov 2026) ── */
+
+const READING = [
+  { kind: 'Hallazgo', color: '#6b8cff', title: '72 % de los objetivos empuja un objetivo de empresa', level: 'Alta' },
+  { kind: 'Riesgo', color: '#ff6b5c', title: 'El avance va 9 puntos por detrás del calendario', level: 'Alta', proof: 'Avance general 9,1 % frente a 18 % del calendario corrido.' },
+  { kind: 'Qué hacer', color: '#17b26a', title: 'Desbloquear 42 objetivos antes de mirar cualquier otra cifra', level: 'Alta', proof: '29 por aprobar y 13 devueltos.' },
+]
+const SCANNED = [
+  ['286', 'objetivos'],
+  ['80', 'personas'],
+  ['9,1 %', 'avance'],
+  ['18 %', 'calendario'],
+]
+
+function Reads() {
+  const summary = useTyped('Va en 9,1 % de avance general, con 0 % de los objetivos en meta. El ritmo va por detrás del calendario (18 % corrido). Hay 42 objetivos sin aprobar que todavía no cuentan.', 900, 14)
+  return (
+    <div className="grid gap-6 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+      <div>
+        <div className="relative grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
+          {SCANNED.map(([v, k]) => (
+            <div key={k} className="rounded-lg bg-white/[0.06] p-3">
+              <p className="text-xl font-light tabular-nums">{v}</p>
+              <p className="text-[11px] text-white/45">{k}</p>
+            </div>
+          ))}
+          {/* La pasada que lee las cifras. */}
+          <span className="obj-scan pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-transparent via-[#7b5cff]/40 to-transparent" aria-hidden="true" />
+        </div>
+        <p className="mt-4 min-h-[5.5em] text-[13px] leading-relaxed text-white/75">{summary}</p>
+        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">9 lecturas · 78 % con confiabilidad alta</p>
+      </div>
+      <ul className="space-y-2">
+        {READING.map((r, i) => (
+          <li key={r.title} className={`${ramp} rounded-xl bg-white p-3.5 text-[#161a2c]`} style={after(600 + i * 450)}>
+            <p className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.12em]">
+              <span style={{ color: r.color === '#6b8cff' ? '#0c5bef' : r.color === '#ff6b5c' ? '#d92d20' : '#067647' }}>{r.kind}</span>
+              <span className="rounded-full bg-[#17b26a]/12 px-2 py-0.5 normal-case tracking-normal text-[#067647]">Confiabilidad {r.level.toLowerCase()}</span>
+            </p>
+            <p className="mt-1.5 text-[13px] font-medium">{r.title}</p>
+            {r.proof && <p className="mt-1 text-[11px] text-black/50">Evidencia: {r.proof}</p>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/* ── 3 · Sincroniza: Claude entre el código y los casos de uso ── */
+
+const COMMITS = [
+  'resultados: «Para atender» ordena por prioridad',
+  'constructor: el peso solo avisa al pasarse de 100 %',
+  'alineación: arrastrar el punto azul al objetivo',
+  'ranking: grupos de menos de 3 no se comparan',
+]
+
+function Syncs() {
+  const { reducedMotion } = useA11y()
+  const [count, setCount] = useState(reducedMotion ? 926 : 880)
+  useEffect(() => {
+    if (reducedMotion) return
+    const id = window.setInterval(() => setCount((c) => (c >= 926 ? (window.clearInterval(id), c) : c + 2)), 60)
+    return () => window.clearInterval(id)
+  }, [reducedMotion])
+  return (
+    <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+      <div>
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">Código del playground</p>
+        <ul className="space-y-1.5 font-mono text-[11px]">
+          {COMMITS.map((c, i) => (
+            <li key={c} className={`${ramp} rounded-md bg-white/[0.06] px-2.5 py-1.5 text-white/75`} style={after(i * 300)}>
+              <span className="text-[#9fb2ff]">●</span> {c}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="relative mx-auto grid h-28 w-28 place-items-center">
+        <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden="true">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
+          <circle cx="50" cy="50" r="44" fill="none" stroke="url(#obj-ai-grad)" strokeWidth="5" strokeLinecap="round" pathLength={1} strokeDasharray={1} className="obj-draw" style={{ animationDuration: `${STEP_MS - 800}ms`, animationTimingFunction: 'linear' }} />
+          <defs>
+            <linearGradient id="obj-ai-grad" x1="0" x2="1">
+              <stop offset="0" stopColor="#7b5cff" />
+              <stop offset="1" stopColor="#0c5bef" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span className="text-center">
+          <span className="block text-2xl font-light">15</span>
+          <span className="block text-[10px] text-white/50">min</span>
+        </span>
+      </div>
+      <div>
+        <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">Casos de uso</p>
+        <p className="text-[clamp(2.4rem,1.6rem+2vw,3.4rem)] font-light leading-none tabular-nums">{count}</p>
+        <div className={`${ramp} mt-4 rounded-xl bg-white p-3 text-[#161a2c]`} style={after(1600)}>
+          <p className="text-[12px] font-medium">Propuesta con pantallazo</p>
+          <p className="mt-0.5 text-[11px] text-black/55">Actualizar 3 casos de alineación</p>
+          <div className="mt-2 flex gap-1.5 text-[11px]">
+            <span className="rounded-md bg-[#0c5bef] px-2.5 py-1 text-white">Aprobar</span>
+            <span className="rounded-md border border-black/10 px-2.5 py-1">Ver cambio</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── El escenario: tres tiempos unidos por un haz ── */
+
+const TIMES: readonly { id: string; verb: L; where: L; what: L; Panel: () => JSX.Element }[] = [
+  { id: 'propone', verb: { es: 'Propone', en: 'Proposes' }, where: { es: 'Crear con IA', en: 'Create with AI' }, what: { es: 'Cinco preguntas, ninguna técnica, y salen los objetivos de la empresa con dirección y medida deducidas.', en: 'Five questions, none technical, and the company goals come out with direction and measure deduced.' }, Panel: Proposes },
+  { id: 'lee', verb: { es: 'Lee', en: 'Reads' }, where: { es: 'Análisis con IA', en: 'AI analysis' }, what: { es: 'Lee el ciclo entero y lo devuelve en hallazgos, riesgos y qué hacer, cada uno con su evidencia y su confiabilidad.', en: 'It reads the whole cycle and returns findings, risks and what to do, each with its evidence and confidence.' }, Panel: Reads },
+  { id: 'sincroniza', verb: { es: 'Sincroniza', en: 'Syncs' }, where: { es: 'Claude en el proceso', en: 'Claude in the process' }, what: { es: 'Cada 15 minutos cruza los cambios del playground con los casos de uso y deja propuestas con pantallazo. Una persona aprueba.', en: 'Every 15 minutes it matches playground changes with the use cases and leaves screenshot proposals. A person approves.' }, Panel: Syncs },
+]
+
+const NODE_X = [80, 400, 720]
+
+/** 06 · IA en el proceso: propone, lee y sincroniza. */
 export function ObjetivosAi() {
   const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const [pinned, setPinned] = useState(false)
+  const { step, ref, set } = useStepper(STEP_MS, TIMES.length, pinned)
+  const active = TIMES[step]
+  const pick = (i: number) => {
+    set(i)
+    setPinned(true)
+  }
+
   return (
     <div>
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(OBJ_CASE.ai.lead)}</p>
-      <Block className="!mt-12">
-        <SubHead index="6.1">{t({ es: 'Escribir: cinco preguntas, ningún campo técnico', en: 'Write: five questions, no technical fields' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'El autor dice en qué se juega el ciclo y qué tan exigente quiere ser; la dirección y el tipo de medida los deduce el generador. Ninguna respuesta viene marcada: una preseleccionada sería una respuesta que nadie dio.', en: 'The author says what’s at stake and how demanding to be; direction and measure type are deduced by the generator. No answer comes preselected: a preselected one would be an answer nobody gave.' })}</Body>
-        <BriefGenerator />
-      </Block>
-      <Block>
-        <SubHead index="6.2">{t({ es: 'Leer: frases con evidencia', en: 'Read: sentences with evidence' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'Cada lectura trae de dónde sale y qué tan segura es. Estas se calculan en vivo sobre el ciclo de ejemplo de la portada.', en: 'Each reading shows where it comes from and how sure it is. These are computed live on the sample cycle from the cover.' })}</Body>
-        <AiReading />
-      </Block>
-      <Block>
-        <SubHead index="6.3">{t({ es: 'Construir: del código al tablero', en: 'Build: from code to board' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'Los 926 casos de uso de Objetivos se abren en su pantalla exacta con ?caso=, y un motor revisa cada cambio del playground contra ellos.', en: 'The 926 Goals use cases open on their exact screen with ?caso=, and an engine checks every playground change against them.' })}</Body>
-        <SyncPipeline />
-      </Block>
+
+      {/* Los tres verbos, grandes: el que está en juego se enciende. */}
+      <p data-reveal className="mt-12 flex flex-wrap gap-x-5 text-[clamp(2.6rem,1.4rem+4.4vw,5.6rem)] font-light leading-[0.95] tracking-tight">
+        {TIMES.map((x, i) => (
+          <button key={x.id} type="button" onClick={() => pick(i)} className={`transition-[color,opacity] duration-700 ${i === step ? 'bg-gradient-to-r from-[#9f8cff] to-[#4f86ff] bg-clip-text text-transparent' : 'opacity-25 hover:opacity-50'}`}>
+            {t(x.verb)}.
+          </button>
+        ))}
+      </p>
+
+      <div ref={ref} data-reveal="device" className="relative mt-10 overflow-hidden rounded-3xl bg-[#0b0d16] p-4 text-white md:p-8">
+        <span className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#7b5cff] opacity-20 blur-3xl transition-transform duration-1000 ease-expo" style={{ transform: `translateX(${(step - 1) * 60}%)` }} aria-hidden="true" />
+
+        {/* El haz: tres nodos y un pulso que viaja al que está activo. */}
+        <div className="relative">
+          <svg viewBox="0 0 800 70" className="h-auto w-full" aria-hidden="true">
+            <defs>
+              <linearGradient id="obj-beam" x1="0" x2="1">
+                <stop offset="0" stopColor="#7b5cff" />
+                <stop offset="1" stopColor="#0c5bef" />
+              </linearGradient>
+            </defs>
+            <line x1={NODE_X[0]} x2={NODE_X[2]} y1={35} y2={35} stroke="rgba(255,255,255,0.12)" strokeWidth={2} />
+            <line x1={NODE_X[0]} x2={NODE_X[step]} y1={35} y2={35} stroke="url(#obj-beam)" strokeWidth={3} className="transition-all duration-1000 ease-expo" />
+            {!reducedMotion && <line x1={NODE_X[0]} x2={NODE_X[2]} y1={35} y2={35} stroke="#fff" strokeOpacity={0.7} strokeWidth={2} pathLength={1} strokeDasharray="0.05 0.95" className="obj-flow" />}
+            {TIMES.map((x, i) => (
+              <g key={x.id} onClick={() => pick(i)} className="cursor-pointer">
+                {i === step && !reducedMotion && <circle cx={NODE_X[i]} cy={35} r={22} fill="none" stroke="#9f8cff" strokeWidth={2} className="animate-[tap-ping_1.8s_ease-out_infinite]" style={{ transformOrigin: `${NODE_X[i]}px 35px` }} />}
+                <circle cx={NODE_X[i]} cy={35} r={i === step ? 16 : 10} fill={i <= step ? 'url(#obj-beam)' : '#1d2030'} stroke="rgba(255,255,255,0.25)" className="transition-all duration-700" />
+              </g>
+            ))}
+          </svg>
+          <div className="grid grid-cols-3 text-center">
+            {TIMES.map((x, i) => (
+              <button key={x.id} type="button" onClick={() => pick(i)} className={`text-[12px] transition-opacity ${i === step ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}>
+                <span className="block font-medium">{t(x.verb)}</span>
+                <span className="block text-white/50">{t(x.where)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div key={active.id} className="relative mt-8">
+          <p className={`${ramp} mb-6 max-w-[60ch] text-[15px] leading-relaxed text-white/75`}>{t(active.what)}</p>
+          <active.Panel />
+        </div>
+
+        <p className="relative mt-8 text-[11px] text-white/40">
+          {t({ es: 'Lo que lee el Análisis con IA es la lectura real del staging (19 nov 2026). En el prototipo, propone y lee con reglas sobre las cifras, sin modelo.', en: 'What AI analysis reads is the real staging reading (Nov 19, 2026). In the prototype it proposes and reads with rules over the numbers, no model.' })}
+        </p>
+      </div>
     </div>
   )
 }

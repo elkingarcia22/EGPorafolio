@@ -127,9 +127,10 @@ export function ProcessMarksStyle() {
       @keyframes pf-build { 0%, 10% { opacity: .15 } 35%, 85% { opacity: 1 } 100% { opacity: .15 } }
       @keyframes pf-spin { to { transform: rotate(360deg) } }
       @keyframes pf-rise { 0% { transform: scaleY(.2) } 45%, 100% { transform: scaleY(1) } }
+      @keyframes pf-comet { from { transform: translateX(-100%) } to { transform: translateX(0) } }
       @keyframes pf-tap { 0%, 100% { transform: translate(0, 0) } 50% { transform: translate(-14px, -18px) } }
-      @media (prefers-reduced-motion: reduce) { [style*='pf-'] { animation: none !important } }
-      html[data-motion='reduced'] [style*='pf-'] { animation: none !important }
+      @media (prefers-reduced-motion: reduce) { [style*='pf-'], [class*='pf-comet'] { animation: none !important } }
+      html[data-motion='reduced'] [style*='pf-'], html[data-motion='reduced'] [class*='pf-comet'] { animation: none !important }
     `}</style>
   )
 }

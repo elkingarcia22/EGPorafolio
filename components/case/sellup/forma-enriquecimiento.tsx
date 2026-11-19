@@ -1,27 +1,27 @@
 'use client'
 
-import { Check, Minus } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { RealFrame } from './real-app'
-import { Composer, OptionsCard, RumboPanel, RumboSays, UserSays } from './real-rumbo-panel'
 import { ContactReview } from './real-review-tables'
-import { ContactDetail, type PhoneState } from './real-detail'
+import { ContactDetail } from './real-detail'
 import { AgentStructure, type StructureItem } from './forma-structure'
 import { FakeCursor, ReplicaNote, StorySteps, stepAt, type StoryStep } from './real-story'
-import { DetailScene, PanelScene, SceneStage, useSceneTime } from './forma-stage'
+import { DetailScene, SceneStage, Scaled, useSceneTime } from './forma-stage'
+import { PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
+import { PhoneDecoder, type A2Phone } from './forma-a2-phone'
 
 /**
- * 5.3 · Agente 2: el panel de Rumbo «Enriquecer contactos», el resultado en
+ * 5.3 · Agente 2: arranca cuando Rumbo ya busca (radar de decisores), el resultado en
  * «Por revisar» con la decisora nueva destacada y su detalle con «Revelar teléfono».
  */
 
 const STEPS: readonly StoryStep[] = [
-  { label: { es: 'Le das la empresa a Rumbo', en: 'You give Rumbo the company' }, from: 0 },
-  { label: { es: 'Llega a «Por revisar», destacada', en: 'Lands in “To review”, highlighted' }, from: 13 },
-  { label: { es: 'Su detalle y su teléfono', en: 'Its detail and phone' }, from: 19 },
+  { label: { es: 'El radar barre las fuentes', en: 'The radar sweeps the sources' }, from: 0 },
+  { label: { es: 'Las decisoras llegan a «Por revisar»', en: 'Decision-makers land in “To review”' }, from: 13 },
+  { label: { es: 'Su detalle: se descifra el teléfono', en: 'Their detail: the phone gets decoded' }, from: 18 },
 ]
-const LOOP = 32
-const COMPANY = 'Clínica Andina'
+const LOOP = 30
 
 const STRUCTURE: readonly StructureItem[] = [
   { title: { es: 'Una empresa', en: 'One company' }, body: { es: 'Por nombre, dominio o HubSpot ID. También sirve el correo de alguien que trabaje allí.', en: 'By name, domain or HubSpot ID. Someone’s work email works too.' }, note: { es: 'HubSpot → lo ya conocido → Apollo → Lusha', en: 'HubSpot → already known → Apollo → Lusha' } },
@@ -29,90 +29,53 @@ const STRUCTURE: readonly StructureItem[] = [
   { title: { es: 'Un contacto por LinkedIn, correo o ID', en: 'One contact by LinkedIn, email or ID' }, body: { es: 'Su perfil de LinkedIn, su correo o su ID de contacto en HubSpot. Antes de gastar créditos revisa si ya lo tenemos.', en: 'Their LinkedIn profile, email or HubSpot contact ID. Before spending credits it checks whether we already have them.' }, note: { es: 'Teléfono: Apollo y, si no hay, Lusha', en: 'Phone: Apollo and, if none, Lusha' } },
 ]
 
-const CASCADE = [
-  { at: 8, name: 'HubSpot', result: '2 contactos · gratis', used: true },
-  { at: 9, name: 'Lo que SellUp ya conocía', result: '1 contacto · gratis', used: true },
-  { at: 10, name: 'Apollo', result: '3 decisores · 3 créditos', used: true },
-  { at: 11, name: 'Lusha', result: 'No hizo falta', used: false },
-]
-
-function Conversation({ time }: { time: number }) {
-  const typed = time < 2 ? 0 : Math.min(COMPANY.length, (time - 1) * 4)
-  const sent = time >= 6
-  return (
-    <RumboPanel
-      inline
-      subtitle="Enriquecer contactos"
-      footer={
-        <>
-          {!sent && (
-            <div className="mb-3">
-              <OptionsCard
-                title="¿Prefieres otra forma de buscar?"
-                options={[
-                  { title: 'Varias empresas por HubSpot ID', body: 'Hasta 10 HubSpot IDs de empresa, separados por coma o uno por fila.' },
-                  { title: 'Un contacto por LinkedIn, correo o ID de HubSpot', body: 'Su perfil de LinkedIn, su correo o su ID de contacto en HubSpot. Antes de gastar créditos reviso si ya lo tenemos.' },
-                ]}
-              />
-            </div>
-          )}
-          <Composer text={sent ? '' : COMPANY.slice(0, typed)} placeholder="Nombre o dominio de la empresa" typing={!sent && time >= 2} />
-        </>
-      }
-    >
-      <RumboSays>
-        <span className="block">Hola. Puedo ayudarte a preparar una búsqueda de contactos para una empresa.</span>
-        <span className="mt-2 block">Para empezar, dime el nombre, dominio o HubSpot ID de la empresa. También sirve el correo de alguien que trabaje allí.</span>
-      </RumboSays>
-      {sent && (
-        <>
-          <UserSays>{COMPANY}</UserSays>
-          <RumboSays show={time >= 7}>Encontré Clínica Andina · clinicaandina.mx · 1.240 empleados. Reservo 8 créditos y busco primero en lo gratis.</RumboSays>
-          <div className="ml-8 space-y-1.5">
-            {CASCADE.map((c) => (
-              <p key={c.name} className={`flex items-center gap-2 rounded-lg border border-white/10 px-2.5 py-1.5 text-[12.5px] transition-all duration-500 ${time >= c.at ? 'opacity-100' : 'opacity-0'}`}>
-                {c.used ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Minus className="h-3.5 w-3.5 text-white/40" />}
-                <span className="font-medium">{c.name}</span>
-                <span className={`ml-auto ${c.used ? 'text-white/70' : 'text-white/40'}`}>{c.result}</span>
-              </p>
-            ))}
-          </div>
-          <RumboSays show={time >= 12}>Listo: 4 contactos a «Por revisar». Devolví los 5 créditos que no usé.</RumboSays>
-        </>
-      )}
-    </RumboPanel>
-  )
+function phoneAt(time: number): A2Phone {
+  if (time < 20) return 'idle'
+  if (time < 22) return 'apollo'
+  if (time < 24) return 'lusha'
+  return 'done'
 }
 
-function phoneAt(time: number): PhoneState {
-  if (time < 22) return 'idle'
-  if (time < 24) return 'apollo'
-  if (time < 26) return 'lusha'
-  return 'done'
+/** Entrada con velocidad: la escena llega desde un zoom con desenfoque. */
+function Warp({ on, children }: { on: boolean; children: ReactNode }) {
+  return (
+    <div className="motion-reduce:!transform-none motion-reduce:!filter-none" style={{ transform: on ? 'none' : 'scale(1.08)', filter: on ? 'none' : 'blur(10px)', transition: 'transform 380ms cubic-bezier(0.16,1,0.3,1), filter 320ms ease-out' }}>
+      {children}
+    </div>
+  )
 }
 
 export function ContactEnrichment() {
   const { t } = useLocale()
-  const [ref, time, jump] = useSceneTime(LOOP, 28)
+  const [ref, time, jump] = useSceneTime(LOOP, 25)
   const scene = stepAt(STEPS, time)
-  const onRow = time >= 15 && time < 19
-  const onPhone = time >= 19 && time < 23
+  const onRow = time >= 15 && time < 18
+  const onPhone = time >= 18 && time < 21
   return (
     <div ref={ref}>
       <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 2', en: 'Agent 2' }} onPick={jump} />
       <SceneStage
         active={scene}
         scenes={[
-          <PanelScene key="panel"><Conversation time={Math.min(time, 12)} /></PanelScene>,
-          <RealFrame key="table" active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 248 : 560} click={time === 18} show={onRow} />}>
-            <ContactReview arrived={time >= 14} focus={time >= 14} />
-          </RealFrame>,
-          <DetailScene key="detail">
-            <div className="relative h-full">
-              <ContactDetail show inline phone={phoneAt(time)} pressed={time === 21} />
-              <FakeCursor x={onPhone ? 115 : 600} y={onPhone ? 360 : 520} click={time === 21} show={onPhone} />
-            </div>
-          </DetailScene>,
+          <Warp key="radar" on={scene === 0}>
+            <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={scene === 0 ? time : 13} /></Scaled>
+          </Warp>,
+          <Warp key="table" on={scene === 1}>
+            <RealFrame active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 248 : 560} click={time === 17} show={onRow} />}>
+              <ContactReview arrived={time >= 14} focus={time >= 14} />
+            </RealFrame>
+          </Warp>,
+          <Warp key="detail" on={scene === 2}>
+            <DetailScene>
+              <div className="relative h-full">
+                <ContactDetail show inline phone="idle" />
+                <div className="absolute z-20" style={{ left: A2_BTN.x, top: A2_BTN.y }}>
+                  <PhoneDecoder state={phoneAt(time)} pressed={time === 20} />
+                </div>
+                <FakeCursor x={onPhone ? A2_BTN.x + 60 : 600} y={onPhone ? A2_BTN.y + 18 : 520} click={time === 20} show={onPhone} />
+              </div>
+            </DetailScene>
+          </Warp>,
         ]}
       />
       <ReplicaNote />
@@ -121,3 +84,6 @@ export function ContactEnrichment() {
     </div>
   )
 }
+
+/** Dónde queda el botón «Revelar teléfono» dentro del detalle (px de diseño, 960 × 600). */
+const A2_BTN = { x: 39, y: 362 }
