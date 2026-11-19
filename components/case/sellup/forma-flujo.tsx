@@ -1,11 +1,11 @@
 'use client'
 
-import { AlertTriangle, Briefcase, Calendar, Check, ChevronDown, FileText, GitBranch, Loader2, MessageCircle, SlidersHorizontal, Target, Users } from 'lucide-react'
+import { AlertTriangle, Briefcase, Calendar, ChevronDown, FileText, Loader2, MessageCircle, SlidersHorizontal, Target, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { useA11y } from '@/lib/a11y'
 import { useTick } from '../barberlytics/thema/live-pieces'
-import { RumboOrb, RUMBO_GRADIENT } from './platform'
+import { RumboOrb } from './platform'
 import { RealFrame, RealTag } from './real-app'
 import { useInView } from './ui'
 
@@ -144,22 +144,6 @@ function FlowScreen({ time }: { time: number }) {
   )
 }
 
-/** Dock flotante real: «Cambiar etapa» y el botón de Rumbo con la acción en curso. */
-function Dock({ time }: { time: number }) {
-  const phase = phaseAt(time)
-  const done = time >= 21
-  return (
-    <div className="absolute bottom-5 left-[738px] flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-white/10 bg-[#141414]/95 p-1.5 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.9)] backdrop-blur">
-      <span className="grid h-9 w-9 place-items-center"><RumboOrb size={18} /></span>
-      <span className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-[#6b8cff] px-4 py-2 text-[13.5px] font-medium text-[#0a0a0a]"><GitBranch className="h-4 w-4" />Cambiar etapa</span>
-      <span className="flex min-w-[330px] items-center whitespace-nowrap justify-center gap-2 rounded-xl px-4 py-2 text-[13.5px] font-medium" style={{ background: RUMBO_GRADIENT }}>
-        {done ? <Check className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
-        {done ? 'Listo · revisa y contacta' : PHASES[phase].dock}
-      </span>
-    </div>
-  )
-}
-
 export function PipelineFlow() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
@@ -189,7 +173,7 @@ export function PipelineFlow() {
           )
         })}
       </ol>
-      <RealFrame active="flujo" crumb={['Flujo de prospección']} height={720} overlay={<Dock time={time} />}>
+      <RealFrame active="flujo" crumb={['Flujo de prospección']} height={720}>
         <FlowScreen time={time} />
       </RealFrame>
       <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40">{t({ es: 'Réplica de la pantalla real · empresa y personas de ejemplo', en: 'Replica of the real screen · sample company and people' })}</p>
