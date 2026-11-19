@@ -7,7 +7,8 @@ import { Composer, OptionsCard, RumboPanel, RumboSays, UserSays } from './real-r
 import { ContactReview } from './real-review-tables'
 import { ContactDetail, type PhoneState } from './real-detail'
 import { AgentStructure, type StructureItem } from './forma-structure'
-import { FakeCursor, ReplicaNote, StorySteps, useStoryTime, type StoryStep } from './real-story'
+import { FakeCursor, ReplicaNote, StorySteps, stepAt, type StoryStep } from './real-story'
+import { DetailScene, PanelScene, SceneStage, useSceneTime } from './forma-stage'
 
 /**
  * 5.3 · Agente 2: el panel de Rumbo «Enriquecer contactos», el resultado en
@@ -17,9 +18,9 @@ import { FakeCursor, ReplicaNote, StorySteps, useStoryTime, type StoryStep } fro
 const STEPS: readonly StoryStep[] = [
   { label: { es: 'Le das la empresa a Rumbo', en: 'You give Rumbo the company' }, from: 0 },
   { label: { es: 'Llega a «Por revisar», destacada', en: 'Lands in “To review”, highlighted' }, from: 13 },
-  { label: { es: 'Su detalle y su teléfono', en: 'Its detail and phone' }, from: 17 },
+  { label: { es: 'Su detalle y su teléfono', en: 'Its detail and phone' }, from: 19 },
 ]
-const LOOP = 33
+const LOOP = 32
 const COMPANY = 'Clínica Andina'
 
 const STRUCTURE: readonly StructureItem[] = [
@@ -40,6 +41,7 @@ function Conversation({ time }: { time: number }) {
   const sent = time >= 6
   return (
     <RumboPanel
+      inline
       subtitle="Enriquecer contactos"
       footer={
         <>
@@ -91,30 +93,30 @@ function phoneAt(time: number): PhoneState {
 
 export function ContactEnrichment() {
   const { t } = useLocale()
-  const [ref, time] = useStoryTime(LOOP, 28)
-  const panel = time < 13
-  const detail = time >= 18 && time < LOOP - 1
-  const onRow = time >= 15 && time < 18
-  const onPhone = time >= 20 && time < 23
-  const cursor = onRow ? { x: 370, y: 248 } : onPhone ? { x: 520, y: 418 } : { x: 1000, y: 640 }
+  const [ref, time, jump] = useSceneTime(LOOP, 28)
+  const scene = stepAt(STEPS, time)
+  const onRow = time >= 15 && time < 19
+  const onPhone = time >= 19 && time < 23
   return (
     <div ref={ref}>
-      <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 2', en: 'Agent 2' }} />
-      <RealFrame
-        active="contactos"
-        crumb={['Contactos', 'Por revisar']}
-        height={720}
-        overlay={<FakeCursor x={cursor.x} y={cursor.y} click={time === 17 || time === 21} show={onRow || onPhone} />}
-      >
-        <ContactReview arrived={time >= 14} focus={time >= 14} />
-        <div className={`absolute inset-0 transition-opacity duration-500 ${panel ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
-          <div className="absolute inset-0 bg-black/40" />
-          <Conversation time={time} />
-        </div>
-        <ContactDetail show={detail} phone={phoneAt(time)} pressed={time === 21} />
-      </RealFrame>
+      <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 2', en: 'Agent 2' }} onPick={jump} />
+      <SceneStage
+        active={scene}
+        scenes={[
+          <PanelScene key="panel"><Conversation time={Math.min(time, 12)} /></PanelScene>,
+          <RealFrame key="table" active="contactos" crumb={['Contactos', 'Por revisar']} height={600} overlay={<FakeCursor x={onRow ? 370 : 900} y={onRow ? 248 : 560} click={time === 18} show={onRow} />}>
+            <ContactReview arrived={time >= 14} focus={time >= 14} />
+          </RealFrame>,
+          <DetailScene key="detail">
+            <div className="relative h-full">
+              <ContactDetail show inline phone={phoneAt(time)} pressed={time === 21} />
+              <FakeCursor x={onPhone ? 115 : 600} y={onPhone ? 360 : 520} click={time === 21} show={onPhone} />
+            </div>
+          </DetailScene>,
+        ]}
+      />
       <ReplicaNote />
-      <AgentStructure heading={{ es: 'Su estructura · tres formas de buscar contactos', en: 'Its structure · three ways to find contacts' }} items={STRUCTURE} active={panel ? 0 : undefined} />
+      <AgentStructure heading={{ es: 'Su estructura · tres formas de buscar contactos', en: 'Its structure · three ways to find contacts' }} items={STRUCTURE} active={scene === 0 ? 0 : undefined} />
       <p className="mt-3 text-sm text-white/50">{t({ es: 'Nada se aprueba solo: cada contacto llega a «Por revisar» con su relevancia, su fuente y lo que costó.', en: 'Nothing approves itself: every contact lands in “To review” with its relevance, source and cost.' })}</p>
     </div>
   )

@@ -6,6 +6,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { useA11y } from '@/lib/a11y'
 import { useTick } from '../barberlytics/thema/live-pieces'
 import { RealFrame, RealTag } from './real-app'
+import { Monitor } from './device-frames'
 import { useInView } from './ui'
 
 /**
@@ -143,6 +144,48 @@ function FlowScreen({ time }: { time: number }) {
   )
 }
 
+const FLOAT_TEXT: readonly { stage: string; note: L }[] = [
+  { stage: 'Prospección', note: { es: 'Encontrada por el Agente 1 · libre en HubSpot', en: 'Found by Agent 1 · free in HubSpot' } },
+  { stage: 'Enriquecimiento', note: { es: '3 decisores · 2 con teléfono', en: '3 decision-makers · 2 with phone' } },
+  { stage: 'Primer contacto', note: { es: '6 hechos citados · guion listo', en: '6 cited facts · script ready' } },
+]
+
+/** Tarjetas que salen del monitor y destacan la empresa que avanza (solo en pantallas anchas). */
+function FloatCards({ time }: { time: number }) {
+  const { t } = useLocale()
+  const phase = phaseAt(time)
+  const f = FLOAT_TEXT[phase]
+  const shown = time >= 1
+  return (
+    <>
+      <div
+        className={`pointer-events-none absolute -right-4 top-[14%] hidden w-[240px] rounded-2xl border border-[#6b8cff]/60 bg-[#141826]/95 p-4 shadow-[0_0_0_4px_rgba(107,140,255,0.15),0_30px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur transition-all duration-700 ease-expo xl:block ${shown ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0'}`}
+        aria-hidden="true"
+      >
+        <p className="mono-label text-white/45">{t({ es: 'Empresa destacada', en: 'Highlighted company' })}</p>
+        <p className="mt-1 text-lg font-medium">Clínica Andina</p>
+        <p className="text-xs text-white/55">🇲🇽 México · Salud · 1.240 emp.</p>
+        <p key={f.stage} className="mt-3 inline-flex rounded-md border border-[#3b82f6]/50 bg-[#3b82f6]/15 px-2 py-0.5 text-xs text-[#7fb0ff]">{f.stage}</p>
+        <p className="mt-2 text-sm leading-snug text-white/80">{t(f.note)}</p>
+      </div>
+      <div
+        className={`pointer-events-none absolute -left-4 bottom-[22%] hidden w-[210px] rounded-2xl border border-white/10 bg-[#141517]/95 p-4 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.9)] backdrop-blur transition-all duration-700 ease-expo xl:block ${shown ? 'translate-x-0 opacity-100' : '-translate-x-6 opacity-0'}`}
+        aria-hidden="true"
+      >
+        <p className="mono-label text-white/45">{t({ es: 'Etapas con agente', en: 'Stages with an agent' })}</p>
+        <ul className="mt-2 space-y-1.5 text-sm">
+          {FLOAT_TEXT.map((x, i) => (
+            <li key={x.stage} className="flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${i < phase || time >= 21 ? 'bg-emerald-400' : i === phase ? 'bg-[#6b8cff]' : 'bg-white/20'}`} />
+              <span className={i <= phase ? 'text-white' : 'text-white/40'}>{x.stage}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  )
+}
+
 export function PipelineFlow() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
@@ -172,9 +215,14 @@ export function PipelineFlow() {
           )
         })}
       </ol>
-      <RealFrame active="flujo" crumb={['Flujo de prospección']} height={720}>
-        <FlowScreen time={time} />
-      </RealFrame>
+      <div className="relative">
+        <Monitor>
+          <RealFrame active="flujo" crumb={['Flujo de prospección']} height={720}>
+            <FlowScreen time={time} />
+          </RealFrame>
+        </Monitor>
+        <FloatCards time={time} />
+      </div>
       <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40">{t({ es: 'Réplica de la pantalla real · empresa y personas de ejemplo', en: 'Replica of the real screen · sample company and people' })}</p>
     </div>
   )

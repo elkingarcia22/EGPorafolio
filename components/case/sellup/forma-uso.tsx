@@ -1,9 +1,8 @@
 'use client'
 
 import { ChevronDown, Info, Loader2, SlidersHorizontal, Compass } from 'lucide-react'
-import { useLocale } from '@/lib/i18n'
 import { RealCard, RealFrame, RealTag } from './real-app'
-import { HIGHLIGHT, StorySteps, stepAt, useStoryTime, type StoryStep } from './real-story'
+import { HIGHLIGHT, stepAt, useStoryTime, type StoryStep } from './real-story'
 
 /**
  * 5.6 · «Uso de IA, costos y efectividad» tal cual: cifras reales de Producción
@@ -139,16 +138,14 @@ function Screen({ time }: { time: number }) {
   )
 }
 
-export function UsageMetrics() {
-  const { t } = useLocale()
+/** La pantalla real sola (para ir dentro de un dispositivo). */
+export function UsageScreen() {
   const [ref, time] = useStoryTime(LOOP, 14)
   return (
     <div ref={ref}>
-      <StorySteps steps={STEPS} time={time} kicker={{ es: 'Uso y costos', en: 'Usage and cost' }} />
       <RealFrame active="uso" crumb={['Uso de IA y costos']} height={940}>
         <Screen time={time} />
       </RealFrame>
-      <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40">{t({ es: 'Réplica de la pantalla real · cifras reales de Producción (nov. 2026) más una corrida de ejemplo', en: 'Replica of the real screen · real Production figures (Nov 2026) plus a sample run' })}</p>
     </div>
   )
 }
