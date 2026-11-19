@@ -7,6 +7,10 @@
   from { width: 0%; }
   to { width: 100%; }
 }
+@keyframes obj-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 @keyframes obj-travel {
   from { left: 0%; opacity: 0; }
   10% { opacity: 1; }
@@ -15,11 +19,13 @@
 }
 .obj-fade { animation: obj-fade-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .obj-toast { animation: obj-fade-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.obj-progress { animation: obj-progress linear both; }
 .obj-travel { animation: obj-travel 3.2s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .obj-fade, .obj-toast, .obj-travel { animation: none; }
+  .obj-fade, .obj-toast, .obj-travel, .obj-progress { animation: none; }
 }
 html[data-motion='reduced'] .obj-fade,
 html[data-motion='reduced'] .obj-toast,
-html[data-motion='reduced'] .obj-travel { animation: none; }
+html[data-motion='reduced'] .obj-travel,
+html[data-motion='reduced'] .obj-progress { animation: none; }

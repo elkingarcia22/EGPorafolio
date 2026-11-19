@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
+import { ModelStudy } from './model-study'
 
 interface Reference {
   name: string
@@ -61,7 +62,12 @@ export function ObjetivosPatterns() {
   return (
     <div>
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(patterns.lead)}</p>
-      <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12">
+        <ModelStudy />
+      </div>
+
+      <p data-reveal className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Cómo consiguen otras herramientas que la gente reporte', en: 'How other tools get people to report' })}</p>
+      <ul className=" grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {REFS.map((r, i) => (
           <RefCard key={r.name} r={r} index={i} />
         ))}
