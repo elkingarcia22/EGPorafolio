@@ -17,10 +17,39 @@ export function toHsl(hex: string): [number, number, number] {
   return [h * 60, s * 100, l * 100]
 }
 
-/** El fin del gradiente de IA: el primario girado 120° en el círculo cromático. */
-export function aiEndFrom(hex: string, dark: boolean): string {
-  const [h, s] = toHsl(hex)
-  return `hsl(${(h + 120) % 360} ${Math.max(s, 86)}% ${dark ? 58 : 50}%)`
+/**
+ * Parejas reales primario → fin del gradiente de IA en Thema (ver THEMA_CASE.themes):
+ * dorado → azul, azul → rosa, verde → índigo, rojo → ámbar, violeta → naranja, jade → lila.
+ */
+const AI_PAIRS: readonly (readonly [string, string])[] = [
+  ['#D9B36A', '#3F72D8'],
+  ['#0C5BEF', '#E11D48'],
+  ['#059669', '#4F46E5'],
+  ['#F87171', '#F59E0B'],
+  ['#7C3AED', '#F97316'],
+  ['#7FD8AF', '#7C6CF0'],
+]
+
+function hueDistance(a: number, b: number): number {
+  const d = Math.abs(a - b) % 360
+  return d > 180 ? 360 - d : d
+}
+
+/** El fin del gradiente de IA: el del tema real con el tono más cercano al primario. */
+export function aiEndFrom(hex: string): string {
+  const [h] = toHsl(hex)
+  const closest = AI_PAIRS.reduce((best, pair) => (hueDistance(toHsl(pair[0])[0], h) < hueDistance(toHsl(best[0])[0], h) ? pair : best))
+  return closest[1]
+}
+
+/**
+ * Las cuatro paradas del gradiente de IA (como en el orbe de Clipper): claro → primario → puente → fin.
+ * El puente va 30° antes del fin, como el petróleo entre el cobre y el azul del tema Premium.
+ */
+export function aiStops(hex: string): [string, string, string, string] {
+  const end = aiEndFrom(hex)
+  const [h] = toHsl(end)
+  return [shade(hex, 0.35), hex, `hsl(${(h + 330) % 360} 62% 46%)`, end]
 }
 
 /** Texto encima del primario: blanco o tinta, según la luminancia. */

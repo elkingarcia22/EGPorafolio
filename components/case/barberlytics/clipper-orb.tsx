@@ -23,16 +23,19 @@ interface ClipperOrbProps {
   size?: number
   state?: ClipperOrbState
   className?: string
+  /** Paradas del gradiente de IA del tema; por defecto, las del tema Premium. */
+  stops?: readonly [string, string, string, string]
 }
 
 /** La presencia de Clipper: el poste de barbería hecho esfera de vidrio. */
-export function ClipperOrb({ size = 128, state = 'idle', className = '' }: ClipperOrbProps) {
+export function ClipperOrb({ size = 128, state = 'idle', className = '', stops }: ClipperOrbProps) {
+  const themeVars: Record<string, string> = stops ? { '--ai-1': stops[0], '--ai-2': stops[1], '--ai-3': stops[2], '--ai-5': stops[3] } : {}
   return (
     <span
       aria-hidden="true"
       data-state={state}
       className={`clipper-orb inline-block ${className}`}
-      style={{ '--clipper-orb-size': `${size}px` } as React.CSSProperties}
+      style={{ '--clipper-orb-size': `${size}px`, ...themeVars } as React.CSSProperties}
     >
       <span className="clipper-orb__halo" />
       <span className="clipper-orb__ring" />

@@ -5,7 +5,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { PhoneBody, StatusBar } from '@/components/case/kit/device'
 import { ClipperOrb } from '../clipper-orb'
-import { aiEndFrom, inkOn, shade, withAlpha } from './color-utils'
+import { aiEndFrom, aiStops, inkOn, shade, withAlpha } from './color-utils'
 
 /* ── Barberías de ejemplo y sus emblemas ──────────────────────────────── */
 
@@ -29,8 +29,8 @@ function ClasicoEmblem({ primary, secondary }: { primary: string; secondary: str
         <circle cx="120" cy="122" r="12" />
         <path d="M88 112 L130 62 M112 112 L70 62" />
       </g>
-      <text x="100" y="58" textAnchor="middle" fill={secondary} fontSize="17" fontWeight="800" letterSpacing="3">EL CLÁSICO</text>
-      <text x="100" y="160" textAnchor="middle" fill={secondary} fontSize="10" letterSpacing="4">BARBERÍA · 1998</text>
+      <text x="100" y="60" textAnchor="middle" fill={secondary} fontSize="15" fontWeight="800" textLength="112" lengthAdjust="spacingAndGlyphs">EL CLÁSICO</text>
+      <text x="100" y="158" textAnchor="middle" fill={secondary} fontSize="9" textLength="90" lengthAdjust="spacingAndGlyphs">BARBERÍA · 1998</text>
     </svg>
   )
 }
@@ -41,8 +41,8 @@ function NavajaEmblem({ primary, secondary }: { primary: string; secondary: stri
       <path d="M100 10 L176 38 L170 120 Q160 168 100 192 Q40 168 30 120 L24 38 Z" fill={primary} />
       <path d="M58 118 L120 86 L148 96 L86 128 Z" fill={secondary} />
       <path d="M120 86 L150 70" stroke={secondary} strokeWidth="7" strokeLinecap="round" />
-      <text x="100" y="62" textAnchor="middle" fill={secondary} fontSize="16" fontWeight="800" letterSpacing="2">NAVAJA</text>
-      <text x="100" y="158" textAnchor="middle" fill={secondary} fontSize="14" fontWeight="700" letterSpacing="6">AZUL</text>
+      <text x="100" y="64" textAnchor="middle" fill={secondary} fontSize="16" fontWeight="800" textLength="88" lengthAdjust="spacingAndGlyphs">NAVAJA</text>
+      <text x="100" y="154" textAnchor="middle" fill={secondary} fontSize="14" fontWeight="700" textLength="56" lengthAdjust="spacingAndGlyphs">AZUL</text>
     </svg>
   )
 }
@@ -53,7 +53,7 @@ function AndesEmblem({ primary, secondary }: { primary: string; secondary: strin
       <path d="M100 8 L182 54 L182 146 L100 192 L18 146 L18 54 Z" fill={secondary} stroke={primary} strokeWidth="4" />
       <path d="M44 132 L82 78 L102 104 L122 70 L160 132 Z" fill={primary} />
       <path d="M116 80 L122 70 L128 80" stroke={secondary} strokeWidth="4" fill="none" />
-      <text x="100" y="160" textAnchor="middle" fill={primary} fontSize="17" fontWeight="800" letterSpacing="4">LOS ANDES</text>
+      <text x="100" y="156" textAnchor="middle" fill={primary} fontSize="14" fontWeight="800" textLength="96" lengthAdjust="spacingAndGlyphs">LOS ANDES</text>
     </svg>
   )
 }
@@ -66,7 +66,8 @@ function VerdeEmblem({ primary, secondary }: { primary: string; secondary: strin
       <g stroke={primary} strokeWidth="7">
         <path d="M88 64 L112 52 M88 86 L112 74 M88 108 L112 96 M88 130 L112 118" />
       </g>
-      <text x="100" y="160" textAnchor="middle" fill={secondary} fontSize="13" fontWeight="800" letterSpacing="3">VERDE BARBER CLUB</text>
+      <text x="100" y="158" textAnchor="middle" fill={secondary} fontSize="14" fontWeight="800" textLength="80" lengthAdjust="spacingAndGlyphs">VERDE</text>
+      <text x="100" y="174" textAnchor="middle" fill={secondary} fontSize="9" fontWeight="600" textLength="96" lengthAdjust="spacingAndGlyphs">BARBER CLUB</text>
     </svg>
   )
 }
@@ -90,7 +91,7 @@ function ShopApp({ shop, primary }: { shop: Shop; primary: string }) {
   const text = dark ? '#efe9dd' : '#303a47'
   const muted = dark ? 'rgba(239,233,221,0.55)' : '#5c646f'
   const border = dark ? 'rgba(239,233,221,0.1)' : '#e4e6ea'
-  const aiEnd = aiEndFrom(primary, dark)
+  const stops = aiStops(primary)
   const card = { background: surface, borderColor: border }
   return (
     <div className="space-y-3 px-4 pb-6 pt-3 text-[11px] transition-colors duration-700" style={{ background: app, color: text }}>
@@ -120,9 +121,9 @@ function ShopApp({ shop, primary }: { shop: Shop; primary: string }) {
       <button type="button" tabIndex={-1} className="w-full rounded-xl py-2.5 text-[12px] font-semibold transition-colors duration-700" style={{ background: primary, color: ink }}>
         Reservar →
       </button>
-      <div className="rounded-xl p-[1.5px] transition-[background] duration-700" style={{ background: `linear-gradient(90deg, ${primary}, ${aiEnd})` }}>
+      <div className="rounded-xl p-[1.5px] transition-[background] duration-700" style={{ background: `linear-gradient(90deg, ${stops.join(', ')})` }}>
         <div className="flex items-center gap-2 rounded-[10px] px-3 py-2" style={{ background: surface }}>
-          <ClipperOrb size={18} />
+          <ClipperOrb size={18} stops={stops} />
           <span style={{ color: muted }}>¿Lo de siempre con Emilio?</span>
         </div>
       </div>
@@ -151,7 +152,7 @@ export function LogoToApp() {
   return (
     <div data-reveal="device" className="relative overflow-hidden rounded-3xl bg-[#0f0d0b] p-5 text-white md:p-10">
       <span className="pointer-events-none absolute -left-24 top-1/2 h-[520px] w-[520px] -translate-y-1/2 rounded-full opacity-40 blur-3xl transition-[background] duration-1000" style={{ background: primary }} aria-hidden="true" />
-      <span className="pointer-events-none absolute -right-20 bottom-0 h-[380px] w-[380px] rounded-full opacity-25 blur-3xl transition-[background] duration-1000" style={{ background: aiEndFrom(primary, true) }} aria-hidden="true" />
+      <span className="pointer-events-none absolute -right-20 bottom-0 h-[380px] w-[380px] rounded-full opacity-25 blur-3xl transition-[background] duration-1000" style={{ background: aiEndFrom(primary) }} aria-hidden="true" />
 
       <div className="relative grid items-center gap-10 md:grid-cols-[1fr_auto_minmax(0,300px)]">
         {/* El logo y sus colores */}
