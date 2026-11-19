@@ -85,8 +85,8 @@ export const OBJ_CASE = {
 
   form: {
     lead: {
-      es: 'El rediseño se construyó en el playground de UBITS, en React, sobre el sistema de diseño de la empresa. Aquí sus piezas están recreadas en vivo con los textos y las reglas del playground; al final, la captura real.',
-      en: 'The redesign was built in UBITS’ playground, in React, on the company design system. Here its pieces are recreated live with the playground’s copy and rules; at the end, the real screenshot.',
+      es: 'El rediseño se construyó en el playground de UBITS, en React, sobre el sistema de diseño de la empresa. Aquí, los bloques reales de Resultados con las cifras de un ciclo del staging; al final, la captura real del inicio.',
+      en: 'The redesign was built in UBITS’ playground, in React, on the company design system. Here, the real Results blocks with the figures of a staging cycle; at the end, the real home screenshot.',
     } as L,
     steps: [
       { id: 'general', label: { es: 'Parametrización', en: 'Setup' }, shot: { src: img('crear'), alt: { es: 'Paso 1 del constructor: nombre, duración y fechas', en: 'Builder step 1: name, duration and dates' }, caption: { es: 'Nombre, duración y quién redacta. «Así va el ciclo» dice qué falta.', en: 'Name, duration and who writes. “How the cycle is going” says what’s missing.' } } },
