@@ -6,7 +6,6 @@ import type { Project } from '@/lib/content/projects'
 import { ClipperScenePreview } from './previews/clipper-scene-preview'
 import { EncuestasPreview } from './previews/encuestas-preview'
 import { ObjetivosPreview } from './previews/objetivos-preview'
-import { ObjetivosCompactPreview } from './previews/objetivos-compact-preview'
 import { SellupCompactPreview } from './previews/sellup-compact-preview'
 
 type PreviewComponent = (props: { compact?: boolean }) => React.JSX.Element
@@ -25,7 +24,6 @@ const PREVIEWS: Partial<Record<string, PreviewComponent>> = {
  */
 const COMPACT_PREVIEWS: Partial<Record<string, PreviewComponent>> = {
   sellup: SellupCompactPreview,
-  objetivos: ObjetivosCompactPreview,
 }
 
 export const hasCustomPreview = (slug: string): boolean => Boolean(PREVIEWS[slug])
