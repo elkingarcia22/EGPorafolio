@@ -3,89 +3,84 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
-import { NOM_GOALS, RETENTION, SUS, TURNOVER, USABILITY, type Shift } from '@/lib/content/cases/encuestas/impact-metrics'
 import { ReferenceTag } from './shared'
 
-/** La rotación voluntaria en áreas que cierran su plan de acción, de la serie de referencia. */
-const TURNOVER_SHIFT: Shift = {
-  id: 'rotacion',
-  label: { es: 'Rotación voluntaria donde el resultado se vuelve plan', en: 'Voluntary turnover where results become a plan' },
-  hint: { es: 'Áreas con plan de acción cerrado, en un año', en: 'Areas with a closed action plan, over a year' },
-  from: TURNOVER.withPlan[0],
-  to: TURNOVER.withPlan[TURNOVER.withPlan.length - 1],
-  unit: '%',
-  lowerIsBetter: true,
-  reference: true,
-}
-
-const GROUPS: readonly { title: L; items: readonly Shift[] }[] = [
-  { title: { es: 'Usabilidad', en: 'Usability' }, items: [SUS, USABILITY[1]] },
-  { title: { es: 'Retención', en: 'Retention' }, items: [RETENTION[0], TURNOVER_SHIFT] },
-  { title: { es: 'NOM 035', en: 'NOM 035' }, items: [NOM_GOALS[0], NOM_GOALS[1]] },
+/**
+ * Lo que una encuesta que termina en accionables puede mover en la empresa. El módulo todavía no corre con clientes:
+ * son metas de referencia, modestas a propósito, para medir al salir; no resultados.
+ */
+const OUTCOMES: readonly { value: number; prefix: string; suffix: string; decimals?: number; label: L; how: L }[] = [
+  { value: 8, prefix: '+', suffix: '', label: { es: 'puntos de eNPS', en: 'eNPS points' }, how: { es: 'en empresas que cierran sus accionables entre una medición y la siguiente', en: 'in companies that close their actions between one measurement and the next' } },
+  { value: 5, prefix: '+', suffix: ' pp', label: { es: 'de favorabilidad de clima', en: 'climate favorability' }, how: { es: 'en las secciones que tuvieron un plan con dueño', en: 'in the sections that had an owned plan' } },
+  { value: 85, prefix: '', suffix: ' %', label: { es: 'de clientes en México cumplen la NOM 035', en: 'of customers in Mexico meet NOM 035' }, how: { es: 'con el 100 % de participación antes del cierre, frente al 60 % de hoy', en: 'with 100 % participation before closing, versus 60 % today' } },
+  { value: 1.5, prefix: '−', suffix: ' pp', decimals: 1, label: { es: 'de rotación voluntaria', en: 'voluntary turnover' }, how: { es: 'en un año, en las áreas donde el resultado se volvió accionable', en: 'over a year, in areas where results became actions' } },
 ]
 
-const fmt = (v: number, unit: string) => `${String(Math.round(v * 10) / 10).replace('.', ',')}${unit ? ` ${unit}` : ''}`
+const STEPS: readonly L[] = [
+  { es: 'Encuesta', en: 'Survey' },
+  { es: 'Accionable con dueño', en: 'Owned action' },
+  { es: 'Mejora medible', en: 'Measurable improvement' },
+]
 
-function delta(s: Shift): string {
-  const d = s.to - s.from
-  if (s.id === 'tiempo' || s.id === 'reportes') return `${Math.round((d / s.from) * 100)} %`
-  const pp = s.unit === '%' ? ' pp' : ''
-  return `${d > 0 ? '+' : '−'}${String(Math.abs(Math.round(d * 10) / 10)).replace('.', ',')}${pp}`
+function Count({ to, on, decimals = 0 }: { to: number; on: boolean; decimals?: number }) {
+  const [v, setV] = useState(0)
+  useEffect(() => {
+    if (!on) return
+    let raf = 0
+    const start = performance.now()
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / 1200)
+      setV(to * (1 - Math.pow(1 - p, 3)))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [on, to])
+  return <>{v.toFixed(decimals).replace('.', ',')}</>
 }
 
-/** Una cifra de «hoy → meta»: la barra de hoy queda gris y la de la meta crece al entrar. */
-function Tile({ s, on }: { s: Shift; on: boolean }) {
-  const { t } = useLocale()
-  const max = Math.max(s.from, s.to)
-  const good = s.lowerIsBetter ? s.to < s.from : s.to > s.from
-  return (
-    <div className="flex flex-col rounded-2xl border border-fg/15 p-4">
-      <p className="text-sm leading-snug">{t(s.label)}</p>
-      <p className="mt-3 flex items-baseline gap-2">
-        <span className="text-3xl font-light tabular-nums text-signal">{delta(s)}</span>
-        <span className="font-mono text-[11px] opacity-60">{fmt(s.from, s.unit)} → {fmt(s.to, s.unit)}</span>
-      </p>
-      <div className="mt-3 space-y-1" aria-hidden="true">
-        <span className="block h-1.5 rounded-full bg-fg/15" style={{ width: `${(s.from / max) * 100}%` }} />
-        <span className="block h-1.5 origin-left rounded-full transition-transform duration-[1200ms] ease-out" style={{ width: `${(s.to / max) * 100}%`, transform: on ? 'scaleX(1)' : 'scaleX(0)', background: good ? 'rgb(var(--signal))' : 'rgb(var(--fg) / 0.5)' }} />
-      </div>
-      <p className="mt-2 text-[11px] leading-snug"><span className="-ml-2"><ReferenceTag /></span> <span className="opacity-55">{t(s.hint)}</span></p>
-    </div>
-  )
-}
-
-/** 07 · Impacto: seis metas de referencia en tres frentes y lo que me llevo. */
+/** 07 · Impacto: de la encuesta al accionable y a la mejora, en cuatro metas de referencia. */
 export function SurveyImpact() {
   const { t } = useLocale()
   const d = ENCUESTAS_CASE.impact
-  const box = useRef<HTMLDivElement>(null)
+  const box = useRef<HTMLUListElement>(null)
   const [on, setOn] = useState(false)
   useEffect(() => {
     const el = box.current
     if (!el) return
-    const io = new IntersectionObserver(([e]) => e.isIntersecting && setOn(true), { threshold: 0.25 })
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setOn(true), { threshold: 0.3 })
     io.observe(el)
     return () => io.disconnect()
   }, [])
 
   return (
     <div>
-      <p data-reveal className="max-w-[62ch] leading-relaxed opacity-80">
-        {t({ es: 'El módulo todavía no corre con clientes. Estas son las metas con las que se va a medir al salir: modestas a propósito y marcadas como referencia.', en: 'The module isn’t live with customers yet. These are the goals it will be measured against at launch: modest on purpose and marked as reference.' })}
+      <p data-reveal className="flex flex-wrap items-center gap-2 font-mono text-xs">
+        {STEPS.map((s, i) => (
+          <span key={s.es} className="flex items-center gap-2">
+            <span className={`rounded-full border px-3 py-1 ${i === 2 ? 'border-signal text-signal' : 'border-fg/25'}`}>{t(s)}</span>
+            {i < STEPS.length - 1 && <span className="opacity-40">→</span>}
+          </span>
+        ))}
+      </p>
+      <p data-reveal className="mt-5 max-w-[60ch] leading-relaxed opacity-80">
+        {t({ es: 'Una encuesta solo sirve si termina en algo. Esto es lo que esperamos mover en las empresas cuando cada resultado se vuelve un accionable con dueño; son metas para medir al salir, no resultados.', en: 'A survey only matters if it ends in something. This is what we expect to move in companies when each result becomes an owned action; they’re goals to measure at launch, not results.' })}
       </p>
 
-      <div ref={box} data-reveal className="mt-10 grid gap-6 lg:grid-cols-3">
-        {GROUPS.map((g) => (
-          <section key={g.title.es}>
-            <p className="mono-label mb-3 opacity-60">{t(g.title)}</p>
-            <div className="space-y-3">
-              {g.items.map((s) => <Tile key={s.id} s={s} on={on} />)}
-            </div>
-          </section>
+      <ul ref={box} className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-fg/15 bg-fg/15 sm:grid-cols-2 lg:grid-cols-4">
+        {OUTCOMES.map((o, i) => (
+          <li key={o.label.es} className="bg-bg p-5 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'translateY(16px)', transitionDelay: `${i * 110}ms` }}>
+            <p className="whitespace-nowrap text-[clamp(2rem,1.4rem+1.6vw,3rem)] font-light leading-none tabular-nums text-signal">
+              {o.prefix}<Count to={o.value} on={on} decimals={o.decimals} />{o.suffix}
+            </p>
+            <p className="mt-3 text-sm font-medium leading-snug">{t(o.label)}</p>
+            <p className="mt-1 text-xs leading-relaxed opacity-60">{t(o.how)}</p>
+            <p className="mt-3"><span className="-ml-2"><ReferenceTag /></span></p>
+          </li>
         ))}
-      </div>
+      </ul>
 
-      <ol className="mt-14 grid gap-6 md:grid-cols-3">
+      <ol className="mt-12 grid gap-6 md:grid-cols-3">
         {d.learnings.map((l, i) => (
           <li key={l.es} data-reveal className="border-t border-fg/15 pt-3 text-sm leading-relaxed">
             <span className="mr-2 font-mono text-xs text-signal">0{i + 1}</span>

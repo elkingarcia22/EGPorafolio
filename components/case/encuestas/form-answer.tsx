@@ -190,7 +190,11 @@ function Clarity({ likert }: { likert: readonly (number | null)[] }) {
               {AGREEMENT.map((label, s) => {
                 const on = likert[i] === s + 1
                 return (
-                  <span key={label} className={`flex min-h-[2.4rem] items-center justify-center border-l border-black/10 px-1 text-center text-[9.5px] leading-tight transition-colors duration-300 first:border-l-0 ${on ? 'encf-tap bg-[#0c5bef]/10 font-semibold text-[#0c5bef] ring-1 ring-inset ring-[#0c5bef]' : ''}`}>
+                  <span
+                    key={label}
+                    lang="es"
+                    className={`flex min-h-[2.9rem] items-center justify-center border-l border-black/10 px-[3px] text-center text-[8.5px] leading-[1.15] transition-colors duration-300 [hyphens:auto] first:border-l-0 ${on ? 'encf-tap bg-[#0c5bef]/10 font-semibold text-[#0c5bef] shadow-[inset_0_0_0_1.5px_#0c5bef]' : ''}`}
+                  >
                     {label}
                   </span>
                 )
@@ -285,7 +289,7 @@ export function PhoneAnswer() {
     <div ref={box} className="relative flex justify-center py-4">
       <div className="pointer-events-none absolute inset-x-0 top-1/2 h-72 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(12,91,239,0.18),transparent)]" aria-hidden="true" />
       {/* Un celular: marco, isla y barra de estado; adentro, la vista previa en su versión angosta (sin «Tu avance», con «Contenido»). */}
-      <div className="relative w-[19.5rem] rounded-[3rem] bg-[#16181d] p-[10px] shadow-[0_50px_100px_-40px_rgba(10,11,13,0.75),inset_0_0_0_2px_#2c2f36]">
+      <div className="relative w-[21rem] rounded-[3rem] bg-[#16181d] p-[10px] shadow-[0_50px_100px_-40px_rgba(10,11,13,0.75),inset_0_0_0_2px_#2c2f36]">
         <span className="absolute -left-[3px] top-28 h-12 w-[3px] rounded-l bg-[#2c2f36]" aria-hidden="true" />
         <span className="absolute -right-[3px] top-36 h-16 w-[3px] rounded-r bg-[#2c2f36]" aria-hidden="true" />
         <div className="relative flex h-[39rem] flex-col overflow-hidden rounded-[2.4rem] bg-white text-[#303a47]">

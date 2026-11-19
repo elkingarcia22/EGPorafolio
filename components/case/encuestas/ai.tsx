@@ -1,64 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { OrbitBuilder } from './ai-orbit'
+import { AiReadingPanel } from './ai-readings'
 import './ai-impact.css'
-
-type Confidence = 'alta' | 'media' | 'baja'
-
-const CONF: Record<Confidence, { label: L; meaning: L; color: string }> = {
-  alta: { label: { es: 'Alta', en: 'High' }, meaning: { es: 'Cifra directa de la medición', en: 'A direct figure from the measurement' }, color: '#43a970' },
-  media: { label: { es: 'Media', en: 'Medium' }, meaning: { es: 'Lectura razonable, conviene verificar', en: 'Reasonable reading, worth checking' }, color: '#f1c56c' },
-  baja: { label: { es: 'Baja', en: 'Low' }, meaning: { es: 'Indicio, no conclusión', en: 'A hint, not a conclusion' }, color: '#f0a07a' },
-}
-
-/** Lecturas reales de la pestaña «Análisis con IA» de Clima Q1 2026, cada una con su evidencia. */
-const READINGS: readonly { kind: L; claim: L; evidence: string; share: number; conf: Confidence }[] = [
-  { kind: { es: 'Hallazgo', en: 'Finding' }, claim: { es: '«Colaboración y comunicación» es la fortaleza más sólida', en: '“Collaboration and communication” is the strongest area' }, evidence: '74,4 % · +35,4 pp', share: 74.4, conf: 'alta' },
-  { kind: { es: 'Hallazgo', en: 'Finding' }, claim: { es: 'La participación se mantiene alta', en: 'Participation stays high' }, evidence: '91 % · 473 / 520', share: 91, conf: 'alta' },
-  { kind: { es: 'Riesgo', en: 'Risk' }, claim: { es: '«Bienestar y carga de trabajo» está por debajo del resto', en: '“Well-being and workload” trails the rest' }, evidence: '18,9 % · −20,1 pp', share: 18.9, conf: 'alta' },
-  { kind: { es: 'Hallazgo', en: 'Finding' }, claim: { es: 'Una sola pregunta marca el piso del resultado', en: 'A single question sets the floor of the result' }, evidence: '1 / 54', share: 1.9, conf: 'media' },
-]
-
-/** Cada afirmación de la IA viaja con la cifra que la sostiene y su confiabilidad. */
-function Readings() {
-  const { t } = useLocale()
-  const [only, setOnly] = useState<Confidence | null>(null)
-  return (
-    <div className="rounded-2xl border border-fg/15 p-5 sm:p-6">
-      <div className="flex flex-wrap gap-2">
-        {(Object.keys(CONF) as Confidence[]).map((c) => (
-          <button key={c} type="button" aria-pressed={only === c} onClick={() => setOnly(only === c ? null : c)} className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${only === c ? 'border-fg bg-fg/10' : 'border-fg/20 opacity-70 hover:opacity-100'}`}>
-            <span className="h-2 w-2 rounded-full" style={{ background: CONF[c].color }} /> {t(CONF[c].label)}
-            <span className="hidden opacity-60 sm:inline">· {t(CONF[c].meaning)}</span>
-          </button>
-        ))}
-      </div>
-      <ol className="mt-5 grid gap-3 md:grid-cols-2">
-        {READINGS.map((r) => {
-          const dim = only !== null && only !== r.conf
-          return (
-            <li key={r.claim.es} data-reveal className={`relative overflow-hidden rounded-xl bg-fg/[0.04] p-4 ring-1 ring-fg/10 transition-opacity duration-500 ${dim ? 'opacity-20' : ''}`}>
-              <span className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,#7aa2ff,#ff7a95)]" aria-hidden="true" />
-              <p className="flex items-center justify-between gap-3">
-                <span className="mono-label opacity-55">✦ {t(r.kind)}</span>
-                <span className="rounded-full px-2 py-0.5 font-mono text-[10px] text-[#14161a]" style={{ background: CONF[r.conf].color }}>{t(CONF[r.conf].label)}</span>
-              </p>
-              <p className="mt-3 leading-snug">{t(r.claim)}</p>
-              <p className="mt-4 flex items-center gap-3 font-mono text-xs">
-                <span className="h-1 flex-1 overflow-hidden rounded-full bg-fg/10">
-                  <span className="block h-full rounded-full" style={{ width: `${Math.max(r.share, 3)}%`, background: CONF[r.conf].color }} />
-                </span>
-                <span className="opacity-70">{r.evidence}</span>
-              </p>
-            </li>
-          )
-        })}
-      </ol>
-    </div>
-  )
-}
 
 const PROCESS: readonly { value: string; label: L }[] = [
   { value: '2', label: { es: 'guías con Claude: «Recorrido» y «Anatomía», cada regla en archivo:línea', en: 'guides with Claude: “Journey” and “Anatomy”, every rule at file:line' } },
@@ -119,9 +64,9 @@ export function SurveyAi() {
       <section>
         <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
           <p data-reveal className="mono-label text-signal">{t({ es: 'En resultados · Análisis con IA', en: 'In results · AI analysis' })}</p>
-          <p data-reveal className="max-w-[46ch] text-sm opacity-70">{t({ es: 'Lecturas reales de Clima Q1 2026: ninguna afirmación sin la cifra que la sostiene.', en: 'Real readings from Climate Q1 2026: no claim without the number behind it.' })}</p>
+          <p data-reveal className="max-w-[46ch] text-sm opacity-70">{t({ es: 'La pestaña real de Clima Q1 2026: un resumen y cada lectura con su confiabilidad y la evidencia que la sostiene.', en: 'The real Climate Q1 2026 tab: a summary and every reading with its confidence and the evidence behind it.' })}</p>
         </div>
-        <Readings />
+        <AiReadingPanel />
       </section>
 
       <section>

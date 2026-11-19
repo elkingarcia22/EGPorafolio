@@ -218,7 +218,7 @@ function Platform({ built }: { built: number }) {
           const creating = !seen(doneAt)
           const collapsed = si === 0 && !creating
           return (
-            <div key={sec.n} className="enc-ai-in rounded-xl border border-black/[0.08] bg-white">
+            <div key={sec.n} className={`enc-ai-pop rounded-xl border bg-white transition-[border-color,box-shadow] duration-500 ${creating ? 'border-transparent shadow-[0_0_0_1.5px_#7e2be0,0_10px_30px_-12px_rgba(126,43,224,0.55)]' : 'border-black/[0.08]'}`}>
               <div className="flex items-start gap-2 px-3 py-2.5">
                 <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#0c5bef] text-[9px] text-white">{sec.n}</span>
                 <div className="min-w-0 flex-1">
@@ -243,7 +243,7 @@ function Platform({ built }: { built: number }) {
                           const at = (sub.n === '1.1' ? 2 : 10) + k
                           if (!seen(at)) return null
                           return (
-                            <div key={qq.n} className="enc-ai-in ml-5 border-b border-black/[0.05] py-1.5 last:border-0">
+                            <div key={qq.n} className="enc-ai-pop ml-5 border-b border-black/[0.05] py-1.5 last:border-0">
                               <p className="text-[11.5px]"><span className="text-[#979ba3]">{qq.n}</span> {qq.text}</p>
                               <p className="mt-0.5 flex gap-1 text-[9px]">
                                 <span className="inline-flex items-center gap-0.5 rounded border border-black/10 px-1"><Orb className="h-2.5 w-2.5" />IA</span>
@@ -269,6 +269,9 @@ function Platform({ built }: { built: number }) {
   )
 }
 
+/** El guion corre más rápido que el producto real, para que se lea como una demostración y no como una espera. */
+const SPEED = 0.6
+
 /** Orbit creando una encuesta: primero el panel solo, después acoplado mientras la encuesta crece en la plataforma. */
 export function OrbitBuilder() {
   const { t } = useLocale()
@@ -287,12 +290,14 @@ export function OrbitBuilder() {
 
   useEffect(() => {
     if (reducedMotion || !visible || i >= LAST) return
-    const id = window.setTimeout(() => setI((v) => v + 1), FRAMES[i].ms)
+    const id = window.setTimeout(() => setI((v) => v + 1), FRAMES[i].ms * SPEED)
     return () => window.clearTimeout(id)
   }, [i, visible, reducedMotion])
 
   const f = FRAMES[reducedMotion ? LAST : i]
   const docked = f.part === 2
+  // Trabajando: desde que se envía el pedido hasta que termina de crear.
+  const working = i > 0 && i < LAST && f.msgs.some((m) => m.kind === 'user')
 
   return (
     <div ref={box}>
@@ -309,7 +314,7 @@ export function OrbitBuilder() {
       {/* El escenario: un halo con los cuatro colores de la IA de Flux UI, como `cn-ai-halo`. */}
       <div className="relative h-[38rem] overflow-hidden rounded-3xl bg-[#f7f8fb] [container-type:inline-size]">
         <div
-          className="pointer-events-none absolute inset-0 transition-opacity duration-700"
+          className="enc-ai-aurora pointer-events-none absolute -inset-[8%] transition-opacity duration-700"
           style={{ opacity: docked ? 0.45 : 1, background: 'radial-gradient(60% 95% at 4% 0%, color-mix(in oklab, #285ee6 22%, transparent), transparent 72%), radial-gradient(50% 80% at 36% 0%, color-mix(in oklab, #7e2be0 15%, transparent), transparent 72%), radial-gradient(50% 85% at 66% 0%, color-mix(in oklab, #d22d6a 15%, transparent), transparent 72%), radial-gradient(58% 95% at 98% 0%, color-mix(in oklab, #eb6233 22%, transparent), transparent 72%)' }}
           aria-hidden="true"
         />
@@ -326,7 +331,20 @@ export function OrbitBuilder() {
           className={`absolute inset-y-4 right-4 w-[calc(100%-2rem)] transition-[transform,opacity] duration-[900ms] ease-[cubic-bezier(0.32,0.72,0,1)] md:w-[23rem] ${docked ? 'max-md:pointer-events-none max-md:opacity-0' : ''}`}
           style={{ transform: docked ? 'none' : 'translateX(min(0px, calc(-50cqw + 11.5rem + 1rem)))' }}
         >
-          <Panel f={f} />
+          {/* Mientras Orbit trabaja, un anillo con el degradado de IA gira detrás del panel. */}
+          <div className={`pointer-events-none absolute -inset-[3px] overflow-hidden rounded-[22px] transition-opacity duration-500 ${working ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true">
+            <span className="enc-ai-ring absolute left-1/2 top-1/2 aspect-square w-[180%] -translate-x-1/2 -translate-y-1/2" style={{ background: 'conic-gradient(from 0deg, #285ee6, #7e2be0, #d22d6a, #eb6233, #285ee6)' }} />
+          </div>
+          <div className="relative h-full">
+            <Panel f={f} />
+          </div>
+          {docked && working && (
+            <div className="pointer-events-none absolute left-0 top-[38%] hidden md:block" aria-hidden="true">
+              {[0, 1, 2, 3].map((k) => (
+                <span key={k} className="enc-ai-spark absolute h-2 w-2 rounded-full" style={{ top: k * 22, animationDelay: `${k * 0.27}s`, ['--d' as string]: `-${180 + k * 40}px`, background: ['#285ee6', '#7e2be0', '#d22d6a', '#eb6233'][k], boxShadow: '0 0 12px currentColor' }} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
