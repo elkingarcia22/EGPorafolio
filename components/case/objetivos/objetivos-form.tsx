@@ -3,7 +3,7 @@
 import { useLocale } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 import { Block, Body, SubHead } from '@/components/case/barberlytics/ui'
-import { AlignmentMap } from './alignment-map'
+import { AlignmentBuilder } from './alignment-builder'
 import { CycleReading } from './forma-lectura'
 import { PlaygroundReel } from './playground-reel'
 
@@ -22,9 +22,9 @@ export function ObjetivosForm() {
       </Block>
 
       <Block>
-        <SubHead index="5.2">{t({ es: 'El mapa de alineación', en: 'The alignment map' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'El mismo mapa de la pestaña Alineación, con su geometría y sus cifras: cada área fluye hacia el objetivo de empresa que empuja. Los flujos crecen al aparecer y el recorrido enciende un objetivo a la vez; pasa por un área para ver a qué aporta.', en: 'The same map from the Alignment tab, with its geometry and figures: each area flows into the company goal it pushes. Flows grow in as it appears and the tour lights one goal at a time; hover an area to see what it feeds.' })}</Body>
-        <AlignmentMap />
+        <SubHead index="5.2">{t({ es: 'Alinear: el último paso de crear un ciclo', en: 'Align: the last step of creating a cycle' })}</SubHead>
+        <Body className="mb-8">{t({ es: 'Antes de publicar, cada meta asignada se conecta con el objetivo de empresa al que empuja: se arrastra su punto azul y el contador sube hasta «3 de 3 alineados · 100 %». Son las tarjetas del ciclo «KPIs corporativos 2026» del staging. Pruébalo: arrastra un punto o toca una flecha para cortarla.', en: 'Before publishing, each assigned goal is connected to the company goal it pushes: you drag its blue dot and the counter climbs to “3 of 3 aligned · 100 %”. These are the cards of the “KPIs corporativos 2026” cycle on staging. Try it: drag a dot or tap an arrow to cut it.' })}</Body>
+        <AlignmentBuilder />
       </Block>
 
       <Block>

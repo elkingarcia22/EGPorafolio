@@ -117,8 +117,8 @@ export const OBJ_CASE = {
 
   impact: {
     lead: {
-      es: 'El rediseño todavía no está en producción, así que separo lo construido —que se puede contar— de lo que esperamos mover, que son cifras de referencia.',
-      en: 'The redesign isn’t in production yet, so I separate what was built —which can be counted— from what we expect to move, which are reference figures.',
+      es: 'El rediseño todavía no está en producción. Estas son las mejoras que esperamos ver en las empresas: cifras de referencia, no medidas.',
+      en: 'The redesign isn’t in production yet. These are the improvements we expect companies to see: reference figures, not measurements.',
     } as L,
     built: [
       { value: '926', label: { es: 'casos de uso, cada uno con su subtarea en Jira', en: 'use cases, each with its Jira subtask' } },
@@ -127,15 +127,11 @@ export const OBJ_CASE = {
       { value: '5', label: { es: 'pasos del constructor de ciclos', en: 'cycle-builder steps' } },
     ] as readonly Fact[],
     reference: [
-      { value: 30, prefix: '−', suffix: ' %', label: { es: 'tiempo para lanzar un ciclo', en: 'time to launch a cycle' } },
-      { value: 10, prefix: '+', suffix: ' pts', label: { es: 'personas que reportan cada mes', en: 'people reporting each month' } },
-      { value: 20, prefix: '−', suffix: ' %', label: { es: 'objetivos devueltos por mal escritos', en: 'goals sent back for poor wording' } },
-    ] as readonly { value: number; prefix: string; suffix: string; label: L }[],
-    roadmap: [
-      { id: 'q4', label: { es: 'Q4 2026', en: 'Q4 2026' }, count: 33, sample: { es: 'Permisos de líder y colaborador, aprobar objetivos, actualizar avance, evidencias, carga masiva.', en: 'Lead and employee permissions, approving goals, updating progress, evidence, bulk upload.' } },
-      { id: 'q1', label: { es: 'Q1 2027', en: 'Q1 2027' }, count: 43, sample: { es: 'Mapa de alineación, recordatorios, historial, bloquear avance, acciones clave, ciclos con periodos.', en: 'Alignment map, reminders, history, locking progress, key actions, cycles with periods.' } },
-      { id: 'backlog', label: { es: 'Backlog', en: 'Backlog' }, count: 4, sample: { es: 'Que el líder vea toda su línea y la aprobación final.', en: 'Leads seeing their whole line and final approval.' } },
-    ] as readonly { id: string; label: L; count: number; sample: L }[],
+      { value: 18, prefix: '+', suffix: ' %', label: { es: 'Proactividad', en: 'Proactivity' }, detail: { es: 'personas que reportan sin que nadie se lo recuerde', en: 'people who report without being reminded' } },
+      { value: 15, prefix: '+', suffix: ' pts', label: { es: 'Foco', en: 'Focus' }, detail: { es: 'peso de los objetivos alineado a la estrategia', en: 'goal weight aligned to strategy' } },
+      { value: 12, prefix: '+', suffix: ' %', label: { es: 'Crecimiento', en: 'Growth' }, detail: { es: 'objetivos de empresa que cierran en meta', en: 'company goals that close on target' } },
+      { value: 30, prefix: '−', suffix: ' %', label: { es: 'Agilidad', en: 'Speed' }, detail: { es: 'tiempo para lanzar un ciclo', en: 'time to launch a cycle' } },
+    ] as readonly { value: number; prefix: string; suffix: string; label: L; detail: L }[],
     learnings: [
       { es: 'Escribir las reglas al lado del código —con fecha y por qué— hizo que las decisiones sobrevivieran a cada iteración.', en: 'Writing rules next to the code —with date and reason— made decisions survive every iteration.' },
       { es: 'Un caso de uso que abre la pantalla exacta (?caso=) vale más que diez capturas en un documento.', en: 'A use case that opens the exact screen (?caso=) is worth more than ten screenshots in a doc.' },
