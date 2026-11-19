@@ -1,19 +1,38 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { PhoneBody, StatusBar } from '@/components/case/kit/device'
+import { NewTabLink, RecordModal } from '@/components/case/kit/record-modal'
 
-/**
- * 08 · Demo: la reserva real dentro de un celular. El iframe solo se carga al
- * pedirlo, así no pesa al abrir el caso ni atrapa el scroll de quien pasa.
- */
+const DEMO_ID = 'reserva'
+
+/** La vista previa real (celular, tablet, monitor y widget) en el modal a pantalla completa. */
+function BookingModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useLocale()
+  const url = BOOKING_CASE.demo.open
+  return (
+    <RecordModal
+      ids={[DEMO_ID]}
+      openId={open ? DEMO_ID : null}
+      onOpenChange={(id) => id === null && onClose()}
+      title={t({ es: 'Barberlytics · Reserva en línea', en: 'Barberlytics · Online booking' })}
+      titleLeading={<Image src="/cases/barberlytics/booking-app-cover.webp" width={36} height={36} alt="" className="h-9 w-9 shrink-0 rounded-lg object-cover object-top" />}
+      description={url.replace('https://', '')}
+      actions={<NewTabLink href={url} />}
+    >
+      <iframe src={url} title={t({ es: 'Reserva de Barberlytics, en vivo', en: 'Barberlytics booking, live' })} allow="microphone; autoplay" className="w-full flex-1 bg-void" />
+    </RecordModal>
+  )
+}
+
+/** 08 · Demo: la reserva real; el celular es la vista previa y abre la demo a pantalla completa. */
 export function BookingDemo() {
   const { t } = useLocale()
   const { demo } = BOOKING_CASE
-  const [version, setVersion] = useState(demo.versions[0])
-  const [started, setStarted] = useState(false)
+  const [open, setOpen] = useState(false)
 
   return (
     <div className="grid items-center gap-12 lg:grid-cols-12">
@@ -22,24 +41,6 @@ export function BookingDemo() {
           {t({ es: 'Pruébala tú.', en: 'Try it yourself.' })}
         </p>
         <p data-reveal className="mt-5 leading-relaxed opacity-80">{t(demo.lead)}</p>
-
-        <div data-reveal role="radiogroup" aria-label={t({ es: 'Versión de la reserva', en: 'Booking version' })} className="mt-8 flex gap-2">
-          {demo.versions.map((v) => (
-            <button
-              key={v.id}
-              type="button"
-              role="radio"
-              aria-checked={version.id === v.id}
-              onClick={() => {
-                setVersion(v)
-                setStarted(true)
-              }}
-              className="mono-label border border-fg/25 px-4 py-2.5 transition-colors hover:border-fg/60 aria-checked:border-signal aria-checked:bg-signal aria-checked:text-paper"
-            >
-              {t(v.name)}
-            </button>
-          ))}
-        </div>
 
         <dl data-reveal className="mt-8 divide-y divide-fg/15 border-y border-fg/15">
           {demo.tryIt.map((item) => (
@@ -50,36 +51,33 @@ export function BookingDemo() {
           ))}
         </dl>
 
-        <a data-reveal href={demo.open} target="_blank" rel="noopener noreferrer" className="mono-label mt-6 inline-block opacity-70 underline-offset-4 hover:underline hover:opacity-100">
-          {t({ es: 'Abrir la vista previa completa', en: 'Open the full preview' })} ↗
-        </a>
+        <button
+          data-reveal
+          type="button"
+          onClick={() => setOpen(true)}
+          className="mono-label mt-8 border border-fg/25 px-5 py-3 transition-colors hover:border-signal hover:bg-signal hover:text-paper"
+        >
+          ⤢ {t({ es: 'Abrir la demo a pantalla completa', en: 'Open the demo full screen' })}
+        </button>
       </div>
 
       <div data-reveal="device" className="min-w-0 lg:col-span-7">
-        <PhoneBody className="mx-auto w-[360px] max-w-full">
-          <StatusBar />
-          <div className="relative h-[700px] max-h-[76vh]">
-            {started ? (
-              <iframe
-                key={version.id}
-                src={version.url}
-                title={t({ es: 'Reserva de Barberlytics, en vivo', en: 'Barberlytics booking, live' })}
-                className="h-full w-full bg-void"
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setStarted(true)}
-                className="group absolute inset-0 flex flex-col items-center justify-end bg-[url('/cases/barberlytics/surface-phone.webp')] bg-cover bg-top pb-16"
-              >
+        <button type="button" onClick={() => setOpen(true)} className="group mx-auto block w-[360px] max-w-full" aria-label={t({ es: 'Abrir la demo a pantalla completa', en: 'Open the demo full screen' })}>
+          <PhoneBody className="w-full transition-transform duration-700 ease-expo group-hover:-translate-y-2">
+            <StatusBar />
+            <div className="relative h-[700px] max-h-[76vh] overflow-hidden">
+              <Image src="/cases/barberlytics/booking-app-cover.webp" width={780} height={1688} alt="" sizes="360px" className="h-full w-full object-cover object-top transition-[filter] duration-500 group-hover:brightness-75" />
+              <span className="absolute inset-x-0 bottom-16 flex justify-center">
                 <span className="bg-void/85 px-6 py-3.5 text-paper backdrop-blur transition-colors group-hover:bg-signal">
-                  <span className="mono-label">▶ {t({ es: 'Iniciar la demo', en: 'Start the demo' })}</span>
+                  <span className="mono-label">⤢ {t({ es: 'Iniciar la demo', en: 'Start the demo' })}</span>
                 </span>
-              </button>
-            )}
-          </div>
-        </PhoneBody>
+              </span>
+            </div>
+          </PhoneBody>
+        </button>
       </div>
+
+      <BookingModal open={open} onClose={() => setOpen(false)} />
     </div>
   )
 }
