@@ -10,7 +10,7 @@ export function BookingDots() {
   const { dots } = BOOKING_CASE
   return (
     <div>
-      <p data-reveal className="max-w-[22ch] text-[clamp(1.8rem,1rem+2.6vw,3.4rem)] font-light leading-[1.08] tracking-tight">{t(dots.kicker)}</p>
+      <p data-reveal="mask" className="max-w-[22ch] text-[clamp(1.8rem,1rem+2.6vw,3.4rem)] font-light leading-[1.08] tracking-tight">{t(dots.kicker)}</p>
       <p data-reveal className="mt-8 max-w-[62ch] text-lg leading-relaxed opacity-80">{t(dots.lead)}</p>
 
       <p data-reveal className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Lo que vimos', en: 'What we saw' })}</p>
@@ -29,7 +29,7 @@ export function BookingDots() {
           <div key={s.label.es} data-reveal>
             <dt className="sr-only">{t(s.label)}</dt>
             <dd>
-              <span className="block text-[clamp(2.4rem,1.6rem+2.4vw,3.8rem)] font-light leading-none text-signal tabular-nums">{s.value}</span>
+              <span data-count={s.value} className="block text-[clamp(2.4rem,1.6rem+2.4vw,3.8rem)] font-light leading-none text-signal tabular-nums">{s.value}</span>
               <span className="mt-3 block text-sm leading-snug opacity-70">{t(s.label)}</span>
             </dd>
           </div>
@@ -92,7 +92,7 @@ export function BookingIdea() {
   return (
     <div>
       <p data-reveal className="mono-label mb-4 opacity-60">{t({ es: '¿Cómo podríamos…?', en: 'How might we…?' })}</p>
-      <p data-reveal className="max-w-[28ch] text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.1] tracking-tight">{t(idea.hmw)}</p>
+      <p data-reveal="mask" className="max-w-[28ch] text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.1] tracking-tight">{t(idea.hmw)}</p>
       <ol className="mt-14 grid gap-px overflow-hidden border border-fg/15 bg-fg/15 sm:grid-cols-2">
         {idea.principles.map((p, i) => (
           <li key={p.title.es} data-reveal className="bg-bg p-7">

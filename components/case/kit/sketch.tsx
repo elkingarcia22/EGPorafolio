@@ -99,6 +99,7 @@ export type StickyColor = keyof typeof STICKY
 export function Sticky({ color = 'yellow', children, small = false }: { color?: StickyColor; children: React.ReactNode; small?: boolean }) {
   return (
     <div
+      data-reveal="pop"
       className={`font-hand leading-[1.05] shadow-[0_6px_14px_-6px_rgba(0,0,0,0.35)] ${small ? 'p-[0.7cqw] text-[1.45cqw]' : 'p-[1cqw] text-[1.75cqw]'}`}
       style={{ background: STICKY[color] }}
     >
@@ -186,7 +187,9 @@ export function Arrows({ paths }: { paths: readonly ArrowSpec[] }) {
             stroke={p.accent ? '#e8743b' : INK}
             strokeWidth={p.accent ? 2.6 : 2}
             strokeLinecap="round"
-            strokeDasharray={p.dashed ? '7 7' : undefined}
+            pathLength={p.dashed ? undefined : 1}
+            strokeDasharray={p.dashed ? '7 7' : 1}
+            data-draw={p.dashed ? undefined : ''}
             markerEnd={`url(#${p.accent ? markerAccent : marker})`}
           />
         ))}

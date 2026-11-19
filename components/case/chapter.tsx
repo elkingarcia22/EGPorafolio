@@ -24,7 +24,7 @@ export function Chapter({ meta, children }: ChapterProps) {
       aria-labelledby={`${meta.id}-title`}
       className="scroll-mt-24 border-t border-fg/15 py-[clamp(4rem,3rem+6vw,9rem)]"
     >
-      <header className="mb-12 flex items-baseline gap-5">
+      <header data-reveal="mask" className="mb-12 flex items-baseline gap-5">
         <span className="mono-label opacity-50">{meta.index}</span>
         <h2 id={`${meta.id}-title`} className="brand-title text-[clamp(1.5rem,1rem+1.6vw,2.4rem)]">
           {meta.title}

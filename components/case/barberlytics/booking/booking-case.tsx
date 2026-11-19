@@ -9,13 +9,13 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
-import { BrowserMockup } from '@/components/case/kit/device'
 import { useReveal } from '../use-reveal'
 import { BookingDots, BookingIdea, BookingPatterns } from './booking-research'
 import { FlowMapBoard, VersionsBoard } from './booking-sketches'
 import { BookingForm } from './booking-form'
 import { BookingAi, BookingImpact } from './booking-ai-impact'
 import { BookingDemo } from './booking-demo'
+import { BookingHero } from './booking-hero'
 
 function BookingSketches() {
   const { t } = useLocale()
@@ -30,44 +30,6 @@ function BookingSketches() {
       <FlowMapBoard />
       <VersionsBoard />
     </div>
-  )
-}
-
-/** Portada del caso Reserva. */
-function BookingHero() {
-  const { t } = useLocale()
-  return (
-    <ToneSection tone="dark" className="px-[var(--gutter)] pb-20 pt-32">
-      <div className="mb-14 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-        <TransitionLink href="/proyectos/barberlytics" transitionLabel="Barberlytics" className="mono-label opacity-60 hover:opacity-100">
-          ← Barberlytics
-        </TransitionLink>
-        <span className="mono-label opacity-60">{BOOKING_CASE.index} / 04 · {t(BOOKING_CASE.eyebrow)}</span>
-      </div>
-      <h1 className="text-[clamp(3rem,1rem+7vw,8.5rem)] font-light leading-[0.92] tracking-tight">{t(BOOKING_CASE.title)}</h1>
-      <div className="mt-10 grid gap-10 md:grid-cols-12">
-        <p className="text-xl leading-relaxed opacity-85 md:col-span-6">{t(BOOKING_CASE.tagline)}</p>
-        <dl className="grid grid-cols-2 gap-6 md:col-span-5 md:col-start-8">
-          {BOOKING_CASE.meta.map((m) => (
-            <div key={m.label.es}>
-              <dt className="mono-label mb-1 opacity-50">{t(m.label)}</dt>
-              <dd className="text-sm leading-relaxed">{t(m.value)}</dd>
-            </div>
-          ))}
-          <div className="col-span-2">
-            <dt className="mono-label mb-2 opacity-50">{t(COPY.case.tools)}</dt>
-            <dd className="flex flex-wrap gap-2">
-              {BOOKING_CASE.tools.map((tool) => (
-                <span key={tool} className="border border-fg/25 px-2.5 py-1 text-xs">{tool}</span>
-              ))}
-            </dd>
-          </div>
-        </dl>
-      </div>
-      <div className="mx-auto mt-16 max-w-5xl">
-        <BrowserMockup image={BOOKING_CASE.cover} withLegend={false} />
-      </div>
-    </ToneSection>
   )
 }
 

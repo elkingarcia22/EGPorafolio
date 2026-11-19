@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
+import { PhoneBody, StatusBar } from '@/components/case/kit/device'
 
 /**
  * 08 · Demo: la reserva real dentro de un celular. El iframe solo se carga al
@@ -54,32 +55,30 @@ export function BookingDemo() {
         </a>
       </div>
 
-      <div data-reveal className="min-w-0 lg:col-span-7">
-        <div className="relative mx-auto w-[360px] max-w-full">
-          <div className="rounded-[50px] bg-[#0b0c0e] p-[10px] shadow-[0_60px_110px_-40px_rgba(0,0,0,0.85),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
-            <div className="relative h-[720px] max-h-[78vh] overflow-hidden rounded-[40px] bg-void">
-              {started ? (
-                <iframe
-                  key={version.id}
-                  src={version.url}
-                  title={t({ es: 'Reserva de Barberlytics, en vivo', en: 'Barberlytics booking, live' })}
-                  className="h-full w-full"
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setStarted(true)}
-                  className="group absolute inset-0 flex flex-col items-center justify-end bg-[url('/cases/barberlytics/booking-cover.webp')] bg-cover bg-top pb-16"
-                >
-                  <span className="bg-void/85 px-6 py-3.5 text-paper backdrop-blur transition-colors group-hover:bg-signal">
-                    <span className="mono-label">▶ {t({ es: 'Iniciar la demo', en: 'Start the demo' })}</span>
-                  </span>
-                </button>
-              )}
-              <span className="pointer-events-none absolute left-1/2 top-[10px] h-[26px] w-[96px] -translate-x-1/2 rounded-full bg-black" aria-hidden="true" />
-            </div>
+      <div data-reveal="device" className="min-w-0 lg:col-span-7">
+        <PhoneBody className="mx-auto w-[360px] max-w-full">
+          <StatusBar />
+          <div className="relative h-[700px] max-h-[76vh]">
+            {started ? (
+              <iframe
+                key={version.id}
+                src={version.url}
+                title={t({ es: 'Reserva de Barberlytics, en vivo', en: 'Barberlytics booking, live' })}
+                className="h-full w-full bg-void"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setStarted(true)}
+                className="group absolute inset-0 flex flex-col items-center justify-end bg-[url('/cases/barberlytics/surface-phone.webp')] bg-cover bg-top pb-16"
+              >
+                <span className="bg-void/85 px-6 py-3.5 text-paper backdrop-blur transition-colors group-hover:bg-signal">
+                  <span className="mono-label">▶ {t({ es: 'Iniciar la demo', en: 'Start the demo' })}</span>
+                </span>
+              </button>
+            )}
           </div>
-        </div>
+        </PhoneBody>
       </div>
     </div>
   )

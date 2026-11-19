@@ -21,7 +21,7 @@ export const BOOKING_CASE = {
     { label: { es: 'Idiomas', en: 'Languages' }, value: { es: 'Español e inglés', en: 'Spanish and English' } },
     { label: { es: 'Año', en: 'Year' }, value: { es: '2026', en: '2026' } },
   ] satisfies { label: L; value: L }[],
-  tools: ['Figma', 'Claude Code', 'React', 'MSW', 'Gemini TTS'],
+  tools: ['Claude Code', 'React', 'TypeScript', 'MSW', 'Gemini TTS'],
   cover: img('booking-tablet', 1600, 1000, {
     es: 'La reserva de Barberlytics en la vista previa de tablet: «Reserva tu cita» con el celular.',
     en: 'Barberlytics booking in the tablet preview: “Book your appointment” with a phone number.',
@@ -162,10 +162,16 @@ export const BOOKING_CASE = {
         es: 'El mismo flujo se muda de marco sin reiniciarse: celular, tablet, monitor de recepción o widget en el sitio de la barbería.',
         en: 'The same flow moves between frames without restarting: phone, tablet, front-desk monitor or a widget on the shop’s site.',
       },
-      images: [
-        img('booking-monitor', 1600, 1000, { es: 'Monitor de recepción.', en: 'Front-desk monitor.' }),
-        img('booking-widget', 1600, 1000, { es: 'Widget en el sitio de una barbería.', en: 'Widget on a barbershop site.' }),
-      ],
+      phone: img('surface-phone', 780, 1688, { es: 'La reserva en el celular del cliente.', en: 'Booking on the client’s phone.' }),
+      tablet: img('surface-tablet', 1200, 1615, { es: 'La reserva en una tablet, con botones más grandes.', en: 'Booking on a tablet, with bigger targets.' }),
+      monitor: img('surface-monitor', 2000, 1053, { es: 'La reserva en el monitor de recepción de la barbería.', en: 'Booking on the shop’s front-desk monitor.' }),
+      widget: img('surface-widget', 2000, 1053, { es: 'La reserva como widget dentro del sitio web de una barbería.', en: 'Booking as a widget inside a barbershop’s website.' }),
+      labels: {
+        phone: { es: 'Celular', en: 'Phone' },
+        tablet: { es: 'Tablet', en: 'Tablet' },
+        monitor: { es: 'Monitor de recepción', en: 'Front-desk monitor' },
+        widget: { es: 'Widget en el sitio de la barbería', en: 'Widget on the shop’s website' },
+      },
     },
   },
 

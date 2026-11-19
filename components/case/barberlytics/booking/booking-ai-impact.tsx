@@ -50,7 +50,7 @@ export function BookingAi() {
           ))}
         </ol>
         <p data-reveal className="mt-10 flex flex-wrap items-baseline gap-4">
-          <span className="text-[clamp(3rem,2rem+3vw,5rem)] font-light leading-none text-signal">{build.days.value}</span>
+          <span data-count={build.days.value} className="text-[clamp(3rem,2rem+3vw,5rem)] font-light leading-none text-signal">{build.days.value}</span>
           <span className="max-w-[30ch] text-lg leading-snug opacity-80">{t(build.days.label)}</span>
         </p>
       </div>
@@ -70,7 +70,7 @@ export function BookingImpact() {
           <div key={m.label.es} data-reveal className="bg-bg p-6">
             <dt className="sr-only">{t(m.label)}</dt>
             <dd>
-              <span className="block text-[clamp(2.6rem,1.8rem+2.4vw,4rem)] font-light leading-none tabular-nums">{m.value}{m.suffix}</span>
+              <span className="block text-[clamp(2.6rem,1.8rem+2.4vw,4rem)] font-light leading-none tabular-nums"><span data-count={m.value}>{m.value}</span>{m.suffix}</span>
               <span className="mt-3 block text-sm leading-snug opacity-70">{t(m.label)}</span>
             </dd>
           </div>
