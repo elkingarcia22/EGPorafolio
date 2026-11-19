@@ -10,7 +10,7 @@ import { RumboMark } from './platform'
  * Coordenadas de la pantalla de 1240 px (se usa dentro de `RealFrame`).
  */
 
-export function RumboPanel({ subtitle, tabs, steps, step = 0, children, footer, back = false }: {
+export function RumboPanel({ subtitle, tabs, steps, step = 0, children, footer, back = false, inline = false }: {
   subtitle: string
   tabs?: boolean
   steps?: readonly string[]
@@ -18,9 +18,11 @@ export function RumboPanel({ subtitle, tabs, steps, step = 0, children, footer, 
   children: ReactNode
   footer?: ReactNode
   back?: boolean
+  /** Solo, centrado en su escena (en vez de flotar sobre la pantalla). */
+  inline?: boolean
 }) {
   return (
-    <div className="absolute bottom-3 right-3 top-3 z-20 flex w-[400px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.95)]">
+    <div className={`${inline ? 'relative h-full w-full' : 'absolute bottom-3 right-3 top-3 z-20 w-[400px]'} flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#141414] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.95)]`}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(ellipse_at_20%_0%,rgba(126,43,224,0.22),transparent_70%)]" />
       <header className="relative flex items-center gap-3 px-4 pb-3 pt-4">
         {back && <ArrowLeft className="h-4 w-4 text-white/70" />}

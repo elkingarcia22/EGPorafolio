@@ -38,7 +38,7 @@ export function stepAt(steps: readonly StoryStep[], time: number): number {
 }
 
 /** Fila de pasos encima del marco: dice qué está pasando. */
-export function StorySteps({ steps, time, kicker }: { steps: readonly StoryStep[]; time: number; kicker: L }) {
+export function StorySteps({ steps, time, kicker, onPick }: { steps: readonly StoryStep[]; time: number; kicker: L; onPick?: (from: number) => void }) {
   const { t } = useLocale()
   const now = stepAt(steps, time)
   return (
@@ -47,12 +47,20 @@ export function StorySteps({ steps, time, kicker }: { steps: readonly StoryStep[
         const on = i === now
         const past = i < now
         return (
-          <li key={s.label.es} className={`flex items-center gap-3 rounded-[14px] px-4 py-3 ring-1 transition-all duration-500 ${on ? 'bg-[#6b8cff]/[0.14] ring-[#6b8cff]/60' : 'bg-white/[0.02] ring-white/10'}`}>
+          <li key={s.label.es}>
+            <button
+              type="button"
+              disabled={!onPick}
+              onClick={() => onPick?.(s.from)}
+              aria-current={on ? 'step' : undefined}
+              className={`flex w-full items-center gap-3 rounded-[14px] px-4 py-3 text-left ring-1 transition-all duration-500 enabled:hover:ring-[#6b8cff]/50 ${on ? 'bg-[#6b8cff]/[0.14] ring-[#6b8cff]/60' : 'bg-white/[0.02] ring-white/10'}`}
+            >
             <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[12px] tabular-nums transition-colors duration-500 ${on ? 'bg-[#6b8cff] text-[#0a0a0a]' : past ? 'bg-[#6b8cff]/20 text-[#9db0ff]' : 'bg-white/[0.07] text-white/55'}`}>{past ? <Check className="h-3.5 w-3.5" /> : i + 1}</span>
             <span>
               <span className="mono-label block text-white/45">{t(kicker)} · {i + 1}</span>
               <span className={`text-sm ${on || past ? 'text-white' : 'text-white/45'}`}>{t(s.label)}{on ? '…' : past ? ' ✓' : ''}</span>
             </span>
+            </button>
           </li>
         )
       })}
