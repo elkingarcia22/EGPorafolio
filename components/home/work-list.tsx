@@ -6,7 +6,7 @@ import { SectionLabel } from '@/components/ui/section-label'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { MockScreen } from '@/components/mock/mock-screen'
 import { BarberlyticsPreview } from './previews/barberlytics-preview'
-import { SellUpPreview } from './previews/sellup-preview'
+import { HeroRumboCard } from '@/components/case/sellup/hero-rumbo'
 import { gsap, scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
@@ -16,7 +16,7 @@ import type { Project } from '@/lib/content/projects'
 /** Vistas previas propias por proyecto; el resto usa la pantalla genérica. */
 const PREVIEWS: Partial<Record<string, () => React.JSX.Element>> = {
   barberlytics: BarberlyticsPreview,
-  sellup: SellUpPreview,
+  sellup: HeroRumboCard,
 }
 
 function ProjectPreview({ project, className = '' }: { project: Project; className?: string }) {
