@@ -53,7 +53,7 @@ export function RichText({ text }: { text: string }) {
           return (
             <ul key={i} className="space-y-1.5">
               {lines.map((l, k) => (
-                <li key={k} className="flex gap-2"><span className="mt-[0.6em] h-1 w-1 shrink-0 rounded-full bg-signal" />{inline(l.replace(/^\s*[-•]\s/, ''))}</li>
+                <li key={k} className="flex gap-2"><span className="text-signal" aria-hidden="true">—</span>{inline(l.replace(/^\s*[-•]\s/, ''))}</li>
               ))}
             </ul>
           )
@@ -71,11 +71,11 @@ export function CaseCard({ project }: { project: Project }) {
     <TransitionLink
       href={`/proyectos/${project.slug}`}
       transitionLabel={`N° ${project.frequency} · ${t(project.title)}`}
-      className="group flex items-center gap-4 border border-fg/15 bg-fg/[0.03] p-3.5 transition-colors duration-300 hover:border-fg/40"
+      className="group flex items-center gap-3 border border-fg/20 px-4 py-3 transition-colors duration-300 hover:border-signal"
     >
-      <span className="h-10 w-1 shrink-0 rounded-full" style={{ background: `rgb(${project.accent})` }} aria-hidden="true" />
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: `rgb(${project.accent})` }} aria-hidden="true" />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-base font-light">{t(project.title)}</span>
+        <span className="block truncate text-sm">{t(project.title)}</span>
         <span className="mono-label mt-0.5 block opacity-50">{project.client} · {project.year}</span>
       </span>
       <span className="text-signal transition-transform duration-500 ease-expo group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true">↗</span>
@@ -84,7 +84,7 @@ export function CaseCard({ project }: { project: Project }) {
   )
 }
 
-const BTN = 'inline-flex items-center gap-2 border border-fg/20 px-3.5 py-2 text-xs transition-colors hover:border-signal hover:text-signal'
+const BTN = 'mono-label inline-flex items-center gap-2 border border-fg/25 px-3 py-2 transition-colors hover:bg-fg hover:text-bg'
 
 /** Botones de contacto y hoja de vida. */
 export function ContactActions({ contact, cv }: { contact: boolean; cv: boolean }) {
@@ -93,7 +93,7 @@ export function ContactActions({ contact, cv }: { contact: boolean; cv: boolean 
     <div className="flex flex-wrap gap-2">
       {contact && (
         <>
-          <a className={BTN} href={`mailto:${PROFILE.email}`}>✉ {t({ es: 'Escribirme', en: 'Email me' })}</a>
+          <a className={BTN} href={`mailto:${PROFILE.email}`}>{t({ es: 'Correo', en: 'Email' })} ↗</a>
           <a className={BTN} href={`https://wa.me/${PROFILE.phone}`} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>
           {PROFILE.linkedin && <a className={BTN} href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>}
         </>
