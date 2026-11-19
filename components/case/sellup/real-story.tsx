@@ -5,7 +5,7 @@ import { Check, Loader2 } from 'lucide-react'
 import { useLocale, type L } from '@/lib/i18n'
 import { useA11y } from '@/lib/a11y'
 import { useTick } from '../barberlytics/thema/live-pieces'
-import { RumboOrb, RUMBO_GRADIENT } from './platform'
+import { RUMBO_GRADIENT } from './platform'
 import { useInView } from './ui'
 
 /**
@@ -40,7 +40,6 @@ export function stepAt(steps: readonly StoryStep[], time: number): number {
 /** Fila de pasos encima del marco: dice qué está pasando. */
 export function StorySteps({ steps, time, kicker }: { steps: readonly StoryStep[]; time: number; kicker: L }) {
   const { t } = useLocale()
-  const { reducedMotion } = useA11y()
   const now = stepAt(steps, time)
   return (
     <ol className={`mb-5 grid gap-2 ${steps.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`} aria-live="polite">
@@ -49,7 +48,7 @@ export function StorySteps({ steps, time, kicker }: { steps: readonly StoryStep[
         const past = i < now
         return (
           <li key={s.label.es} className={`flex items-center gap-3 rounded-[14px] px-4 py-3 ring-1 transition-all duration-500 ${on ? 'bg-[#6b8cff]/[0.14] ring-[#6b8cff]/60' : 'bg-white/[0.02] ring-white/10'}`}>
-            <RumboOrb size={22} pulse={on && !reducedMotion} />
+            <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[12px] tabular-nums transition-colors duration-500 ${on ? 'bg-[#6b8cff] text-[#0a0a0a]' : past ? 'bg-[#6b8cff]/20 text-[#9db0ff]' : 'bg-white/[0.07] text-white/55'}`}>{past ? <Check className="h-3.5 w-3.5" /> : i + 1}</span>
             <span>
               <span className="mono-label block text-white/45">{t(kicker)} · {i + 1}</span>
               <span className={`text-sm ${on || past ? 'text-white' : 'text-white/45'}`}>{t(s.label)}{on ? '…' : past ? ' ✓' : ''}</span>

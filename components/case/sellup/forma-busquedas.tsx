@@ -1,231 +1,101 @@
 'use client'
 
-import { ArrowUpDown, Check, ChevronDown, Minus, Plus, Search, Sheet, Upload, X, Grip, Settings } from 'lucide-react'
-import { RumboOrb } from './platform'
-import { RealCard, RealFrame, RealTag } from './real-app'
-import { FakeCursor, HIGHLIGHT, RealDock, ReplicaNote, StorySteps, stepAt, useStoryTime, type StoryStep } from './real-story'
+import { Loader2 } from 'lucide-react'
+import { useLocale } from '@/lib/i18n'
+import { RealFrame } from './real-app'
+import { Composer, OptionsCard, RumboPanel, RumboSays, UserSays, type PanelOption } from './real-rumbo-panel'
+import { CompanyReview } from './real-review-tables'
+import { CompanyDetail } from './real-detail'
+import { AgentStructure, type StructureItem } from './forma-structure'
+import { FakeCursor, ReplicaNote, StorySteps, useStoryTime, type StoryStep } from './real-story'
 
 /**
- * 5.2 · Agente 1: Rumbo arma una búsqueda conversando, la búsqueda aparece en
- * la tabla real de Búsquedas y el vendedor aprueba una empresa en «Por revisar».
+ * 5.2 · Agente 1: el panel de Rumbo «Generar empresas candidatas» (tal cual la app),
+ * el resultado en «Por revisar» con la empresa nueva destacada y su detalle.
  */
 
 const STEPS: readonly StoryStep[] = [
   { label: { es: 'Rumbo pregunta qué buscar', en: 'Rumbo asks what to look for' }, from: 0 },
-  { label: { es: 'La búsqueda encuentra empresas', en: 'The search finds companies' }, from: 10 },
-  { label: { es: 'El vendedor aprueba', en: 'The rep approves' }, from: 18 },
+  { label: { es: 'Llega a «Por revisar», destacada', en: 'Lands in “To review”, highlighted' }, from: 13 },
+  { label: { es: 'Se abre su detalle', en: 'Its detail opens' }, from: 17 },
 ]
-const LOOP = 28
+const LOOP = 31
 
-const ROWS = [
-  { q: 'Empresas por criterios · Colombia', form: 'Empresas por criterios', found: 16, review: 6, ok: 1, date: '19 de nov de 2026', who: 'Sergio C.' },
-  { q: 'Competidores de una empresa', form: 'Competidores de una emp…', found: 4, review: 2, ok: 0, date: '19 de nov de 2026', who: 'Diego U.' },
-  { q: 'Empresas por criterios · Perú', form: 'Empresas por criterios', found: 18, review: 10, ok: 0, date: '19 de nov de 2026', who: 'Noé S.' },
-  { q: 'Empresas por criterios · Chile', form: 'Empresas por criterios', found: 10, review: 10, ok: 0, date: '18 de nov de 2026', who: 'Andrés P.' },
-  { q: 'Archivo importado · Ecuador', form: 'Archivo importado', found: 169, review: 103, ok: 0, date: '17 de nov de 2026', who: 'Daniel S.' },
-  { q: 'Empresas por criterios · Panamá', form: 'Empresas por criterios', found: 9, review: 6, ok: 0, date: '17 de nov de 2026', who: 'Rocío G.' },
-  { q: 'Proveedores de una empresa', form: 'Proveedores de una em…', found: 13, review: 8, ok: 2, date: '16 de nov de 2026', who: 'Pedro T.' },
+/** Los seis tipos de búsqueda, con el texto de la app. */
+const TYPES: readonly PanelOption[] = [
+  { title: 'Empresas por criterios', body: 'Busca empresas según país, industria y criterios específicos.' },
+  { title: 'Muchas empresas por criterios', body: 'Hasta 200 empresas de un país e industria, por rondas, con un tope de créditos que tú confirmas.' },
+  { title: 'Árbol de una empresa', body: 'Desde una empresa, encuentra su grupo y matriz, sus filiales y dónde opera en otros países.' },
+  { title: 'Competidores de una empresa', body: 'Encuentra empresas que compiten con una de referencia.' },
+  { title: 'Proveedores de una empresa', body: 'Empresas que le venden a una empresa que tú eliges.' },
+  { title: 'Enriquecer empresa de HubSpot', body: 'Pega el enlace de HubSpot: la traigo, completo sus datos y te la asigno si no tiene responsable.' },
 ]
+const STRUCTURE: readonly StructureItem[] = TYPES.map((o, i) => ({
+  title: { es: o.title, en: ['Companies by criteria', 'Many companies by criteria', 'A company’s tree', 'A company’s competitors', 'A company’s suppliers', 'Enrich a HubSpot company'][i] },
+  body: { es: o.body, en: ['Searches companies by country, industry and specific criteria.', 'Up to 200 companies from one country and industry, in rounds, with a credit cap you confirm.', 'From one company, finds its group and parent, its subsidiaries and where it operates abroad.', 'Finds companies that compete with a reference one.', 'Companies that sell to a company you pick.', 'Paste the HubSpot link: I bring it, complete its data and assign it to you if it has no owner.'][i] },
+}))
 
-const CANDIDATES = [
-  { name: 'Clínica Andina', meta: 'Salud · 1.240 empleados', why: 'Sin dueño en HubSpot hace 9 meses', tag: 'Libre en HubSpot', tone: 'green' as const },
-  { name: 'Grupo Vital Salud', meta: 'Salud · 860 empleados', why: 'Registro oficial · RFC verificado', tag: 'Nueva', tone: 'blue' as const },
-  { name: 'Hospitales del Valle', meta: 'Salud · 2.100 empleados', why: 'Web oficial + registro', tag: 'Nueva', tone: 'blue' as const },
-  { name: 'Laboratorios Sierra', meta: 'Farmacéutica · 530 empleados', why: 'La atiende otro vendedor', tag: 'Ya en HubSpot', tone: 'amber' as const },
-  { name: 'Red Médica Norte', meta: 'Salud · 720 empleados', why: 'Registro oficial · RFC verificado', tag: 'Nueva', tone: 'blue' as const },
-]
+const STEP_NAMES = ['Tipo', 'País', 'Industria', 'Criterios', 'Resumen', 'Revisión']
 
-const TYPES = ['Empresas por criterios', 'Muchas empresas por criterios', 'Árbol de una empresa', 'Competidores de una empresa', 'Proveedores de una empresa']
-
-function Bubble({ me, show, children }: { me?: boolean; show: boolean; children: React.ReactNode }) {
+function Conversation({ time }: { time: number }) {
+  const picked = time >= 4
+  const step = time < 4 ? 0 : time < 6 ? 1 : time < 8 ? 2 : time < 9 ? 3 : time < 11 ? 4 : 5
   return (
-    <div className={`flex gap-2 transition-all duration-500 ${me ? 'justify-end' : ''} ${show ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}>
-      {!me && <RumboOrb size={18} />}
-      <p className={`max-w-[230px] text-[12.5px] leading-snug ${me ? 'rounded-xl bg-[#6b8cff] px-3 py-1.5 text-white' : 'text-white/85'}`}>{children}</p>
-    </div>
-  )
-}
-
-/** Panel de Rumbo tal cual: cabecera, pestañas, stepper de 6 pasos y conversación. */
-function RumboPanel({ time }: { time: number }) {
-  const step = time < 3 ? 0 : time < 5 ? 1 : time < 7 ? 2 : time < 8 ? 3 : time < 9 ? 4 : 5
-  const open = time < 10
-  return (
-    <div className="absolute bottom-2 right-2 top-2 z-20 flex w-[330px] flex-col rounded-2xl border border-white/10 bg-[#141414] shadow-[-30px_0_60px_-20px_rgba(0,0,0,0.9)] transition-all duration-700 ease-expo" style={{ transform: open ? 'none' : 'translateX(110%)', opacity: open ? 1 : 0 }}>
-      <div className="flex items-center gap-2.5 px-4 pt-3.5">
-        <RumboOrb size={30} />
-        <span><span className="block text-[14px] font-semibold">Rumbo</span><span className="block text-[11.5px] text-white/50">Generar empresas candidatas</span></span>
-        <span className="ml-auto flex gap-3 text-white/60"><Plus className="h-4 w-4" /><Minus className="h-4 w-4" /><X className="h-4 w-4" /></span>
-      </div>
-      <div className="mt-3 flex gap-5 border-b border-white/10 px-4 text-[13px]">
-        <span className="border-b-2 border-[#6b8cff] pb-2 font-medium">Conversación</span>
-        <span className="pb-2 text-white/55">Búsquedas</span>
-      </div>
-      <div className="flex items-start px-4 pt-3">
-        {['Tipo', 'País', 'Industria', 'Criterios', 'Resumen', 'Revisión'].map((s, i) => (
-          <div key={s} className="flex flex-1 flex-col items-center">
-            <span className={`grid h-5 w-5 place-items-center rounded-full border text-[10px] transition-all duration-500 ${i < step ? 'border-[#6b8cff]/60 bg-[#6b8cff]/20 text-[#9db0ff]' : i === step ? 'border-[#6b8cff] bg-[#6b8cff] text-white' : 'border-white/20 text-white/40'}`}>{i < step ? <Check className="h-2.5 w-2.5" /> : i + 1}</span>
-            <span className={`mt-1 text-[10.5px] ${i <= step ? 'text-white' : 'text-white/40'}`}>{s}</span>
-          </div>
-        ))}
-      </div>
-      <div className="flex-1 space-y-2.5 overflow-hidden px-4 pt-4">
-        <Bubble show>Hola, te ayudaré a encontrar los prospectos que necesitas. ¿Qué tipo de prospectos quieres encontrar?</Bubble>
-        <Bubble me show={time >= 3}>Empresas por criterios</Bubble>
-        <Bubble show={time >= 3.5}>¿En qué país buscamos?</Bubble>
-        <Bubble me show={time >= 5}>México</Bubble>
-        <Bubble show={time >= 5.5}>¿Qué industria?</Bubble>
-        <Bubble me show={time >= 7}>Salud · más de 200 empleados</Bubble>
-        <Bubble show={time >= 8}>Busco en HubSpot, registros oficiales y la web antes de pagar nada. Te dejo las candidatas en «Por revisar».</Bubble>
-      </div>
-      <div className={`m-3 rounded-xl border border-white/10 p-2 transition-opacity duration-500 ${time < 3 ? 'opacity-100' : 'opacity-0'}`}>
-        <p className="mb-1.5 flex items-center px-1 text-[12px] font-medium">¿Qué tipo de prospectos quieres encontrar?<ChevronDown className="ml-auto h-3.5 w-3.5 opacity-50" /></p>
-        {TYPES.map((tp, i) => (
-          <p key={tp} className={`mb-1 rounded-lg border px-2.5 py-1.5 text-[12px] transition-all duration-300 ${i === 0 && time >= 2 ? 'border-[#6b8cff] bg-[#6b8cff]/15' : 'border-white/10'}`}>{tp}<span className="float-right text-white/40">{i + 1}</span></p>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function KpiStrip({ items }: { items: readonly { label: string; value: string; note: string; hot?: boolean }[] }) {
-  return (
-    <RealCard>
-      <div className="grid grid-cols-4 divide-x divide-white/10">
-        {items.map((k) => (
-          <div key={k.label} className="px-4 py-3">
-            <p className="text-[12.5px] text-white/60">{k.label}</p>
-            <p className={`mt-1 text-[22px] font-semibold tabular-nums transition-colors duration-500 ${k.hot ? 'text-[#9db0ff]' : ''}`}>{k.value}</p>
-            <p className="text-[11.5px] text-white/45">{k.note}</p>
-          </div>
-        ))}
-      </div>
-    </RealCard>
-  )
-}
-
-function SearchesScreen({ time }: { time: number }) {
-  const arrived = time >= 10
-  const ready = time >= 13
-  const found = arrived ? Math.min(12, Math.max(0, (time - 10) * 4)) : 0
-  const th = 'px-3 py-2.5 text-left font-medium text-white/60'
-  return (
-    <div className="px-6 pt-5">
-      <h4 className="text-[24px] font-semibold tracking-tight">Búsquedas</h4>
-      <p className="mt-1 max-w-[560px] text-[12.5px] text-white/55">Lo que buscaste con Rumbo o importaste, y lo que te asignaron: qué encontró cada búsqueda y qué falta por revisar.</p>
-      <div className="mt-4">
-        <KpiStrip items={[
-          { label: 'Búsquedas', value: arrived ? '35' : '34', note: 'Las tuyas o con empresas asignadas', hot: arrived },
-          { label: 'Por revisar', value: String(594 + found), note: 'Esperan una decisión', hot: arrived },
-          { label: 'Abiertas', value: arrived ? '35' : '34', note: 'Con empresas por revisar' },
-          { label: 'Aprobadas', value: '31', note: 'Ya son empresas' },
-        ]} />
-      </div>
-      <RealCard className="mt-4">
-        <p className="flex items-center px-4 py-3 text-[14px] font-medium">Búsquedas<span className="ml-auto flex gap-2 text-white/60"><Search className="h-4 w-4" /><Sheet className="h-4 w-4" /></span></p>
-        <table className="w-full text-[12.5px]">
-          <thead className="border-y border-white/10">
-            <tr>{['Búsqueda', 'Forma', 'Estado', 'Encontradas', 'Por revisar', 'Aprobadas', 'Fecha'].map((h) => <th key={h} className={th}>{h} <ArrowUpDown className="inline h-3 w-3 opacity-40" /></th>)}</tr>
-          </thead>
-          <tbody>
-            <tr className="transition-all duration-700" style={{ opacity: arrived ? 1 : 0, ...(arrived ? { background: HIGHLIGHT.background, boxShadow: 'inset 3px 0 0 #6b8cff' } : {}) }}>
-              {arrived && (
-                <>
-                  <td className="px-3 py-2.5 text-[#8fa6ff]">Empresas por criterios · México · Salud</td>
-                  <td className="px-3">Empresas por criterios</td>
-                  <td className="px-3">{ready ? <RealTag tone="amber">Listo para revisión</RealTag> : <RealTag tone="blue">Buscando…</RealTag>}</td>
-                  <td className="px-3 tabular-nums">{found}</td>
-                  <td className="px-3"><span className="rounded-full bg-amber-500/20 px-2 text-amber-300">{found}</span></td>
-                  <td className="px-3">0</td>
-                  <td className="px-3"><span className="block">19 de nov de 2026</span><span className="text-[11px] text-white/45">Tú</span></td>
-                </>
-              )}
-            </tr>
-            {ROWS.map((r) => (
-              <tr key={r.q} className="border-t border-white/[0.06]">
-                <td className="max-w-[200px] truncate px-3 py-2.5 text-[#8fa6ff]">{r.q}</td>
-                <td className="px-3">{r.form}</td>
-                <td className="px-3"><RealTag tone="amber">Listo para revisión</RealTag></td>
-                <td className="px-3 tabular-nums">{r.found}</td>
-                <td className="px-3"><span className="rounded-full bg-amber-500/20 px-2 text-amber-300">{r.review}</span></td>
-                <td className="px-3">{r.ok}</td>
-                <td className="px-3"><span className="block">{r.date}</span><span className="text-[11px] text-white/45">{r.who}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </RealCard>
-    </div>
-  )
-}
-
-function ReviewScreen({ time }: { time: number }) {
-  const approved = time >= 21
-  const gone = time >= 24
-  return (
-    <div className="px-6 pt-5">
-      <h4 className="text-[24px] font-semibold tracking-tight">Por revisar</h4>
-      <p className="mt-1 text-[12.5px] text-white/55">Empresas candidatas de tus búsquedas. Al aprobar, pasan a tu lista y se escriben en HubSpot a tu nombre.</p>
-      <p className="mt-4 flex gap-2 text-[12.5px]">
-        {['Todas 12', 'Nuevas 9', 'Libres en HubSpot 2', 'Ya en HubSpot 1'].map((c, i) => <span key={c} className={`rounded-lg border px-2.5 py-1 ${i === 0 ? 'border-[#6b8cff] bg-[#6b8cff]/15' : 'border-white/10 text-white/70'}`}>{c}</span>)}
-        <span className="ml-auto text-white/50">Empresas por criterios · México · Salud</span>
-      </p>
-      <ul className="mt-4 space-y-2">
-        {CANDIDATES.map((c, i) => {
-          const hero = i === 0
-          return (
-            <li
-              key={c.name}
-              className="flex items-center gap-4 rounded-xl border px-4 py-3 transition-all duration-700 ease-expo"
-              style={hero ? { ...HIGHLIGHT, ...(approved ? { borderColor: 'rgba(52,211,153,0.7)', background: 'rgba(16,185,129,0.12)', boxShadow: '0 0 0 4px rgba(16,185,129,0.15)' } : {}), transform: gone ? 'translateX(60%)' : 'none', opacity: gone ? 0 : 1 } : { borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.02)' }}
-            >
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-[13px] font-medium">{c.name[0]}</span>
-              <span className="w-[230px]"><span className="block text-[14px] font-medium">{c.name}</span><span className="text-[12px] text-white/50">🇲🇽 México · {c.meta}</span></span>
-              <RealTag tone={c.tone}>{c.tag}</RealTag>
-              <span className="flex-1 text-[12px] text-white/55">{c.why}</span>
-              {hero && approved ? (
-                <span className="flex items-center gap-1.5 text-[13px] text-emerald-300"><Check className="h-4 w-4" />Aprobada · pasa a tu lista</span>
-              ) : (
-                <span className="flex gap-2 text-[12.5px]">
-                  <span className={`rounded-lg px-3 py-1.5 ${c.tone === 'amber' ? 'bg-white/5 text-white/30' : 'bg-[#6b8cff] text-[#0a0a0a]'}`}>Aprobar</span>
-                  <span className="rounded-lg border border-white/15 px-3 py-1.5 text-white/70">Descartar</span>
-                </span>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-    </div>
+    <RumboPanel subtitle="Generar empresas candidatas" tabs steps={STEP_NAMES} step={step} back footer={!picked ? <OptionsCard title="¿Qué tipo de prospectos quieres encontrar?" options={TYPES} picked={time === 3 ? 0 : undefined} /> : <Composer text="" placeholder="Escribe tu respuesta…" typing={false} />}>
+      {!picked ? (
+        <>
+          <RumboSays show={time >= 0}>Hola, te ayudaré a encontrar los prospectos que necesitas.</RumboSays>
+          <RumboSays show={time >= 1}>Primero, selecciona el tipo de búsqueda que quieres realizar.</RumboSays>
+          <RumboSays show={time >= 2}>¿Qué tipo de prospectos quieres encontrar?</RumboSays>
+        </>
+      ) : (
+        <>
+          <UserSays>Empresas por criterios</UserSays>
+          <RumboSays show={time >= 5}>¿En qué país buscamos?</RumboSays>
+          <UserSays show={time >= 6}>Chile</UserSays>
+          <RumboSays show={time >= 7}>¿Qué industria?</RumboSays>
+          <UserSays show={time >= 8}>Agroindustria · más de 200 empleados</UserSays>
+          <RumboSays show={time >= 9}>
+            <span className="block rounded-xl border border-white/10 bg-white/[0.04] p-2.5 text-[12.5px] text-white/80">
+              <span className="mb-1 block font-medium text-white">Resumen antes de buscar</span>
+              Hasta 12 empresas de Agroindustria en Chile. Primero HubSpot, registros oficiales y el banco; Apollo solo si falta, con tope de 10 créditos.
+            </span>
+          </RumboSays>
+          <RumboSays show={time >= 11}>
+            <span className="inline-flex items-center gap-2 text-white"><Loader2 className="h-3.5 w-3.5 animate-spin" />Buscando… 9 candidatas, 0 créditos usados</span>
+          </RumboSays>
+        </>
+      )}
+    </RumboPanel>
   )
 }
 
 export function SearchReview() {
-  const [ref, time] = useStoryTime(LOOP, 22)
-  const review = stepAt(STEPS, time) === 2
-  const busy = time >= 9 && time < 13
+  const { t } = useLocale()
+  const [ref, time] = useStoryTime(LOOP, 20)
+  const panel = time < 13
+  const arrived = time >= 14
+  const detail = time >= 18 && time < LOOP - 1
+  const cursor = time === 3 ? { x: 960, y: 372 } : time >= 15 && time < 18 ? { x: 370, y: 256 } : time < 3 ? { x: 1080, y: 560 } : { x: 700, y: 640 }
   return (
     <div ref={ref}>
       <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 1', en: 'Agent 1' }} />
       <RealFrame
-        active={review ? 'revisar' : 'busquedas'}
-        crumb={['Empresas', review ? 'Por revisar' : 'Búsquedas']}
+        active="revisar"
+        crumb={['Empresas', 'Por revisar']}
         height={720}
-        overlay={
-          <>
-            <RumboPanel time={time} />
-            <RealDock busy={busy} label={busy ? 'Buscando empresas con Rumbo IA' : 'Generar con Rumbo IA'}>
-              <span className="flex gap-3 px-2 text-white/60"><Grip className="h-4 w-4" /><Settings className="h-4 w-4" /><Upload className="h-4 w-4" /></span>
-            </RealDock>
-            <FakeCursor x={time < 19 ? 900 : 1108} y={time < 19 ? 560 : 166} click={time === 20} show={review && time < 22} />
-          </>
-        }
+        overlay={<FakeCursor x={cursor.x} y={cursor.y} click={time === 3 || time === 17} show={time <= 4 || (time >= 15 && time < 18)} />}
       >
-        <div className="relative h-full">
-          <div className={`absolute inset-0 transition-opacity duration-700 ${review ? 'opacity-0' : 'opacity-100'}`}><SearchesScreen time={time} /></div>
-          <div className={`absolute inset-0 transition-opacity duration-700 ${review ? 'opacity-100' : 'opacity-0'}`}><ReviewScreen time={time} /></div>
+        <CompanyReview arrived={arrived} focus={time >= 14} />
+        <div className={`absolute inset-0 transition-opacity duration-500 ${panel ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+          <div className="absolute inset-0 bg-black/40" />
+          <Conversation time={time} />
         </div>
+        <CompanyDetail show={detail} />
       </RealFrame>
       <ReplicaNote />
+      <AgentStructure heading={{ es: 'Su estructura · seis formas de buscar empresas', en: 'Its structure · six ways to find companies' }} items={STRUCTURE} active={panel ? 0 : undefined} />
+      <p className="mt-3 text-sm text-white/50">{t({ es: 'Todas terminan en la misma bandeja, con las mismas verificaciones: número fiscal, dominio, duplicados y dueño en HubSpot.', en: 'They all end in the same queue, with the same checks: tax ID, domain, duplicates and owner in HubSpot.' })}</p>
     </div>
   )
 }
