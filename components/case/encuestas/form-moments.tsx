@@ -1,10 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
-import { favColor, Lock, UBITS_BLUE, useTicker } from './shared'
-
-const ROUTE = '/admin/desempeno-cultura/encuestas'
 
 interface MomentProps {
   index: string
@@ -59,74 +55,5 @@ export function BrowserFrame({ route, children, className = '' }: { route: strin
       </div>
       {children}
     </div>
-  )
-}
-
-const AREAS = [
-  { name: 'Producto', start: 9, base: [4.2, 3.6, 4.4, 3.1] },
-  { name: 'Finanzas', start: 1, base: [3.4, 3.0, 3.8, 2.4] },
-  { name: 'Comercial', start: 2, base: [4.4, 4.1, 3.7, 3.3] },
-  { name: 'Legal', start: 0, base: [3.9, 3.5, 4.0, 2.9] },
-] as const
-const ROWS: readonly L[] = [
-  { es: 'Propósito', en: 'Purpose' },
-  { es: 'Liderazgo', en: 'Leadership' },
-  { es: 'Colaboración', en: 'Collaboration' },
-  { es: 'Bienestar', en: 'Well-being' },
-]
-const STEPS = 9
-
-/** Momento 3: el mínimo por grupo viaja al mapa de calor; las celdas se abren solas cuando llegan respuestas. */
-export function AnonymityHeatmap() {
-  const { t } = useLocale()
-  const tick = useTicker(1300)
-  const [min, setMin] = useState(5)
-  const step = tick % STEPS
-  const counts = AREAS.map((a, i) => Math.min(a.start + Math.max(0, step - i), a.start + 6))
-  const open = counts.filter((n) => n >= min).length
-  return (
-    <BrowserFrame route={`${ROUTE}/open-cultura-ola2-2026/resultados`}>
-      <div className="p-4 sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm font-semibold">{t({ es: 'Mapa de calor · por área', en: 'Heatmap · by area' })}</p>
-          <div className="flex items-center gap-2 rounded-full bg-white px-1 py-1 text-xs ring-1 ring-black/[0.08]">
-            <span className="pl-2 text-[#5c646f]">{t({ es: 'Mínimo por grupo', en: 'Group minimum' })}</span>
-            <button type="button" onClick={() => setMin((m) => Math.max(3, m - 1))} disabled={min <= 3} aria-label={t({ es: 'Bajar el mínimo', en: 'Lower the minimum' })} className="h-6 w-6 rounded-full hover:bg-[#ecf1fa] disabled:opacity-30">−</button>
-            <span className="w-4 text-center font-semibold tabular-nums" aria-live="polite">{min}</span>
-            <button type="button" onClick={() => setMin((m) => Math.min(10, m + 1))} aria-label={t({ es: 'Subir el mínimo', en: 'Raise the minimum' })} className="h-6 w-6 rounded-full hover:bg-[#ecf1fa]">+</button>
-          </div>
-        </div>
-        <div className="mt-5 grid grid-cols-[minmax(4.5rem,6rem)_repeat(4,minmax(0,1fr))] gap-1.5 text-[11px]">
-          <span />
-          {AREAS.map((a, c) => (
-            <span key={a.name} className="truncate text-center text-[#5c646f]">
-              {a.name}
-              <span className={`block font-mono tabular-nums transition-colors ${counts[c] < min ? 'text-[#b26b00]' : 'text-[#2c6b2f]'}`}>n={counts[c]}</span>
-            </span>
-          ))}
-          {ROWS.map((r, ri) => (
-            <div key={r.es} className="contents">
-              <span className="flex items-center truncate text-[#414a5c]">{t(r)}</span>
-              {AREAS.map((a, c) => {
-                const n = counts[c]
-                const state = n === 0 ? 'empty' : n < min ? 'reserved' : 'open'
-                return (
-                  <span
-                    key={`${a.name}-${state}`}
-                    className={`flex h-10 items-center justify-center rounded-lg font-mono tabular-nums sm:h-12 ${state === 'open' ? 'encf-unlock text-[#14161a]' : 'bg-[#eceef3] text-[#979ba3]'}`}
-                    style={state === 'open' ? { background: favColor(a.base[ri]), animationDelay: `${ri * 70}ms` } : undefined}
-                  >
-                    {state === 'open' ? a.base[ri].toFixed(1).replace('.', ',') : state === 'reserved' ? <Lock className="h-4 w-4" /> : '—'}
-                  </span>
-                )
-              })}
-            </div>
-          ))}
-        </div>
-        <p className="mt-4 rounded-lg bg-white px-3 py-2 text-xs leading-snug text-[#414a5c] ring-1 ring-black/[0.06]" aria-live="polite">
-          {t({ es: `${open} de 4 áreas se pueden leer. Las demás tienen respuestas, pero aún no alcanzan ${min}: nadie puede adivinar quién dijo qué.`, en: `${open} of 4 areas can be read. The rest have answers but haven’t reached ${min}: nobody can guess who said what.` })}
-        </p>
-      </div>
-    </BrowserFrame>
   )
 }

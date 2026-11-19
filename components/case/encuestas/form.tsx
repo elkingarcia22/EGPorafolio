@@ -2,8 +2,10 @@
 
 import { useLocale } from '@/lib/i18n'
 import { LiveBuilder } from './form-builder'
-import { ResultsTabs, UploadPipeline } from './form-flows'
-import { AnonymityHeatmap, BrowserFrame, Moment } from './form-moments'
+import { ResultsReal } from './form-results'
+import { UploadReal } from './form-upload'
+import { HeatmapReal } from './form-heatmap'
+import { BrowserFrame, Moment } from './form-moments'
 import { TemplatesReal } from './form-templates'
 import { PhoneAnswer } from './form-answer'
 import { ProductTour } from './form-tour'
@@ -43,11 +45,12 @@ export function SurveyForm() {
       </Moment>
 
       <Moment
+        wide
         index={t({ es: 'Momento 03 · Anonimato', en: 'Moment 03 · Anonymity' })}
         title={{ es: 'La privacidad viaja a cada celda', en: 'Privacy travels to every cell' }}
-        why={{ es: 'Un grupo con respuestas pero por debajo del mínimo se ve con candado, nunca con un número. El mínimo arranca en 5 y no baja de 3: prueba a moverlo y mira qué áreas se abren.', en: 'A group with answers but below the minimum shows a lock, never a number. The minimum starts at 5 and never goes below 3: move it and watch which areas open.' }}
+        why={{ es: 'Un grupo con respuestas pero por debajo del mínimo se ve con candado, nunca con un número, y su ayuda dice por qué. El mínimo arranca en 5 y no baja de 3. Pasa el cursor por la primera fila para ver lo que muestra cada celda.', en: 'A group with answers but below the minimum shows a lock, never a number, and its tooltip says why. The minimum starts at 5 and never goes below 3. Hover the first row to see what each cell shows.' }}
       >
-        <AnonymityHeatmap />
+        <HeatmapReal />
       </Moment>
 
       <Moment
@@ -64,16 +67,16 @@ export function SurveyForm() {
         title={{ es: 'Lo que se midió por fuera, adentro en minutos', en: 'What was measured elsewhere, inside in minutes' }}
         why={{ es: 'La IA lee el archivo y propone; la persona confirma. Quien coincide por correo se vincula solo, quien solo coincide por nombre lo decide alguien, y los indicadores salen del mismo archivo.', en: 'AI reads the file and proposes; a person confirms. Matches by email link themselves, name-only matches are decided by someone, and the indicators come from the same file.' }}
       >
-        <UploadPipeline />
+        <UploadReal />
       </Moment>
 
       <Moment
-        flip
+        wide
         index={t({ es: 'Momento 06 · Resultados', en: 'Moment 06 · Results' })}
         title={{ es: 'Una pregunta por pestaña', en: 'One question per tab' }}
         why={{ es: 'Cada vista responde una sola pregunta y la responde con la gráfica que le sirve. El demográfico elegido viaja entre pestañas: de «participación por área» a «mapa por área» es un solo pensamiento.', en: 'Each view answers a single question with the chart that suits it. The chosen demographic travels across tabs: from “participation by area” to “map by area” is a single thought.' }}
       >
-        <ResultsTabs />
+        <ResultsReal />
       </Moment>
     </div>
   )
