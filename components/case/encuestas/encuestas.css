@@ -11,3 +11,10 @@
   .enc-fade, .enc-pulse, .enc-scan, .enc-confetti { animation: none; }
 }
 html[data-motion='reduced'] .enc-fade, html[data-motion='reduced'] .enc-pulse, html[data-motion='reduced'] .enc-scan, html[data-motion='reduced'] .enc-confetti { animation: none; }
+
+/* La idea · espectro de plantillas: cada pregunta entra como un punto. */
+@keyframes enc-pop { from { opacity: 0; transform: scale(0.2); } to { opacity: 1; transform: none; } }
+.enc-pop { animation: enc-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@media (prefers-reduced-motion: reduce) { .enc-pop { animation: none; } }
+html[data-motion='reduced'] .enc-pop { animation: none; }
+@keyframes enc-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }

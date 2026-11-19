@@ -101,7 +101,14 @@ export const ENCUESTAS_CASE = {
 
   /* 03 · La idea */
   idea: {
-    hmw: { es: '¿Cómo podríamos llevar a una empresa de «mandé una encuesta» a «sé qué hacer y con quién», sin que nadie tema contestar con honestidad?', en: 'How might we take a company from “I sent a survey” to “I know what to do and with whom”, without anyone fearing to answer honestly?' } satisfies L,
+    hmw: { es: '¿Cómo podríamos darle a cada empresa un solo constructor que sirva igual para un pulso de cinco preguntas, un clima de cincuenta y la norma de su país, sin que nadie tema contestar con honestidad?', en: 'How might we give every company a single builder that works just as well for a five-question pulse, a fifty-question climate survey and its country’s regulation, without anyone fearing to answer honestly?' } satisfies L,
+    axis: {
+      title: { es: 'El eje: tan personalizable que cabe cualquier caso de uso', en: 'The axis: customizable enough to fit any use case' } satisfies L,
+      body: {
+        es: 'La idea central fue no hacer una encuesta para cada caso, sino un modelo que se adapta: secciones de hasta tres niveles, tipos de pregunta, visibilidad, participantes y reglas que se encienden según lo que se mide. Con eso la misma pieza arma desde una encuesta sencilla hasta una robusta, e incluso una normativa como la NOM 035 de México, sin construir un módulo aparte. Eso fue lo que más nos apalancó: cada plantilla nueva es contenido y reglas, no pantallas nuevas.',
+        en: 'The core idea was not to build a survey per use case but a model that adapts: sections up to three levels deep, question types, visibility, participants and rules that switch on depending on what is measured. That lets the same piece build anything from a simple survey to a robust one, even a regulatory one like Mexico’s NOM 035, without a separate module. That was our biggest lever: each new template is content and rules, not new screens.',
+      } satisfies L,
+    },
     principles: [
       { title: { es: 'Anónima o pública, sin término medio', en: 'Anonymous or public, nothing in between' }, body: { es: 'O el sistema guarda el vínculo entre persona y respuesta, o no lo guarda. Un punto intermedio sería una promesa imposible de cumplir.', en: 'Either the system keeps the person–answer link or it doesn’t. A middle ground would be a promise it can’t keep.' } },
       { title: { es: 'A quién antes que qué', en: 'Who before what' }, body: { es: 'Participantes va antes que el contenido: decidir a quién se le pregunta cambia qué vale la pena preguntar.', en: 'Participants come before content: who you ask changes what’s worth asking.' } },
