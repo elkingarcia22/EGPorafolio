@@ -88,6 +88,16 @@ function score(q: string, tokens: readonly string[]): { topic: Topic; points: nu
 
 const withExtras = (text: string, topic: Topic, locale: Locale) => `${text}${topic.extras ? `\n\n${topic.extras[locale]}` : ''}`
 
+/** ¿La pregunta junta varias cosas? («cómo boceteas logos y qué herramientas usas») */
+const COMPOUND = [' y ', ' and ', ' tambien ', ' also ', ' ademas ']
+
+/** Las otras partes de una pregunta compuesta, en una frase cada una (máximo dos). */
+function alsoAnswer(q: string, ranked: { topic: Topic; points: number }[], main: Topic, locale: Locale): string {
+  if (!COMPOUND.some((c) => q.includes(c))) return ''
+  const extra = ranked.filter((r) => r.topic.id !== main.id && r.topic.short && r.points >= 1).slice(0, 2)
+  return extra.map((r) => `\n\n${r.topic.short?.[locale] ?? ''}`).join('')
+}
+
 function route(question: string) {
   const q = ` ${fold(question).replace(/[¿?¡!.,;:()«»"]/g, ' ').replace(/\s+/g, ' ').trim()} `
   const tokens = q.trim().split(' ')
@@ -127,5 +137,5 @@ export function answerQuestion(question: string, locale: Locale, memory: LocalMe
     memory.deepGiven[topic.id] = true
     return withExtras(hello + topic.deep[locale], topic, locale)
   }
-  return withExtras(hello + topic.replies[n % topic.replies.length][locale], topic, locale)
+  return withExtras(hello + topic.replies[n % topic.replies.length][locale] + alsoAnswer(q, ranked, topic, locale), topic, locale)
 }

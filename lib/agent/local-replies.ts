@@ -16,6 +16,8 @@ export interface Topic {
   weight?: number
   replies: readonly L[]
   deep?: L
+  /** Una frase para cuando el tema llega como parte de una pregunta compuesta («…y qué herramientas usas»). */
+  short?: L
   /** Marcas para la interfaz: casos, contacto, hoja de vida y preguntas siguientes. */
   extras?: L
 }
@@ -29,6 +31,7 @@ export const TOPICS: readonly Topic[] = [
   /* ── Cómo trabajo ─────────────────────────────────────────────────── */
   {
     id: 'vibe',
+    short: s('Y cuando hace falta, lo construyo yo mismo con Claude Code y Cursor.', 'And when needed, I build it myself with Claude Code and Cursor.'),
     weight: 2,
     keys: ['eres desarrollador', 'desarrollador o', 'vibe coding', 'vibe', 'codigo', 'programas', 'programar', 'construyes', 'construir', 'cursor', 'claude code', 'build', 'coding', 'code'],
     replies: [
@@ -40,6 +43,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'process',
+    short: s('Sobre mi proceso: voy de puntos sueltos a conexiones en ocho etapas, de escuchar el problema a una demo funcionando.', 'On my process: I go from loose dots to connections in eight stages, from listening to the problem to a working demo.'),
     keys: ['por donde empiezas', 'empiezas', 'arrancas', 'proceso', 'metodologia', 'metodo', 'como trabajas', 'como abordas', 'como empiezas', 'pasos', 'process', 'approach', 'workflow'],
     replies: [
       s('Voy de puntos sueltos a conexiones, en ocho etapas: escucho el problema sin filtros, busco lo que se repite, lo resumo en una pregunta y pocos principios, bocetos a mano, pantallas reales, diseño cómo piensa la IA si la hay, mido el impacto y cierro con una demo funcionando.\n\nPor ejemplo, en Barberlytics esa pregunta fue: ¿cómo hacer que reservar «lo de siempre» tome un toque?', 'I go from loose dots to connections, in eight stages: I listen to the problem unfiltered, find what repeats, sum it up in one question and a few principles, hand sketch, real screens, design how the AI thinks if there is one, measure impact and close with a working demo.\n\nFor example, in Barberlytics that question was: how do we make booking “the usual” take one tap?'),
@@ -49,6 +53,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'research',
+    short: s('Antes investigo: entrevistas cuando se puede, datos de uso, soporte, reseñas y comparación de productos.', 'Before that I research: interviews when possible, usage data, support, reviews and product comparisons.'),
     keys: ['investigacion', 'investigas', 'research', 'entrevistas', 'interviews', 'usuarios', 'users', 'descubrimiento', 'discovery', 'insights', 'empatia'],
     replies: [
       s('Investigo con lo que haya disponible y lo digo tal cual: entrevistas y observación cuando se puede, datos de uso, tickets de soporte, reseñas públicas y comparación de productos. Lo importante es separar lo que la gente dice de lo que hace.\n\nPor ejemplo, en el calendario de Barberlytics leí reseñas y centros de ayuda de 22 calendarios; la queja que más se repetía era «demasiados clics», y eso definió que el siguiente paso viviera en la tarjeta.', 'I research with whatever is available and say so plainly: interviews and observation when possible, usage data, support tickets, public reviews and product comparisons. The key is separating what people say from what they do.\n\nFor example, for the Barberlytics calendar I read reviews and help centers of 22 calendars; the most repeated complaint was “too many clicks”, which is why the next step lives on the card.'),
@@ -66,6 +71,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'sketch',
+    short: s('Sobre bocetos: siempre empiezo en tableros a mano —el flujo, las variantes y lo que no puede pasar— antes de cualquier pantalla.', 'On sketches: I always start on hand-drawn boards —the flow, the variants and what must not happen— before any screen.'),
     keys: ['boceto', 'bocetos', 'bocetas', 'bocetar', 'bocetacion', 'sketch', 'sketches', 'wireframe', 'wireframes', 'flujo', 'flujos', 'flow', 'ideacion', 'ideas', 'variantes', 'versiones'],
     replies: [
       s('Bocetar para mí es pensar barato. Antes de cualquier pantalla hago tableros a mano: el flujo completo, dónde se separan los caminos, qué pasa cuando algo falla y varias versiones lado a lado. Ahí descarto rápido, sin apego.\n\nPor ejemplo, en la reserva de Barberlytics bocetamos cuatro versiones —paso a paso, agenda en lista, según el cliente y Clipper— sobre un mismo motor, y «según el cliente» quedó por defecto.', 'Sketching to me is cheap thinking. Before any screen I make hand-drawn boards: the whole flow, where paths split, what happens when something fails and several versions side by side. There I discard fast, without attachment.\n\nFor example, in Barberlytics booking we sketched four versions —step by step, list agenda, by client and Clipper— on one engine, and “by client” became the default.'),
@@ -75,6 +81,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'prototype',
+    short: s('Después lo prototipo al nivel que la pregunta necesita: papel, Figma o código.', 'Then I prototype it at the level the question needs: paper, Figma or code.'),
     keys: ['prototipo', 'prototipos', 'prototipas', 'prototype', 'prototyping', 'figma make', 'mvp'],
     replies: [
       s('Prototipo en el nivel que la pregunta necesita: papel si es de flujo, Figma si es de forma y código si es de comportamiento o de datos reales. Cada vez más voy directo a código con IA, porque así se prueba con lo que de verdad va a pasar.\n\nPor ejemplo, la demo de la reserva de Barberlytics es la reserva real funcionando con datos de prueba, en celular, tablet, monitor y widget.', 'I prototype at the level the question needs: paper for flow, Figma for form and code for behavior or real data. More and more I go straight to code with AI, because that tests what will actually happen.\n\nFor example, the Barberlytics booking demo is the real booking running with test data, on phone, tablet, monitor and widget.'),
@@ -83,6 +90,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'testing',
+    short: s('Y lo valido con un prototipo frente a la tarea real; si lleva IA, con evaluaciones.', 'And I validate it with a prototype against the real task; if it carries AI, with evaluations.'),
     keys: ['pruebas con usuarios', 'test con usuarios', 'prueba', 'pruebas', 'pruebas de usabilidad', 'usabilidad', 'usability', 'testing', 'validar', 'validacion', 'validate', 'test', 'a/b', 'experimento'],
     replies: [
       s('Valido lo más barato primero: un prototipo frente a la tarea real, mirando dónde se traba la persona. Si hay datos de uso, defino antes la señal que confirmaría la hipótesis. Y si el producto lleva IA, la valido con evaluaciones.\n\nPor ejemplo, Clipper tiene 60 preguntas de evaluación en tres variantes de idioma, con una meta del 90 % de acierto que todavía falta correr con la clave de producción.', 'I validate the cheapest way first: a prototype against the real task, watching where the person gets stuck. If there’s usage data, I define upfront the signal that would confirm the hypothesis. And if the product carries AI, I validate it with evaluations.\n\nFor example, Clipper has 60 evaluation questions in three language variants, with a 90% accuracy target still to be run with the production key.'),
@@ -91,6 +99,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'metrics',
+    short: s('Y lo mido: defino antes la métrica de negocio que tiene que moverse y la señal que la confirma.', 'And I measure it: I define upfront the business metric that has to move and the signal that confirms it.'),
     keys: ['si funciono', 'diseno funciono', 'como sabes si', 'metrica', 'metricas', 'metrics', 'kpi', 'kpis', 'medir', 'mides', 'medicion', 'measure', 'indicadores', 'exito', 'success', 'resultados', 'outcome', 'outcomes', 'north star'],
     replies: [
       s('Empiezo por la métrica, no por la pantalla: qué tiene que moverse en el negocio —adopción, conversión, retención, tiempo ahorrado, ingresos— y qué comportamiento la mueve. Escribo la hipótesis, la señal que la confirma y diseño para esa señal.\n\nPor ejemplo, en Objetivos la métrica de avance en % castigaba a quien se ponía metas ambiciosas; la cambiamos por la constancia de reportar, y eso cambió el diseño entero.', 'I start from the metric, not the screen: what has to move in the business —adoption, conversion, retention, time saved, revenue— and which behavior moves it. I write the hypothesis, the signal that confirms it and design for that signal.\n\nFor example, in Goals the % progress metric punished ambitious goals; we changed it to the habit of reporting, and that changed the whole design.'),
@@ -127,6 +136,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'design-system',
+    short: s('Y todo cae en un sistema de diseño que deja personalizar sin romper, como Thema.', 'And everything lands in a design system that allows customizing without breaking, like Thema.'),
     keys: ['sistema de diseno', 'design system', 'tokens', 'componentes', 'components', 'libreria', 'library', 'temas', 'themes', 'consistencia'],
     replies: [
       s('Me gustan los sistemas que dejan personalizar sin romper. Defino pocas decisiones y que el resto se derive: un color primario genera el tema completo, y lo que tiene significado —éxito, error, aviso— no cambia nunca.\n\nPor ejemplo, en Thema, el sistema de Barberlytics, pasé de cuatro fuentes de tokens en conflicto a 218 componentes, 22 familias y 10 temas, con reglas que la IA también sigue.', 'I like systems that let you customize without breaking. I define few decisions and derive the rest: one primary color generates the whole theme, and whatever carries meaning —success, error, warning— never changes.\n\nFor example, in Thema, Barberlytics’ system, I went from four conflicting token sources to 218 components, 22 families and 10 themes, with rules AI follows too.'),
@@ -160,7 +170,8 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'branding',
-    weight: 1.5,
+    short: s('Sobre marca: en Barberlytics boceté seis direcciones de logo y lo afiné en seis rondas hasta dejar la flecha sola como isotipo.', 'On brand: in Barberlytics I sketched six logo directions and refined it in six rounds until the arrow alone became the isotype.'),
+    weight: 3,
     keys: ['logo', 'logos', 'logotipo', 'isotipo', 'imagotipo', 'marca', 'marcas', 'branding', 'brand', 'identidad visual', 'identity', 'icono', 'icon', 'orbe', 'orb'],
     replies: [
       s('Boceto un logo como cualquier problema: primero qué tiene que decir y después muchas formas de decirlo, a mano, antes de pulir una. Exploro direcciones con el mismo ADN, me quedo con lo que sobrevive y termino con la construcción y sus medidas, probándolo en todos los tamaños y temas.\n\nPor ejemplo, en Barberlytics la pregunta era cómo «barbería» y «métricas» se vuelven un solo signo. Boceté seis direcciones —impulso, peine, poste, navaja, placa y sello— y lo afiné en seis rondas: la flecha que sube se quedó, le di un pulso, el gradiente de IA, lo probé en los catorce temas y al final la flecha sola quedó como isotipo para el favicon y el ícono de la app.', 'I sketch a logo like any problem: first what it has to say, then many ways of saying it, by hand, before polishing one. I explore directions with the same DNA, keep what survives and finish with the construction and its measures, testing it at every size and theme.\n\nFor example, in Barberlytics the question was how “barbershop” and “metrics” become one sign. I sketched six directions —momentum, comb, pole, razor, plate and seal— and refined it in six rounds: the rising arrow stayed, I gave it a pulse, the AI gradient, tested it in all fourteen themes and in the end the arrow alone became the isotype for favicon and app icon.'),
@@ -181,6 +192,7 @@ export const TOPICS: readonly Topic[] = [
   /* ── IA ───────────────────────────────────────────────────────────── */
   {
     id: 'ai',
+    short: s('Y la IA me acompaña en todo: agrupar investigación, generar variantes, prototipar en código y evaluar.', 'And AI comes along in everything: clustering research, generating variants, coded prototyping and evaluating.'),
     weight: 1.2,
     keys: [' ia ', ' ai ', 'inteligencia artificial', 'artificial intelligence', 'llm', 'gpt', 'chatgpt', 'gemini', 'machine learning', 'claude'],
     replies: [
@@ -253,6 +265,7 @@ export const TOPICS: readonly Topic[] = [
   /* ── Equipo y forma de ser ───────────────────────────────────────── */
   {
     id: 'team',
+    short: s('Y lo trabajo muy pegado a producto y desarrollo, con las decisiones escritas y su porqué.', 'And I work it closely with product and engineering, with decisions written down and their why.'),
     keys: ['equipo', 'team', 'desarrolladores', 'developers', 'devs', 'ingenieros', 'engineers', 'handoff', 'entrega', ' pm ', 'product manager', 'colaboras', 'collaborate', 'trabajas con'],
     replies: [
       s('Trabajo muy pegado a producto y desarrollo. Llevo la evidencia a la mesa, dejo las decisiones escritas con su porqué y, cuando una idea genera dudas, la prototipo para que la discusión sea sobre algo real. El handoff casi no existe porque muchas veces entrego en código.\n\nPor ejemplo, en Objetivos trabajé con PM, front y QA en el rediseño del admin.', 'I work very close to product and engineering. I bring evidence to the table, write decisions down with their why and, when an idea raises doubts, I prototype it so the discussion is about something real. Handoff barely exists because I often deliver in code.\n\nFor example, in Goals I worked with PM, front-end and QA on the admin redesign.'),
@@ -294,6 +307,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'experience',
+    short: s('Llevo más de diez años en producto digital: hoy en UBITS, antes en Barberlytics y Siigo.', 'I have 10+ years in digital product: today at UBITS, before at Barberlytics and Siigo.'),
     keys: ['experiencia', 'experience', 'trayectoria', 'carrera', 'career', 'anos', 'years', 'ubits', 'siigo', 'trabajado', 'worked', 'cargo', 'rol actual'],
     replies: [
       s('Llevo más de diez años en producto digital. Hoy estoy en UBITS como Diseñador UX/UI Senior Specialist, en software de Recursos Humanos (objetivos, encuestas y matriz de talento); entre 2022 y 2025 lideré el diseño de Barberlytics, y antes estuve en Siigo diseñando un ERP contable, de nómina a facturación electrónica. Empecé como diseñador gráfico y director de arte.', 'I have 10+ years in digital product. Today I’m at UBITS as Senior UX/UI Design Specialist, in HR software (goals, surveys and talent matrix); between 2022 and 2025 I led design at Barberlytics, and before that I was at Siigo designing an accounting ERP, from payroll to e-invoicing. I started as a graphic designer and art director.'),
@@ -303,6 +317,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'tools',
+    short: s('Sobre herramientas: en diseño uso Figma y Adobe, y para explorar y construir con IA, Claude, Claude Code, Cursor y Figma Make.', 'On tools: for design I use Figma and Adobe, and to explore and build with AI, Claude, Claude Code, Cursor and Figma Make.'),
     keys: ['herramientas', 'herramienta', 'tools', 'tool', 'stack', 'figma', 'adobe', 'software', 'n8n', 'supabase', 'notion', 'jira', 'make', 'antigravity'],
     replies: [
       s('En IA uso Claude, Claude Code, Cursor, Antigravity, ChatGPT y Figma Make. En diseño, Figma y Adobe. Para producto y datos, Supabase, Notion, Jira y n8n o Make. La herramienta cambia; el criterio se queda.\n\nPor ejemplo, Barberlytics combina Figma, Claude Code, React, TypeScript y Vercel.', 'For AI I use Claude, Claude Code, Cursor, Antigravity, ChatGPT and Figma Make. For design, Figma and Adobe. For product and data, Supabase, Notion, Jira and n8n or Make. Tools change; judgment stays.\n\nFor example, Barberlytics combines Figma, Claude Code, React, TypeScript and Vercel.'),
@@ -334,6 +349,7 @@ export const TOPICS: readonly Topic[] = [
   },
   {
     id: 'contact',
+    short: s('Si quieres, lo seguimos hablando directo.', 'If you like, let’s keep talking directly.'),
     weight: 1.2,
     keys: ['contacto', 'contactarte', 'contact', 'correo', 'email', 'mail', 'whatsapp', 'telefono', 'phone', 'llamar', 'call', 'linkedin', 'disponible', 'disponibilidad', 'available', 'remoto', 'remote', 'ubicacion', 'donde vives', 'location'],
     replies: [s(`Con gusto. Escríbeme a ${PROFILE.email} o por WhatsApp al ${PROFILE.phoneDisplay}. Estoy en ${PROFILE.location.es} y trabajo en remoto o híbrido.`, `Gladly. Email me at ${PROFILE.email} or WhatsApp me at ${PROFILE.phoneDisplay}. I’m based in ${PROFILE.location.en} and work remote or hybrid.`)],

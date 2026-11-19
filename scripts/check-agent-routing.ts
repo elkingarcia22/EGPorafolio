@@ -25,7 +25,7 @@ const cases: [string, string | null][] = [
   ['como cuidas lo visual', 'ui'], ['que tan bueno eres en ui', 'ui'], ['te gusta la animacion', 'ui'],
   ['tienes en cuenta la accesibilidad', 'accessibility'], ['diseñas para personas con discapacidad', 'accessibility'],
   ['has diseñado dashboards', 'data-viz'], ['como visualizas datos', 'data-viz'],
-  ['como haces logos', 'branding'], ['en que proyeco y como haces la bocetación de logos', 'branding'], ['diseñas marcas', 'branding'], ['hiciste el logo de barberlytics?', 'branding'], ['como diseñaste el orbe', 'branding'],
+  ['como haces logos', 'branding'], ['en que proyeco y como haces la bocetación de logos', 'branding'], ['diseñas marcas', 'branding'], ['hiciste el logo de barberlytics?', 'branding'], ['hokla como bocetas logos y en que proyecto has boceta y que herrmientas usas par abocetarlos', 'branding'], ['que herramientas usas para hacer logos', 'branding'], ['como diseñaste el orbe', 'branding'],
   // IA
   ['como usas la ia', 'ai'], ['como usas la IA en tu proceso', 'ai'], ['que opinas de la inteligencia artificial', 'ai'], ['usas chatgpt', 'ai'],
   ['como diseñas agentes de ia', 'ai-agents'], ['como evitas que la ia alucine', 'ai-agents'], ['como diseñaste clipper', 'ai-agents'], ['que es rumbo', 'ai-agents'],
