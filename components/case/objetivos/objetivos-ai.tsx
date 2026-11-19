@@ -1,272 +1,325 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
-import { useStepper } from './forma-ui'
 
-const STEP_MS = 9000
-const ramp = 'animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both]'
-const after = (ms: number) => ({ animationDelay: `${ms}ms` })
+/**
+ * Crear objetivos con IA, como lo hace el playground («Crear la estrategia con IA»,
+ * paso 2 del constructor). Textos, opciones y resultado son los del staging
+ * (ciclo «KPIs corporativos 2026», 19 nov 2026): el reto y la apuesta se escribieron
+ * como ejemplo y lo demás es lo que devolvió la plataforma.
+ */
 
-/** Escribe un texto letra a letra a partir de un retraso; sin movimiento, lo muestra entero. */
-function useTyped(text: string, delay: number, speed = 16): string {
+const BLUE = '#0c5bef'
+const ramp = 'animate-[ramp-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both]'
+const delay = (ms: number) => ({ animationDelay: `${ms}ms` })
+
+/** Escribe un texto letra a letra desde un retraso. */
+function useTyped(text: string, wait = 250, speed = 14): string {
   const { reducedMotion } = useA11y()
   const [n, setN] = useState(reducedMotion ? text.length : 0)
   useEffect(() => {
-    if (reducedMotion) {
-      setN(text.length)
-      return
-    }
+    if (reducedMotion) return setN(text.length)
     setN(0)
     let id = 0
     const start = window.setTimeout(() => {
       id = window.setInterval(() => setN((v) => (v >= text.length ? (window.clearInterval(id), v) : v + 2)), speed)
-    }, delay)
+    }, wait)
     return () => {
       window.clearTimeout(start)
       window.clearInterval(id)
     }
-  }, [text, delay, speed, reducedMotion])
+  }, [text, wait, speed, reducedMotion])
   return text.slice(0, n)
 }
 
-/* ── 1 · Propone: «Crear con IA» (aiObjectiveBrief.ts) ── */
-
-/** Las cinco preguntas del brief; las respuestas abiertas son un ejemplo de lo que escribiría alguien. */
-const BRIEF = [
-  { q: '¿Cuántos objetivos?', a: '3' },
-  { q: '¿En qué se juega el ciclo?', a: 'Clientes' },
-  { q: '¿Qué momento vive la empresa?', a: 'Entran clientes, pero se van rápido' },
-  { q: '¿Qué tan exigentes deben ser las metas?', a: 'Retador · Exige mejorar' },
-  { q: '¿Qué más hay que tener en cuenta?', a: 'Sin presupuesto nuevo' },
-]
-const SEEDS = [
-  { title: 'Subir la satisfacción de los clientes', dir: 'Aumentar', measure: 'Porcentaje' },
-  { title: 'Aumentar la retención de los clientes', dir: 'Aumentar', measure: 'Porcentaje' },
-  { title: 'Reducir los tickets de soporte sin resolver', dir: 'Reducir', measure: 'Numérico' },
-]
-
-function Seed({ s, i }: { s: (typeof SEEDS)[number]; i: number }) {
-  const typed = useTyped(s.title, 1800 + i * 900)
-  return (
-    <li className={`${ramp} rounded-xl bg-white p-3 text-[#161a2c]`} style={after(1700 + i * 900)}>
-      <p className="min-h-[1.3em] text-[13px] font-medium">{typed}</p>
-      <p className="mt-1.5 flex gap-1.5 text-[10px]">
-        <span className="rounded bg-[#0c5bef]/10 px-1.5 py-0.5 text-[#0c5bef]">{s.dir === 'Aumentar' ? '↗' : '↘'} {s.dir}</span>
-        <span className="rounded bg-black/[0.05] px-1.5 py-0.5 text-black/60">{s.measure}</span>
-      </p>
-    </li>
-  )
+function Caret({ on }: { on: boolean }) {
+  return on ? <span className="ml-0.5 inline-block h-[1em] w-px translate-y-[2px] animate-pulse bg-[#0c5bef]" /> : null
 }
 
-function Proposes() {
+/** La cabecera del panel de IA, igual en todos los pasos. */
+function AiHead({ sub }: { sub: string }) {
   return (
-    <div className="grid gap-6 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      <ol className="space-y-2.5">
-        {BRIEF.map((b, i) => (
-          <li key={b.q} className={ramp} style={after(i * 260)}>
-            <p className="text-[12px] text-white/50">{b.q}</p>
-            <p className="mt-1 inline-flex rounded-full bg-white px-3 py-1 text-[13px] text-[#0b0d16]">{b.a}</p>
-          </li>
-        ))}
-        <li className={`${ramp} pt-1`} style={after(1350)}>
-          <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#7b5cff] to-[#0c5bef] px-4 py-2 text-[12px] font-medium">✦ Crear con IA</span>
-        </li>
-      </ol>
-      <ul className="space-y-2">
-        {SEEDS.map((s, i) => <Seed key={s.title} s={s} i={i} />)}
-      </ul>
+    <div className="flex items-start gap-2.5">
+      <span className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-[conic-gradient(from_200deg,#ff5ca8,#7b5cff,#0c5bef,#ff9a5c,#ff5ca8)]" />
+      <span>
+        <span className="block text-[15px] font-medium">Crear la estrategia con IA</span>
+        <span className="block text-[12px] text-black/55">{sub}</span>
+      </span>
     </div>
   )
 }
 
-/* ── 2 · Lee: «Análisis con IA», lectura real del staging (19 nov 2026) ── */
+function Panel({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return <div className={`w-full max-w-[520px] rounded-2xl bg-gradient-to-br from-[#f1edff] via-white to-[#ffeef3] p-5 text-[#161a2c] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.9)] ring-1 ring-black/5 ${className}`}>{children}</div>
+}
 
-const READING = [
-  { kind: 'Hallazgo', color: '#6b8cff', title: '72 % de los objetivos empuja un objetivo de empresa', level: 'Alta' },
-  { kind: 'Riesgo', color: '#ff6b5c', title: 'El avance va 9 puntos por detrás del calendario', level: 'Alta', proof: 'Avance general 9,1 % frente a 18 % del calendario corrido.' },
-  { kind: 'Qué hacer', color: '#17b26a', title: 'Desbloquear 42 objetivos antes de mirar cualquier otra cifra', level: 'Alta', proof: '29 por aprobar y 13 devueltos.' },
-]
-const SCANNED = [
-  ['286', 'objetivos'],
-  ['80', 'personas'],
-  ['9,1 %', 'avance'],
-  ['18 %', 'calendario'],
-]
-
-function Reads() {
-  const summary = useTyped('Va en 9,1 % de avance general, con 0 % de los objetivos en meta. El ritmo va por detrás del calendario (18 % corrido). Hay 42 objetivos sin aprobar que todavía no cuentan.', 900, 14)
+function TypedField({ label, text, hint, wait }: { label: string; text: string; hint?: string; wait?: number }) {
+  const typed = useTyped(text, wait)
   return (
-    <div className="grid gap-6 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-      <div>
-        <div className="relative grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
-          {SCANNED.map(([v, k]) => (
-            <div key={k} className="rounded-lg bg-white/[0.06] p-3">
-              <p className="text-xl font-light tabular-nums">{v}</p>
-              <p className="text-[11px] text-white/45">{k}</p>
-            </div>
-          ))}
-          {/* La pasada que lee las cifras. */}
-          <span className="obj-scan pointer-events-none absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-transparent via-[#7b5cff]/40 to-transparent" aria-hidden="true" />
-        </div>
-        <p className="mt-4 min-h-[5.5em] text-[13px] leading-relaxed text-white/75">{summary}</p>
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">9 lecturas · 78 % con confiabilidad alta</p>
+    <div>
+      <p className="mb-1.5 text-[13px] font-medium">{label}</p>
+      <div className="min-h-[3.4em] rounded-xl border-2 border-[#0c5bef]/70 bg-white px-3 py-2 text-[13px] shadow-[0_0_0_4px_rgba(12,91,239,0.12)]">
+        {typed}
+        <Caret on={typed.length < text.length} />
       </div>
-      <ul className="space-y-2">
-        {READING.map((r, i) => (
-          <li key={r.title} className={`${ramp} rounded-xl bg-white p-3.5 text-[#161a2c]`} style={after(600 + i * 450)}>
-            <p className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.12em]">
-              <span style={{ color: r.color === '#6b8cff' ? '#0c5bef' : r.color === '#ff6b5c' ? '#d92d20' : '#067647' }}>{r.kind}</span>
-              <span className="rounded-full bg-[#17b26a]/12 px-2 py-0.5 normal-case tracking-normal text-[#067647]">Confiabilidad {r.level.toLowerCase()}</span>
-            </p>
-            <p className="mt-1.5 text-[13px] font-medium">{r.title}</p>
-            {r.proof && <p className="mt-1 text-[11px] text-black/50">Evidencia: {r.proof}</p>}
-          </li>
-        ))}
-      </ul>
+      {hint && <p className="mt-1.5 text-[12px] text-black/50">{hint}</p>}
     </div>
   )
 }
 
-/* ── 3 · Sincroniza: Claude entre el código y los casos de uso ── */
+/* ── Las escenas: una cosa a la vez ── */
 
-const COMMITS = [
-  'resultados: «Para atender» ordena por prioridad',
-  'constructor: el peso solo avisa al pasarse de 100 %',
-  'alineación: arrastrar el punto azul al objetivo',
-  'ranking: grupos de menos de 3 no se comparan',
-]
+function SceneButton() {
+  return (
+    <div className="relative">
+      <span className="relative z-10 flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[17px] font-medium text-[#161a2c] shadow-[0_20px_60px_-10px_rgba(123,92,255,0.9)] animate-[ramp-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both]">
+        <span className="h-5 w-5 rounded-full bg-[conic-gradient(from_200deg,#ff5ca8,#7b5cff,#0c5bef,#ff9a5c,#ff5ca8)]" />
+        Crear con IA
+      </span>
+      <span className="pointer-events-none absolute -bottom-4 -right-4 h-10 w-10 animate-[tap-ping_1.2s_ease-out_0.5s_infinite] rounded-full border-2 border-white/80" aria-hidden="true" />
+    </div>
+  )
+}
 
-function Syncs() {
-  const { reducedMotion } = useA11y()
-  const [count, setCount] = useState(reducedMotion ? 926 : 880)
+function SceneReto() {
+  return (
+    <Panel className={ramp}>
+      <AiHead sub="Paso 1 de 2 · El problema. Escribe el reto y suma contexto solo si lo tienes a mano." />
+      <div className="mt-4">
+        <TypedField label="¿Cuál es el mayor reto de la empresa hoy?" text="Perdemos clientes en el segundo año y conseguir uno nuevo cuesta cada vez más" hint="El problema que, si se resuelve, mueve todo lo demás." />
+      </div>
+    </Panel>
+  )
+}
+
+function SceneContexto() {
+  return (
+    <Panel className={ramp}>
+      <p className="mb-2 text-[12px] text-black/50">Suma contexto si lo tienes (opcional):</p>
+      <div className="mb-4 flex flex-wrap gap-1.5 text-[12px]">
+        {['Qué la frena', 'En qué es buena', 'Qué pasa afuera', 'Qué no es prioridad'].map((c, i) => (
+          <span key={c} className={`rounded-lg border px-2.5 py-1 transition-colors ${i === 0 ? 'border-[#0c5bef] bg-[#0c5bef] text-white' : 'border-black/15 bg-white'}`}>+ {c}</span>
+        ))}
+      </div>
+      <TypedField label="Qué la frena" text="El servicio posventa tarda y nadie lo mide" wait={450} />
+    </Panel>
+  )
+}
+
+function SceneApuesta() {
+  return (
+    <Panel className={ramp}>
+      <AiHead sub="Paso 2 de 2 · La apuesta. Solo la meta es obligatoria." />
+      <div className="mt-4">
+        <TypedField label="¿Qué tiene que ser verdad al cierre del ciclo?" text="Los clientes se quedan más tiempo y crecemos sin subir el gasto en adquisición" hint="El resultado, no las tareas: cómo se ve la empresa si el ciclo sale bien." />
+      </div>
+    </Panel>
+  )
+}
+
+function SceneFrentes() {
+  const fronts = ['Crecimiento', 'Rentabilidad', 'Clientes', 'Personas', 'Operación', 'Producto']
+  return (
+    <Panel className={ramp}>
+      <p className="mb-3 text-[15px] font-medium">¿En qué frentes se juega?</p>
+      <div className="flex flex-wrap gap-2 text-[13px]">
+        {fronts.map((f, i) => {
+          const on = f === 'Clientes'
+          return (
+            <span key={f} className={`${ramp} rounded-lg border px-3 py-1.5 ${on ? 'border-[#0c5bef]/40 bg-[#0c5bef]/10 text-[#0c5bef]' : 'border-black/15 bg-white'}`} style={delay(i * 70)}>
+              {on ? '✓' : '+'} {f}
+            </span>
+          )
+        })}
+      </div>
+      <p className={`${ramp} mt-3 text-[12px] text-black/50`} style={delay(500)}>Vienen marcados los que aparecen en tu diagnóstico. Hasta tres es lo recomendable.</p>
+    </Panel>
+  )
+}
+
+function Segmented({ options, on, wait }: { options: readonly string[]; on: string; wait: number }) {
+  const [picked, setPicked] = useState(false)
   useEffect(() => {
-    if (reducedMotion) return
-    const id = window.setInterval(() => setCount((c) => (c >= 926 ? (window.clearInterval(id), c) : c + 2)), 60)
-    return () => window.clearInterval(id)
-  }, [reducedMotion])
+    const id = window.setTimeout(() => setPicked(true), wait)
+    return () => window.clearTimeout(id)
+  }, [wait])
   return (
-    <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-      <div>
-        <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">Código del playground</p>
-        <ul className="space-y-1.5 font-mono text-[11px]">
-          {COMMITS.map((c, i) => (
-            <li key={c} className={`${ramp} rounded-md bg-white/[0.06] px-2.5 py-1.5 text-white/75`} style={after(i * 300)}>
-              <span className="text-[#9fb2ff]">●</span> {c}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="relative mx-auto grid h-28 w-28 place-items-center">
-        <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden="true">
-          <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
-          <circle cx="50" cy="50" r="44" fill="none" stroke="url(#obj-ai-grad)" strokeWidth="5" strokeLinecap="round" pathLength={1} strokeDasharray={1} className="obj-draw" style={{ animationDuration: `${STEP_MS - 800}ms`, animationTimingFunction: 'linear' }} />
-          <defs>
-            <linearGradient id="obj-ai-grad" x1="0" x2="1">
-              <stop offset="0" stopColor="#7b5cff" />
-              <stop offset="1" stopColor="#0c5bef" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <span className="text-center">
-          <span className="block text-2xl font-light">15</span>
-          <span className="block text-[10px] text-white/50">min</span>
-        </span>
-      </div>
-      <div>
-        <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">Casos de uso</p>
-        <p className="text-[clamp(2.4rem,1.6rem+2vw,3.4rem)] font-light leading-none tabular-nums">{count}</p>
-        <div className={`${ramp} mt-4 rounded-xl bg-white p-3 text-[#161a2c]`} style={after(1600)}>
-          <p className="text-[12px] font-medium">Propuesta con pantallazo</p>
-          <p className="mt-0.5 text-[11px] text-black/55">Actualizar 3 casos de alineación</p>
-          <div className="mt-2 flex gap-1.5 text-[11px]">
-            <span className="rounded-md bg-[#0c5bef] px-2.5 py-1 text-white">Aprobar</span>
-            <span className="rounded-md border border-black/10 px-2.5 py-1">Ver cambio</span>
-          </div>
-        </div>
-      </div>
+    <div className="flex rounded-xl border border-black/10 bg-white p-0.5 text-[13px]">
+      {options.map((o) => (
+        <span key={o} className={`flex-1 rounded-lg px-2 py-1.5 text-center transition-colors duration-300 ${picked && o === on ? 'bg-[#0c5bef] font-medium text-white' : 'text-black/70'}`}>{o}</span>
+      ))}
     </div>
   )
 }
 
-/* ── El escenario: tres tiempos unidos por un haz ── */
+function SceneCuantos() {
+  return (
+    <Panel className={ramp}>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div>
+          <p className="mb-2 text-[15px] font-medium">¿Cuántos objetivos?</p>
+          <Segmented options={['3', '4', '5']} on="4" wait={400} />
+          <p className="mt-1.5 text-[12px] text-black/50">Lo habitual</p>
+        </div>
+        <div>
+          <p className="mb-2 text-[15px] font-medium">¿Qué tan exigentes?</p>
+          <Segmented options={['Conservador', 'Retador', 'Agresivo']} on="Retador" wait={900} />
+          <p className="mt-1.5 text-[12px] text-black/50">Exige mejorar</p>
+        </div>
+      </div>
+    </Panel>
+  )
+}
 
-const TIMES: readonly { id: string; verb: L; where: L; what: L; Panel: () => JSX.Element }[] = [
-  { id: 'propone', verb: { es: 'Propone', en: 'Proposes' }, where: { es: 'Crear con IA', en: 'Create with AI' }, what: { es: 'Cinco preguntas, ninguna técnica, y salen los objetivos de la empresa con dirección y medida deducidas.', en: 'Five questions, none technical, and the company goals come out with direction and measure deduced.' }, Panel: Proposes },
-  { id: 'lee', verb: { es: 'Lee', en: 'Reads' }, where: { es: 'Análisis con IA', en: 'AI analysis' }, what: { es: 'Lee el ciclo entero y lo devuelve en hallazgos, riesgos y qué hacer, cada uno con su evidencia y su confiabilidad.', en: 'It reads the whole cycle and returns findings, risks and what to do, each with its evidence and confidence.' }, Panel: Reads },
-  { id: 'sincroniza', verb: { es: 'Sincroniza', en: 'Syncs' }, where: { es: 'Claude en el proceso', en: 'Claude in the process' }, what: { es: 'Cada 15 minutos cruza los cambios del playground con los casos de uso y deja propuestas con pantallazo. Una persona aprueba.', en: 'Every 15 minutes it matches playground changes with the use cases and leaves screenshot proposals. A person approves.' }, Panel: Syncs },
+function SceneArmando() {
+  const [s, setS] = useState(0)
+  useEffect(() => {
+    const id = window.setInterval(() => setS((v) => v + 1), 1000)
+    return () => window.clearInterval(id)
+  }, [])
+  return (
+    <Panel className={ramp}>
+      <AiHead sub="Cruzamos el diagnóstico con la apuesta para proponer objetivos medibles." />
+      <p className="mt-5 flex items-center gap-2.5 text-[14px]">
+        <span className="h-4 w-4 animate-spin rounded-full bg-[conic-gradient(from_0deg,transparent,#7b5cff,#0c5bef)] [mask:radial-gradient(circle,transparent_45%,#000_46%)]" />
+        Armando la estrategia… <span className="text-black/45">{s + 1}s</span>
+      </p>
+      <div className="mt-4 space-y-2">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="block h-3 overflow-hidden rounded-full bg-black/[0.05]">
+            <span className="block h-full w-1/3 animate-[obj-shimmer_1.2s_ease-in-out_infinite] rounded-full bg-gradient-to-r from-transparent via-[#7b5cff]/40 to-transparent" style={delay(i * 150)} />
+          </span>
+        ))}
+      </div>
+    </Panel>
+  )
+}
+
+/** Lo que devolvió la plataforma con ese brief. */
+const RESULT = [
+  { title: 'Subir la satisfacción de los clientes', measure: 'Porcentaje', range: '64 % → 74 %', up: true },
+  { title: 'Aumentar la retención de los clientes', measure: 'Porcentaje', range: '68 % → 74 %', up: true },
+  { title: 'Reducir los tickets de soporte sin resolver', measure: 'Numérico', range: '35 → 16', up: false },
+  { title: 'Subir la satisfacción de los clientes', measure: 'Porcentaje', range: '69 % → 79 %', up: true },
 ]
 
-const NODE_X = [80, 400, 720]
+function SceneResultado() {
+  return (
+    <div className="w-full max-w-[520px] space-y-2">
+      {RESULT.map((r, i) => (
+        <div key={i} className={`${ramp} rounded-2xl bg-white px-4 py-3 text-[#161a2c] shadow-[0_24px_50px_-25px_rgba(0,0,0,0.9)]`} style={delay(i * 260)}>
+          <p className="text-[14px] font-medium">{r.title}</p>
+          <p className="mt-1 flex items-center gap-2 text-[12px] text-black/60">
+            <span className="rounded bg-black/[0.06] px-1.5 py-0.5 text-[11px]">{r.measure}</span>
+            <span>{r.up ? '↗' : '↘'} {r.range}</span>
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
 
-/** 06 · IA en el proceso: propone, lee y sincroniza. */
+function SceneListo() {
+  const items = ['Subir el margen bruto', 'Reducir la cartera vencida', 'Cumplir el presupuesto de gasto', ...RESULT.map((r) => r.title)]
+  return (
+    <div className={`${ramp} w-full max-w-[420px] rounded-2xl bg-white p-5 text-[#161a2c] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.9)]`}>
+      <p className="text-[13px] text-black/50">Así va el ciclo</p>
+      <p className="mt-1 text-[17px] font-medium">KPIs corporativos 2026</p>
+      <ul className="mt-3 space-y-1.5 text-[13px]">
+        {items.map((it, i) => (
+          <li key={i} className={`flex items-center justify-between gap-3 ${i >= 3 ? ramp : ''}`} style={i >= 3 ? delay((i - 3) * 220) : undefined}>
+            <span className="truncate">{i + 1}. {it}</span>
+            <span className="shrink-0 rounded-full bg-[#17b26a]/12 px-2 py-0.5 text-[11px] text-[#067647]">✓ Listo</span>
+          </li>
+        ))}
+      </ul>
+      <p className={`${ramp} mt-3 text-[13px] text-[#067647]`} style={delay(1100)}>✓ 7 objetivos de la empresa listos.</p>
+    </div>
+  )
+}
+
+const SCENES: readonly { id: string; label: L; ms: number; Scene: () => JSX.Element }[] = [
+  { id: 'boton', label: { es: 'Crear con IA', en: 'Create with AI' }, ms: 1500, Scene: SceneButton },
+  { id: 'reto', label: { es: 'El reto', en: 'The challenge' }, ms: 2600, Scene: SceneReto },
+  { id: 'contexto', label: { es: 'Contexto', en: 'Context' }, ms: 2200, Scene: SceneContexto },
+  { id: 'apuesta', label: { es: 'La apuesta', en: 'The bet' }, ms: 2600, Scene: SceneApuesta },
+  { id: 'frentes', label: { es: 'Frentes', en: 'Fronts' }, ms: 1900, Scene: SceneFrentes },
+  { id: 'cuantos', label: { es: 'Cuántos y qué tan exigentes', en: 'How many and how demanding' }, ms: 1900, Scene: SceneCuantos },
+  { id: 'armando', label: { es: 'Armando', en: 'Building' }, ms: 1700, Scene: SceneArmando },
+  { id: 'resultado', label: { es: 'Objetivos', en: 'Goals' }, ms: 2600, Scene: SceneResultado },
+  { id: 'listo', label: { es: 'Listos', en: 'Ready' }, ms: 2600, Scene: SceneListo },
+]
+
+/** 06 · IA en el proceso: crear objetivos con IA, una pieza a la vez. */
 export function ObjetivosAi() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
+  const [i, setI] = useState(0)
   const [pinned, setPinned] = useState(false)
-  const { step, ref, set } = useStepper(STEP_MS, TIMES.length, pinned)
-  const active = TIMES[step]
-  const pick = (i: number) => {
-    set(i)
-    setPinned(true)
-  }
+  const [inView, setInView] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.4 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (pinned || reducedMotion || !inView) return
+    const id = window.setTimeout(() => setI((v) => (v + 1) % SCENES.length), SCENES[i].ms)
+    return () => window.clearTimeout(id)
+  }, [i, pinned, reducedMotion, inView])
+
+  const scene = SCENES[reducedMotion ? SCENES.length - 1 : i]
 
   return (
     <div>
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(OBJ_CASE.ai.lead)}</p>
 
-      {/* Los tres verbos, grandes: el que está en juego se enciende. */}
-      <p data-reveal className="mt-12 flex flex-wrap gap-x-5 text-[clamp(2.6rem,1.4rem+4.4vw,5.6rem)] font-light leading-[0.95] tracking-tight">
-        {TIMES.map((x, i) => (
-          <button key={x.id} type="button" onClick={() => pick(i)} className={`transition-[color,opacity] duration-700 ${i === step ? 'bg-gradient-to-r from-[#9f8cff] to-[#4f86ff] bg-clip-text text-transparent' : 'opacity-25 hover:opacity-50'}`}>
-            {t(x.verb)}.
-          </button>
-        ))}
-      </p>
+      <div ref={ref} data-reveal="device" className="relative mt-10 overflow-hidden rounded-3xl bg-[#0b0d16] text-white">
+        <span className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(from_200deg,#ff5ca8,#7b5cff,#0c5bef,#ff9a5c,#ff5ca8)] opacity-25 blur-3xl transition-transform duration-[1200ms] ease-expo" style={{ transform: `translate(-50%, -50%) rotate(${i * 40}deg) scale(${1 + (i % 3) * 0.08})` }} aria-hidden="true" />
 
-      <div ref={ref} data-reveal="device" className="relative mt-10 overflow-hidden rounded-3xl bg-[#0b0d16] p-4 text-white md:p-8">
-        <span className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[#7b5cff] opacity-20 blur-3xl transition-transform duration-1000 ease-expo" style={{ transform: `translateX(${(step - 1) * 60}%)` }} aria-hidden="true" />
-
-        {/* El haz: tres nodos y un pulso que viaja al que está activo. */}
-        <div className="relative">
-          <svg viewBox="0 0 800 70" className="h-auto w-full" aria-hidden="true">
-            <defs>
-              <linearGradient id="obj-beam" x1="0" x2="1">
-                <stop offset="0" stopColor="#7b5cff" />
-                <stop offset="1" stopColor="#0c5bef" />
-              </linearGradient>
-            </defs>
-            <line x1={NODE_X[0]} x2={NODE_X[2]} y1={35} y2={35} stroke="rgba(255,255,255,0.12)" strokeWidth={2} />
-            <line x1={NODE_X[0]} x2={NODE_X[step]} y1={35} y2={35} stroke="url(#obj-beam)" strokeWidth={3} className="transition-all duration-1000 ease-expo" />
-            {!reducedMotion && <line x1={NODE_X[0]} x2={NODE_X[2]} y1={35} y2={35} stroke="#fff" strokeOpacity={0.7} strokeWidth={2} pathLength={1} strokeDasharray="0.05 0.95" className="obj-flow" />}
-            {TIMES.map((x, i) => (
-              <g key={x.id} onClick={() => pick(i)} className="cursor-pointer">
-                {i === step && !reducedMotion && <circle cx={NODE_X[i]} cy={35} r={22} fill="none" stroke="#9f8cff" strokeWidth={2} className="animate-[tap-ping_1.8s_ease-out_infinite]" style={{ transformOrigin: `${NODE_X[i]}px 35px` }} />}
-                <circle cx={NODE_X[i]} cy={35} r={i === step ? 16 : 10} fill={i <= step ? 'url(#obj-beam)' : '#1d2030'} stroke="rgba(255,255,255,0.25)" className="transition-all duration-700" />
-              </g>
-            ))}
-          </svg>
-          <div className="grid grid-cols-3 text-center">
-            {TIMES.map((x, i) => (
-              <button key={x.id} type="button" onClick={() => pick(i)} className={`text-[12px] transition-opacity ${i === step ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}>
-                <span className="block font-medium">{t(x.verb)}</span>
-                <span className="block text-white/50">{t(x.where)}</span>
-              </button>
-            ))}
+        {/* El escenario: una sola pieza en primer plano. */}
+        <div className="relative grid min-h-[420px] place-items-center px-4 py-12 md:min-h-[460px]">
+          <div key={scene.id} className="grid w-full place-items-center">
+            <scene.Scene />
           </div>
         </div>
 
-        <div key={active.id} className="relative mt-8">
-          <p className={`${ramp} mb-6 max-w-[60ch] text-[15px] leading-relaxed text-white/75`}>{t(active.what)}</p>
-          <active.Panel />
-        </div>
-
-        <p className="relative mt-8 text-[11px] text-white/40">
-          {t({ es: 'Lo que lee el Análisis con IA es la lectura real del staging (19 nov 2026). En el prototipo, propone y lee con reglas sobre las cifras, sin modelo.', en: 'What AI analysis reads is the real staging reading (Nov 19, 2026). In the prototype it proposes and reads with rules over the numbers, no model.' })}
-        </p>
+        {/* La línea del flujo: marca dónde va y deja saltar a una pieza. */}
+        <ol className="relative flex gap-1 border-t border-white/10 px-4 py-4 md:px-8">
+          {SCENES.map((s, k) => (
+            <li key={s.id} className="flex-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setI(k)
+                  setPinned(true)
+                }}
+                aria-current={k === i}
+                aria-label={t(s.label)}
+                className="group block w-full py-1 text-left"
+              >
+                <span className="relative block h-1 overflow-hidden rounded-full bg-white/15">
+                  {k < i && <span className="absolute inset-0 bg-white/60" />}
+                  {k === i && <span key={`${i}-${pinned}`} className="absolute inset-0 origin-left bg-gradient-to-r from-[#7b5cff] to-[#0c5bef]" style={pinned || reducedMotion ? undefined : { animation: `view-progress ${s.ms}ms linear both` }} />}
+                </span>
+                <span className={`mt-2 hidden truncate text-[11px] transition-colors md:block ${k === i ? 'text-white' : 'text-white/40 group-hover:text-white/70'}`}>{t(s.label)}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
       </div>
+
+      <p className="mt-4 text-[12px] opacity-55">
+        {t({ es: 'Recreado con los textos, las opciones y el resultado de «Crear la estrategia con IA» en el staging (KPIs corporativos 2026). El reto, el contexto y la apuesta son un ejemplo escrito para la prueba. En el prototipo la IA son reglas sobre el brief, sin modelo.', en: 'Recreated with the copy, options and result of “Create the strategy with AI” on staging (KPIs corporativos 2026). The challenge, context and bet are an example written for the test. In the prototype the AI is rules over the brief, no model.' })}
+      </p>
     </div>
   )
 }
