@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getLenis } from '@/lib/motion'
+import { RecordModal, NewTabLink } from '@/components/case/kit/record-modal'
 import { useLocale } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { Arrows, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
@@ -261,36 +261,21 @@ export function ClipperImpact() {
 
 /* ── 08 · Demo a pantalla completa ───────────────────────────────────── */
 
-function FullscreenClipper({ onClose }: { onClose: () => void }) {
+/** Clipper de la reserva en el modal de registro: un solo registro, sin flechas. */
+function ClipperModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useLocale()
-  const closeRef = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    const lenis = getLenis()
-    lenis?.stop()
-    const html = document.documentElement
-    const prev = html.style.overflow
-    html.style.overflow = 'hidden'
-    closeRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      html.style.overflow = prev
-      lenis?.start()
-    }
-  }, [onClose])
   return (
-    <div role="dialog" aria-modal="true" aria-label={t({ es: 'Clipper, en vivo', en: 'Clipper, live' })} className="fixed inset-0 z-[100] flex flex-col bg-[#0b0c0e]">
-      <div className="flex items-center gap-3 border-b border-white/10 px-4 py-2.5 text-paper">
-        <ClipperOrb size={20} />
-        <span className="font-mono text-[11px] text-white/50">Clipper · {t({ es: 'en la reserva', en: 'in booking' })}</span>
-        <a href={CLIPPER_CASE.demo.url.replace('embed=1&', '')} target="_blank" rel="noopener noreferrer" className="ml-auto font-mono text-[11px] text-white/60 hover:text-white">{t({ es: 'Nueva pestaña', en: 'New tab' })} ↗</a>
-        <button ref={closeRef} type="button" onClick={onClose} className="rounded-md border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white transition-colors hover:bg-white hover:text-black">
-          {t({ es: 'Cerrar', en: 'Close' })} · Esc
-        </button>
-      </div>
+    <RecordModal
+      ids={['reserva']}
+      openId={open ? 'reserva' : null}
+      onOpenChange={(id) => id === null && onClose()}
+      title={t({ es: 'Clipper en la reserva', en: 'Clipper in booking' })}
+      titleLeading={<ClipperOrb size={36} />}
+      description="barberlytics.vercel.app"
+      actions={<NewTabLink href={CLIPPER_CASE.demo.url.replace('embed=1&', '')} />}
+    >
       <iframe src={CLIPPER_CASE.demo.url} title={t({ es: 'Clipper en la reserva, en vivo', en: 'Clipper in booking, live' })} allow="microphone; autoplay" className="w-full flex-1 bg-[#121009]" />
-    </div>
+    </RecordModal>
   )
 }
 
@@ -325,7 +310,7 @@ export function ClipperDemo() {
           </span>
         </span>
       </button>
-      {open && <FullscreenClipper onClose={close} />}
+      <ClipperModal open={open} onClose={close} />
     </div>
   )
 }

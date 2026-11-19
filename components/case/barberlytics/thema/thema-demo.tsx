@@ -1,65 +1,30 @@
 'use client'
 
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { getLenis } from '@/lib/motion'
+import { useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
+import { NewTabLink, RecordModal } from '@/components/case/kit/record-modal'
 
-type DocsPage = (typeof THEMA_CASE.demo.pages)[number]
-
-/** La documentación real a pantalla completa, con pestañas por sección. */
-function FullscreenDocs({ initial, onClose }: { initial: DocsPage; onClose: () => void }) {
+/** La documentación real en el modal de registro: las flechas pasan de sección en sección. */
+function DocsModal({ openId, onOpenChange }: { openId: string | null; onOpenChange: (id: string | null) => void }) {
   const { t } = useLocale()
-  const { demo } = THEMA_CASE
-  const [page, setPage] = useState(initial)
-  const closeRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    const lenis = getLenis()
-    lenis?.stop()
-    const html = document.documentElement
-    const prev = html.style.overflow
-    html.style.overflow = 'hidden'
-    closeRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      html.style.overflow = prev
-      lenis?.start()
-    }
-  }, [onClose])
-
+  const { pages } = THEMA_CASE.demo
+  const page = pages.find((p) => p.id === openId)
   return (
-    <div role="dialog" aria-modal="true" aria-label={t({ es: 'Documentación de Thema', en: 'Thema docs' })} className="fixed inset-0 z-[100] flex flex-col bg-[#0b0c0e]">
-      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 px-4 py-2.5 text-paper">
-        <span className="font-mono text-[11px] text-white/50">Thema · {t({ es: 'documentación', en: 'docs' })}</span>
-        <div role="tablist" aria-label={t({ es: 'Sección', en: 'Section' })} className="flex flex-wrap gap-1">
-          {demo.pages.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              role="tab"
-              aria-selected={page.id === p.id}
-              onClick={() => setPage(p)}
-              className="rounded-md px-3 py-1.5 font-mono text-[11px] text-white/60 transition-colors hover:bg-white/10 hover:text-white aria-selected:bg-white/15 aria-selected:text-white"
-            >
-              {t(p.name)}
-            </button>
-          ))}
-        </div>
-        <a href={page.url} target="_blank" rel="noopener noreferrer" className="ml-auto font-mono text-[11px] text-white/60 hover:text-white">
-          {t({ es: 'Nueva pestaña', en: 'New tab' })} ↗
-        </a>
-        <button ref={closeRef} type="button" onClick={onClose} className="rounded-md border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white transition-colors hover:bg-white hover:text-black">
-          {t({ es: 'Cerrar', en: 'Close' })} · Esc
-        </button>
-      </div>
-      <iframe key={page.id} src={page.url} title={t({ es: 'Documentación de Thema, en vivo', en: 'Thema docs, live' })} className="w-full flex-1 bg-[#141210]" />
-    </div>
+    <RecordModal
+      ids={pages.map((p) => p.id)}
+      openId={openId}
+      onOpenChange={onOpenChange}
+      title={page ? `Thema · ${t(page.name)}` : 'Thema'}
+      titleLeading={<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#f0ce86] to-[#3f72d8] font-mono text-xs font-semibold text-[#141210]">Th</span>}
+      description={page?.url.replace('https://', '')}
+      actions={page && <NewTabLink href={page.url} />}
+      prevLabel={t({ es: 'Sección anterior', en: 'Previous section' })}
+      nextLabel={t({ es: 'Sección siguiente', en: 'Next section' })}
+    >
+      {page && <iframe key={page.id} src={page.url} title={t({ es: 'Documentación de Thema, en vivo', en: 'Thema docs, live' })} className="w-full flex-1 bg-[#141210]" />}
+    </RecordModal>
   )
 }
 
@@ -67,8 +32,7 @@ function FullscreenDocs({ initial, onClose }: { initial: DocsPage; onClose: () =
 export function ThemaDemo() {
   const { t } = useLocale()
   const { demo } = THEMA_CASE
-  const [open, setOpen] = useState<DocsPage | null>(null)
-  const close = useCallback(() => setOpen(null), [])
+  const [open, setOpen] = useState<string | null>(null)
 
   return (
     <div>
@@ -80,7 +44,7 @@ export function ThemaDemo() {
         <ul data-reveal className="flex flex-wrap gap-2 lg:col-span-5 lg:justify-end">
           {demo.pages.map((p) => (
             <li key={p.id}>
-              <button type="button" onClick={() => setOpen(p)} className="mono-label border border-fg/25 px-3 py-2 transition-colors hover:border-signal hover:bg-signal hover:text-paper">
+              <button type="button" onClick={() => setOpen(p.id)} className="mono-label border border-fg/25 px-3 py-2 transition-colors hover:border-signal hover:bg-signal hover:text-paper">
                 {t(p.name)} ↗
               </button>
             </li>
@@ -88,7 +52,7 @@ export function ThemaDemo() {
         </ul>
       </div>
 
-      <button type="button" onClick={() => setOpen(demo.pages[0])} data-reveal="device" className="group relative block w-full [perspective:1800px]">
+      <button type="button" onClick={() => setOpen(demo.pages[0].id)} data-reveal="device" className="group relative block w-full [perspective:1800px]">
         <span className="block overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.85)] ring-1 ring-white/10 transition-transform duration-700 ease-expo [transform:rotateX(8deg)] group-hover:[transform:none]">
           <span className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
@@ -105,7 +69,7 @@ export function ThemaDemo() {
         </span>
       </button>
 
-      {open && <FullscreenDocs initial={open} onClose={close} />}
+      <DocsModal openId={open} onOpenChange={setOpen} />
     </div>
   )
 }

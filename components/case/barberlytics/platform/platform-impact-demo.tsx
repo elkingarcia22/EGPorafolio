@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { getLenis } from '@/lib/motion'
+import { useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE, type RoleId } from '@/lib/content/cases/barberlytics/platform-case'
+import { NewTabLink, RecordModal } from '@/components/case/kit/record-modal'
 
 /** 07 · Impacto: lo que cambió en las barberías y lo que hay detrás. */
 export function PlatformImpact() {
@@ -69,57 +69,24 @@ type DemoRole = (typeof DEMO_ROLES)[number]
 
 const demoUrl = (role: DemoRole) => `${PLATFORM_CASE.demo.base}?rol=${role.id}&ir=${encodeURIComponent(role.ir)}`
 
-/** El calendario real a pantalla completa, con pestañas para entrar como cada rol. */
-function FullscreenCalendar({ initial, onClose }: { initial: DemoRole; onClose: () => void }) {
+/** El calendario real en el modal de registro: las flechas pasan de un rol a otro. */
+function CalendarModal({ openId, onOpenChange }: { openId: RoleId | null; onOpenChange: (id: RoleId | null) => void }) {
   const { t } = useLocale()
-  const [role, setRole] = useState(initial)
-  const closeRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    const lenis = getLenis()
-    lenis?.stop()
-    const html = document.documentElement
-    const prev = html.style.overflow
-    html.style.overflow = 'hidden'
-    closeRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      html.style.overflow = prev
-      lenis?.start()
-    }
-  }, [onClose])
-
+  const role = DEMO_ROLES.find((r) => r.id === openId)
   return (
-    <div role="dialog" aria-modal="true" aria-label={t({ es: 'Calendario de Barberlytics', en: 'Barberlytics calendar' })} className="fixed inset-0 z-[100] flex flex-col bg-[#0b0c0e]">
-      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 px-4 py-2.5 text-paper">
-        <span className="font-mono text-[11px] text-white/50">Barberlytics · {t({ es: 'calendario', en: 'calendar' })}</span>
-        <div role="tablist" aria-label={t({ es: 'Entrar como', en: 'Enter as' })} className="flex flex-wrap gap-1">
-          {DEMO_ROLES.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              role="tab"
-              aria-selected={role.id === r.id}
-              onClick={() => setRole(r)}
-              className="rounded-md px-3 py-1.5 font-mono text-[11px] text-white/60 transition-colors hover:bg-white/10 hover:text-white aria-selected:bg-white/15 aria-selected:text-white"
-            >
-              {t(r.name)}
-            </button>
-          ))}
-        </div>
-        <a href={demoUrl(role)} target="_blank" rel="noopener noreferrer" className="ml-auto font-mono text-[11px] text-white/60 hover:text-white">
-          {t({ es: 'Nueva pestaña', en: 'New tab' })} ↗
-        </a>
-        <button ref={closeRef} type="button" onClick={onClose} className="rounded-md border border-white/20 px-3 py-1.5 font-mono text-[11px] text-white transition-colors hover:bg-white hover:text-black">
-          {t({ es: 'Cerrar', en: 'Close' })} · Esc
-        </button>
-      </div>
-      <iframe key={role.id} src={demoUrl(role)} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="w-full flex-1 bg-[#121009]" />
-    </div>
+    <RecordModal
+      ids={DEMO_ROLES.map((r) => r.id)}
+      openId={openId}
+      onOpenChange={(id) => onOpenChange(id as RoleId | null)}
+      title={role ? `${t({ es: 'Calendario como', en: 'Calendar as' })} ${t(role.name)}` : t({ es: 'Calendario', en: 'Calendar' })}
+      titleLeading={<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#d9b36a] font-mono text-xs font-semibold text-[#16130f]">Bl</span>}
+      description={role && `barberlytics.vercel.app${role.ir}`}
+      actions={role && <NewTabLink href={demoUrl(role)} />}
+      prevLabel={t({ es: 'Rol anterior', en: 'Previous role' })}
+      nextLabel={t({ es: 'Rol siguiente', en: 'Next role' })}
+    >
+      {role && <iframe key={role.id} src={demoUrl(role)} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="w-full flex-1 bg-[#121009]" />}
+    </RecordModal>
   )
 }
 
@@ -127,8 +94,7 @@ function FullscreenCalendar({ initial, onClose }: { initial: DemoRole; onClose: 
 export function PlatformDemo() {
   const { t } = useLocale()
   const { demo } = PLATFORM_CASE
-  const [open, setOpen] = useState<DemoRole | null>(null)
-  const close = useCallback(() => setOpen(null), [])
+  const [open, setOpen] = useState<RoleId | null>(null)
 
   return (
     <div>
@@ -140,7 +106,7 @@ export function PlatformDemo() {
         <ul data-reveal className="flex flex-wrap gap-2 lg:col-span-5 lg:justify-end">
           {DEMO_ROLES.map((r) => (
             <li key={r.id}>
-              <button type="button" onClick={() => setOpen(r)} className="mono-label border border-fg/25 px-3 py-2 transition-colors hover:border-signal hover:bg-signal hover:text-paper">
+              <button type="button" onClick={() => setOpen(r.id)} className="mono-label border border-fg/25 px-3 py-2 transition-colors hover:border-signal hover:bg-signal hover:text-paper">
                 {t({ es: 'Como', en: 'As' })} {t(r.name)} ↗
               </button>
             </li>
@@ -148,7 +114,7 @@ export function PlatformDemo() {
         </ul>
       </div>
 
-      <button type="button" onClick={() => setOpen(DEMO_ROLES[0])} data-reveal="device" className="group relative block w-full [perspective:1800px]">
+      <button type="button" onClick={() => setOpen(DEMO_ROLES[0].id)} data-reveal="device" className="group relative block w-full [perspective:1800px]">
         <span className="block overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.85)] ring-1 ring-white/10 transition-transform duration-700 ease-expo [transform:rotateX(8deg)] group-hover:[transform:none]">
           <span className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
@@ -174,7 +140,7 @@ export function PlatformDemo() {
         ))}
       </dl>
 
-      {open && <FullscreenCalendar initial={open} onClose={close} />}
+      <CalendarModal openId={open} onOpenChange={setOpen} />
     </div>
   )
 }
