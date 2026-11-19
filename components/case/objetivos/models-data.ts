@@ -11,6 +11,8 @@ export type RuleId = 'children' | 'north' | 'alignment' | 'closing' | 'cadence' 
 export interface CompanyModel {
   id: ModelId
   label: string
+  /** La línea del playground bajo el nombre del modelo. */
+  tagline: L
   company: L
   why: L
   /** Cómo llama el modelo a sus piezas. */
@@ -37,6 +39,7 @@ export const MODELS: readonly CompanyModel[] = [
   {
     id: 'smart',
     label: 'SMART',
+    tagline: { es: 'Metas claras y concretas', en: 'Clear, concrete goals' },
     company: { es: 'Mediana, sin método formal', en: 'Mid-size, no formal method' },
     why: { es: 'Quiere metas claras sin aprender un marco nuevo.', en: 'Wants clear goals without learning a new framework.' },
     noun: { es: 'Objetivo', en: 'Goal' },
@@ -55,6 +58,7 @@ export const MODELS: readonly CompanyModel[] = [
   {
     id: 'okr',
     label: 'OKR',
+    tagline: { es: 'Crecer y alinear equipos', en: 'Grow and align teams' },
     company: { es: 'Tecnológica en crecimiento', en: 'Growing tech company' },
     why: { es: 'Metas ambiciosas que cuelgan del norte, revisadas cada semana.', en: 'Ambitious goals hanging from the north, reviewed weekly.' },
     noun: { es: 'Objetivo', en: 'Objective' },
@@ -73,6 +77,7 @@ export const MODELS: readonly CompanyModel[] = [
   {
     id: 'kpi',
     label: 'KPI',
+    tagline: { es: 'Salud del negocio', en: 'Business health' },
     company: { es: 'Operación de servicio', en: 'Service operation' },
     why: { es: 'No persigue una meta: cuida que el indicador no se caiga.', en: 'Doesn’t chase a target: keeps the indicator from dropping.' },
     noun: { es: 'Indicador', en: 'Indicator' },
@@ -91,6 +96,7 @@ export const MODELS: readonly CompanyModel[] = [
   {
     id: 'nct',
     label: 'NCT',
+    tagline: { es: 'Contexto y compromisos', en: 'Context and commitments' },
     company: { es: 'Equipos de producto ágiles', en: 'Agile product teams' },
     why: { es: 'Quiere ver la estrategia y la ejecución en el mismo lugar.', en: 'Wants strategy and execution in one place.' },
     noun: { es: 'Compromiso', en: 'Commitment' },
@@ -109,6 +115,7 @@ export const MODELS: readonly CompanyModel[] = [
   {
     id: 'mbo',
     label: 'MBO',
+    tagline: { es: 'Cascada anual', en: 'Yearly cascade' },
     company: { es: 'Corporativo con bono anual', en: 'Corporate with yearly bonus' },
     why: { es: 'Cascada de la dirección a cada persona, atada a la evaluación.', en: 'Cascade from leadership to each person, tied to review.' },
     noun: { es: 'Meta', en: 'Goal' },
