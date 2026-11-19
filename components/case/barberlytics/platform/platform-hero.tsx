@@ -113,7 +113,7 @@ export function PlatformHero() {
 
         <div className="relative mt-16 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_240px]">
           <div data-hero-calendar>
-            <LiveCalendar now={now} colorBy={view.colorBy} density={view.density} columns={narrow ? 3 : 5} />
+            <LiveCalendar now={now} colorBy={view.colorBy} density={view.density} columns={narrow ? 3 : 5} intro={reducedMotion ? undefined : 0.9} />
           </div>
           <aside data-hero-panel className="rounded-2xl border border-white/10 bg-[#141210]/90 p-4 backdrop-blur" aria-label={t({ es: 'Ajustes de la vista', en: 'View settings' })}>
             <p className="text-sm font-medium">{t({ es: 'Ajustes de la vista', en: 'View settings' })}</p>

@@ -128,10 +128,12 @@ interface LiveCalendarProps {
   fields?: CardFields
   /** Cuántos barberos mostrar (en el hub, menos) */
   columns?: number
+  /** Segundos tras los que las citas caen en sus horas, una a una, al aparecer */
+  intro?: number
   className?: string
 }
 
-function Card({ a, now, colorBy, fields, px }: { a: Appt; now: number; colorBy: ColorBy; fields: CardFields; px: number }) {
+function Card({ a, now, colorBy, fields, px, introAt }: { a: Appt; now: number; colorBy: ColorBy; fields: CardFields; px: number; introAt?: number }) {
   const stage = stageAt(a, now)
   const s = STAGE[stage]
   const bg = colorBy === 'estado' ? s.bg : colorBy === 'servicio' ? SERVICE[a.services[0]].bg : colorBy === 'cliente' ? CLIENT_BG[a.type] : '#26282d'
@@ -139,8 +141,9 @@ function Card({ a, now, colorBy, fields, px }: { a: Appt; now: number; colorBy: 
   const tall = a.len * px >= 64
   return (
     <div
+      data-slot-in={introAt !== undefined ? '' : undefined}
       className="absolute inset-x-[3px] overflow-hidden rounded-[7px] px-2 py-1.5 text-[10.5px] leading-tight text-[#efe9dd] transition-[background-color,box-shadow,top,height] duration-700 ease-expo"
-      style={{ top: a.start * px + 1, height: a.len * px - 2, background: bg, boxShadow: `inset 0 0 0 1px ${edge}${stage === 'late' && colorBy === 'estado' ? ', 0 0 18px -4px #e5484d' : ''}` }}
+      style={{ ...(introAt !== undefined ? { animationDelay: `${introAt}s` } : {}), top: a.start * px + 1, height: a.len * px - 2, background: bg, boxShadow: `inset 0 0 0 1px ${edge}${stage === 'late' && colorBy === 'estado' ? ', 0 0 18px -4px #e5484d' : ''}` }}
     >
       <div className="flex items-center gap-1.5">
         <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: SERVICE[a.services[0]].dot }} />
@@ -173,7 +176,7 @@ function Card({ a, now, colorBy, fields, px }: { a: Appt; now: number; colorBy: 
 }
 
 /** El día de una barbería, en vivo y personalizable. */
-export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', fields = ALL_FIELDS, columns = BARBERS.length, className = '' }: LiveCalendarProps) {
+export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', fields = ALL_FIELDS, columns = BARBERS.length, intro, className = '' }: LiveCalendarProps) {
   const px = DENSITY_PX[density]
   const cols = BARBERS.slice(0, columns)
   const counts = cols.map((_, c) => APPTS.filter((a) => a.col === c && stageAt(a, now) !== 'paid').length)
@@ -212,7 +215,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', fiel
               </div>
             ))}
             {APPTS.filter((a) => a.col === c).map((a) => (
-              <Card key={a.client} a={a} now={now} colorBy={colorBy} fields={fields} px={px} />
+              <Card key={a.client} a={a} now={now} colorBy={colorBy} fields={fields} px={px} introAt={intro === undefined ? undefined : intro + a.start * 0.16 + c * 0.07} />
             ))}
           </div>
         ))}
