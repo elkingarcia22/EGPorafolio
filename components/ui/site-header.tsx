@@ -4,16 +4,19 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { A11yPanel } from './a11y-panel'
+import { ProjectsMenu, ProjectsSubmenu } from './projects-menu'
 import { CvViewer, CV_HASH } from './cv-viewer'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
-import { ScrollTrigger, scrollToTarget } from '@/lib/motion'
+import { ScrollTrigger, scrollToHeroSignature, scrollToTarget } from '@/lib/motion'
 
 const NAV = [
   { id: 'work', label: COPY.nav.work },
   { id: 'process', label: COPY.nav.process },
   { id: 'about', label: COPY.nav.about },
   { id: 'agent', label: COPY.nav.agent },
+  // La hoja de vida abre un visor; Contacto va al final.
+  { id: 'cv', label: COPY.cv.nav },
   { id: 'contact', label: COPY.nav.contact },
 ] as const
 
@@ -150,33 +153,49 @@ export function SiteHeader() {
         className={`pointer-events-none absolute inset-0 bg-bg/75 backdrop-blur-md transition-opacity duration-500 ${solid ? 'opacity-100' : 'opacity-0'}`}
       />
       <div className="relative flex items-center justify-between gap-6 px-[var(--gutter)] py-4">
-        <TransitionLink href="/" aria-label="Elkin Garcia — inicio" transitionLabel="EG">
+        <TransitionLink
+          href="/"
+          aria-label="Elkin Garcia — inicio"
+          transitionLabel="EG"
+          onClick={(event) => {
+            setMenuOpen(false)
+            if (!isHome) return
+            event.preventDefault()
+            if (window.location.hash) history.replaceState(null, '', '/')
+            scrollToHeroSignature(1.8)
+          }}
+        >
           <Monogram />
         </TransitionLink>
 
         <nav aria-label="Principal" className="hidden md:block">
           <ul className="flex items-center gap-7">
-            {NAV.map((item) => (
-              <li key={item.id}>
-                <TransitionLink
-                  href={`/#${item.id}`}
-                  onClick={goTo(item.id)}
-                  className="mono-label opacity-70 transition-opacity hover:opacity-100"
-                >
-                  {t(item.label)}
-                </TransitionLink>
-              </li>
-            ))}
-            <li>
-              <button
-                type="button"
-                onClick={openCv}
-                aria-haspopup="dialog"
-                className="mono-label opacity-70 transition-opacity hover:opacity-100"
-              >
-                {t(COPY.cv.nav)}
-              </button>
-            </li>
+            {NAV.map((item) =>
+              item.id === 'work' ? (
+                <ProjectsMenu key={item.id} onWorkClick={goTo(item.id)} />
+              ) : item.id === 'cv' ? (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={openCv}
+                    aria-haspopup="dialog"
+                    className="mono-label opacity-70 transition-opacity hover:opacity-100"
+                  >
+                    {t(item.label)}
+                  </button>
+                </li>
+              ) : (
+                <li key={item.id}>
+                  <TransitionLink
+                    href={`/#${item.id}`}
+                    onClick={goTo(item.id)}
+                    className="mono-label opacity-70 transition-opacity hover:opacity-100"
+                  >
+                    {t(item.label)}
+                  </TransitionLink>
+                </li>
+              ),
+            )}
           </ul>
         </nav>
 
@@ -214,17 +233,20 @@ export function SiteHeader() {
             {NAV.map((item, i) => (
               <li key={item.id} className="flex items-baseline gap-4">
                 <span className="mono-label opacity-40">0{i + 1}</span>
-                <TransitionLink href={`/#${item.id}`} onClick={goTo(item.id)} className="brand-title text-2xl">
-                  {t(item.label)}
-                </TransitionLink>
+                {item.id === 'cv' ? (
+                  <button type="button" onClick={openCv} aria-haspopup="dialog" className="brand-title text-2xl">
+                    {t(item.label)}
+                  </button>
+                ) : (
+                  <div>
+                    <TransitionLink href={`/#${item.id}`} onClick={goTo(item.id)} className="brand-title text-2xl">
+                      {t(item.label)}
+                    </TransitionLink>
+                    {item.id === 'work' && <ProjectsSubmenu onNavigate={() => setMenuOpen(false)} />}
+                  </div>
+                )}
               </li>
             ))}
-            <li className="flex items-baseline gap-4">
-              <span className="mono-label opacity-40">0{NAV.length + 1}</span>
-              <button type="button" onClick={openCv} aria-haspopup="dialog" className="brand-title text-2xl">
-                {t(COPY.cv.nav)}
-              </button>
-            </li>
           </ul>
         </nav>
       )}

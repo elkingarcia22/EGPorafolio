@@ -7,6 +7,10 @@
   from { width: 0%; }
   to { width: 100%; }
 }
+@keyframes obj-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 @keyframes obj-travel {
   from { left: 0%; opacity: 0; }
   10% { opacity: 1; }
@@ -15,11 +19,29 @@
 }
 .obj-fade { animation: obj-fade-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .obj-toast { animation: obj-fade-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.obj-progress { animation: obj-progress linear both; }
 .obj-travel { animation: obj-travel 3.2s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
 
+@keyframes obj-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes obj-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes obj-drip { from { transform: translateY(-100%); } to { transform: translateY(260%); } }
+@keyframes obj-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.obj-draw { animation: obj-draw 1.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.obj-bar { animation: obj-bar 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; transform-origin: left; }
+.obj-drip { animation: obj-drip 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.obj-rise { animation: obj-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
 @media (prefers-reduced-motion: reduce) {
-  .obj-fade, .obj-toast, .obj-travel { animation: none; }
+  .obj-fade, .obj-toast, .obj-travel, .obj-progress, .obj-draw, .obj-bar, .obj-drip, .obj-rise { animation: none; }
 }
 html[data-motion='reduced'] .obj-fade,
 html[data-motion='reduced'] .obj-toast,
-html[data-motion='reduced'] .obj-travel { animation: none; }
+html[data-motion='reduced'] .obj-travel,
+html[data-motion='reduced'] .obj-progress,
+html[data-motion='reduced'] .obj-draw,
+html[data-motion='reduced'] .obj-bar,
+html[data-motion='reduced'] .obj-drip,
+html[data-motion='reduced'] .obj-rise { animation: none; }

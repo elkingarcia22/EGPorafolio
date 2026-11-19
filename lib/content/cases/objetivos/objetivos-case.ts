@@ -65,8 +65,8 @@ export const OBJ_CASE = {
 
   patterns: {
     lead: {
-      es: 'No había entrevistas ni métricas de uso del módulo: la investigación fue de producto. Revisé cómo otras herramientas consiguen que la gente reporte —no solo las de objetivos— y saqué reglas que después quedaron escritas en el código.',
-      en: 'There were no interviews or usage metrics for the module: research was product research. I looked at how other tools get people to report —not only goal tools— and drew rules that ended up written into the code.',
+      es: 'No había entrevistas ni métricas de uso del módulo: la investigación fue de producto. Primero comparé cómo escriben objetivos empresas que trabajan distinto —OKR, KPI, SMART, NCT, MBO— y después cómo otras herramientas consiguen que la gente reporte. De las dos salieron reglas que quedaron escritas en el código.',
+      en: 'There were no interviews or usage metrics for the module: research was product research. First I compared how companies that work differently write goals —OKR, KPI, SMART, NCT, MBO— and then how other tools get people to report. Both produced rules that ended up written into the code.',
     } as L,
     insights: [
       { es: 'Premiar la constancia de reportar, no el % crudo: el % castiga a quien se pone metas ambiciosas.', en: 'Reward the habit of reporting, not the raw %: raw % punishes ambitious goals.' },
@@ -78,8 +78,8 @@ export const OBJ_CASE = {
 
   idea: {
     hmw: {
-      es: '¿Cómo podríamos hacer que un objetivo viva todo el ciclo, y no solo el día en que se configura?',
-      en: 'How might we make a goal live through the whole cycle, not just the day it gets configured?',
+      es: '¿Cómo podríamos hacer que el producto se adapte a la forma en que cada empresa trabaja sus objetivos, y no al revés?',
+      en: 'How might we make the product adapt to the way each company works its goals, and not the other way around?',
     } as L,
   },
 

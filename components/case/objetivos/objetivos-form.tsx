@@ -1,49 +1,62 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { useA11y } from '@/lib/a11y'
+import { useCallback, useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { OBJ_CASE, type Shot } from '@/lib/content/cases/objetivos/objetivos-case'
 import { Block, Body, SubHead } from '@/components/case/barberlytics/ui'
 import { ESCALA, tramoDe } from './cascade-model'
+import { BUILDER_SPOTS, HOME_SPOTS } from './form-spots'
+import { ShotStage } from './shot-stage'
 
-const STEP_MS = 4200
-
-/** Ventana de navegador con la captura; al cambiar de captura se cruza con un fundido. */
-function BrowserShot({ shot, sizes = '(min-width: 1024px) 70vw, 100vw' }: { shot: Shot; sizes?: string }) {
+/** Dos capturas en abanico: al pasar el cursor se abren y la elegida pasa al frente. */
+function FanPair({ shots }: { shots: readonly Shot[] }) {
   const { t } = useLocale()
+  const [front, setFront] = useState(1)
   return (
-    <div className="overflow-hidden rounded-[10px] bg-void ring-1 ring-fg/15 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.55)]">
-      <div className="flex items-center gap-1.5 border-b border-paper/10 px-3 py-2" aria-hidden="true">
-        <span className="h-2 w-2 rounded-full bg-paper/25" />
-        <span className="h-2 w-2 rounded-full bg-paper/25" />
-        <span className="h-2 w-2 rounded-full bg-paper/25" />
-        <span className="ml-3 h-4 flex-1 rounded bg-paper/[0.06] px-2 font-mono text-[9px] leading-4 text-paper/40">playground · /admin/desempeno-cultura/objetivos</span>
-      </div>
-      <Image key={shot.src} src={shot.src} width={2000} height={1250} alt={t(shot.alt)} sizes={sizes} className="obj-fade block h-auto w-full" />
+    <div data-reveal className="group relative mx-auto mt-16 aspect-[1.9/1] w-full max-w-[880px]">
+      {shots.map((shot, i) => {
+        const isFront = i === front
+        const side = i === 0 ? -1 : 1
+        return (
+          <figure
+            key={shot.src}
+            onMouseEnter={() => setFront(i)}
+            onFocus={() => setFront(i)}
+            tabIndex={0}
+            className="absolute top-0 w-[62%] cursor-pointer outline-none transition-[transform,opacity] duration-700 ease-expo"
+            style={{
+              left: i === 0 ? '0%' : '38%',
+              zIndex: isFront ? 2 : 1,
+              transform: `rotate(${side * (isFront ? 1.5 : 4)}deg) translateY(${isFront ? 0 : 26}px) scale(${isFront ? 1 : 0.94})`,
+              opacity: isFront ? 1 : 0.75,
+            }}
+          >
+            <div className="overflow-hidden rounded-xl bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)] ring-1 ring-fg/15">
+              <Image src={shot.src} width={2000} height={1250} alt={t(shot.alt)} sizes="(min-width: 768px) 40vw, 70vw" className="block h-auto w-full" />
+            </div>
+            <figcaption className={`mono-label mt-3 transition-opacity duration-500 ${isFront ? 'opacity-70' : 'opacity-0'}`}>{t(shot.caption)}</figcaption>
+          </figure>
+        )
+      })}
     </div>
   )
 }
 
-/** El constructor paso a paso: avanza solo hasta que alguien elige un paso. */
+/** El constructor paso a paso: cada paso se recorre zona por zona y después pasa al siguiente. */
 function BuilderStepper() {
   const { t } = useLocale()
-  const { reducedMotion } = useA11y()
   const steps = OBJ_CASE.form.steps
   const [active, setActive] = useState(0)
   const [auto, setAuto] = useState(true)
-
-  useEffect(() => {
-    if (!auto || reducedMotion) return
-    const id = window.setTimeout(() => setActive((i) => (i + 1) % steps.length), STEP_MS)
-    return () => window.clearTimeout(id)
-  }, [active, auto, reducedMotion, steps.length])
-
   const step = steps[active]
+  const next = useCallback(() => {
+    if (auto) setActive((i) => (i + 1) % steps.length)
+  }, [auto, steps.length])
+
   return (
     <figure data-reveal>
-      <ol className="mb-5 grid grid-cols-2 gap-px overflow-hidden border border-fg/15 bg-fg/15 md:grid-cols-4">
+      <ol className="mb-6 flex flex-wrap gap-2">
         {steps.map((s, i) => (
           <li key={s.id}>
             <button
@@ -53,21 +66,17 @@ function BuilderStepper() {
                 setAuto(false)
                 setActive(i)
               }}
-              className="relative block w-full bg-bg px-4 py-3 text-left transition-colors hover:bg-fg/[0.04]"
+              className="flex items-center gap-2.5 rounded-full border border-fg/20 py-1.5 pl-1.5 pr-4 text-sm transition-colors hover:border-fg/50 aria-[current=true]:border-signal aria-[current=true]:bg-signal aria-[current=true]:text-paper"
             >
-              <span className={`mono-label ${i === active ? 'text-signal' : 'opacity-50'}`}>0{i + 1}</span>
-              <span className="mt-1 block text-sm">{t(s.label)}</span>
-              {i === active && (
-                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-fg/10">
-                  <span key={`${active}-${auto}`} className="block h-full bg-signal" style={auto && !reducedMotion ? { animation: `obj-grow ${STEP_MS}ms linear forwards` } : { width: '100%' }} />
-                </span>
-              )}
+              <span className={`grid h-6 w-6 place-items-center rounded-full font-mono text-[11px] ${i === active ? 'bg-paper/20' : i < active ? 'bg-signal/15 text-signal' : 'bg-fg/10'}`}>{i < active ? '✓' : i + 1}</span>
+              {t(s.label)}
             </button>
           </li>
         ))}
       </ol>
-      <BrowserShot shot={step.shot} />
-      <figcaption className="mono-label mt-3 opacity-60">{t(step.shot.caption)}</figcaption>
+      <div key={step.id} className="obj-fade">
+        <ShotStage shot={step.shot} spots={BUILDER_SPOTS[step.id] ?? []} url={step.id === 'carga' ? 'playground · /admin/desempeno-cultura/objetivos' : 'playground · /admin/desempeno-cultura/objetivos/crear'} onTourEnd={next} />
+      </div>
     </figure>
   )
 }
@@ -139,7 +148,7 @@ function ResultsDeck() {
         ))}
       </ol>
       <div>
-        <div className="relative aspect-[1.6/1]">
+        <div className="relative aspect-[1.6/1] [perspective:1800px]">
           {tabs.map((tab, i) => {
             const offset = (i - active + tabs.length) % tabs.length
             const visible = offset < 3
@@ -148,7 +157,7 @@ function ResultsDeck() {
                 key={tab.id}
                 className="absolute inset-0 origin-top transition-[transform,opacity] duration-700 ease-expo"
                 style={{
-                  transform: `translateY(${offset * -18}px) scale(${1 - offset * 0.05})`,
+                  transform: `translateY(${offset * -22}px) translateZ(${offset * -60}px) rotateX(${offset ? 6 : 0}deg) scale(${1 - offset * 0.04})`,
                   opacity: visible ? 1 - offset * 0.3 : 0,
                   zIndex: tabs.length - offset,
                 }}
@@ -179,18 +188,9 @@ export function ObjetivosForm() {
         <SubHead index="5.1">{t({ es: 'Inicio: qué atender antes de abrir un ciclo', en: 'Home: what to attend before opening a cycle' })}</SubHead>
         <Body className="mb-8">{t({ es: '«Para atender» ordena por prioridad lo que pide acción —avance bajo a días del cierre, personas sin reportar— y el pulso compara cada cifra con los ciclos anteriores.', en: '“To attend” ranks what needs action —low progress days before close, people not reporting— and the pulse compares each figure with past cycles.' })}</Body>
         <div data-reveal="device">
-          <BrowserShot shot={form.home} />
+          <ShotStage shot={form.home} spots={HOME_SPOTS} />
         </div>
-        <div className="mt-6 grid gap-6 md:grid-cols-2">
-          {[form.noGoals, form.periods].map((shot) => (
-            <figure key={shot.src} data-reveal>
-              <div className="overflow-hidden rounded-[10px] ring-1 ring-fg/15">
-                <Image src={shot.src} width={2000} height={1250} alt={t(shot.alt)} sizes="(min-width: 768px) 35vw, 100vw" className="block h-auto w-full" />
-              </div>
-              <figcaption className="mono-label mt-3 opacity-60">{t(shot.caption)}</figcaption>
-            </figure>
-          ))}
-        </div>
+        <FanPair shots={[form.noGoals, form.periods]} />
       </Block>
 
       <Block>

@@ -1,12 +1,16 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { gsap } from '@/lib/motion'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 
-const OFFSET_X = 22
-const OFFSET_Y = 18
+const OFFSET_X = 26
+const OFFSET_Y = 14
+
+/** Última posición del puntero, para aparecer ya junto al cursor y no viajar desde la esquina. */
+const pointer = { x: -999, y: -999 }
 
 /**
  * Etiqueta que acompaña al cursor mientras está sobre el EG:
@@ -16,23 +20,30 @@ const OFFSET_Y = 18
 export function HoverTuneLabel({ visible }: { visible: boolean }) {
   const { t } = useLocale()
   const ref = useRef<HTMLDivElement>(null)
+  // En un portal: dentro del hero, un ancestro con transform movería el `fixed` lejos del cursor.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    gsap.set(el, { x: pointer.x + OFFSET_X, y: pointer.y + OFFSET_Y })
     const xTo = gsap.quickTo(el, 'x', { duration: 0.5, ease: 'expo' })
     const yTo = gsap.quickTo(el, 'y', { duration: 0.5, ease: 'expo' })
     const move = (e: PointerEvent) => {
+      pointer.x = e.clientX
+      pointer.y = e.clientY
       xTo(e.clientX + OFFSET_X)
       yTo(e.clientY + OFFSET_Y)
     }
     window.addEventListener('pointermove', move)
     return () => window.removeEventListener('pointermove', move)
-  }, [])
+  }, [mounted])
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
+    if (visible) gsap.set(el, { x: pointer.x + OFFSET_X, y: pointer.y + OFFSET_Y })
     gsap.to(el, {
       clipPath: visible ? 'inset(0% 0% 0% 0%)' : 'inset(0% 100% 0% 0%)',
       autoAlpha: visible ? 1 : 0,
@@ -40,11 +51,12 @@ export function HoverTuneLabel({ visible }: { visible: boolean }) {
       ease: 'expo.out',
       // Cancela la animación anterior: si mostrar (más larga) terminara
       // después de ocultar, la etiqueta se quedaría pegada al cursor.
-      overwrite: true,
+      overwrite: 'auto',
     })
-  }, [visible])
+  }, [visible, mounted])
 
-  return (
+  if (!mounted) return null
+  return createPortal(
     <div
       ref={ref}
       aria-hidden="true"
@@ -56,6 +68,7 @@ export function HoverTuneLabel({ visible }: { visible: boolean }) {
         <span className="brand-title whitespace-nowrap text-[11px]">{t(COPY.hero.keepTuning)}</span>
         <span className="text-xs">↓</span>
       </span>
-    </div>
+    </div>,
+    document.body,
   )
 }

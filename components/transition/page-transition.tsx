@@ -11,6 +11,10 @@ type Navigate = (href: string, label?: string) => void
 let navigateHandler: Navigate | null = null
 
 const BAR_COUNT = 6
+/** Si la página no llega en este tiempo tras cubrir, la cortina muestra que está cargando. */
+const LOADING_HINT_MS = 260
+/** Red de seguridad: si la navegación del cliente no llega, se carga la página completa. */
+const HARD_NAV_MS = 12000
 
 /**
  * Cortina de barras verticales (las barras de la hoja de vida) que cubre
@@ -23,6 +27,13 @@ export function TransitionOverlay() {
   const rootRef = useRef<HTMLDivElement>(null)
   const isCovering = useRef(false)
   const [label, setLabel] = useState('')
+  const [isWaiting, setIsWaiting] = useState(false)
+  const timers = useRef<number[]>([])
+
+  const clearTimers = () => {
+    timers.current.forEach((id) => window.clearTimeout(id))
+    timers.current = []
+  }
 
   const bars = () => rootRef.current?.querySelectorAll<HTMLElement>('[data-bar]') ?? []
 
@@ -36,6 +47,7 @@ export function TransitionOverlay() {
       router.prefetch(href)
       setLabel(nextLabel)
       isCovering.current = true
+      document.documentElement.dataset.transitioning = 'true'
       gsap.set(rootRef.current, { visibility: 'visible' })
       gsap.fromTo(
         bars(),
@@ -45,7 +57,14 @@ export function TransitionOverlay() {
           duration: 0.42,
           ease: 'expo.inOut',
           stagger: 0.03,
-          onComplete: () => router.push(href),
+          onComplete: () => {
+            router.push(href)
+            clearTimers()
+            timers.current = [
+              window.setTimeout(() => setIsWaiting(true), LOADING_HINT_MS),
+              window.setTimeout(() => window.location.assign(href), HARD_NAV_MS),
+            ]
+          },
         },
       )
     },
@@ -62,6 +81,8 @@ export function TransitionOverlay() {
   // Al cambiar de ruta: arriba del todo y retirar la cortina.
   useEffect(() => {
     scrollToTop()
+    clearTimers()
+    setIsWaiting(false)
     if (!isCovering.current || !rootRef.current) return
     isCovering.current = false
     const root = rootRef.current
@@ -73,6 +94,7 @@ export function TransitionOverlay() {
       stagger: 0.03,
       onComplete: () => {
         gsap.set(root, { visibility: 'hidden' })
+        delete document.documentElement.dataset.transitioning
       },
     })
   }, [pathname])
@@ -88,6 +110,13 @@ export function TransitionOverlay() {
         <div key={i} data-bar className="h-full flex-1 bg-void" style={{ transform: 'scaleY(0)' }} />
       ))}
       <p className="mono-label caret absolute bottom-8 left-[var(--gutter)] text-paper/70">{label}</p>
+      {/* Mientras la página llega: una línea que recorre el borde y el aviso de carga */}
+      <div className={`absolute inset-x-0 bottom-0 h-[2px] overflow-hidden transition-opacity duration-300 ${isWaiting ? 'opacity-100' : 'opacity-0'}`}>
+        <span className="absolute inset-y-0 left-0 w-2/5 bg-signal" style={{ animation: isWaiting ? 'curtain-load 1.1s cubic-bezier(0.65,0,0.35,1) infinite' : 'none' }} />
+      </div>
+      <p className={`mono-label absolute bottom-8 right-[var(--gutter)] text-paper/45 transition-opacity duration-300 ${isWaiting ? 'opacity-100' : 'opacity-0'}`}>
+        Cargando…
+      </p>
     </div>
   )
 }

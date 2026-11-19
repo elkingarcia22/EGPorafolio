@@ -3,13 +3,14 @@
 import { useLocale } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
 import { CaseShell } from '../shared/case-shell'
-import { Dots, Idea } from '../shared/sections'
+import { Dots } from '../shared/sections'
 import { ThemaHero } from './thema-hero'
 import { LogoBoard, LogoConstruction, SystemBoard } from './thema-sketches'
 import { TokenMatrix } from './token-matrix'
 import { ThemaForm } from './thema-form'
 import { ThemaAi, ThemaImpact } from './thema-ai-impact'
 import { ThemaDemo } from './thema-demo'
+import { ThemaIdea } from './thema-idea'
 
 function ThemaSketches() {
   const { t } = useLocale()
@@ -30,7 +31,6 @@ function ThemaSketches() {
 
 const ThemaDots = () => <Dots data={THEMA_CASE.dots} />
 const ThemaPatterns = TokenMatrix
-const ThemaIdea = () => <Idea data={THEMA_CASE.idea} />
 
 /** Caso Thema: el sistema de diseño de Barberlytics, de los puntos a la demo. */
 export function ThemaCase() {

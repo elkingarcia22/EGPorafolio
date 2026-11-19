@@ -7,7 +7,7 @@ import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
-import { gsap, getLenis, ScrollTrigger, scrambleText } from '@/lib/motion'
+import { gsap, scrambleText, scrollToHeroSignature } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -23,14 +23,28 @@ const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
 
-/** Punto del hero donde el EG ya está armado y la firma se ve completa. */
-const SIGNATURE_AT = 0.9
+/** Al volver al inicio: espera a que la cortina se retire y baja hasta el EG. */
+const AUTO_SCROLL_DELAY_MS = 900
+const AUTO_SCROLL_S = 2.4
 
 /**
  * La carga solo se ve una vez por visita. Si vuelves al inicio desde otra página,
  * el hero aparece ya armado.
  */
 let hasBooted = false
+
+/**
+ * Si se llega al inicio desde otra página del sitio: ya se vio la carga aquí, o la visita
+ * empezó en otra ruta (por ejemplo, directo en un proyecto) y se navegó hasta el inicio.
+ */
+function arrivedFromAnotherPage(): boolean {
+  if (hasBooted) return true
+  if (typeof window === 'undefined') return false
+  const entry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+  if (!entry) return false
+  // El hero solo vive en el inicio; al renderizarse, la URL aún puede ser la anterior.
+  return new URL(entry.name).pathname !== '/'
+}
 
 /**
  * Arranque: no hay pantalla de carga aparte. La estática aparece en
@@ -43,6 +57,7 @@ function useBoot(
   headline: string,
   loaderProgress: React.MutableRefObject<number>,
   reducedMotion: boolean,
+  skipLoading: boolean,
 ) {
   useEffect(() => {
     const el = root.current
@@ -51,7 +66,8 @@ function useBoot(
     const header = document.querySelector<HTMLElement>('[data-site-header]')
     const targets = [...q('[data-boot]'), ...(header ? [header] : [])]
 
-    if (reducedMotion || hasBooted) {
+    if (reducedMotion || skipLoading) {
+      hasBooted = true
       gsap.set(targets, { opacity: 1 })
       gsap.set(q('[data-boot-counter]'), { autoAlpha: 0 })
       loaderProgress.current = 0
@@ -114,7 +130,7 @@ function useBoot(
       tl.kill()
       if (header) gsap.set(header, { opacity: 1 })
     }
-  }, [root, headline, loaderProgress, reducedMotion])
+  }, [root, headline, loaderProgress, reducedMotion, skipLoading])
 }
 
 /**
@@ -135,23 +151,15 @@ export function Hero() {
 
   const loaderProgress = useRef(0)
   // Se decide al montar, antes de que useBoot marque la carga como vista.
-  const [isReturn] = useState(() => hasBooted)
-  useBoot(sectionRef, headline, loaderProgress, reducedMotion)
+  const [isReturn] = useState(arrivedFromAnotherPage)
+  useBoot(sectionRef, headline, loaderProgress, reducedMotion, isReturn)
 
-  // De vuelta desde otra página (el logo): directo al EG con la firma, no al titular.
+  // De vuelta desde otra página: arranca en el titular y, cuando la cortina se retira,
+  // el scroll baja solo hasta el EG con la firma.
   useEffect(() => {
-    const section = sectionRef.current
-    if (!isReturn || !section || window.location.hash) return
-    let frame = requestAnimationFrame(() => {
-      frame = requestAnimationFrame(() => {
-        const y = section.offsetTop + (section.offsetHeight - window.innerHeight) * SIGNATURE_AT
-        const lenis = getLenis()
-        if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
-        else window.scrollTo(0, y)
-        ScrollTrigger.update()
-      })
-    })
-    return () => cancelAnimationFrame(frame)
+    if (!isReturn || window.location.hash) return
+    const timer = window.setTimeout(() => scrollToHeroSignature(AUTO_SCROLL_S), AUTO_SCROLL_DELAY_MS)
+    return () => window.clearTimeout(timer)
   }, [isReturn])
 
   // La etiqueta del EG nunca debe verse fuera del hero.
@@ -204,7 +212,7 @@ export function Hero() {
       <noscript>
         <style>{'[data-boot]{opacity:1!important}'}</style>
       </noscript>
-      <div ref={sectionRef} data-header-clear className="relative h-[320vh]">
+      <div ref={sectionRef} data-header-clear data-hero-root className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
             <NetworkCanvas

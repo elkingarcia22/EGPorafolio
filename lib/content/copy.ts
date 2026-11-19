@@ -41,7 +41,6 @@ export const COPY = {
     label: { es: 'Nodos', en: 'Nodes' },
     title: { es: 'Proyectos seleccionados', en: 'Selected work' },
     open: { es: 'Ver caso', en: 'View case' },
-    placeholder: { es: 'Casos de ejemplo · contenido provisional', en: 'Sample cases · placeholder content' },
   },
   about: {
     label: { es: 'Trayectoria', en: 'Journey' },

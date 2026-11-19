@@ -8,7 +8,7 @@ import type { Project } from './types'
 export const objetivos: Project = {
   slug: 'objetivos',
   frequency: '01.26',
-  title: { es: 'Objetivos, de punta a punta', en: 'Goals, end to end' },
+  title: { es: 'Objetivos que sí se cumplen', en: 'Goals that actually get met' },
   client: 'UBITS',
   year: '2026',
   accent: '64 96 255',
@@ -52,8 +52,8 @@ export const objetivos: Project = {
   },
   idea: {
     hmw: {
-      es: '¿Cómo podríamos hacer que un objetivo viva todo el ciclo, y no solo el día en que se configura?',
-      en: 'How might we make a goal live through the whole cycle, not just the day it gets configured?',
+      es: '¿Cómo podríamos hacer que el producto se adapte a la forma en que cada empresa trabaja sus objetivos, y no al revés?',
+      en: 'How might we make the product adapt to the way each company works its goals, and not the other way around?',
     },
     principles: [
       { title: { es: 'El norte primero', en: 'North first' }, body: { es: 'Cada objetivo dice a cuál de empresa empuja.', en: 'Every goal says which company goal it pushes.' } },

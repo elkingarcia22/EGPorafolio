@@ -14,6 +14,9 @@ export interface ProjectsResult {
   source: 'supabase' | 'local'
 }
 
+/** Casos de ejemplo retirados: no se muestran aunque sigan publicados en Supabase. */
+const RETIRED: ReadonlySet<string> = new Set(['carga-masiva-ia', 'nomina'])
+
 let client: SupabaseClient | null | undefined
 
 function getClient(): SupabaseClient | null {
@@ -42,11 +45,19 @@ export async function listProjects(): Promise<ProjectsResult> {
   }
 
   const rows: unknown[] = (data ?? []).map((row) => (row as { content: unknown }).content)
-  const valid = rows.filter(isProject)
-  if (valid.length < rows.length) {
-    console.error(`[projects] ${rows.length - valid.length} fila(s) con formato inválido fueron omitidas`)
+  const wellFormed = rows.filter(isProject)
+  if (wellFormed.length < rows.length) {
+    console.error(`[projects] ${rows.length - wellFormed.length} fila(s) con formato inválido fueron omitidas`)
   }
-  return valid.length > 0 ? { projects: withCodeCases(valid), source: 'supabase' } : LOCAL
+  // Los retirados se omiten sin aviso: es a propósito, no un error de formato.
+  const valid = wellFormed.filter((p) => !RETIRED.has(p.slug))
+  return valid.length > 0 ? { projects: withCodeCases(valid.map(withLocalTitle)), source: 'supabase' } : LOCAL
+}
+
+/** El título del código manda: así la lista, el menú y la cortina dicen lo mismo. */
+function withLocalTitle(project: Project): Project {
+  const local = LOCAL_PROJECTS.find((p) => p.slug === project.slug)
+  return local ? { ...project, title: local.title } : project
 }
 
 /** Casos con diseño propio: viven en el código y se listan aunque no tengan fila en Supabase. */

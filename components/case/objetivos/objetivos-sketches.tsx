@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
+import { PiecesBoard, ReportBoard } from './objetivos-sketches-more'
 
 type Writer = 'rrhh' | 'otros'
 
@@ -146,11 +147,13 @@ export function ObjetivosSketches() {
     <div className="space-y-16">
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
         {t({
-          es: 'Dos tableros. El primero responde la pregunta que cambia todo el constructor: ¿quién escribe los objetivos? El segundo, cómo leer un ciclo sin abrir siete reportes. Prueba los dos caminos del primero.',
-          en: 'Two boards. The first answers the question that changes the whole builder: who writes the goals? The second, how to read a cycle without opening seven reports. Try both paths on the first one.',
+          es: 'Cuatro tableros, en el orden en que se discutieron: un objetivo desarmado en las piezas que combinan los modelos, la pregunta que cambia todo el constructor (¿quién redacta?), reportar y aprobar desde cada rol, y cómo leer un ciclo sin abrir siete reportes. Los dos primeros se pueden tocar.',
+          en: 'Four boards, in the order they were discussed: a goal taken apart into the pieces models combine, the question that changes the whole builder (who writes?), reporting and approving from each role, and how to read a cycle without opening seven reports. The first two are interactive.',
         })}
       </p>
+      <PiecesBoard />
       <WriterBoard />
+      <ReportBoard />
       <SummaryBoard />
     </div>
   )

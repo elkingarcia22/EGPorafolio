@@ -124,6 +124,11 @@ body {
 
 /* Ocultar el cursor nativo solo cuando el cursor propio está activo */
 html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
+/* Con un modal abierto vuelve el puntero del sistema: el cursor propio queda debajo del modal
+   y no puede seguir al mouse dentro del iframe de la demo. */
+html.has-cursor[data-modal-open] { cursor: auto; }
+html.has-cursor[data-modal-open] a, html.has-cursor[data-modal-open] button { cursor: pointer; }
+html[data-modal-open] [data-cursor-layer] { visibility: hidden; }
 
 /* Collage de componentes (casos): cada pieza flota a su ritmo. */
 @keyframes collage-float {
@@ -207,3 +212,8 @@ html[data-motion='reduced'] [data-slot-in] { animation: none; }
 @keyframes orbit { to { transform: rotate(360deg); } }
 html[data-motion='reduced'] [class*='animate-[wave'], html[data-motion='reduced'] [class*='animate-[orbit'] { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { [class*='animate-[wave'], [class*='animate-[orbit'] { animation: none !important; } }
+/* La cortina avisa que el caso sigue cargando: una línea que recorre el borde inferior */
+@keyframes curtain-load {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
