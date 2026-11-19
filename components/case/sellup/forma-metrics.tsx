@@ -45,9 +45,9 @@ export function UsageMetrics() {
           <p className="mt-4 text-[clamp(3.2rem,2rem+5vw,6rem)] font-light leading-none tabular-nums text-signal"><Num value={53.03} on={seen} decimals={2} prefix="US$" /></p>
           <p className="mt-4 max-w-[34ch] text-white/70">{t({ es: 'por todo lo que hicieron los agentes en Producción. Cada corrida deja su costo; si un proveedor no lo reporta, queda «desconocido», nunca cero.', en: 'for everything the agents did in Production. Every run logs its cost; if a provider doesn’t report it, it stays “unknown”, never zero.' })}</p>
           <div className="mt-6 flex h-2 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
-            <span className="bg-emerald-400 transition-[width] duration-[1600ms] ease-expo" style={{ width: seen ? '73%' : '0%' }} />
-            <span className="bg-red-400 transition-[width] delay-300 duration-[1600ms] ease-expo" style={{ width: seen ? '8%' : '0%' }} />
-            <span className="bg-white/30 transition-[width] delay-500 duration-[1600ms] ease-expo" style={{ width: seen ? '19%' : '0%' }} />
+            <span className="bg-emerald-400 transition-[width] duration-500 ease-expo" style={{ width: seen ? '73%' : '0%' }} />
+            <span className="bg-red-400 transition-[width] delay-300 duration-500 ease-expo" style={{ width: seen ? '8%' : '0%' }} />
+            <span className="bg-white/30 transition-[width] delay-500 duration-500 ease-expo" style={{ width: seen ? '19%' : '0%' }} />
           </div>
           <p className="mt-2 flex flex-wrap gap-x-4 text-xs text-white/55">
             <span><span className="text-emerald-300">●</span> 160 {t({ es: 'completadas · 73 %', en: 'completed · 73%' })}</span>
@@ -73,7 +73,7 @@ export function UsageMetrics() {
               <li key={a.name.es} className="grid grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_auto] items-center gap-3 text-sm">
                 <span className="truncate text-white/75">{t(a.name)}</span>
                 <span className="h-2 overflow-hidden rounded-full bg-white/10">
-                  <span className="block h-full rounded-full bg-gradient-to-r from-[#285ee6] to-[#6b8cff] transition-[width] duration-[1400ms] ease-expo" style={{ width: seen ? `${Math.max(2, (a.cost / max) * 100)}%` : '0%', transitionDelay: `${i * 120}ms` }} />
+                  <span className="block h-full rounded-full bg-gradient-to-r from-[#285ee6] to-[#6b8cff] transition-[width] duration-500 ease-expo" style={{ width: seen ? `${Math.max(2, (a.cost / max) * 100)}%` : '0%', transitionDelay: `${i * 120}ms` }} />
                 </span>
                 <span className="tabular-nums">US${a.cost.toFixed(2).replace('.', ',')}</span>
               </li>

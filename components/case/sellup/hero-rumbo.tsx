@@ -66,7 +66,7 @@ function Tag({ f, on, align }: { f: Feature; on: boolean; align: 'left' | 'right
 export function HeroRumbo() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
-  const tick = useTick(1300)
+  const tick = useTick(850)
   const phase = reducedMotion ? 0 : Math.floor(tick / STEPS) % PHASES.length
   const step = tick % STEPS
   const p = PHASES[phase]

@@ -49,7 +49,7 @@ const TOTAL = THOUGHTS.length + 3
 export function RumboSearch() {
   const { t } = useLocale()
   const [ref, seen] = useInView<HTMLDivElement>(0.35)
-  const [step] = useLoop(TOTAL, 1300, seen)
+  const [step] = useLoop(TOTAL, 750, seen)
   const goal = step >= 6
   const active = step >= 1 && step <= 4 ? step - 1 : -1
 

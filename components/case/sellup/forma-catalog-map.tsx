@@ -49,7 +49,7 @@ export function SourceCatalog() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.2)
-  const tick = useTick(2200)
+  const tick = useTick(1300)
   const [picked, setPicked] = useState<number | null>(null)
   const active = picked ?? (reducedMotion ? 0 : tick % NODES.length)
   const c = NODES[active]
