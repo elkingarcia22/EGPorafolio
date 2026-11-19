@@ -1,12 +1,11 @@
 'use client'
 
-import Image from 'next/image'
 import { useLocale, type L } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
-import { PhoneBody, StatusBar } from '@/components/case/kit/device'
 import { CaseShell } from '../shared/case-shell'
 import { ClipperDots } from './clipper-dots'
 import { ClipperIdea } from './clipper-idea'
+import { ClipperInPlatform } from './clipper-in-platform'
 import { OrbConstructionBoard, OrbLayersBoard } from './clipper-orb-sketches'
 import { ClipperHero } from './clipper-hero'
 import { AgentLoop, ProposalFlow, ToolsByRole, VoiceMode } from './clipper-pieces'
@@ -25,38 +24,6 @@ function Section({ n, title, body, children }: { n: string; title: L; body: L; c
       <p data-reveal className="mb-8 max-w-[62ch] leading-relaxed opacity-80">{t(body)}</p>
       {children}
     </section>
-  )
-}
-
-/** Capturas reales de Clipper en la plataforma y en la reserva. */
-function InPlatform() {
-  const { t } = useLocale()
-  const shots = [
-    { src: 'clipper-action', w: 1040, h: 730, cap: { es: 'Tarjeta de propuesta real: antes tachado, después al lado, aviso de choque.', en: 'Real proposal card: before struck through, after beside it, clash warning.' } },
-    { src: 'clipper-question', w: 1040, h: 680, cap: { es: 'En la reserva: pregunta con opciones numeradas.', en: 'In booking: a question with numbered options.' } },
-  ]
-  return (
-    <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_260px]">
-      <div className="space-y-6">
-        <figure data-reveal="device" className="overflow-hidden rounded-xl ring-1 ring-fg/15">
-          <Image src="/cases/barberlytics/clipper-drawer.webp" width={1600} height={744} alt={t({ es: 'Panel de Clipper abierto sobre la plataforma.', en: 'Clipper panel open over the platform.' })} sizes="(min-width: 1024px) 55vw, 100vw" className="block h-auto w-full" />
-        </figure>
-        <div className="grid gap-6 sm:grid-cols-2">
-          {shots.map((s) => (
-            <figure key={s.src} data-reveal>
-              <div className="overflow-hidden rounded-xl ring-1 ring-fg/15"><Image src={`/cases/barberlytics/${s.src}.webp`} width={s.w} height={s.h} alt={t(s.cap)} sizes="(min-width: 640px) 28vw, 100vw" className="block h-auto w-full" /></div>
-              <figcaption className="mt-2 text-xs opacity-65">{t(s.cap)}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-      <div data-reveal="device" className="mx-auto w-full max-w-[260px]">
-        <PhoneBody>
-          <StatusBar />
-          <Image src="/cases/barberlytics/clipper-thread.webp" width={780} height={1688} alt={t({ es: 'Clipper en la reserva saluda a Marcela y propone horarios.', en: 'Booking Clipper greets Marcela and proposes times.' })} sizes="260px" className="block h-auto w-full" />
-        </PhoneBody>
-      </div>
-    </div>
   )
 }
 
@@ -79,7 +46,7 @@ function ClipperForm() {
         <OrbSection />
       </Section>
       <Section n="5.6" title={{ es: 'En la plataforma y en la reserva', en: 'In the platform and in booking' }} body={{ es: 'Así se ve hoy: el panel lateral dentro de la plataforma, las tarjetas de propuesta y el Clipper que atiende al cliente en la reserva.', en: 'How it looks today: the side panel inside the platform, the proposal cards and the Clipper that serves clients in booking.' }}>
-        <InPlatform />
+        <ClipperInPlatform />
       </Section>
     </div>
   )
