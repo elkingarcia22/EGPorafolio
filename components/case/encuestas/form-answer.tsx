@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
-import { AGREEMENT, CLOSING, OUTLINE, PAGE_CLARITY, PAGE_NPS, SURVEY, WELCOME } from '@/lib/content/cases/encuestas/answer-preview'
+import { AGREEMENT, CLOSING, PAGE_CLARITY, PAGE_NPS, SURVEY, WELCOME } from '@/lib/content/cases/encuestas/answer-preview'
 import { UBITS_BLUE } from './shared'
 
 type Page = 'welcome' | 'clarity' | 'nps' | 'closing'
@@ -34,7 +34,6 @@ const FRAMES: readonly Frame[] = [
   { page: 'closing', ms: 0 },
 ]
 const LAST = FRAMES.length - 1
-const PAGE_NUMBER: Record<Page, number> = { welcome: 1, clarity: PAGE_CLARITY.page, nps: PAGE_NPS.page, closing: SURVEY.pages }
 
 /** Lo respondido en esta prueba: en la demostración se saltan las páginas 3 a 16 y la 18, como si ya estuvieran listas. */
 function answeredOf(f: Frame): number {
@@ -212,7 +211,7 @@ function Nps({ nps, typed = 0 }: { nps: number | null; typed?: number }) {
       <Cover trail={PAGE_NPS.trail} numbering={PAGE_NPS.numbering} title={PAGE_NPS.title} count={1} minutes={PAGE_NPS.minutes} />
       <div className="overflow-hidden rounded-b-xl">
         <QuestionCard n={1} statement={PAGE_NPS.statement} answered={nps !== null}>
-          <div className="grid grid-cols-11 gap-1">
+          <div className="grid grid-cols-6 gap-1">
             {Array.from({ length: 11 }, (_, i) => (
               <span key={i} className={`flex h-8 items-center justify-center rounded-md border text-[11px] tabular-nums transition-colors duration-300 ${nps === i ? 'encf-tap border-[#0c5bef] bg-[#0c5bef]/10 font-semibold text-[#0c5bef]' : 'border-black/10'}`}>{i}</span>
             ))}
@@ -252,44 +251,7 @@ function Closing({ onRestart }: { onRestart: () => void }) {
   )
 }
 
-/** «Tu avance»: lo respondido y el índice, con la página actual resaltada. */
-function Progress({ answered, page }: { answered: number; page: Page }) {
-  // Cuánto va de cada sección: la página 1.1 cuenta sus respuestas; en el 7.1 las secciones 1 a 6 ya están completas.
-  const done = (n: string, total: number): number => {
-    if (page === 'closing') return total
-    if (page === 'clarity') return n === '1' || n === '1.1' ? Math.min(answered, total) : 0
-    if (page === 'nps') return n === '7' || n === '7.1' ? (answered > SURVEY.questions - 6 ? 1 : 0) : n === '7.2' ? 0 : total
-    return 0
-  }
-  return (
-    <aside className="hidden w-[13.5rem] shrink-0 rounded-xl border border-black/[0.07] bg-[#f6f7fb] md:block">
-      <p className="px-3 pt-2 text-[11px] font-semibold">Tu avance</p>
-      <div className="m-1 rounded-lg bg-white p-3">
-        <p className="text-[12px] font-semibold leading-tight">{SURVEY.name}</p>
-        <span className="mt-1 inline-block rounded bg-[#ecf1fa] px-1 text-[9px]">{SURVEY.kind}</span>
-        <p className="mt-2 flex justify-between text-[10px]"><span className="font-medium">Preguntas respondidas</span><span className="tabular-nums text-[#5c646f]">{answered} de {SURVEY.questions}</span></p>
-        <span className="mt-1 block h-1 overflow-hidden rounded-full bg-[#ecf1fa]"><span className="block h-full rounded-full bg-[#0c5bef] transition-[width] duration-700" style={{ width: `${(answered / SURVEY.questions) * 100}%` }} /></span>
-        <p className="mt-3 font-mono text-[8.5px] uppercase tracking-wider text-[#979ba3]">Contenido</p>
-        <ul className="mt-1 space-y-0.5 text-[10px]">
-          <li className={`rounded px-1.5 py-0.5 ${page === 'welcome' ? 'bg-[#ecf1fa] font-medium' : ''}`}>Bienvenida</li>
-          {OUTLINE.map((s) => (
-            <li key={s.n}>
-              <p className="flex justify-between gap-2 px-1.5 py-0.5"><span className="truncate font-medium">{s.n} {s.title}</span><span className="tabular-nums text-[#979ba3]">{done(s.n, s.total)}/{s.total}</span></p>
-              {s.subs && ((s.n === '1' && page === 'clarity') || (s.n === '7' && page === 'nps')) && s.subs.map((c) => (
-                <p key={c.n} className={`ml-2 flex justify-between gap-2 rounded px-1.5 py-0.5 text-[#5c646f] ${(c.n === '1.1' && page === 'clarity') || (c.n === '7.1' && page === 'nps') ? 'bg-[#ecf1fa] text-[#303a47]' : ''}`}>
-                  <span className="truncate">{c.n} {c.title}</span><span className="tabular-nums">{done(c.n, c.total)}/{c.total}</span>
-                </p>
-              ))}
-            </li>
-          ))}
-          <li className={`rounded px-1.5 py-0.5 ${page === 'closing' ? 'bg-[#ecf1fa] font-medium' : ''}`}>Cierre</li>
-        </ul>
-      </div>
-    </aside>
-  )
-}
-
-/** Momento 4: la vista previa real del colaborador, respondida sola de la bienvenida al cierre con confeti. */
+/** Momento 4: la vista previa real del colaborador en un celular, respondida sola de la bienvenida al cierre con confeti. */
 export function PhoneAnswer() {
   const { reducedMotion } = useA11y()
   const box = useRef<HTMLDivElement>(null)
@@ -320,39 +282,54 @@ export function PhoneAnswer() {
   const cta = f.page === 'welcome' ? 'Comenzar encuesta' : f.page === 'nps' ? 'Continuar' : f.page === 'closing' ? 'Cerrar vista previa' : 'Continuar'
 
   return (
-    <div ref={box} className="relative overflow-hidden rounded-2xl bg-[#e9edf5] p-2 shadow-[0_40px_90px_-40px_rgba(10,11,13,0.55)] ring-1 ring-black/10 sm:p-4">
-      <div className="relative overflow-hidden rounded-xl bg-white text-[#303a47] shadow-lg">
-        <div className="flex items-start justify-between border-b border-black/[0.07] px-4 py-2.5">
-          <div>
-            <p className="text-[13px] font-semibold">Vista previa</p>
-            <p className="text-[10px] text-[#5c646f]">{SURVEY.name}</p>
+    <div ref={box} className="relative flex justify-center py-4">
+      <div className="pointer-events-none absolute inset-x-0 top-1/2 h-72 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(12,91,239,0.18),transparent)]" aria-hidden="true" />
+      {/* Un celular: marco, isla y barra de estado; adentro, la vista previa en su versión angosta (sin «Tu avance», con «Contenido»). */}
+      <div className="relative w-[19.5rem] rounded-[3rem] bg-[#16181d] p-[10px] shadow-[0_50px_100px_-40px_rgba(10,11,13,0.75),inset_0_0_0_2px_#2c2f36]">
+        <span className="absolute -left-[3px] top-28 h-12 w-[3px] rounded-l bg-[#2c2f36]" aria-hidden="true" />
+        <span className="absolute -right-[3px] top-36 h-16 w-[3px] rounded-r bg-[#2c2f36]" aria-hidden="true" />
+        <div className="relative flex h-[39rem] flex-col overflow-hidden rounded-[2.4rem] bg-white text-[#303a47]">
+          <div className="relative flex h-9 shrink-0 items-center justify-between px-6 text-[11px] font-semibold" aria-hidden="true">
+            <span>9:41</span>
+            <span className="absolute left-1/2 top-2 h-[22px] w-[86px] -translate-x-1/2 rounded-full bg-[#16181d]" />
+            <span className="flex items-center gap-1">
+              <span className="flex h-2.5 items-end gap-[1.5px]">{[4, 6, 8, 10].map((h) => <span key={h} className="w-[2.5px] rounded-sm bg-[#303a47]" style={{ height: h }} />)}</span>
+              <span className="ml-1 h-[10px] w-[20px] rounded-[3px] border border-[#303a47] p-[1.5px]"><span className="block h-full w-3/4 rounded-[1px] bg-[#303a47]" /></span>
+            </span>
           </div>
-          <p className="flex items-center gap-2 text-[10px] font-medium text-[#5c646f]">
-            <span key={f.page} className="enc-fade tabular-nums">Pág. {PAGE_NUMBER[f.page]} de {SURVEY.pages}</span>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full border border-black/10">×</span>
-          </p>
-        </div>
-        <div className="flex h-[30rem] gap-3 bg-[linear-gradient(180deg,#f3f6fd,#fff_40%)] p-3 sm:h-[32rem] sm:p-4">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <div key={`${f.page}-${run}`} className="min-h-0 flex-1 overflow-hidden [mask-image:linear-gradient(180deg,#000_88%,transparent)]">
+          <div className="flex shrink-0 items-start justify-between gap-2 border-b border-black/[0.07] px-4 pb-2.5 pt-1">
+            <div className="min-w-0">
+              <p className="text-[13px] font-semibold">Vista previa</p>
+              <p className="truncate text-[10px] text-[#5c646f]">{SURVEY.name}</p>
+            </div>
+            <p className="flex shrink-0 items-center gap-1.5 text-[10px]">
+              <span className="rounded-md border border-black/15 px-1.5 py-1">☰ Contenido ⌄</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full border border-black/10">×</span>
+            </p>
+          </div>
+          <div className="h-[3px] shrink-0 bg-[#ecf1fa]" aria-hidden="true">
+            <span className="block h-full bg-[#0c5bef] transition-[width] duration-700" style={{ width: `${(answered / SURVEY.questions) * 100}%` }} />
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col bg-[linear-gradient(180deg,#f3f6fd,#fff_40%)] px-3 pt-3">
+            <div key={`${f.page}-${run}`} className="min-h-0 flex-1 overflow-hidden [mask-image:linear-gradient(180deg,#000_90%,transparent)]">
               {f.page === 'welcome' && <Welcome />}
               {f.page === 'clarity' && <Clarity likert={f.likert ?? [null, null, null]} />}
               {f.page === 'nps' && <Nps nps={f.nps ?? null} typed={f.typed} />}
               {f.page === 'closing' && <Closing onRestart={restart} />}
             </div>
             {f.page !== 'closing' && (
-              <div className="flex shrink-0 items-center justify-between pt-3">
+              <div className="flex shrink-0 items-center justify-between py-3">
                 <span className={`rounded-lg border border-black/15 px-3 py-1.5 text-[11px] ${f.page === 'welcome' ? 'invisible' : ''}`}>‹ Volver</span>
                 <span className={`rounded-lg px-3 py-1.5 text-[11px] font-medium text-white transition-transform duration-150 ${f.press ? 'scale-95' : ''}`} style={{ background: UBITS_BLUE }}>{cta} ›</span>
               </div>
             )}
           </div>
-          <Progress answered={answered} page={f.page} />
+          <span className="mx-auto mb-2 mt-1 block h-1 w-28 shrink-0 rounded-full bg-[#303a47]/80" aria-hidden="true" />
+          {f.page === 'closing' && !reducedMotion && <Rain key={run} />}
         </div>
-        {f.page === 'closing' && !reducedMotion && <Rain key={run} />}
       </div>
       {f.page === 'nps' && f.nps === null && (
-        <p className="enc-fade absolute left-1/2 top-[3.6rem] z-20 -translate-x-1/2 rounded-full bg-[#303a47] px-2.5 py-1 text-[10px] text-white">Demostración: de la página 2 salta a la 17</p>
+        <p className="enc-fade absolute left-1/2 top-0 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#303a47] px-2.5 py-1 text-[10px] text-white">Demostración: de la página 2 salta a la 17</p>
       )}
     </div>
   )

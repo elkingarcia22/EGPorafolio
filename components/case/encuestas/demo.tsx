@@ -28,13 +28,9 @@ interface Entry {
   hint: L
 }
 
+/** Una sola entrada: el inicio de Encuestas. Desde ahí se navega por todo el módulo. */
 const ENTRIES: readonly Entry[] = [
-  { id: 'inicio', path: '', name: { es: 'Inicio de Encuestas', en: 'Surveys home' }, hint: { es: 'Atajos para crear, plantillas NOM 035, «Para atender» y la lista', en: 'Create shortcuts, NOM 035 templates, “To address” and the list' } },
-  { id: 'crear', path: '/crear', name: { es: 'Crear una encuesta', en: 'Create a survey' }, hint: { es: 'Los cinco pasos, con el agente «Crear con IA»', en: 'The five steps, with the “Create with AI” agent' } },
-  { id: 'publica', path: '/c2026-1/resultados', name: { es: 'Resultados de una encuesta pública', en: 'Results of a public survey' }, hint: { es: 'Participación, favorabilidad, mapa de calor, eNPS, IA y accionables', en: 'Participation, favorability, heatmap, eNPS, AI and actions' } },
-  { id: 'anonima', path: '/open-cultura-ola2-2026/resultados', name: { es: 'Resultados de una encuesta anónima', en: 'Results of an anonymous survey' }, hint: { es: 'Los grupos por debajo del mínimo quedan reservados', en: 'Groups below the minimum stay reserved' } },
-  { id: 'nom035', path: '/nom035-riesgo-2026/resultados', name: { es: 'NOM 035 · riesgo psicosocial', en: 'NOM 035 · psychosocial risk' }, hint: { es: 'Riesgo por categoría y dominio, y los reportes de la norma', en: 'Risk by category and domain, and the standard’s reports' } },
-  { id: 'comparativo', path: '/comparativo', name: { es: 'Comparar mediciones', en: 'Compare measurements' }, hint: { es: 'Dos o más ciclos lado a lado', en: 'Two or more cycles side by side' } },
+  { id: 'inicio', path: '', name: { es: 'Encuestas', en: 'Surveys' }, hint: { es: 'El módulo completo, desde su inicio', en: 'The whole module, from its home' } },
 ]
 
 const urlOf = (e: Entry) => `${STAGING}${MODULE}${e.path}${FLAGS}`
@@ -100,24 +96,11 @@ export function SurveyDemo() {
           <p data-reveal className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t({ es: 'El módulo real, en staging.', en: 'The real module, on staging.' })}</p>
           <p data-reveal className="mt-4 leading-relaxed opacity-80">
             {t({
-              es: 'Es el playground de UBITS publicado desde la rama staging, con datos de prueba. Solo está habilitado Encuestas: el menú de la plataforma y la barra superior quedan fuera, así que todo lo que se puede tocar es crear, leer resultados, la NOM 035 y comparar.',
-              en: 'This is the UBITS playground published from the staging branch, with test data. Only Surveys is enabled: the platform menu and top bar are left out, so everything you can touch is creating, reading results, NOM 035 and comparing.',
+              es: 'Es el playground de UBITS publicado desde la rama staging, con datos de prueba. Solo está habilitado Encuestas: el menú de la plataforma y la barra superior quedan fuera. Ábrelo y recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
+              en: 'This is the UBITS playground published from the staging branch, with test data. Only Surveys is enabled: the platform menu and top bar are left out. Open it and explore freely: create, read results, NOM 035 or compare.',
             })}
           </p>
         </div>
-        <ul data-reveal className="grid gap-2 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1">
-          {ENTRIES.map((e, i) => (
-            <li key={e.id}>
-              <button type="button" onClick={() => setOpen(e.id)} className="group flex w-full items-baseline gap-3 border border-fg/25 px-4 py-2.5 text-left transition-colors hover:border-signal hover:bg-signal hover:text-paper">
-                <span className="font-mono text-[10px] opacity-60">0{i + 1}</span>
-                <span className="min-w-0 flex-1">
-                  <span className="block">{t(e.name)} ↗</span>
-                  <span className="block truncate text-xs opacity-60">{t(e.hint)}</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
       </div>
 
       <button type="button" onClick={() => setOpen(ENTRIES[0].id)} data-reveal="device" className="group relative block w-full [perspective:1800px]">
@@ -142,7 +125,7 @@ export function SurveyDemo() {
         ids={ENTRIES.map((e) => e.id)}
         openId={open}
         onOpenChange={setOpen}
-        title={entry ? `Encuestas · ${t(entry.name)}` : 'Encuestas'}
+        title={t({ es: 'Encuestas · en vivo, en staging', en: 'Surveys · live, on staging' })}
         titleLeading={<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-mono text-xs font-semibold text-white" style={{ background: UBITS_BLUE }}>En</span>}
         description={entry ? `staging-playground.ubits.co${MODULE}${entry.path}` : undefined}
         actions={
@@ -152,9 +135,7 @@ export function SurveyDemo() {
             </a>
           )
         }
-        prevLabel={t({ es: 'Pantalla anterior', en: 'Previous screen' })}
-        nextLabel={t({ es: 'Pantalla siguiente', en: 'Next screen' })}
-      >
+              >
         {entry && <StagingFrame key={entry.id} entry={entry} />}
       </RecordModal>
     </div>

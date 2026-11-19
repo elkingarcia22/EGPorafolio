@@ -7,7 +7,7 @@ import type { Project } from './types'
 export const encuestas: Project = {
   slug: 'encuestas',
   frequency: '05.26',
-  title: { es: 'Encuestas que la gente sí responde', en: 'Surveys people actually answer' },
+  title: { es: 'Encuestas que crean accionables', en: 'Surveys that create actions' },
   client: 'UBITS',
   year: '2026',
   accent: '12 91 239',
