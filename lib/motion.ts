@@ -37,6 +37,24 @@ export function scrollToTarget(target: string | HTMLElement): void {
   el?.scrollIntoView({ behavior: 'smooth' })
 }
 
+/** Punto del hero (0–1 de su recorrido) donde el EG ya está armado y la firma se ve completa. */
+export const HERO_SIGNATURE_AT = 0.9
+
+/** Baja (o sube) hasta el EG con la firma. Devuelve false si no hay hero en la página. */
+export function scrollToHeroSignature(duration = 2.4): boolean {
+  const hero = document.querySelector<HTMLElement>('[data-hero-root]')
+  if (!hero) return false
+  const top = hero.getBoundingClientRect().top + window.scrollY
+  const y = top + (hero.offsetHeight - window.innerHeight) * HERO_SIGNATURE_AT
+  const reduced = document.documentElement.dataset.motion === 'reduced' || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (lenisInstance) {
+    lenisInstance.scrollTo(y, reduced ? { immediate: true, force: true } : { duration, easing: (t: number) => 1 - Math.pow(1 - t, 4), force: true })
+  } else {
+    window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' })
+  }
+  return true
+}
+
 const SCRAMBLE_CHARS = '▮▯░▒▓/\\_-=+*<>#01'
 
 /**

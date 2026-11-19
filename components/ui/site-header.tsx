@@ -7,7 +7,7 @@ import { A11yPanel } from './a11y-panel'
 import { CvViewer, CV_HASH } from './cv-viewer'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
-import { ScrollTrigger, scrollToTarget } from '@/lib/motion'
+import { ScrollTrigger, scrollToHeroSignature, scrollToTarget } from '@/lib/motion'
 
 const NAV = [
   { id: 'work', label: COPY.nav.work },
@@ -150,7 +150,18 @@ export function SiteHeader() {
         className={`pointer-events-none absolute inset-0 bg-bg/75 backdrop-blur-md transition-opacity duration-500 ${solid ? 'opacity-100' : 'opacity-0'}`}
       />
       <div className="relative flex items-center justify-between gap-6 px-[var(--gutter)] py-4">
-        <TransitionLink href="/" aria-label="Elkin Garcia — inicio" transitionLabel="EG">
+        <TransitionLink
+          href="/"
+          aria-label="Elkin Garcia — inicio"
+          transitionLabel="EG"
+          onClick={(event) => {
+            setMenuOpen(false)
+            if (!isHome) return
+            event.preventDefault()
+            if (window.location.hash) history.replaceState(null, '', '/')
+            scrollToHeroSignature(1.8)
+          }}
+        >
           <Monogram />
         </TransitionLink>
 

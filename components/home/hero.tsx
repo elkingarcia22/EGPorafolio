@@ -7,7 +7,7 @@ import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
-import { gsap, getLenis, scrambleText } from '@/lib/motion'
+import { gsap, scrambleText, scrollToHeroSignature } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -23,8 +23,6 @@ const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
 
-/** Punto del hero donde el EG ya está armado y la firma se ve completa. */
-const SIGNATURE_AT = 0.9
 /** Al volver al inicio: espera a que la cortina se retire y baja hasta el EG. */
 const AUTO_SCROLL_DELAY_MS = 900
 const AUTO_SCROLL_S = 2.4
@@ -159,20 +157,10 @@ export function Hero() {
   // De vuelta desde otra página: arranca en el titular y, cuando la cortina se retira,
   // el scroll baja solo hasta el EG con la firma.
   useEffect(() => {
-    const section = sectionRef.current
-    if (!isReturn || !section || window.location.hash) return
-    const timer = window.setTimeout(() => {
-      const y = section.offsetTop + (section.offsetHeight - window.innerHeight) * SIGNATURE_AT
-      const lenis = getLenis()
-      if (reducedMotion || !lenis) {
-        if (lenis) lenis.scrollTo(y, { immediate: true, force: true })
-        else window.scrollTo({ top: y, behavior: reducedMotion ? 'auto' : 'smooth' })
-        return
-      }
-      lenis.scrollTo(y, { duration: AUTO_SCROLL_S, easing: (t: number) => 1 - Math.pow(1 - t, 4), force: true })
-    }, AUTO_SCROLL_DELAY_MS)
+    if (!isReturn || window.location.hash) return
+    const timer = window.setTimeout(() => scrollToHeroSignature(AUTO_SCROLL_S), AUTO_SCROLL_DELAY_MS)
     return () => window.clearTimeout(timer)
-  }, [isReturn, reducedMotion])
+  }, [isReturn])
 
   // La etiqueta del EG nunca debe verse fuera del hero.
   useEffect(() => {
@@ -224,7 +212,7 @@ export function Hero() {
       <noscript>
         <style>{'[data-boot]{opacity:1!important}'}</style>
       </noscript>
-      <div ref={sectionRef} data-header-clear className="relative h-[320vh]">
+      <div ref={sectionRef} data-header-clear data-hero-root className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
             <NetworkCanvas
