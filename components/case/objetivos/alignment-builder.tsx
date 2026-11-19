@@ -1,141 +1,107 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
-import { useStepper } from './forma-ui'
 
 /**
- * El último paso del constructor, «Alineación», con los textos del ciclo
- * «KPIs corporativos 2026» del staging: tres objetivos de empresa a la
- * izquierda, tres metas asignadas a Comercial a la derecha. Se arrastra el
- * punto azul de cada meta hasta el objetivo de empresa al que empuja.
+ * Alinear, en cascada: persona → grupo → objetivo de empresa, como la vista
+ * «Colaboradores» del mapa de alineación del constructor. La cámara arranca
+ * encima de una sola tarjeta y se aleja hasta mostrar todo el ciclo.
+ *
+ * Personas, áreas, tamaños de grupo y qué áreas empujan más a cada objetivo
+ * vienen del ciclo «Objetivos de compañía 2026 · por trimestres» del staging
+ * (corte al 19 nov 2026). Cada objetivo recibe aporte de las diez áreas: las
+ * tres que más empujan van en trazo grueso; el resto, en trazo fino.
  */
 
 const BLUE = '#0c5bef'
-const W = 760
-const H = 400
-const CARD_W = 210
-const LEFT_X = 90
-const RIGHT_X = 460
+const W = 1500
+const H = 860
 
-const COMPANY = [
-  { id: 'margen', title: 'Subir el margen bruto', desc: 'Margen sobre ventas del periodo, después de costo directo.', y: 70 },
-  { id: 'cartera', title: 'Reducir la cartera vencida', desc: 'Saldo por cobrar con más de 60 días de mora.', y: 165 },
-  { id: 'gasto', title: 'Cumplir el presupuesto de gasto', desc: 'Gasto ejecutado frente al aprobado para el periodo.', y: 260 },
+const PERSON = { x: 60, w: 250, h: 56 }
+const GROUP = { x: 620, w: 250, h: 66 }
+const GOAL = { x: 1180, w: 270, h: 86 }
+
+const PEOPLE = [
+  { name: 'Paula Ortiz Cifuentes', area: 'Tecnología' },
+  { name: 'Santiago Bermúdez Restrepo', area: 'Gente y Cultura' },
+  { name: 'Nicolás López Escobar', area: 'Comercial' },
+  { name: 'Alejandro Duarte Bermúdez', area: 'Comercial' },
+  { name: 'Felipe Rodríguez Moreno', area: 'Marketing' },
+  { name: 'Mariana Quintero Gómez', area: 'Marketing' },
+  { name: 'Iván Navarro Cifuentes', area: 'Logística' },
+  { name: 'Manuela Hernández Navarro', area: 'Legal' },
+].map((p, i) => ({ ...p, y: 50 + i * 82 }))
+
+const GROUPS = [
+  { area: 'Tecnología', people: 11 },
+  { area: 'Gente y Cultura', people: 3 },
+  { area: 'Comercial', people: 7 },
+  { area: 'Marketing', people: 11 },
+  { area: 'Logística', people: 13 },
+  { area: 'Legal', people: 4 },
+  { area: 'Operaciones', people: 11 },
+  { area: 'Finanzas', people: 9 },
+].map((g, i) => ({ ...g, y: 40 + i * 98 }))
+
+const GOALS = [
+  { id: 'ingresos', title: 'Crecer los ingresos un 15 %', meta: '48,6 % del peso · avance 9,8 %', top: ['Operaciones', 'Tecnología', 'Logística'], y: 150 },
+  { id: 'marca', title: 'Ser la marca preferida de los clientes', meta: '26,2 % del peso · avance 11 %', top: ['Tecnología', 'Operaciones', 'Logística'], y: 380 },
+  { id: 'eficiencia', title: 'Operar con más eficiencia', meta: '23,8 % del peso · avance 8,3 %', top: ['Marketing', 'Logística', 'Finanzas'], y: 610 },
 ] as const
 
-const ASSIGNED = [
-  { id: 'a1', title: 'Mejorar el margen del área', area: 'Comercial', weight: 40, y: 75, target: 'margen' },
-  { id: 'a2', title: 'Bajar la mora de las cuentas del área', area: 'Comercial', weight: 35, y: 170, target: 'cartera' },
-  { id: 'a3', title: 'Ejecutar el presupuesto del área sin desviarse', area: 'Comercial', weight: 25, y: 265, target: 'gasto' },
+const FOCUS = PEOPLE[0]
+const FOCUS_GROUP = GROUPS[0]
+
+const curve = (x1: number, y1: number, x2: number, y2: number) => {
+  const dx = (x2 - x1) / 2
+  return `M${x1} ${y1} C${x1 + dx} ${y1} ${x2 - dx} ${y2} ${x2} ${y2}`
+}
+const groupY = (area: string) => {
+  const g = GROUPS.find((x) => x.area === area)
+  return g ? g.y + GROUP.h / 2 : 0
+}
+
+/** La cámara de cada momento: dónde mira y cuánto acerca. */
+const SHOTS = [
+  { cx: PERSON.x + PERSON.w / 2, cy: FOCUS.y + PERSON.h / 2, s: 2.6, ms: 900 },
+  { cx: (PERSON.x + GROUP.x + GROUP.w) / 2, cy: (FOCUS.y + FOCUS_GROUP.y) / 2 + 40, s: 1.8, ms: 1000 },
+  { cx: (GROUP.x + GOAL.x + GOAL.w) / 2, cy: 300, s: 1.35, ms: 1100 },
+  { cx: W / 2, cy: H / 2, s: 1, ms: 2600 },
+  { cx: W / 2, cy: H / 2, s: 1, ms: 1800 },
 ] as const
 
-const CARD_H = 70
-const mid = (y: number) => y + CARD_H / 2
-const companyPort = (id: string) => {
-  const c = COMPANY.find((x) => x.id === id)
-  return { x: LEFT_X + CARD_W, y: mid(c ? c.y : 0) }
-}
-const assignedDot = (id: string) => {
-  const a = ASSIGNED.find((x) => x.id === id)
-  return { x: RIGHT_X, y: mid(a ? a.y : 0) }
-}
-const curve = (from: { x: number; y: number }, to: { x: number; y: number }) => {
-  const dx = (from.x - to.x) / 2
-  return `M${from.x} ${from.y} C${from.x - dx} ${from.y} ${to.x + dx} ${to.y} ${to.x} ${to.y}`
-}
-
-type Links = Record<string, string | null>
-const EMPTY: Links = { a1: null, a2: null, a3: null }
-
-/** Dónde cae el cursor, en coordenadas del lienzo. */
-function useCanvasPoint(ref: React.RefObject<HTMLDivElement>) {
-  return useCallback(
-    (e: { clientX: number; clientY: number }) => {
-      const r = ref.current?.getBoundingClientRect()
-      if (!r) return { x: 0, y: 0 }
-      return { x: ((e.clientX - r.left) / r.width) * W, y: ((e.clientY - r.top) / r.height) * H }
-    },
-    [ref],
-  )
+const camera = (shot: (typeof SHOTS)[number]) => {
+  const tx = (0.5 - (shot.s * shot.cx) / W) * 100
+  const ty = (0.5 - (shot.s * shot.cy) / H) * 100
+  return `translate(${tx.toFixed(2)}%, ${ty.toFixed(2)}%) scale(${shot.s})`
 }
 
 export function AlignmentBuilder() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
-  const canvas = useRef<HTMLDivElement>(null)
-  const toCanvas = useCanvasPoint(canvas)
-  const [links, setLinks] = useState<Links>(reducedMotion ? { a1: 'margen', a2: 'cartera', a3: 'gasto' } : EMPTY)
-  const [drag, setDrag] = useState<{ from: string; x: number; y: number } | null>(null)
-  const [touched, setTouched] = useState(false)
-  const [ghost, setGhost] = useState<{ x: number; y: number; down: boolean } | null>(null)
-  const { ref, seen } = useStepper(100000, 1)
+  const [phase, setPhase] = useState(reducedMotion ? 4 : 0)
+  const [inView, setInView] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
-  const done = Object.values(links).filter(Boolean).length
-  const pct = Math.round((done / ASSIGNED.length) * 100)
-
-  // Si nadie lo toca, un cursor hace las conexiones una a una; al terminar, espera y vuelve a empezar.
   useEffect(() => {
-    if (touched || reducedMotion || !seen) return
-    const pending = ASSIGNED.find((a) => !links[a.id])
-    if (!pending) {
-      const id = window.setTimeout(() => setLinks(EMPTY), 3200)
-      return () => window.clearTimeout(id)
-    }
-    const from = assignedDot(pending.id)
-    const to = companyPort(pending.target)
-    let raf = 0
-    let start = 0
-    const DUR = 1100
-    const wait = window.setTimeout(() => {
-      setGhost({ ...from, down: true })
-      const tick = (now: number) => {
-        if (!start) start = now
-        const k = Math.min(1, (now - start) / DUR)
-        const e = k < 0.5 ? 2 * k * k : 1 - (-2 * k + 2) ** 2 / 2
-        const p = { x: from.x + (to.x - from.x) * e, y: from.y + (to.y - from.y) * e }
-        setDrag({ from: pending.id, ...p })
-        setGhost({ ...p, down: true })
-        if (k < 1) raf = requestAnimationFrame(tick)
-        else {
-          setDrag(null)
-          setGhost({ ...p, down: false })
-          setLinks((l) => ({ ...l, [pending.id]: pending.target }))
-        }
-      }
-      raf = requestAnimationFrame(tick)
-    }, 700)
-    return () => {
-      window.clearTimeout(wait)
-      cancelAnimationFrame(raf)
-    }
-  }, [links, touched, reducedMotion, seen])
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
-  const takeOver = () => {
-    setTouched(true)
-    setGhost(null)
-  }
+  useEffect(() => {
+    if (reducedMotion || !inView) return
+    const id = window.setTimeout(() => setPhase((p) => (p + 1) % SHOTS.length), SHOTS[phase].ms)
+    return () => window.clearTimeout(id)
+  }, [phase, inView, reducedMotion])
 
-  const onDotDown = (id: string) => (e: React.PointerEvent) => {
-    takeOver()
-    ;(e.target as Element).setPointerCapture?.(e.pointerId)
-    setDrag({ from: id, ...toCanvas(e) })
-  }
-  const onMove = (e: React.PointerEvent) => {
-    if (drag) setDrag({ ...drag, ...toCanvas(e) })
-  }
-  const onUp = (e: React.PointerEvent) => {
-    if (!drag) return
-    const p = toCanvas(e)
-    const hit = COMPANY.find((c) => p.x >= LEFT_X - 10 && p.x <= LEFT_X + CARD_W + 30 && p.y >= c.y - 10 && p.y <= c.y + CARD_H + 10)
-    if (hit) setLinks((l) => ({ ...l, [drag.from]: hit.id }))
-    setDrag(null)
-  }
-  const cut = (id: string) => {
-    takeOver()
-    setLinks((l) => ({ ...l, [id]: null }))
-  }
+  const shot = SHOTS[phase]
+  const all = phase >= 3
+  const counter = all ? '3 de 3 objetivos de empresa con aporte' : phase >= 2 ? '1 persona → 1 grupo → 2 objetivos' : phase >= 1 ? '1 persona → 1 grupo' : '1 persona'
 
   return (
     <div ref={ref} data-reveal="device" className="relative overflow-hidden rounded-3xl bg-[#0b0d16] p-4 md:p-8">
@@ -145,98 +111,99 @@ export function AlignmentBuilder() {
           <div>
             <p className="text-[15px] font-medium">Mapa de alineación</p>
             <p className="mt-0.5 text-[12px] text-black/55">
-              <span className="font-medium tabular-nums" style={{ color: done === 3 ? '#067647' : BLUE }}>{done} de 3 alineados · {pct} %</span> · Cada meta asignada y el objetivo de empresa al que empuja.
+              <span key={counter} className="font-medium tabular-nums text-[#0c5bef] animate-[ramp-in_0.4s_cubic-bezier(0.16,1,0.3,1)_both]">{counter}</span> · La contribución de cada persona y de qué grupos le llega.
             </p>
           </div>
           <span className="flex rounded-lg bg-black/[0.04] p-0.5 text-[12px]">
-            {['Objetivos', 'Agrupación', 'Colaboradores'].map((v, i) => (
-              <span key={v} className={`rounded-md px-3 py-1 ${i === 0 ? 'bg-white shadow-sm' : 'text-black/50'}`}>{v}</span>
+            {['Objetivos', 'Agrupación', 'Colaboradores'].map((v) => (
+              <span key={v} className={`rounded-md px-3 py-1 ${v === 'Colaboradores' ? 'bg-white shadow-sm' : 'text-black/50'}`}>{v}</span>
             ))}
           </span>
         </div>
 
-        <div className="overflow-x-auto">
-          <div
-            ref={canvas}
-            onPointerMove={onMove}
-            onPointerUp={onUp}
-            onPointerLeave={() => setDrag(null)}
-            className="relative min-w-[620px] touch-none select-none"
-            style={{ aspectRatio: `${W} / ${H}`, backgroundColor: '#fafbfc', backgroundImage: 'radial-gradient(rgba(22,26,44,0.14) 1px, transparent 1.2px)', backgroundSize: '18px 18px' }}
-          >
-            {/* Las flechas: de la meta asignada al objetivo de empresa. */}
+        {/* El lienzo: una cámara que se aleja sobre el mapa entero. */}
+        <div className="relative overflow-hidden" style={{ aspectRatio: `${W} / ${H}`, backgroundColor: '#fafbfc', backgroundImage: 'radial-gradient(rgba(22,26,44,0.12) 1px, transparent 1.2px)', backgroundSize: '16px 16px' }}>
+          <div className="absolute inset-0 origin-top-left will-change-transform" style={{ transform: camera(shot), transition: reducedMotion ? 'none' : 'transform 1.1s cubic-bezier(0.65, 0, 0.35, 1)' }}>
             <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
-              <defs>
-                <marker id="obj-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                  <path d="M1,1 L9,5 L1,9 Z" fill={BLUE} />
-                </marker>
-              </defs>
-              {ASSIGNED.map((a) => {
-                const to = links[a.id]
-                if (!to) return null
-                const d = curve(assignedDot(a.id), companyPort(to))
-                return (
-                  <g key={a.id} className="group cursor-pointer" onClick={() => cut(a.id)}>
-                    <path d={d} fill="none" stroke="transparent" strokeWidth={16} />
-                    <path d={d} fill="none" stroke={BLUE} strokeWidth={2} markerEnd="url(#obj-arrow)" pathLength={1} strokeDasharray={1} className="obj-draw transition-[stroke] group-hover:stroke-[#d92d20]" style={{ animationDuration: '0.5s' }} />
-                  </g>
-                )
+              {/* Persona → grupo. */}
+              {PEOPLE.map((p, i) => {
+                const on = i === 0 ? phase >= 1 : all
+                if (!on) return null
+                return <path key={p.name} d={curve(PERSON.x + PERSON.w, p.y + PERSON.h / 2, GROUP.x, groupY(p.area))} fill="none" stroke={BLUE} strokeOpacity={0.7} strokeWidth={2.5} pathLength={1} strokeDasharray={1} className="obj-draw" style={{ animationDuration: '0.6s', animationDelay: i === 0 ? '200ms' : `${200 + i * 70}ms` }} />
               })}
-              {drag && <path d={curve(assignedDot(drag.from), drag)} fill="none" stroke={BLUE} strokeWidth={2} strokeDasharray="5 5" />}
+              {/* Grupo → objetivo de empresa: todas las áreas aportan; las tres que más empujan, en grueso. */}
+              {GOALS.flatMap((goal, gi) =>
+                GROUPS.map((g, i) => {
+                  const strong = (goal.top as readonly string[]).includes(g.area)
+                  const focusLink = g.area === FOCUS_GROUP.area && strong
+                  const on = focusLink ? phase >= 2 : all
+                  if (!on) return null
+                  return (
+                    <path
+                      key={`${goal.id}-${g.area}`}
+                      d={curve(GROUP.x + GROUP.w, g.y + GROUP.h / 2, GOAL.x, goal.y + GOAL.h / 2)}
+                      fill="none"
+                      stroke={BLUE}
+                      strokeOpacity={strong ? 0.75 : 0.14}
+                      strokeWidth={strong ? 3 : 1.2}
+                      pathLength={1}
+                      strokeDasharray={1}
+                      className="obj-draw"
+                      style={{ animationDuration: '0.7s', animationDelay: focusLink ? '200ms' : `${700 + gi * 160 + i * 40}ms` }}
+                    />
+                  )
+                }),
+              )}
+              {/* «Ser la marca preferida» también contribuye a «Crecer los ingresos». */}
+              {all && <path d={`M${GOAL.x + GOAL.w} ${GOALS[1].y + 20} C${GOAL.x + GOAL.w + 50} ${GOALS[1].y} ${GOAL.x + GOAL.w + 50} ${GOALS[0].y + GOAL.h} ${GOAL.x + GOAL.w} ${GOALS[0].y + GOAL.h - 20}`} fill="none" stroke={BLUE} strokeWidth={2} strokeDasharray="5 5" className="animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: '1.4s' }} />}
             </svg>
 
-            {COMPANY.map((c) => {
-              const count = Object.values(links).filter((v) => v === c.id).length
-              const hot = drag !== null
+            {PEOPLE.map((p, i) => {
+              const on = i === 0 || all
               return (
-                <div key={c.id} className={`absolute rounded-xl border bg-white p-3 transition-[box-shadow,border-color] duration-300 ${hot ? 'border-[#0c5bef]/50 shadow-[0_0_0_4px_rgba(12,91,239,0.12)]' : 'border-black/10 shadow-sm'}`} style={{ left: `${(LEFT_X / W) * 100}%`, top: `${(c.y / H) * 100}%`, width: `${(CARD_W / W) * 100}%`, height: `${(CARD_H / H) * 100}%` }}>
-                  <span className="absolute -left-[5px] top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full" style={{ background: BLUE }} />
-                  <span className="absolute -right-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#0c5bef]/40" />
-                  <p className="truncate text-[11px] font-medium">{c.title}</p>
-                  <p className="truncate text-[10px] text-black/50">{c.desc}</p>
-                  <span className={`mt-1 inline-block rounded px-1.5 py-0.5 text-[9px] transition-colors ${count ? 'bg-[#0c5bef]/10 text-[#0c5bef]' : 'bg-black/[0.05] text-black/40'}`}>{count ? `${count} aporte` : 'Sin aportes'}</span>
-                </div>
-              )
-            })}
-
-            {ASSIGNED.map((a) => {
-              const linked = Boolean(links[a.id])
-              return (
-                <div key={a.id} className="absolute rounded-xl border border-black/10 bg-white p-3 shadow-sm" style={{ left: `${(RIGHT_X / W) * 100}%`, top: `${(a.y / H) * 100}%`, width: `${(CARD_W / W) * 100}%`, height: `${(CARD_H / H) * 100}%` }}>
-                  <button
-                    type="button"
-                    onPointerDown={onDotDown(a.id)}
-                    aria-label={`Alinear «${a.title}»`}
-                    className="absolute -left-[9px] top-1/2 grid h-[18px] w-[18px] -translate-y-1/2 cursor-grab place-items-center rounded-full active:cursor-grabbing"
-                  >
-                    <span className={`h-3 w-3 rounded-full ${linked ? '' : 'animate-pulse'}`} style={{ background: BLUE, boxShadow: '0 0 0 4px rgba(12,91,239,0.18)' }} />
-                  </button>
-                  <p className="truncate text-[11px] font-medium">{a.title}</p>
-                  <p className="text-[10px] text-black/50">{a.area}</p>
-                  <span className="mt-1 inline-flex items-center gap-1.5 text-[9px] text-black/55">
-                    <span className="rounded bg-[#0c5bef]/10 px-1.5 py-0.5 text-[#0c5bef]">{a.weight} %</span> Grupal
+                <div key={p.name} className={`absolute flex items-center gap-2 rounded-xl border bg-white px-2.5 transition-opacity duration-500 ${i === 0 ? 'border-[#0c5bef] shadow-[0_0_0_4px_rgba(12,91,239,0.15)]' : 'border-black/10 shadow-sm'}`} style={{ left: `${(PERSON.x / W) * 100}%`, top: `${(p.y / H) * 100}%`, width: `${(PERSON.w / W) * 100}%`, height: `${(PERSON.h / H) * 100}%`, opacity: on ? 1 : 0.15, transitionDelay: on && i ? `${i * 60}ms` : '0ms' }}>
+                  <span className="grid aspect-square h-[55%] shrink-0 place-items-center rounded-full bg-[#0c5bef]/10 text-[0.55em] font-medium text-[#0c5bef]" style={{ fontSize: 'clamp(6px, 0.8vw, 11px)' }}>{p.name.split(' ').slice(0, 2).map((w) => w[0]).join('')}</span>
+                  <span className="min-w-0 leading-tight" style={{ fontSize: 'clamp(6px, 0.78vw, 11px)' }}>
+                    <span className="block truncate font-medium">{p.name}</span>
+                    <span className="block truncate text-black/50">{p.area}</span>
                   </span>
+                  <span className="absolute -right-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#0c5bef]" />
+                </div>
+              )
+            })}
+            <div className={`absolute grid place-items-center rounded-xl border border-dashed border-black/20 text-black/45 transition-opacity duration-500 ${all ? 'opacity-100' : 'opacity-0'}`} style={{ left: `${(PERSON.x / W) * 100}%`, top: `${((50 + 8 * 82) / H) * 100}%`, width: `${(PERSON.w / W) * 100}%`, height: `${(PERSON.h / H) * 100}%`, fontSize: 'clamp(6px, 0.78vw, 11px)' }}>
+              + 72 personas más
+            </div>
+
+            {GROUPS.map((g, i) => {
+              const on = i === 0 ? phase >= 1 : all
+              return (
+                <div key={g.area} className={`absolute rounded-xl border bg-white px-3 py-2 transition-opacity duration-500 ${i === 0 && phase >= 1 ? 'border-[#0c5bef]/60' : 'border-black/10'} shadow-sm`} style={{ left: `${(GROUP.x / W) * 100}%`, top: `${(g.y / H) * 100}%`, width: `${(GROUP.w / W) * 100}%`, height: `${(GROUP.h / H) * 100}%`, opacity: on ? 1 : 0.12, fontSize: 'clamp(6px, 0.8vw, 12px)', transitionDelay: on && i ? `${300 + i * 50}ms` : '0ms' }}>
+                  <span className="absolute -left-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#0c5bef]/50" />
+                  <span className="absolute -right-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#0c5bef]" />
+                  <span className="block truncate font-medium">{g.area}</span>
+                  <span className="block truncate text-black/50">Área · {g.people} personas</span>
                 </div>
               )
             })}
 
-            {/* El cursor del recorrido automático. */}
-            {ghost && (
-              <span className="pointer-events-none absolute z-10 -translate-x-1 -translate-y-1 transition-transform duration-150" style={{ left: `${(ghost.x / W) * 100}%`, top: `${(ghost.y / H) * 100}%`, transform: ghost.down ? 'scale(0.9)' : 'scale(1)' }} aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 2 L20 12 L12 13.5 L9 21 Z" fill="#161a2c" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" /></svg>
-              </span>
-            )}
+            {GOALS.map((goal, i) => {
+              const on = phase >= 2 ? (all || goal.id !== 'eficiencia') : false
+              return (
+                <div key={goal.id} className="absolute rounded-xl border border-[#0c5bef]/30 bg-[#0c5bef] px-3 py-2.5 text-white shadow-[0_14px_30px_-12px_rgba(12,91,239,0.8)] transition-opacity duration-500" style={{ left: `${(GOAL.x / W) * 100}%`, top: `${(goal.y / H) * 100}%`, width: `${(GOAL.w / W) * 100}%`, height: `${(GOAL.h / H) * 100}%`, opacity: on ? 1 : 0.12, fontSize: 'clamp(6px, 0.82vw, 12px)', transitionDelay: on ? `${200 + i * 80}ms` : '0ms' }}>
+                  <span className="absolute -left-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white" />
+                  <span className="block font-medium leading-tight">{goal.title}</span>
+                  <span className="mt-1 block truncate text-white/70">{goal.meta}</span>
+                </div>
+              )
+            })}
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-black/[0.06] px-5 py-3 text-[11px] text-black/50">
-          <span>⟶ Arrastra el punto azul hasta un objetivo de la empresa</span>
-          <span>✂ Toca una flecha para cortarla</span>
-          {touched && (
-            <button type="button" onClick={() => { setTouched(false); setLinks(EMPTY) }} className="ml-auto rounded-md border border-black/10 px-2.5 py-1 text-black/70 hover:border-black/30">
-              {t({ es: 'Ver la demostración', en: 'Watch the demo' })}
-            </button>
-          )}
+          <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded bg-[#0c5bef]" /> {t({ es: 'Las tres áreas que más empujan', en: 'The three areas that push most' })}</span>
+          <span className="flex items-center gap-1.5"><span className="h-px w-5 bg-[#0c5bef]/30" /> {t({ es: 'El resto de las áreas', en: 'The other areas' })}</span>
+          <span className="flex items-center gap-1.5"><span className="h-0 w-5 border-t-2 border-dashed border-[#0c5bef]" /> {t({ es: 'Objetivo que aporta a otro', en: 'Goal feeding another' })}</span>
         </div>
       </div>
     </div>
