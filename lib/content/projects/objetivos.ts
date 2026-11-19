@@ -8,7 +8,7 @@ import type { Project } from './types'
 export const objetivos: Project = {
   slug: 'objetivos',
   frequency: '01.26',
-  title: { es: 'Objetivos, de punta a punta', en: 'Goals, end to end' },
+  title: { es: 'Objetivos que sí se cumplen', en: 'Goals that actually get met' },
   client: 'UBITS',
   year: '2026',
   accent: '64 96 255',

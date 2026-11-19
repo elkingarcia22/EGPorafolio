@@ -8,7 +8,7 @@ import type { Project } from './types'
 export const sellup: Project = {
   slug: 'sellup',
   frequency: '05.26',
-  title: { es: 'SellUp', en: 'SellUp' },
+  title: { es: 'Vender sin buscar a ciegas', en: 'Selling without searching blind' },
   client: 'UBITS',
   year: '2026',
   accent: '91 126 255',
