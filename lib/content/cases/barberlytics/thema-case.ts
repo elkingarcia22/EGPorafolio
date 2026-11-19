@@ -273,15 +273,10 @@ export const THEMA_CASE = {
   /** 08 · Demo: la documentación real */
   demo: {
     lead: {
-      es: 'Es la documentación real de Thema, funcionando aquí. Cambia el tema arriba a la derecha y mira cómo cambia todo.',
-      en: 'It’s Thema’s real documentation, running here. Switch the theme at the top right and watch everything change.',
+      es: 'Es la documentación real de Thema, funcionando aquí: la portada, la marca y una muestra de componentes. Cambia el tema arriba a la derecha y mira cómo cambia todo.',
+      en: 'It’s Thema’s real documentation, running here: the home, the brand and a sample of components. Switch the theme at the top right and watch everything change.',
     },
-    pages: [
-      { id: 'home', name: { es: 'Inicio', en: 'Home' }, url: 'https://barberlytics.vercel.app/docs' },
-      { id: 'themes', name: { es: 'Temas', en: 'Themes' }, url: 'https://barberlytics.vercel.app/docs#/foundations/themes' },
-      { id: 'ai', name: { es: 'Componentes de IA', en: 'AI components' }, url: 'https://barberlytics.vercel.app/docs#/group/ai' },
-      { id: 'atmosphere', name: { es: 'Atmósfera', en: 'Atmosphere' }, url: 'https://barberlytics.vercel.app/docs#/group/atmosphere' },
-    ],
-    open: 'https://barberlytics.vercel.app/docs',
+    /** `vitrina=1`: la doc muestra solo la portada, la marca y una muestra de componentes, también en pestaña nueva. */
+    open: 'https://barberlytics.vercel.app/docs?vitrina=1',
   },
 }
