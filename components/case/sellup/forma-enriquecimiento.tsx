@@ -1,147 +1,137 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useLocale, type L } from '@/lib/i18n'
-import { AppCard, AppFrame, Pill, RumboOrb } from './platform'
-import { useInView } from './ui'
-import { AppButton, Kpi, SampleNote } from './forma-shared'
+import { Check, Globe, GitBranch, Loader2, Phone, User, Users, Lock } from 'lucide-react'
+import { RumboOrb } from './platform'
+import { RealFrame, RealTag } from './real-app'
+import { RecordHeader, RecordSection, RecordStepper } from './real-record'
+import { FakeCursor, HIGHLIGHT, RealDock, ReplicaNote, StorySteps, stepAt, useStoryTime, type StoryStep } from './real-story'
 
-interface Person {
-  name: string
-  role: string
-  source: string
-  phone: boolean
-  inHubSpot: boolean
-}
+/**
+ * 5.3 · Agente 2: desde la ficha real, un clic en «Buscar más contactos con IA»
+ * reserva créditos, baja por la cascada de fuentes y trae a los decisores.
+ */
 
-interface Step {
-  source: string
-  cost: L
-  note: L
-  adds: readonly Person[]
-  credits: number
-}
+const STEPS: readonly StoryStep[] = [
+  { label: { es: 'Clic en «Buscar más contactos con IA»', en: 'Click “Find more contacts with AI”' }, from: 0 },
+  { label: { es: 'Reserva créditos y recorre las fuentes', en: 'Reserves credits and walks the sources' }, from: 4 },
+  { label: { es: 'Llegan los decisores', en: 'Decision-makers arrive' }, from: 12 },
+]
+const LOOP = 24
 
-/** Cascada de ejemplo para una empresa ficticia. */
-const STEPS: readonly Step[] = [
-  { source: 'HubSpot', cost: { es: 'Gratis', en: 'Free' }, note: { es: 'Contactos sin dueño activo', en: 'Contacts with no active owner' }, credits: 0, adds: [
-    { name: 'Laura Méndez', role: 'Directora de Talento Humano', source: 'HubSpot', phone: false, inHubSpot: true },
-    { name: 'Andrés Cuervo', role: 'Gerente de Formación', source: 'HubSpot', phone: true, inHubSpot: true },
-  ] },
-  { source: 'SellUp', cost: { es: 'Gratis', en: 'Free' }, note: { es: 'Ya conocidos, menos de 180 días', en: 'Already known, under 180 days' }, credits: 0, adds: [
-    { name: 'Paula Rincón', role: 'VP de Personas', source: 'SellUp', phone: false, inHubSpot: false },
-  ] },
-  { source: 'Apollo', cost: { es: '1 crédito/persona', en: '1 credit/person' }, note: { es: 'Buscar gratis, completar perfil paga', en: 'Search is free, completing a profile pays' }, credits: 2, adds: [
-    { name: 'Martín Ospina', role: 'Head of Learning & Development', source: 'Apollo', phone: true, inHubSpot: false },
-    { name: 'Diana Torres', role: 'Directora de Cultura', source: 'Apollo', phone: false, inHubSpot: false },
-  ] },
-  { source: 'Lusha', cost: { es: 'Solo teléfono', en: 'Phone only' }, note: { es: 'Si Apollo no trajo el número', en: 'If Apollo had no number' }, credits: 1, adds: [] },
+const SOURCES = [
+  { name: 'HubSpot', cost: 'Gratis', found: 2, at: 5 },
+  { name: 'Lo que SellUp ya conocía', cost: 'Gratis', found: 0, at: 7 },
+  { name: 'Apollo', cost: '1 crédito por persona', found: 2, at: 9 },
+  { name: 'Lusha', cost: 'Solo si falta el teléfono', found: 0, at: 11 },
 ]
 
-const RESERVED = 8
+const PEOPLE = [
+  { name: 'Mariana Rojas', role: 'Directora de Talento', from: 'HubSpot', tags: ['Decisora', 'En HubSpot'] },
+  { name: 'Jorge Peña', role: 'Gerente de Recursos Humanos', from: 'HubSpot', tags: ['Decisor', 'En HubSpot'] },
+  { name: 'Lucía Torres', role: 'Líder de Formación', from: 'Apollo', tags: ['Decisora'] },
+  { name: 'Andrés Lima', role: 'Coordinador de Nómina', from: 'Apollo', tags: ['Influenciador'] },
+]
 
-/** Agente 2: sección «Enriquecimiento de contactos» de la ficha de empresa. */
-export function ContactEnrichment() {
-  const { t } = useLocale()
-  const [ref, seen] = useInView<HTMLDivElement>(0.3)
-  const [phase, setPhase] = useState(-1) // -1 sin correr · 0 reserva · 1..4 fuentes · 5 listo
-
-  useEffect(() => {
-    if (phase < 0 || phase >= STEPS.length + 1) return
-    const id = window.setTimeout(() => setPhase((p) => p + 1), phase === 0 ? 900 : 1300)
-    return () => window.clearTimeout(id)
-  }, [phase])
-
-  useEffect(() => {
-    if (seen && phase === -1) {
-      const id = window.setTimeout(() => setPhase(0), 900)
-      return () => window.clearTimeout(id)
-    }
-  }, [seen, phase])
-
-  const done = STEPS.slice(0, Math.max(0, phase - 1))
-  const people = done.flatMap((s) => s.adds).map((p) => (phase > STEPS.length && p.name === 'Diana Torres' ? { ...p, phone: true, source: 'Apollo + Lusha' } : p))
-  const used = done.reduce((a, s) => a + s.credits, 0)
-  const running = phase >= 0 && phase <= STEPS.length
-  const finished = phase > STEPS.length
-
+function Kpi({ Icon, label, value }: { Icon: typeof Phone; label: string; value: number }) {
   return (
-    <div ref={ref} data-reveal="device">
-      <AppFrame active="flujo" crumb="Flujo de prospección / Grupo Andino de Alimentos">
-        <div className="space-y-3 p-3 md:p-4">
-          <AppCard className="px-3 py-2.5">
-            <p className="text-[15px] font-semibold">Grupo Andino de Alimentos</p>
-            <p className="mt-0.5 text-[10px] opacity-55">🇨🇴 Colombia · Alimentos · 1.200 {t({ es: 'empleados', en: 'employees' })}</p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <Pill tone="blue">{t({ es: 'Enriquecimiento', en: 'Enrichment' })}</Pill>
-              {people.length === 0 && <Pill tone="amber">{t({ es: 'Sin contactos', en: 'No contacts' })}</Pill>}
-            </div>
-          </AppCard>
+    <div className="flex-1 px-4 py-3">
+      <p className="flex items-center gap-2 text-[12.5px] text-white/70"><Icon className="h-3.5 w-3.5" />{label}</p>
+      <p className="mt-1 pl-[22px] text-[17px] font-medium tabular-nums">{value}</p>
+    </div>
+  )
+}
 
-          <AppCard className="p-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-medium">2. {t({ es: 'Enriquecimiento de contactos', en: 'Contact enrichment' })}</p>
-              <Pill tone="blue">Agente 2A</Pill>
-              <span className="ml-auto">
-                <AppButton gradient="linear-gradient(90deg,#5b7eff,#8b5cf6)" disabled={running} onClick={() => setPhase(0)}>
-                  <RumboOrb size={12} /> {finished ? t({ es: 'Buscar de nuevo', en: 'Search again' }) : t({ es: 'Buscar más contactos con IA', en: 'Find more contacts with AI' })}
-                </AppButton>
-              </span>
-            </div>
-
-            <div className="mt-3 grid grid-cols-2 rounded-lg ring-1 ring-white/[0.08] sm:grid-cols-4">
-              <Kpi label={t({ es: 'Contactos', en: 'Contacts' })} value={people.length} />
-              <Kpi label={t({ es: 'Decisores', en: 'Decision-makers' })} value={people.filter((p) => /Directora|VP|Head|Gerente/.test(p.role)).length} />
-              <Kpi label={t({ es: 'Con teléfono', en: 'With phone' })} value={people.filter((p) => p.phone).length} />
-              <Kpi label={t({ es: 'En HubSpot', en: 'In HubSpot' })} value={people.filter((p) => p.inHubSpot).length} />
-            </div>
-
-            <div className="mt-3 rounded-lg bg-black/25 p-2.5 ring-1 ring-white/[0.06]">
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="opacity-60">{t({ es: 'Créditos reservados antes de llamar', en: 'Credits reserved before calling' })}</span>
-                <span className="tabular-nums">{phase < 0 ? '—' : finished ? `${used} ${t({ es: 'usados', en: 'used' })} · ${RESERVED - used} ${t({ es: 'devueltos', en: 'returned' })}` : `${used} / ${RESERVED}`}</span>
-              </div>
-              <div className="mt-1.5 flex h-2 gap-0.5">
-                {Array.from({ length: RESERVED }, (_, i) => (
-                  <span key={i} className={`flex-1 rounded-sm transition-colors duration-500 ${phase < 0 ? 'bg-white/10' : i < used ? 'bg-amber-400' : finished ? 'bg-emerald-400/50' : 'bg-[#5b7eff]/60'}`} />
-                ))}
-              </div>
-            </div>
-
-            <ol className="mt-3 grid gap-1.5 sm:grid-cols-4">
-              {STEPS.map((s, i) => {
-                const state = phase > i + 1 || finished ? 'done' : phase === i + 1 ? 'run' : 'idle'
-                return (
-                  <li key={s.source} className={`rounded-lg p-2 ring-1 transition-all duration-500 ${state === 'run' ? 'bg-[#5b7eff]/10 ring-[#5b7eff]/50' : state === 'done' ? 'ring-white/10' : 'opacity-40 ring-white/[0.06]'}`}>
-                    <p className="flex items-center justify-between font-medium">
-                      {s.source}
-                      <span className="text-[10px]">{state === 'done' ? (i === 3 ? '+1 ☎' : `+${s.adds.length}`) : state === 'run' ? '…' : ''}</span>
-                    </p>
-                    <p className="mt-0.5 text-[10px] opacity-55">{t(s.cost)} · {t(s.note)}</p>
-                  </li>
-                )
-              })}
-            </ol>
-
-            <ul className="mt-3 space-y-1">
-              {people.map((p) => (
-                <li key={p.name} className="flex items-center gap-2 rounded-md px-2 py-1.5 ring-1 ring-white/[0.06]" style={{ animation: 'sellupRowIn .45s ease-out' }}>
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-[9px]">{p.name.split(' ').map((w) => w[0]).join('')}</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{p.name}</span>
-                    <span className="block truncate text-[10px] opacity-50">{p.role}</span>
-                  </span>
-                  {p.phone && <span className="text-[10px] text-emerald-300">☎</span>}
-                  <Pill tone="gray">{p.source}</Pill>
-                </li>
-              ))}
-            </ul>
-            {finished && <p className="mt-2 text-[10px] text-amber-300/80">{t({ es: 'Nada se aprueba solo: los 5 contactos quedan «por revisar».', en: 'Nothing approves itself: all 5 contacts land in “to review”.' })}</p>}
-          </AppCard>
+function Screen({ time }: { time: number }) {
+  const running = time >= 4 && time < 12
+  const people = Math.max(0, Math.min(PEOPLE.length, time - 12))
+  const revealed = time >= 17
+  const settled = time >= 19
+  const used = Math.min(3, Math.max(0, time >= 9 ? 2 : 0) + (revealed ? 1 : 0))
+  return (
+    <div className="space-y-2.5 px-6 pt-5">
+      <RecordHeader stage={1} tags={people > 0 ? <RealTag tone="green">{Math.min(people, 3)} decisores</RealTag> : <RealTag tone="amber">Sin contactos</RealTag>} />
+      <RecordStepper stage={1} />
+      <RecordSection n={1} title="Prospección" agent="Agente 1" state={<RealTag tone="green">Completada</RealTag>} body="La empresa entra como prospecto (IA, importación o a mano), con encaje ICP y sin duplicar HubSpot." />
+      <RecordSection n={2} title="Enriquecimiento de contactos" agent="Agente 2A" state={<RealTag tone="blue">Etapa actual</RealTag>} body="Se identifican decisores y medios de contacto autorizados.">
+        <div className="mt-3 flex divide-x divide-white/10 rounded-xl border border-white/10">
+          <Kpi Icon={Users} label="Contactos" value={people} />
+          <Kpi Icon={User} label="Decisores" value={Math.min(people, 3)} />
+          <Kpi Icon={Phone} label="Con teléfono" value={people >= 2 ? 1 + (revealed ? 1 : 0) : 0} />
+          <Kpi Icon={Globe} label="En HubSpot" value={Math.min(people, 2)} />
         </div>
-      </AppFrame>
-      <style>{'@keyframes sellupRowIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}'}</style>
-      <SampleNote />
+
+        <div className={`overflow-hidden transition-all duration-700 ${time >= 4 ? 'mt-3 max-h-[120px] opacity-100' : 'max-h-0 opacity-0'}`}>
+          <div className="flex items-center gap-3 rounded-xl border border-[#6b8cff]/30 bg-[#6b8cff]/[0.07] px-3 py-2 text-[12.5px]">
+            <Lock className="h-4 w-4 text-[#9db0ff]" />
+            <span><span className="font-medium">8 créditos reservados</span> antes de llamar a nadie</span>
+            <span className="ml-auto flex gap-1">{Array.from({ length: 8 }, (_, i) => <span key={i} className={`h-2 w-5 rounded-sm ${i < used ? 'bg-[#6b8cff]' : settled && i >= used ? 'bg-emerald-400/60' : 'bg-white/15'}`} />)}</span>
+            <span className="w-[150px] text-right text-white/60">{settled ? `${used} usados · ${8 - used} devueltos` : `${used} usados`}</span>
+          </div>
+          <div className="mt-2 grid grid-cols-4 gap-2">
+            {SOURCES.map((s) => {
+              const on = time >= s.at && time < s.at + 2 && running
+              const done = time >= s.at + 1
+              return (
+                <div key={s.name} className="rounded-xl border px-3 py-2 transition-all duration-500" style={on ? HIGHLIGHT : { borderColor: 'rgba(255,255,255,0.1)' }}>
+                  <p className="flex items-center gap-1.5 text-[12.5px] font-medium">{on ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : done ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <span className="h-3.5 w-3.5 rounded-full border border-white/20" />}{s.name}</p>
+                  <p className="mt-0.5 text-[11.5px] text-white/50">{s.cost}{done ? ` · ${s.found === 0 ? (s.at === 11 ? 'no hizo falta' : 'sin nuevos') : `${s.found} encontrados`}` : ''}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <ul className="mt-3 space-y-1.5">
+          {PEOPLE.map((p, i) => {
+            const hero = i === 0
+            const show = i < people
+            return (
+              <li key={p.name} className="flex items-center gap-3 rounded-xl border px-3 py-2 transition-all duration-500" style={{ ...(hero && show ? HIGHLIGHT : { borderColor: 'rgba(255,255,255,0.08)' }), opacity: show ? 1 : 0, transform: show ? 'none' : 'translateY(8px)', display: time >= 12 ? 'flex' : 'none' }}>
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#6b8cff] to-[#8b5cf6] text-[12px] font-medium">{p.name[0]}</span>
+                <span className="w-[230px]"><span className="block text-[13.5px] font-medium">{p.name}</span><span className="text-[12px] text-white/50">{p.role}</span></span>
+                <span className="flex gap-1.5">{p.tags.map((tg) => <RealTag key={tg} tone={tg === 'En HubSpot' ? 'gray' : 'green'}>{tg}</RealTag>)}</span>
+                <span className="text-[11.5px] text-white/40">vía {p.from}</span>
+                <span className="ml-auto text-[12.5px]">
+                  {hero ? (revealed ? <span className="font-mono text-emerald-300">+52 55 •••• 3418</span> : <span className="flex items-center gap-1.5 rounded-lg border border-white/15 px-2.5 py-1"><Phone className="h-3.5 w-3.5" />Revelar teléfono · 1 crédito</span>) : <span className="text-white/40">Correo verificado</span>}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+        <p className="mt-2.5 flex items-center text-[12.5px] text-white/60">
+          <span className="font-medium text-white/85">Última búsqueda:</span>&nbsp;{settled ? 'Listo para revisión · 4 contactos · 3 créditos' : time >= 4 ? 'Buscando…' : 'Listo para revisión · Lusha · 11 de nov de 2026 · 0 aprobados'}
+          <span className="ml-auto inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[12.5px] text-white transition-all duration-300" style={time >= 2 && time < 4 ? HIGHLIGHT : { borderColor: 'rgba(255,255,255,0.15)' }}>
+            {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RumboOrb size={14} />} Buscar más contactos con IA
+          </span>
+        </p>
+      </RecordSection>
+    </div>
+  )
+}
+
+export function ContactEnrichment() {
+  const [ref, time] = useStoryTime(LOOP, 20)
+  const now = stepAt(STEPS, time)
+  return (
+    <div ref={ref}>
+      <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 2', en: 'Agent 2' }} />
+      <RealFrame
+        active="flujo"
+        crumb={['Flujo de prospección', 'Clínica Andina']}
+        height={1000}
+        overlay={
+          <>
+            <RealDock busy={now === 1} label={now === 1 ? 'Buscando contactos con Rumbo IA' : 'Buscar contactos con Rumbo IA'} done={time >= 19}>
+              <span className="grid h-9 w-9 place-items-center"><RumboOrb size={18} /></span>
+              <span className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-[#6b8cff] px-4 py-2 text-[13.5px] font-medium text-[#0a0a0a]"><GitBranch className="h-4 w-4" />Cambiar etapa</span>
+            </RealDock>
+            <FakeCursor x={time < 2 ? 900 : 1075} y={time < 2 ? 760 : 590} click={time === 3} show={time < 5} />
+          </>
+        }
+      >
+        <Screen time={time} />
+      </RealFrame>
+      <ReplicaNote />
     </div>
   )
 }

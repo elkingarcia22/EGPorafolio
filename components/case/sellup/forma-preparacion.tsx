@@ -1,134 +1,163 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useLocale, type L } from '@/lib/i18n'
-import { AppCard, AppFrame, Pill, RumboOrb } from './platform'
-import { useInView } from './ui'
-import { SampleNote } from './forma-shared'
+import { Check, GitBranch, Linkedin, Loader2, Mail, MessageCircle, Phone, ShieldCheck } from 'lucide-react'
+import { RumboOrb } from './platform'
+import { RealFrame, RealTag } from './real-app'
+import { RecordHeader, RecordSection, RecordStepper } from './real-record'
+import { FakeCursor, HIGHLIGHT, RealDock, ReplicaNote, StorySteps, stepAt, useStoryTime, type StoryStep } from './real-story'
+
+/**
+ * 5.4 · Agente 3: en la ficha real, «Preparar primer contacto con Rumbo IA»
+ * investiga la empresa con fuentes y escribe un mensaje por decisor y canal.
+ * Se puede elegir decisor y canal; si no, el recorrido avanza solo.
+ */
+
+const STEPS: readonly StoryStep[] = [
+  { label: { es: 'Clic en «Preparar primer contacto»', en: 'Click “Prepare first contact”' }, from: 0 },
+  { label: { es: 'Rumbo investiga, cada dato con fuente', en: 'Rumbo researches, every fact sourced' }, from: 4 },
+  { label: { es: 'Escribe por decisor y canal', en: 'Writes per person and channel' }, from: 10 },
+]
+const LOOP = 28
 
 type Channel = 'email' | 'linkedin' | 'call' | 'whatsapp'
-type PersonId = 'p1' | 'p2'
-
-const CHANNELS: readonly { id: Channel; label: L }[] = [
-  { id: 'email', label: { es: 'Correo', en: 'Email' } },
-  { id: 'linkedin', label: { es: 'LinkedIn', en: 'LinkedIn' } },
-  { id: 'call', label: { es: 'Llamada', en: 'Call' } },
-  { id: 'whatsapp', label: { es: 'WhatsApp', en: 'WhatsApp' } },
+const CHANNELS: readonly { id: Channel; label: string; Icon: typeof Mail }[] = [
+  { id: 'email', label: 'Correo', Icon: Mail },
+  { id: 'linkedin', label: 'LinkedIn', Icon: Linkedin },
+  { id: 'call', label: 'Llamada', Icon: Phone },
+  { id: 'whatsapp', label: 'WhatsApp', Icon: MessageCircle },
+]
+const PEOPLE = [
+  { name: 'Mariana Rojas', role: 'Directora de Talento' },
+  { name: 'Jorge Peña', role: 'Gerente de Recursos Humanos' },
+]
+const FACTS = [
+  { text: 'Abrió 3 clínicas nuevas en 2026.', source: 'Sitio oficial · Noticias' },
+  { text: 'Busca 120 enfermeras este trimestre.', source: 'Portal de empleo · nov.' },
+  { text: 'Mariana lidera la nueva academia interna.', source: 'LinkedIn · publicación' },
 ]
 
-const PEOPLE: Record<PersonId, { name: string; role: string }> = {
-  p1: { name: 'Laura Méndez', role: 'Directora de Talento Humano' },
-  p2: { name: 'Martín Ospina', role: 'Head of Learning & Development' },
-}
-
-/** Hechos citados de la investigación (válida 30 días para toda la empresa). */
-const FACTS: readonly { text: L; source: string }[] = [
-  { text: { es: 'Abrió 3 plantas nuevas en 2026 y contrata 400 operarios.', en: 'Opened 3 new plants in 2026 and is hiring 400 operators.' }, source: 'Sitio oficial · Noticias' },
-  { text: { es: 'Su informe de sostenibilidad pide «cerrar brechas de liderazgo».', en: 'Its sustainability report asks to “close leadership gaps”.' }, source: 'Informe 2025 · p. 34' },
-  { text: { es: 'Rotación alta en mandos medios, según su propia vacante.', en: 'High middle-manager turnover, per its own job post.' }, source: 'Vacante publicada · oct.' },
-]
-
-/** Mensajes de ejemplo por decisor y canal. */
-function draft(p: PersonId, c: Channel, es: boolean): string {
+function draft(p: number, c: Channel): string {
   const name = PEOPLE[p].name.split(' ')[0]
-  const focus = p === 'p1'
-    ? (es ? 'los 400 operarios que van a entrar con las plantas nuevas' : 'the 400 operators joining with the new plants')
-    : (es ? 'la brecha de liderazgo que menciona su informe' : 'the leadership gap your report mentions')
-  const m: Record<Channel, string> = es
-    ? {
-        email: `Asunto: ${p === 'p1' ? 'Onboarding para 3 plantas' : 'Brechas de liderazgo'}\n\nHola ${name}, vi que Grupo Andino abrió tres plantas este año. Con ${focus}, ¿le sirve conversar 20 minutos sobre cómo otras empresas de alimentos lo resolvieron?`,
-        linkedin: `Hola ${name}, leí la noticia de las plantas nuevas: felicitaciones. Trabajo con equipos de personas en alimentos y me interesa cómo están pensando ${focus}.`,
-        call: `Apertura: «${name}, le llamo por ${focus}».\nPregunta: ¿cómo están formando hoy a quien entra?\nSi dice «no es buen momento»: proponer 15 min el jueves.`,
-        whatsapp: `Hola ${name} 👋 Soy de UBITS. Vi lo de las plantas nuevas de Grupo Andino. ¿Le escribo por correo una idea corta sobre ${focus}?`,
-      }
-    : {
-        email: `Subject: ${p === 'p1' ? 'Onboarding for 3 plants' : 'Leadership gaps'}\n\nHi ${name}, I saw Grupo Andino opened three plants this year. With ${focus}, would a 20-minute chat on how other food companies solved it help?`,
-        linkedin: `Hi ${name}, I read about the new plants: congratulations. I work with people teams in food and I’m curious how you’re approaching ${focus}.`,
-        call: `Opener: “${name}, I’m calling about ${focus}.”\nQuestion: how are you training new hires today?\nIf “bad timing”: propose 15 min on Thursday.`,
-        whatsapp: `Hi ${name} 👋 I’m with UBITS. Saw the news on Grupo Andino’s new plants. Can I email you a short idea about ${focus}?`,
-      }
+  const focus = p === 0 ? 'cómo va a formar a las 120 enfermeras que entran' : 'el onboarding de las 3 clínicas nuevas'
+  const m: Record<Channel, string> = {
+    email: `Asunto: ${p === 0 ? 'La academia y las 120 enfermeras' : 'Onboarding de 3 clínicas'}\n\nHola ${name}, vi que Clínica Andina abrió tres clínicas este año. Me interesa ${focus}. ¿Le sirve conversar 20 minutos sobre cómo lo resolvieron otras redes de salud?`,
+    linkedin: `Hola ${name}, leí su publicación sobre la academia interna: felicitaciones. Trabajo con equipos de personas en salud y me interesa ${focus}.`,
+    call: `Apertura: «${name}, le llamo por ${focus}».\nPregunta: ¿cómo forman hoy a quien entra en el primer mes?\nSi dice «no es buen momento»: proponer 15 minutos el jueves.`,
+    whatsapp: `Hola ${name} 👋 Soy de UBITS. Vi lo de las clínicas nuevas. ¿Le escribo por correo una idea corta sobre ${focus}?`,
+  }
   return m[c]
 }
 
-/** Agente 3: la preparación del primer contacto, decisor × canal. */
-export function FirstContactPrep() {
-  const { t, locale } = useLocale()
-  const [ref, seen] = useInView<HTMLDivElement>(0.3)
-  const [person, setPerson] = useState<PersonId>('p1')
-  const [channel, setChannel] = useState<Channel>('email')
+const AUTO: readonly [number, Channel, number][] = [[10, 'email', 0], [15, 'linkedin', 0], [19, 'call', 1], [24, 'whatsapp', 1]]
+
+function Prep({ time }: { time: number }) {
+  const [pick, setPick] = useState<{ p: number; c: Channel } | null>(null)
+  const auto = AUTO.reduce<{ p: number; c: Channel }>((acc, [at, c, p]) => (time >= at ? { p, c } : acc), { p: 0, c: 'email' })
+  const { p, c } = pick ?? auto
+  const text = draft(p, c)
   const [typed, setTyped] = useState(0)
-  const [facts, setFacts] = useState(0)
-  const text = draft(person, channel, locale === 'es')
-
+  useEffect(() => setTyped(0), [p, c])
   useEffect(() => {
-    if (!seen || facts >= FACTS.length) return
-    const id = window.setTimeout(() => setFacts((f) => f + 1), 600)
+    if (time < 10 || typed >= text.length) return
+    const id = window.setTimeout(() => setTyped((n) => Math.min(text.length, n + 3)), 22)
     return () => window.clearTimeout(id)
-  }, [seen, facts])
-
-  useEffect(() => setTyped(0), [person, channel, locale])
-
+  }, [time, typed, text.length])
   useEffect(() => {
-    if (facts < FACTS.length || typed >= text.length) return
-    const id = window.setTimeout(() => setTyped((n) => Math.min(text.length, n + 3)), 18)
-    return () => window.clearTimeout(id)
-  }, [facts, typed, text.length])
-
+    if (time === 0) setPick(null)
+  }, [time])
+  const facts = Math.max(0, Math.min(FACTS.length, time - 4))
+  const ready = time >= 10
   return (
-    <div ref={ref} data-reveal="device">
-      <AppFrame active="flujo" crumb="Flujo de prospección / Grupo Andino de Alimentos">
-        <div className="p-3 md:p-4">
-          <AppCard className="p-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-medium">3. {t({ es: 'Primer contacto', en: 'First contact' })}</p>
-              <Pill tone="blue">Agente 3</Pill>
-              <span className="ml-auto flex items-center gap-1.5 text-[10px] opacity-70">
-                <RumboOrb size={14} pulse={facts < FACTS.length && seen} />
-                {facts < FACTS.length ? t({ es: 'Rumbo investiga la empresa…', en: 'Rumbo researches the company…' }) : t({ es: 'Investigación lista · vale 30 días', en: 'Research ready · valid 30 days' })}
-              </span>
-            </div>
-
-            <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div>
-                <p className="mb-1.5 text-[10px] uppercase tracking-wider opacity-50">{t({ es: 'Lo que sabemos, con su fuente', en: 'What we know, with its source' })}</p>
-                <ul className="space-y-1.5">
-                  {FACTS.slice(0, facts).map((f) => (
-                    <li key={f.source} className="rounded-lg bg-black/25 p-2 ring-1 ring-white/[0.06]" style={{ animation: 'sellupRowIn .45s ease-out' }}>
-                      <p className="leading-snug">{t(f.text)}</p>
-                      <p className="mt-1 font-mono text-[9px] text-[#a9baff]">↗ {f.source}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex gap-1">
-                  {(Object.keys(PEOPLE) as PersonId[]).map((id) => (
-                    <button key={id} type="button" onClick={() => setPerson(id)} className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 text-left ring-1 transition ${person === id ? 'bg-[#5b7eff]/15 ring-[#5b7eff]/50' : 'opacity-60 ring-white/10 hover:opacity-100'}`}>
-                      <span className="block truncate">{PEOPLE[id].name}</span>
-                      <span className="block truncate text-[9px] opacity-60">{PEOPLE[id].role}</span>
-                    </button>
-                  ))}
-                </div>
-                <div role="tablist" className="mt-2 flex gap-1 overflow-x-auto">
-                  {CHANNELS.map((c) => (
-                    <button key={c.id} role="tab" aria-selected={channel === c.id} type="button" onClick={() => setChannel(c.id)} className={`whitespace-nowrap rounded-md px-2 py-1 text-[10px] transition ${channel === c.id ? 'bg-white text-black' : 'opacity-60 ring-1 ring-white/10 hover:opacity-100'}`}>
-                      {t(c.label)}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-2 min-h-[150px] whitespace-pre-line rounded-lg bg-black/30 p-2.5 font-mono text-[11px] leading-relaxed ring-1 ring-white/[0.06]">
-                  {facts < FACTS.length ? <span className="opacity-40">{t({ es: 'Esperando la investigación…', en: 'Waiting for research…' })}</span> : text.slice(0, typed)}
-                  {facts >= FACTS.length && typed < text.length && <span className="ml-0.5 inline-block h-3 w-1.5 animate-pulse bg-[#a9baff] align-middle" />}
-                </div>
-                <p className="mt-1.5 text-[10px] opacity-55">{t({ es: 'Un verificador sin IA comprueba que cada dato esté en la fuente. No se envía nada solo.', en: 'A non-AI checker confirms every fact is in the source. Nothing is sent on its own.' })}</p>
-              </div>
-            </div>
-          </AppCard>
+    <div className="mt-3 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-3">
+      <div>
+        <p className="mb-2 text-[12px] font-medium text-white/60">Lo que sabemos, con su fuente</p>
+        <ul className="space-y-1.5">
+          {FACTS.map((f, i) => (
+            <li key={f.source} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 transition-all duration-500" style={{ opacity: i < facts ? 1 : 0, transform: i < facts ? 'none' : 'translateY(8px)' }}>
+              <p className="text-[12.5px]">{f.text}</p>
+              <p className="mt-1 flex items-center gap-1.5 text-[11.5px] text-[#9db0ff]">↗ {f.source}<span className={`ml-auto flex items-center gap-1 text-emerald-300 transition-opacity duration-500 ${time >= 8 ? 'opacity-100' : 'opacity-0'}`}><ShieldCheck className="h-3 w-3" />En la fuente</span></p>
+            </li>
+          ))}
+        </ul>
+        <p className={`mt-2 text-[11.5px] text-white/45 transition-opacity duration-500 ${time >= 8 ? 'opacity-100' : 'opacity-0'}`}>Un verificador sin IA comprueba cada cita. La investigación vale 30 días para toda la empresa.</p>
+      </div>
+      <div className={`transition-opacity duration-500 ${ready ? 'opacity-100' : 'opacity-30'}`}>
+        <div className="flex gap-1.5">
+          {PEOPLE.map((person, i) => (
+            <button key={person.name} type="button" onClick={() => setPick({ p: i, c })} className="flex-1 rounded-xl border px-3 py-1.5 text-left transition-all" style={p === i ? HIGHLIGHT : { borderColor: 'rgba(255,255,255,0.1)' }}>
+              <span className="block text-[12.5px] font-medium">{person.name}</span>
+              <span className="block text-[11px] text-white/50">{person.role}</span>
+            </button>
+          ))}
         </div>
-      </AppFrame>
-      <style>{'@keyframes sellupRowIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}'}</style>
-      <SampleNote />
+        <div className="mt-2 flex gap-1.5" role="tablist">
+          {CHANNELS.map(({ id, label, Icon }) => (
+            <button key={id} type="button" role="tab" aria-selected={c === id} onClick={() => setPick({ p, c: id })} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] transition-all ${c === id ? 'bg-white text-[#0a0a0a]' : 'border border-white/10 text-white/65 hover:text-white'}`}>
+              <Icon className="h-3.5 w-3.5" />{label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-2 min-h-[150px] whitespace-pre-line rounded-xl border border-white/10 bg-[#0d0d0d] p-3 text-[12.5px] leading-relaxed">
+          {ready ? text.slice(0, typed) : <span className="text-white/40">Esperando la investigación…</span>}
+          {ready && typed < text.length && <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-[#9db0ff] align-middle" />}
+        </div>
+        <p className="mt-1.5 flex items-center gap-2 text-[11.5px] text-white/50"><RealTag tone="amber">Para revisar</RealTag>No se envía nada solo: el vendedor lo usa o lo ajusta.</p>
+      </div>
+    </div>
+  )
+}
+
+function Screen({ time }: { time: number }) {
+  const started = time >= 4
+  const ready = time >= 10
+  return (
+    <div className="space-y-2.5 px-6 pt-5">
+      <RecordHeader stage={2} tags={<RealTag tone="green">3 decisores</RealTag>} />
+      <RecordStepper stage={2} />
+      <RecordSection n={2} title="Enriquecimiento de contactos" agent="Agente 2A" state={<RealTag tone="green">Completada</RealTag>} body="4 contactos · 3 decisores · 2 con teléfono · 2 en HubSpot." />
+      <RecordSection
+        n={3}
+        title="Primer contacto"
+        agent="Agente 3"
+        state={ready ? <RealTag tone="amber">Listo para revisar</RealTag> : started ? <RealTag tone="blue">Investigando</RealTag> : <RealTag>Pendiente</RealTag>}
+        body="El agente investiga la empresa y a sus decisores (cada dato con su fuente) y prepara qué decirle a cada uno en cada canal."
+        dashed={!started}
+        right={
+          <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border px-3 py-1.5 text-[12.5px] transition-all" style={time >= 1 && time < 4 ? HIGHLIGHT : { borderColor: 'rgba(255,255,255,0.15)' }}>
+            {started && !ready ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : ready ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <RumboOrb size={14} />}Preparar primer contacto con Rumbo IA
+          </span>
+        }
+      >
+        {started && <Prep time={time} />}
+      </RecordSection>
+    </div>
+  )
+}
+
+export function FirstContactPrep() {
+  const [ref, time] = useStoryTime(LOOP, 12)
+  const now = stepAt(STEPS, time)
+  return (
+    <div ref={ref}>
+      <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 3', en: 'Agent 3' }} />
+      <RealFrame
+        active="flujo"
+        crumb={['Flujo de prospección', 'Clínica Andina']}
+        height={900}
+        overlay={
+          <>
+            <RealDock busy={now === 1} label={now === 0 ? 'Preparar primer contacto con Rumbo IA' : now === 1 ? 'Investigando con Rumbo IA' : 'Primer contacto listo para revisar'} done={now === 2}>
+              <span className="grid h-9 w-9 place-items-center"><RumboOrb size={18} /></span>
+              <span className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-[#6b8cff] px-4 py-2 text-[13.5px] font-medium text-[#0a0a0a]"><GitBranch className="h-4 w-4" />Cambiar etapa</span>
+            </RealDock>
+            <FakeCursor x={time < 1 ? 900 : 1045} y={time < 1 ? 640 : 448} click={time === 3} show={time < 5} />
+          </>
+        }
+      >
+        <Screen time={time} />
+      </RealFrame>
+      <ReplicaNote />
     </div>
   )
 }
