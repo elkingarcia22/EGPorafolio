@@ -102,7 +102,7 @@ export function RumboPanel() {
               <button
                 onClick={() => pick(i)}
                 aria-pressed={type === i}
-                className={`h-full w-full rounded-[12px] border p-3.5 text-left transition-colors ${type === i ? 'border-[#8b5cf6] bg-[#8b5cf6]/10' : 'border-fg/15 hover:border-fg/40'}`}
+                className={`h-full w-full rounded-[12px] border p-3.5 text-left transition-colors ${type === i ? 'border-[#7e2be0] bg-[#7e2be0]/10' : 'border-fg/15 hover:border-fg/40'}`}
               >
                 <span className="flex items-center justify-between gap-2 text-sm font-medium">{t(ty.name)}<span className="font-mono text-[10px] opacity-50">{i + 1}</span></span>
                 <span className="mt-1 block text-xs leading-snug opacity-65">{t(ty.desc)}</span>
@@ -148,7 +148,7 @@ export function RumboPanel() {
               <p className="mt-2 flex flex-wrap gap-1.5"><Pill tone="green">{t({ es: 'Con fuente citada', en: 'Source cited' })}</Pill><Pill tone="amber">{t({ es: 'Por revisar', en: 'To review' })}</Pill></p>
             </div>
           )}
-          {stage > 0 && stage < 5 && <p className="flex items-center gap-1.5 text-[11px] opacity-50"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#8b5cf6]" />{t({ es: 'Rumbo está escribiendo…', en: 'Rumbo is typing…' })}</p>}
+          {stage > 0 && stage < 5 && <p className="flex items-center gap-1.5 text-[11px] opacity-50"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#7e2be0]" />{t({ es: 'Rumbo está escribiendo…', en: 'Rumbo is typing…' })}</p>}
         </div>
       </div>
     </div>

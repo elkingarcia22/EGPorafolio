@@ -53,7 +53,7 @@ function ModelVsRules() {
             <p className="mono-label pt-2 opacity-60">{t(row.agent)}</p>
             <ul className={`flex flex-wrap content-start gap-2 transition-opacity duration-500 ${view === 'rules' ? 'opacity-15' : 'opacity-100'}`}>
               {row.model.map((m, i) => (
-                <li key={m.es} className="rounded-full p-px transition-all duration-700" style={{ backgroundImage: `linear-gradient(120deg,#9bb2ff,${BLUE},#8b5cf6)`, opacity: seen ? 1 : 0, transform: seen ? 'none' : 'translateY(10px)', transitionDelay: `${(r * 3 + i) * 90}ms` }}>
+                <li key={m.es} className="rounded-full p-px transition-all duration-700" style={{ backgroundImage: `linear-gradient(120deg,#9bb2ff,${BLUE},#7e2be0)`, opacity: seen ? 1 : 0, transform: seen ? 'none' : 'translateY(10px)', transitionDelay: `${(r * 3 + i) * 90}ms` }}>
                   <span className="block rounded-full bg-bg px-3 py-1.5 text-sm">✦ {t(m)}</span>
                 </li>
               ))}

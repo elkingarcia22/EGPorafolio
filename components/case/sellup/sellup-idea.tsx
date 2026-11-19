@@ -32,7 +32,7 @@ function Chain() {
   return (
     <div ref={ref} className="relative">
       <div className="absolute left-[8%] right-[8%] top-[46px] hidden h-px bg-white/10 md:block" aria-hidden="true">
-        <span className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#5b7eff] to-[#8b5cf6] transition-[width] duration-1000 ease-linear" style={{ width: seen ? `${Math.min(at, 5) * 20}%` : '0%' }} />
+        <span className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#285ee6] via-[#d22d6a] to-[#eb6233] transition-[width] duration-1000 ease-linear" style={{ width: seen ? `${Math.min(at, 5) * 20}%` : '0%' }} />
       </div>
       <ol className="relative grid gap-6 md:grid-cols-3">
         {CHAIN.map((c, i) => {
@@ -40,7 +40,7 @@ function Chain() {
           const approved = seen && at >= i * 2 + 1
           return (
             <li key={c.q.es} className="relative text-center">
-              <div className={`mx-auto grid h-[92px] w-[92px] place-items-center rounded-full ring-1 transition-all duration-700 ${lit ? 'ring-[#8b5cf6]/70 shadow-[0_0_60px_rgba(139,92,246,0.45)]' : 'ring-white/10'}`} style={{ background: '#0d0e10' }}>
+              <div className={`mx-auto grid h-[92px] w-[92px] place-items-center rounded-full ring-1 transition-all duration-700 ${lit ? 'ring-[#7e2be0]/70 shadow-[0_0_60px_rgba(126,43,224,0.45)]' : 'ring-white/10'}`} style={{ background: '#0d0e10' }}>
                 <RumboOrb size={lit ? 56 : 40} pulse={lit && !approved} />
               </div>
               <p className="mono-label mt-4 text-white/50">{t(c.agent)}</p>

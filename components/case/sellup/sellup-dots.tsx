@@ -121,15 +121,15 @@ function PainRow({ p, index }: { p: Pain; index: number }) {
       </div>
       <div
         className={`relative z-10 self-center rounded-[16px] p-5 ring-1 transition-all duration-[900ms] ease-expo ${seen ? 'opacity-100' : 'translate-x-6 opacity-0'} ${
-          swapped ? 'ring-[#8b5cf6]/70 shadow-[0_0_0_6px_rgba(91,126,255,0.12),0_40px_90px_-30px_rgba(91,126,255,0.55)] md:-translate-x-[38%] md:scale-[1.04]' : 'ring-[#5b7eff]/30'
+          swapped ? 'ring-[#7e2be0]/70 shadow-[0_0_0_6px_rgba(91,126,255,0.12),0_40px_90px_-30px_rgba(91,126,255,0.55)] md:-translate-x-[38%] md:scale-[1.04]' : 'ring-[#5b7eff]/30'
         }`}
-        style={{ background: swapped ? 'linear-gradient(160deg,#1c2246,#17132b 60%,#121318)' : 'linear-gradient(160deg,rgba(91,126,255,0.14),rgba(139,92,246,0.06) 60%,#0d0e10)' }}
+        style={{ background: swapped ? 'linear-gradient(160deg,#1c2246,#17132b 60%,#121318)' : 'linear-gradient(160deg,rgba(91,126,255,0.14),rgba(126,43,224,0.06) 60%,#0d0e10)' }}
       >
         <p className="flex items-center gap-2.5 text-sm font-medium text-[#b7c6ff]"><RumboOrb size={20} pulse={swapped && !reducedMotion} />{t(p.agent)}</p>
         <p className="mt-3 text-lg leading-snug">{t(p.fix)}</p>
         <div className={`mt-5 flex items-center gap-4 transition-opacity duration-500 ${swapped ? 'opacity-100' : 'opacity-0'}`}>
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
-            <span className={`block h-full rounded-full transition-all duration-[1200ms] ease-expo bg-gradient-to-r from-[#5b7eff] to-[#8b5cf6]`} style={{ width: `${((swapped ? p.after : p.hours) / 6) * 100}%` }} />
+            <span className={`block h-full rounded-full transition-all duration-[1200ms] ease-expo bg-gradient-to-r from-[#285ee6] via-[#d22d6a] to-[#eb6233]`} style={{ width: `${((swapped ? p.after : p.hours) / 6) * 100}%` }} />
           </div>
           <span className="whitespace-nowrap font-mono text-xs text-white/70">
             <span className="mr-1.5 text-white/35 line-through">{p.hours} h</span>≈ {fmt(p.after, locale)} h / {t({ es: 'semana', en: 'week' })}

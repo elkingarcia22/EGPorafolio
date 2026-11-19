@@ -5,8 +5,8 @@ import { useLocale, type L } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { PhoneBody, StatusBar } from '@/components/case/kit/device'
 import { CaseShell } from '../shared/case-shell'
-import { Idea } from '../shared/sections'
 import { ClipperDots } from './clipper-dots'
+import { ClipperIdea } from './clipper-idea'
 import { ClipperHero } from './clipper-hero'
 import { AgentLoop, ProposalFlow, ToolsByRole, VoiceMode } from './clipper-pieces'
 import { AnswerBoard, AutonomySpectrum, BuildSection, ClipperDemo, ClipperImpact, OrbSection } from './clipper-sections'
@@ -94,7 +94,6 @@ function ClipperSketches() {
   )
 }
 
-const ClipperIdea = () => <Idea data={CLIPPER_CASE.idea} />
 
 /** Caso Clipper: de los puntos al impacto, más la demo. */
 export function ClipperCase() {

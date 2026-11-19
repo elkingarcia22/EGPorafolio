@@ -89,7 +89,7 @@ export function RealDock({ children, busy, label, done }: { children?: ReactNode
 /** Anillo de «elemento destacado». */
 export const HIGHLIGHT = {
   borderColor: 'rgba(107,140,255,0.8)',
-  background: 'linear-gradient(90deg,rgba(107,140,255,0.16),rgba(139,92,246,0.06))',
+  background: 'linear-gradient(90deg,rgba(107,140,255,0.16),rgba(126,43,224,0.06))',
   boxShadow: '0 0 0 4px rgba(107,140,255,0.18), 0 20px 40px -20px rgba(107,140,255,0.6)',
 } as const
 

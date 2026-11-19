@@ -63,7 +63,7 @@ export function RumboSearch() {
     <div ref={ref} className="grid gap-4 overflow-hidden rounded-[20px] p-4 ring-1 ring-white/10 md:p-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]" style={{ background: APP.bg, color: APP.text }} data-reveal="device">
       <svg viewBox="0 0 400 324" className="h-auto w-full" role="img" aria-label={t({ es: 'Rumbo consultando fuentes en cascada', en: 'Rumbo querying sources in a cascade' })}>
         <defs>
-          <radialGradient id="rumbo-halo"><stop offset="0" stopColor="#8b5cf6" stopOpacity="0.45" /><stop offset="1" stopColor="#8b5cf6" stopOpacity="0" /></radialGradient>
+          <radialGradient id="rumbo-halo"><stop offset="0" stopColor="#7e2be0" stopOpacity="0.45" /><stop offset="1" stopColor="#7e2be0" stopOpacity="0" /></radialGradient>
         </defs>
         <circle cx="200" cy="162" r={goal ? 90 : 70} fill="url(#rumbo-halo)" style={{ transition: 'r 900ms' }} />
         {SOURCES.map((s, i) => {
@@ -94,7 +94,7 @@ export function RumboSearch() {
       </svg>
 
       <div className="flex min-w-0 flex-col">
-        <p className="mono-label mb-3 flex items-center gap-2 opacity-60"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#8b5cf6]" />{t({ es: 'Lo que Rumbo está pensando', en: 'What Rumbo is thinking' })}</p>
+        <p className="mono-label mb-3 flex items-center gap-2 opacity-60"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#7e2be0]" />{t({ es: 'Lo que Rumbo está pensando', en: 'What Rumbo is thinking' })}</p>
         <ol className="space-y-2 text-[13px]">
           {THOUGHTS.map((th, i) => {
             const shown = i <= step
