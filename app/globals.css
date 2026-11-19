@@ -195,3 +195,10 @@ html[data-motion='reduced'] [class*='animate-[tap-ping'] { animation: none !impo
 [data-slot-in] { animation: slot-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
 html[data-motion='reduced'] [data-slot-in] { animation: none; }
 @media (prefers-reduced-motion: reduce) { [data-slot-in] { animation: none; } }
+/* La cita destacada se acerca al cambiar de etapa */
+@keyframes spot-in {
+  0% { opacity: 0.4; transform: scale(0.94) translateX(-18px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes dash-run { to { stroke-dashoffset: -22; } }
+@keyframes radar-grow { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }

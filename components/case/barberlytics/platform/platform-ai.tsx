@@ -3,7 +3,7 @@
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import { useTick } from '../thema/live-pieces'
-import { BrowserMockup } from '@/components/case/kit/device'
+import { GapsLive, TypingBooking } from './platform-ai-live'
 
 const GOLD = '#D9B36A'
 const SLOT_PX = 42 // alto de media hora en la rejilla
@@ -130,13 +130,9 @@ export function PlatformAi() {
         ))}
       </ul>
 
-      <div className="mt-14 grid gap-6 md:grid-cols-2">
-        {[ai.assistant, ai.gaps].map((image) => (
-          <figure key={image.src}>
-            <BrowserMockup image={image} withLegend={false} sizes="(min-width: 768px) 40vw, 100vw" />
-            <figcaption data-reveal className="mt-3 text-sm opacity-65">{t(image.alt)}</figcaption>
-          </figure>
-        ))}
+      <div className="mt-14 grid items-stretch gap-6 lg:grid-cols-2">
+        <TypingBooking />
+        <GapsLive />
       </div>
     </div>
   )
