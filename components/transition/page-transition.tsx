@@ -26,6 +26,7 @@ export function TransitionOverlay() {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const isCovering = useRef(false)
+  const firstRoute = useRef(true)
   const [label, setLabel] = useState('')
   const [isWaiting, setIsWaiting] = useState(false)
   const timers = useRef<number[]>([])
@@ -80,7 +81,9 @@ export function TransitionOverlay() {
 
   // Al cambiar de ruta: a la sección del ancla (Proyectos → /#work) o arriba del todo, y retirar la cortina.
   useEffect(() => {
-    if (!jumpToHash()) scrollToTop()
+    // En la primera carga el navegador ya resuelve el ancla; saltar aquí choca con las animaciones que se arman.
+    if (firstRoute.current) firstRoute.current = false
+    else if (!jumpToHash()) scrollToTop()
     clearTimers()
     setIsWaiting(false)
     if (!isCovering.current || !rootRef.current) return

@@ -39,7 +39,7 @@ export function Trajectory() {
     if (!el || reducedMotion) return
     const ctx = gsap.context(() => {
       /** Dispara una animación una sola vez cuando `trigger` entra en pantalla. */
-      const onEnter = (trigger: Element, start = 'top 85%') => ({ trigger, start, once: true })
+      const onEnter = (trigger: Element, start = 'top 85%') => ({ trigger, start, toggleActions: 'play none none none' })
 
       // Títulos: se revelan de abajo hacia arriba detrás de una máscara.
       gsap.utils.toArray<HTMLElement>('[data-reveal-title]').forEach((title) => {

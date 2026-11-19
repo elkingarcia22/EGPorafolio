@@ -56,14 +56,14 @@ export const COPY = {
     label: { es: 'Agente', en: 'Agent' },
     title: { es: 'Conectemos', en: 'Let’s connect' },
     intro: {
-      es: 'Pregúntale a mi agente sobre mi experiencia, proceso o proyectos.',
-      en: 'Ask my agent about my experience, process or projects.',
+      es: 'Pregúntame lo que quieras: cómo pienso un producto, cómo lo mido, cómo uso la IA para construirlo o por qué tomé cada decisión en mis casos. Te respondo con mi trabajo real.',
+      en: 'Ask me anything: how I think a product through, how I measure it, how I use AI to build it, or why I made each decision in my cases. I answer with my real work.',
     },
     placeholder: { es: 'Escribe tu pregunta…', en: 'Type your question…' },
     send: { es: 'Enviar', en: 'Send' },
     disclaimer: {
-      es: 'Demo: responde con la información de mi hoja de vida.',
-      en: 'Demo: answers using the information from my résumé.',
+      es: 'Agente de IA · responde con mi portafolio y mi hoja de vida',
+      en: 'AI agent · answers from my portfolio and résumé',
     },
     you: { es: 'Tú', en: 'You' },
   },

@@ -5,68 +5,13 @@ import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { gsap, ScrollTrigger } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { useLocale, type L } from '@/lib/i18n'
+import { useLocale } from '@/lib/i18n'
+import { PROCESS_STAGES } from '@/lib/content/process'
 import { COPY } from '@/lib/content/copy'
 import { AiMark, DemoMark, DotsMark, FormMark, IdeaMark, ImpactMark, PatternsMark, ProcessMarksStyle, SketchMark } from './process-flow-visuals'
 
-interface Stage {
-  title: L
-  body: L
-  ai: L
-  Mark: () => React.JSX.Element
-}
-
-/** Las mismas ocho etapas con las que se cuenta cada caso. */
-const STAGES: readonly Stage[] = [
-  {
-    title: { es: 'Los puntos', en: 'The dots' },
-    body: { es: 'Escucho el problema sin filtros: entrevistas, datos, soporte. Todavía no hay forma.', en: 'I listen to the problem unfiltered: interviews, data, support. No shape yet.' },
-    ai: { es: 'Agrupa cientos de notas en minutos.', en: 'Clusters hundreds of notes in minutes.' },
-    Mark: DotsMark,
-  },
-  {
-    title: { es: 'Patrones', en: 'Patterns' },
-    body: { es: 'Comparo productos y voces hasta que aparece lo que se repite.', en: 'I compare products and voices until what repeats shows up.' },
-    ai: { es: 'Contrasto hipótesis con usuarios sintéticos.', en: 'Stress-tests hypotheses with synthetic users.' },
-    Mark: PatternsMark,
-  },
-  {
-    title: { es: 'La idea', en: 'The idea' },
-    body: { es: 'Una pregunta —¿cómo podríamos…?— y pocos principios que deciden lo demás.', en: 'One question —how might we…?— and a few principles that decide the rest.' },
-    ai: { es: 'Busca los casos que rompen cada principio.', en: 'Finds the cases that break each principle.' },
-    Mark: IdeaMark,
-  },
-  {
-    title: { es: 'Bocetos', en: 'Sketches' },
-    body: { es: 'Tableros a mano: el flujo, las variantes y lo que no puede pasar.', en: 'Hand-drawn boards: the flow, the variants and what must not happen.' },
-    ai: { es: 'Variaciones para comparar en minutos.', en: 'Variations to compare in minutes.' },
-    Mark: SketchMark,
-  },
-  {
-    title: { es: 'Forma', en: 'Form' },
-    body: { es: 'Pantallas reales y sistema de diseño. Pruebo rápido y afino lo que funciona.', en: 'Real screens and a design system. I test fast and refine what works.' },
-    ai: { es: 'Prototipos en código el mismo día.', en: 'Coded prototypes the same day.' },
-    Mark: FormMark,
-  },
-  {
-    title: { es: 'IA en el proceso', en: 'AI in the process' },
-    body: { es: 'Si el producto lleva IA, también se diseña cómo piensa: reglas, límites y evaluaciones.', en: 'If the product carries AI, how it thinks is designed too: rules, limits and evaluations.' },
-    ai: { es: 'Evaluaciones que corren contra el modelo real.', en: 'Evaluations that run against the real model.' },
-    Mark: AiMark,
-  },
-  {
-    title: { es: 'Impacto', en: 'Impact' },
-    body: { es: 'Sale al mundo y se mide: adopción, uso y resultados.', en: 'It ships and gets measured: adoption, usage and outcomes.' },
-    ai: { es: 'Herramientas que hoy usan miles de personas.', en: 'Tools used today by thousands of people.' },
-    Mark: ImpactMark,
-  },
-  {
-    title: { es: 'Demo', en: 'Demo' },
-    body: { es: 'Cada caso cierra con el producto funcionando, para probarlo uno mismo.', en: 'Every case ends with the product running, to try it yourself.' },
-    ai: { es: 'Demos en vivo con datos de prueba.', en: 'Live demos with test data.' },
-    Mark: DemoMark,
-  },
-]
+const MARKS = [DotsMark, PatternsMark, IdeaMark, SketchMark, FormMark, AiMark, ImpactMark, DemoMark]
+const STAGES = PROCESS_STAGES.map((stage, i) => ({ ...stage, Mark: MARKS[i] }))
 
 /** El proceso en una sola vista: ocho etapas en dos filas que se encienden al bajar, sin recorrido horizontal. */
 export function ProcessFlow() {
@@ -76,35 +21,31 @@ export function ProcessFlow() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(reducedMotion ? 1 : 0)
 
+  // La línea que se llena al bajar y la entrada animada, creadas juntas un cuadro después del montaje:
+  // así no se cruzan con los demás ScrollTrigger que la página arma al cargar (p. ej. al abrir /#agent).
   useEffect(() => {
     const grid = gridRef.current
-    if (!grid || reducedMotion) {
+    const root = rootRef.current
+    if (!grid || !root || reducedMotion) {
       setProgress(1)
       return
     }
-    const trigger = ScrollTrigger.create({
-      trigger: grid,
-      start: 'top 75%',
-      end: 'bottom 70%',
-      scrub: true,
-      onUpdate: (self) => setProgress(self.progress),
+    let ctx: gsap.Context | null = null
+    const frame = requestAnimationFrame(() => {
+      ctx = gsap.context(() => {
+        ScrollTrigger.create({ trigger: grid, start: 'top 75%', end: 'bottom 70%', scrub: true, onUpdate: (self) => setProgress(self.progress) })
+        const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, scrollTrigger: { trigger: root, start: 'top 70%', toggleActions: 'play none none none' } })
+        tl.from('[data-pf-word]', { yPercent: 115, duration: 1.1, stagger: 0.07 })
+          .from('[data-pf-intro]', { autoAlpha: 0, y: 24, duration: 0.9 }, 0.25)
+          .from('[data-pf-dot]', { scale: 0, duration: 0.7, ease: 'back.out(3)', stagger: 0.07 }, 0.35)
+          .from('[data-pf-card]', { autoAlpha: 0, y: 56, filter: 'blur(10px)', duration: 1, stagger: 0.07, clearProps: 'filter' }, 0.4)
+          .from('[data-pf-mark]', { scale: 0.3, rotate: -40, autoAlpha: 0, duration: 1.1, ease: 'back.out(1.8)', stagger: 0.07 }, 0.5)
+      }, root)
     })
-    return () => trigger.kill()
-  }, [reducedMotion])
-
-  // La entrada: el título por palabras, la línea con sus puntos que rebotan y las etapas en cascada.
-  useEffect(() => {
-    const root = rootRef.current
-    if (!root || reducedMotion) return
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, scrollTrigger: { trigger: root, start: 'top 70%', once: true } })
-      tl.from('[data-pf-word]', { yPercent: 115, duration: 1.1, stagger: 0.07 })
-        .from('[data-pf-intro]', { autoAlpha: 0, y: 24, duration: 0.9 }, 0.25)
-        .from('[data-pf-dot]', { scale: 0, duration: 0.7, ease: 'back.out(3)', stagger: 0.07 }, 0.35)
-        .from('[data-pf-card]', { autoAlpha: 0, y: 56, filter: 'blur(10px)', duration: 1, stagger: 0.07, clearProps: 'filter' }, 0.4)
-        .from('[data-pf-mark]', { scale: 0.3, rotate: -40, autoAlpha: 0, duration: 1.1, ease: 'back.out(1.8)', stagger: 0.07 }, 0.5)
-    }, root)
-    return () => ctx.revert()
+    return () => {
+      cancelAnimationFrame(frame)
+      ctx?.revert()
+    }
   }, [reducedMotion])
 
   const lit = Math.min(STAGES.length, Math.floor(progress * STAGES.length) + 1)

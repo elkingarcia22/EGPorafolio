@@ -10,6 +10,7 @@
     "db:seed-sql": "node scripts/generate-seed.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.11.0",
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.38.5",
     "framer-motion": "^10.16.16",
