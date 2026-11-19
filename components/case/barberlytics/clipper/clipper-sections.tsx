@@ -8,6 +8,7 @@ import { Arrows, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/cas
 import { ClipperOrb, type ClipperOrbState } from '../clipper-orb'
 import { useTick } from '../thema/live-pieces'
 import { AI_GRADIENT, Wave } from './clipper-pieces'
+import { CaseDemo } from '@/components/case/kit/case-demo'
 
 const STAGE = 'relative overflow-hidden rounded-3xl bg-[#0f0d0b] p-5 text-[#efe9dd] md:p-8'
 
@@ -280,37 +281,27 @@ function ClipperModal({ open, onClose }: { open: boolean; onClose: () => void })
 }
 
 export function ClipperDemo() {
-  const { t } = useLocale()
   const { demo } = CLIPPER_CASE
   const [open, setOpen] = useState(false)
   const close = useCallback(() => setOpen(false), [])
   return (
-    <div>
-      <div className="mb-10 grid gap-6 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-7">
-          <p data-reveal className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t({ es: 'Háblale.', en: 'Talk to it.' })}</p>
-          <p data-reveal className="mt-4 leading-relaxed opacity-80">{t(demo.lead)}</p>
-        </div>
-        <dl data-reveal className="divide-y divide-fg/15 border-y border-fg/15 lg:col-span-5">
-          {demo.tryIt.map((item) => (
-            <div key={item.label.es} className="flex items-baseline justify-between gap-4 py-3 text-sm">
-              <dt className="opacity-60">{t(item.label)}</dt>
-              <dd className="text-right font-mono">{typeof item.value === 'string' ? item.value : t(item.value)}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-      <button type="button" onClick={() => setOpen(true)} data-reveal="device" className="group relative block w-full overflow-hidden rounded-3xl bg-[#0f0d0b] px-6 py-20 text-[#efe9dd]">
-        <span className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-3xl transition-opacity duration-700 group-hover:opacity-50" style={{ backgroundImage: AI_GRADIENT }} aria-hidden="true" />
-        <span className="relative flex flex-col items-center gap-8">
-          <ClipperOrb size={150} state="listening" />
-          <Wave active bars={32} />
-          <span className="flex items-center gap-3 bg-void/85 px-6 py-4 text-paper backdrop-blur transition-colors group-hover:bg-signal">
-            <span className="mono-label">⤢ {t({ es: 'Abrir Clipper a pantalla completa', en: 'Open Clipper full screen' })}</span>
+    <>
+      <CaseDemo
+        title={{ es: 'Háblale a Clipper.', en: 'Talk to Clipper.' }}
+        lead={demo.lead}
+        url="booking-flow-alpha.vercel.app/reservar"
+        preview={
+          <span className="relative flex h-full w-full flex-col items-center justify-center gap-6 bg-[#0f0d0b]">
+            <span className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-3xl" style={{ backgroundImage: AI_GRADIENT }} />
+            <ClipperOrb size={120} state="listening" />
+            <Wave active bars={28} />
           </span>
-        </span>
-      </button>
+        }
+        accent={'217 179 106'}
+        tryIt={demo.tryIt}
+        onOpen={() => setOpen(true)}
+      />
       <ClipperModal open={open} onClose={close} />
-    </div>
+    </>
   )
 }

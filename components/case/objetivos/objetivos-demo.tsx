@@ -1,10 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 import { RecordModal } from '@/components/case/kit/record-modal'
+import { CaseDemo } from '@/components/case/kit/case-demo'
 
 /** El staging público del playground de UBITS; `ver=backlog` abre el alcance completo. */
 const DEMO_URL = 'https://staging-playground.ubits.co/admin/desempeno-cultura/objetivos?ver=backlog'
@@ -70,32 +70,15 @@ export function ObjetivosDemo() {
   const [open, setOpen] = useState<string | null>(null)
 
   return (
-    <div>
-      <div className="mb-10 max-w-[62ch]">
-        <p data-reveal className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t({ es: 'El producto real, como administrador.', en: 'The real product, as admin.' })}</p>
-        <p data-reveal className="mt-4 leading-relaxed opacity-80">{t(OBJ_CASE.demo.lead)}</p>
-      </div>
-
-      <button
-        type="button"
-        data-reveal="device"
-        onClick={() => setOpen('objetivos')}
-        className="group relative block w-full overflow-hidden rounded-3xl bg-[#0b0d16] p-6 text-left text-white md:p-10"
-        aria-label={t({ es: 'Ver la demo de Objetivos', en: 'Open the Goals demo' })}
-      >
-        <span className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[#0c5bef] opacity-30 blur-3xl transition-opacity duration-700 group-hover:opacity-50" aria-hidden="true" />
-        <span className="relative block overflow-hidden rounded-xl shadow-[0_50px_100px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/15 transition-transform duration-1000 ease-expo [transform:perspective(1600px)_rotateX(5deg)] group-hover:[transform:none]">
-          <Image src={OBJ_CASE.form.home.src} width={2000} height={1250} alt="" sizes="(min-width: 1024px) 60vw, 100vw" className="block h-auto w-full" />
-        </span>
-        <span className="absolute inset-0 grid place-items-center">
-          <span className="flex items-center gap-3 rounded-full bg-white px-7 py-4 text-[15px] font-medium text-[#0b0d16] shadow-[0_20px_60px_-10px_rgba(12,91,239,0.9)] transition-transform duration-500 ease-expo group-hover:scale-105">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[#17b26a]" aria-hidden="true" />
-            {t({ es: 'Ver la demo', en: 'Open the demo' })}
-            <span aria-hidden="true">⤢</span>
-          </span>
-        </span>
-      </button>
-
+    <>
+      <CaseDemo
+        title={{ es: 'El producto real, como administrador.', en: 'The real product, as admin.' }}
+        lead={OBJ_CASE.demo.lead}
+        url="staging-playground.ubits.co/admin/desempeno-cultura/objetivos"
+        image={{ src: OBJ_CASE.form.home.src, width: 2000, height: 1250 }}
+        accent="12 91 239"
+        onOpen={() => setOpen('objetivos')}
+      />
       <RecordModal
         ids={['objetivos']}
         openId={open}
@@ -106,6 +89,6 @@ export function ObjetivosDemo() {
       >
         {open && <ModuleOnly />}
       </RecordModal>
-    </div>
+    </>
   )
 }
