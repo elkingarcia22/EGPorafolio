@@ -176,7 +176,7 @@ function QueHacer() {
             <li key={d.lider} className={rise} style={later(i)}>
               <span className="flex justify-between"><span>{d.lider}</span><span className="tabular-nums">{fmt(d.v)}</span></span>
               <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
-                <span className="obj-bar block h-full rounded-full" style={{ width: `${d.v}%`, background: DESTRUCTIVE, animationDelay: `${200 + i * 100}ms` }} />
+                <span className="obj-bar block h-full rounded-full" style={{ width: `${d.v}%`, background: PRIMARY, animationDelay: `${200 + i * 100}ms` }} />
               </span>
               <span className="text-[10px] text-black/45">{d.objetivos} objetivos</span>
             </li>
