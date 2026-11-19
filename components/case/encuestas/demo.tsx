@@ -1,11 +1,11 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { RecordModal } from '@/components/case/kit/record-modal'
 import { SHOTS } from '@/lib/content/cases/encuestas/case'
 import { UBITS_BLUE } from './shared'
+import { CaseDemo } from '@/components/case/kit/case-demo'
 
 /** El playground de UBITS publicado desde la rama `staging`. */
 const STAGING = 'https://staging-playground.ubits.co'
@@ -93,37 +93,18 @@ export function SurveyDemo() {
   const entry = ENTRIES.find((e) => e.id === open)
 
   return (
-    <div>
-      <div className="mb-10 grid gap-6 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-7">
-          <p data-reveal className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t({ es: 'El módulo real, en staging.', en: 'The real module, on staging.' })}</p>
-          <p data-reveal className="mt-4 leading-relaxed opacity-80">
-            {t({
-              es: 'Es el playground de UBITS publicado desde la rama staging, con datos de prueba. Se ve la plataforma completa, pero solo está habilitado Encuestas: el menú y la barra superior no llevan a ningún lado. Ábrelo y recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
-              en: 'This is the UBITS playground published from the staging branch, with test data. You see the whole platform, but only Surveys is enabled: the menu and top bar don’t go anywhere. Open it and explore freely: create, read results, NOM 035 or compare.',
-            })}
-          </p>
-        </div>
-      </div>
-
-      <button type="button" onClick={() => setOpen(ENTRIES[0].id)} data-reveal="device" className="group relative block w-full [perspective:1800px]">
-        <span className="block overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.85)] ring-1 ring-white/10 transition-transform duration-700 ease-expo [transform:rotateX(8deg)] group-hover:[transform:none]">
-          <span className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-            <span className="ml-3 flex h-5 min-w-0 flex-1 items-center truncate rounded-md bg-white/[0.06] px-2 font-mono text-[10px] text-white/45">staging-playground.ubits.co{MODULE}</span>
-          </span>
-          <Image src={SHOTS.lista.src} width={SHOTS.lista.width} height={SHOTS.lista.height} alt="" sizes="(min-width: 1024px) 70vw, 100vw" className="block h-auto w-full transition-[filter] duration-500 group-hover:brightness-75" />
-        </span>
-        <span className="absolute inset-0 flex items-center justify-center">
-          <span className="flex items-center gap-3 bg-void/85 px-6 py-4 text-paper backdrop-blur transition-colors group-hover:bg-signal">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[#43a970]" aria-hidden="true" />
-            <span className="mono-label">⤢ {t({ es: 'Abrir Encuestas en vivo', en: 'Open Surveys live' })}</span>
-          </span>
-        </span>
-      </button>
-
+    <>
+      <CaseDemo
+        title={{ es: 'El módulo real de Encuestas.', en: 'The real Surveys module.' }}
+        lead={{
+          es: 'Es el playground de UBITS publicado desde la rama staging, con datos de prueba. Se ve la plataforma completa, pero solo está habilitado Encuestas. Recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
+          en: 'This is the UBITS playground published from the staging branch, with test data. You see the whole platform, but only Surveys is enabled. Explore freely: create, read results, NOM 035 or compare.',
+        }}
+        url={`staging-playground.ubits.co${MODULE}`}
+        image={{ src: SHOTS.lista.src, width: SHOTS.lista.width, height: SHOTS.lista.height }}
+        accent="64 96 255"
+        onOpen={() => setOpen(ENTRIES[0].id)}
+      />
       <RecordModal
         ids={ENTRIES.map((e) => e.id)}
         openId={open}
@@ -141,6 +122,6 @@ export function SurveyDemo() {
               >
         {entry && <StagingFrame key={entry.id} entry={entry} />}
       </RecordModal>
-    </div>
+    </>
   )
 }

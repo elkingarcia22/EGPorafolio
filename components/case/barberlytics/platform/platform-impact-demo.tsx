@@ -1,10 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE, type RoleId } from '@/lib/content/cases/barberlytics/platform-case'
 import { NewTabLink, RecordModal } from '@/components/case/kit/record-modal'
+import { CaseDemo } from '@/components/case/kit/case-demo'
 
 /** 07 · Impacto: lo que cambió en las barberías y lo que hay detrás. */
 export function PlatformImpact() {
@@ -92,55 +92,21 @@ function CalendarModal({ openId, onOpenChange }: { openId: RoleId | null; onOpen
 
 /** 08 · Demo: el calendario real, en una vista previa que se abre a pantalla completa. */
 export function PlatformDemo() {
-  const { t } = useLocale()
   const { demo } = PLATFORM_CASE
   const [open, setOpen] = useState<RoleId | null>(null)
 
   return (
-    <div>
-      <div className="mb-10 grid gap-6 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-7">
-          <p data-reveal className="text-[clamp(1.6rem,1rem+1.8vw,2.6rem)] font-light leading-tight">{t({ es: 'El calendario, en vivo.', en: 'The calendar, live.' })}</p>
-          <p data-reveal className="mt-4 leading-relaxed opacity-80">{t(demo.lead)}</p>
-        </div>
-        <ul data-reveal className="flex flex-wrap gap-2 lg:col-span-5 lg:justify-end">
-          {DEMO_ROLES.map((r) => (
-            <li key={r.id}>
-              <button type="button" onClick={() => setOpen(r.id)} className="mono-label border border-fg/25 px-3 py-2 transition-colors hover:border-signal hover:bg-signal hover:text-paper">
-                {t({ es: 'Como', en: 'As' })} {t(r.name)} ↗
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <button type="button" onClick={() => setOpen(DEMO_ROLES[0].id)} data-reveal="device" className="group relative block w-full [perspective:1800px]">
-        <span className="block overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.85)] ring-1 ring-white/10 transition-transform duration-700 ease-expo [transform:rotateX(8deg)] group-hover:[transform:none]">
-          <span className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-            <span className="ml-3 flex h-5 flex-1 items-center rounded-md bg-white/[0.06] px-2 font-mono text-[10px] text-white/45">barberlytics.vercel.app/calendario</span>
-          </span>
-          <Image src="/cases/barberlytics/cal-states.webp" width={2000} height={1250} alt="" sizes="(min-width: 1024px) 70vw, 100vw" className="block h-auto w-full transition-[filter] duration-500 group-hover:brightness-75" />
-        </span>
-        <span className="absolute inset-0 flex items-center justify-center">
-          <span className="flex items-center gap-3 bg-void/85 px-6 py-4 text-paper backdrop-blur transition-colors group-hover:bg-signal">
-            <span className="mono-label">⤢ {t({ es: 'Abrir el calendario a pantalla completa', en: 'Open the calendar full screen' })}</span>
-          </span>
-        </span>
-      </button>
-
-      <dl data-reveal className="mt-8 grid gap-px overflow-hidden border border-fg/15 bg-fg/15 sm:grid-cols-3">
-        {demo.tryIt.map((item) => (
-          <div key={item.label.es} className="bg-bg p-4 text-sm">
-            <dt className="opacity-60">{t(item.label)}</dt>
-            <dd className="mt-1 font-mono">{t(item.value)}</dd>
-          </div>
-        ))}
-      </dl>
-
+    <>
+      <CaseDemo
+        title={{ es: 'El calendario, en vivo, por rol.', en: 'The calendar, live, by role.' }}
+        lead={demo.lead}
+        url="barberlytics.vercel.app/calendario"
+        image={{ src: '/cases/barberlytics/cal-states.webp', width: 2000, height: 1250 }}
+        accent={'217 179 106'}
+        tryIt={demo.tryIt}
+        onOpen={() => setOpen(DEMO_ROLES[0].id)}
+      />
       <CalendarModal openId={open} onOpenChange={setOpen} />
-    </div>
+    </>
   )
 }
