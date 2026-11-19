@@ -46,12 +46,13 @@ export function BrowserFrame({ route, children, className = '' }: { route: strin
   )
 }
 
-const TEMPLATES: readonly { name: string; hint: L; color: string; detail: L }[] = [
-  { name: 'NOM 035', hint: { es: 'Cumple la norma en México', en: 'Meets the Mexican norm' }, color: '#22a06b', detail: { es: 'Cuestionario oficial de solo lectura · exige el 100 % de participación y al menos un dato demográfico', en: 'Read-only official questionnaire · requires 100% participation and at least one demographic' } },
-  { name: 'Universidad Corporativa', hint: { es: 'Mide la formación', en: 'Measures learning' }, color: '#e8743b', detail: { es: 'Lista para medir la experiencia de formación', en: 'Ready to measure the learning experience' } },
-  { name: 'Cultura', hint: { es: 'Mide tus valores', en: 'Measures your values' }, color: '#d9467a', detail: { es: 'Versión corta de 30 preguntas o completa de 50, para comparar año a año', en: 'Short 30-question or full 50-question version, to compare year over year' } },
-  { name: 'Clima', hint: { es: 'Mide el ambiente laboral', en: 'Measures the work climate' }, color: '#d14b8f', detail: { es: 'Diez secciones · 30 o 50 preguntas, mismas secciones y mismo nombre', en: 'Ten sections · 30 or 50 questions, same sections and name' } },
-  { name: 'eNPS', hint: { es: 'Mide si te recomiendan', en: 'Measures if they recommend you' }, color: '#7a5cf0', detail: { es: 'De 0 a 10 · detractores 0–6, neutros 7–8, promotores 9–10', en: '0 to 10 · detractors 0–6, passives 7–8, promoters 9–10' } },
+/** Los cinco atajos del inicio, con su ícono «glass» real del design system (playground, `crea-algo-nuevo.tsx`). */
+const TEMPLATES: readonly { name: string; hint: L; color: string; icon: string; detail: L }[] = [
+  { name: 'NOM 035', icon: '/cases/encuestas/glass/nom035.webp', hint: { es: 'Cumple la norma en México', en: 'Meets the Mexican norm' }, color: '#22a06b', detail: { es: 'Cuestionario oficial de solo lectura · exige el 100 % de participación y al menos un dato demográfico', en: 'Read-only official questionnaire · requires 100% participation and at least one demographic' } },
+  { name: 'Universidad Corporativa', icon: '/cases/encuestas/glass/universidad.webp', hint: { es: 'Mide la formación', en: 'Measures learning' }, color: '#e8743b', detail: { es: 'Lista para medir la experiencia de formación', en: 'Ready to measure the learning experience' } },
+  { name: 'Cultura', icon: '/cases/encuestas/glass/cultura.webp', hint: { es: 'Mide tus valores', en: 'Measures your values' }, color: '#d9467a', detail: { es: 'Versión corta de 30 preguntas o completa de 50, para comparar año a año', en: 'Short 30-question or full 50-question version, to compare year over year' } },
+  { name: 'Clima', icon: '/cases/encuestas/glass/clima.webp', hint: { es: 'Mide el ambiente laboral', en: 'Measures the work climate' }, color: '#d14b8f', detail: { es: 'Diez secciones · 30 o 50 preguntas, mismas secciones y mismo nombre', en: 'Ten sections · 30 or 50 questions, same sections and name' } },
+  { name: 'eNPS', icon: '/cases/encuestas/glass/enps.webp', hint: { es: 'Mide si te recomiendan', en: 'Measures if they recommend you' }, color: '#7a5cf0', detail: { es: 'De 0 a 10 · detractores 0–6, neutros 7–8, promotores 9–10', en: '0 to 10 · detractors 0–6, passives 7–8, promoters 9–10' } },
 ]
 
 /** Momento 1: las cinco plantillas se abren en abanico y una pasa al frente. */
@@ -84,8 +85,9 @@ export function TemplatesFan() {
                   borderColor: on ? UBITS_BLUE : 'rgba(0,0,0,0.08)',
                 }}
               >
-                <span className="flex h-16 items-center justify-center rounded-xl sm:h-20" style={{ background: `${tp.color}1f` }}>
-                  <span className="h-8 w-8 rounded-[10px] shadow-inner sm:h-10 sm:w-10" style={{ background: `linear-gradient(135deg, ${tp.color}, ${tp.color}99)` }} />
+                <span className="flex h-16 items-center justify-center sm:h-20">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={tp.icon} alt="" width={64} height={64} className="h-12 w-12 select-none sm:h-14 sm:w-14" draggable={false} />
                 </span>
                 <span className="mt-2 block text-[11px] font-semibold leading-tight sm:text-xs">{t({ es: 'Crear', en: 'Create' })} {tp.name}</span>
                 <span className="block text-[10px] leading-tight text-[#5c646f]">{t(tp.hint)}</span>

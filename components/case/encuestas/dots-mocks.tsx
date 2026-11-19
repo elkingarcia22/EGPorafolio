@@ -7,12 +7,12 @@ const Frame = ({ children }: { children: React.ReactNode }) => (
   <div className="relative h-40 overflow-hidden rounded-xl bg-[#f8faff] p-3 text-[#303a47] ring-1 ring-black/10">{children}</div>
 )
 
-const TEMPLATES: readonly { name: string; color: string }[] = [
-  { name: 'NOM 035', color: '#2e8a55' },
-  { name: 'Clima', color: '#e8743b' },
-  { name: 'Cultura', color: '#c2417a' },
-  { name: 'eNPS', color: '#7a5af5' },
-  { name: 'U. Corporativa', color: UBITS_BLUE },
+const TEMPLATES: readonly { name: string; color: string; icon: string }[] = [
+  { name: 'NOM 035', icon: '/cases/encuestas/glass/nom035.webp', color: '#2e8a55' },
+  { name: 'Clima', icon: '/cases/encuestas/glass/clima.webp', color: '#e8743b' },
+  { name: 'Cultura', icon: '/cases/encuestas/glass/cultura.webp', color: '#c2417a' },
+  { name: 'eNPS', icon: '/cases/encuestas/glass/enps.webp', color: '#7a5af5' },
+  { name: 'U. Corporativa', icon: '/cases/encuestas/glass/universidad.webp', color: UBITS_BLUE },
 ]
 
 /** Crear: las plantillas se abren en abanico, como en el inicio de Encuestas. */
@@ -29,7 +29,8 @@ function CreateMock() {
               className="-mx-5 flex h-24 w-20 flex-col justify-end rounded-lg bg-white p-2 shadow-md ring-1 ring-black/10 transition-transform duration-700"
               style={{ transform: open ? `translateX(${k * 22}px) rotate(${k * 9}deg) translateY(${Math.abs(k) * 6}px)` : `rotate(${k * 2}deg)`, transformOrigin: 'bottom center', zIndex: 5 - Math.abs(k) }}
             >
-              <span className="mb-auto h-5 w-5 rounded-md" style={{ background: tpl.color }} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={tpl.icon} alt="" width={28} height={28} className="mb-auto h-7 w-7 select-none" draggable={false} />
               <span className="text-[9px] font-semibold leading-tight">{tpl.name}</span>
             </span>
           )

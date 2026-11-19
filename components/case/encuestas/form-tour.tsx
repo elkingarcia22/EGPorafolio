@@ -182,9 +182,9 @@ export function ProductTour() {
                   {/* La captura con su proporción real; el acercamiento sigue al recuadro activo. */}
                   <div
                     className="relative w-full transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-                    style={{ aspectRatio: `${shot.width} / ${shot.height}`, transform: `translateY(-${shift}%) ${on ? 'scale(1.06)' : 'scale(1)'}`, transformOrigin: `${focus.x + focus.w / 2}% ${focus.y + focus.h / 2}%` }}
+                    style={{ aspectRatio: `${shot.width} / ${shot.height}`, transform: `translateY(-${shift}%) ${on ? 'scale(1.03)' : 'scale(1)'}`, transformOrigin: `${focus.x + focus.w / 2}% ${focus.y + focus.h / 2}%` }}
                   >
-                    <Image src={shot.src} width={shot.width} height={shot.height} alt={on ? t(shot.alt) : ''} sizes="(min-width: 1280px) 900px, (min-width: 768px) 75vw, 100vw" quality={90} priority={i === 0} className="block h-auto w-full" />
+                    <Image src={shot.src} width={shot.width} height={shot.height} alt={on ? t(shot.alt) : ''} sizes="(min-width: 1280px) 1200px, (min-width: 768px) 80vw, 100vw" quality={90} priority={i === 0} className="block h-auto w-full" />
                     {on && (
                       <span
                         className="pointer-events-none absolute rounded-lg transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
