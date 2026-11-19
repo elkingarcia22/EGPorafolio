@@ -242,3 +242,12 @@ html[data-motion='reduced'] [class*='animate-[aurora-drift'], html[data-motion='
   25% { transform: scale(1.5); opacity: 1; }
 }
 html[data-motion='reduced'] [style*='node-link'], html[data-motion='reduced'] [style*='node-pulse'] { animation: none !important; }
+/* Logo de Barberlytics en la vista previa: se dibuja y un brillo lo recorre */
+@keyframes logo-draw {
+  from { clip-path: inset(0 100% 0 0); opacity: 0.4; transform: translateY(6px); }
+  to { clip-path: inset(0 0 0 0); opacity: 1; transform: none; }
+}
+@keyframes logo-shine {
+  0% { background-position: 120% 0; }
+  60%, 100% { background-position: -20% 0; }
+}
