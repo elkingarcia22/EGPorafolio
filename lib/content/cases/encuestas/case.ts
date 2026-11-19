@@ -37,7 +37,7 @@ export const SHOTS = {
 export type ShotKey = keyof typeof SHOTS
 
 export const ENCUESTAS_CASE = {
-  title: { es: 'Encuestas que crean accionables', en: 'Surveys that create actions' } satisfies L,
+  title: { es: 'Encuestas en accionables', en: 'Surveys into actions' } satisfies L,
   eyebrow: { es: 'UBITS · Desempeño y cultura', en: 'UBITS · Performance & culture' } satisfies L,
   headline: { es: 'De preguntar a entender.', en: 'From asking to understanding.' } satisfies L,
   lead: {

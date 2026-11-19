@@ -7,7 +7,7 @@ import { findProject } from '@/lib/data/projects-repository'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Encuestas que crean accionables · UBITS — Elkin Garcia',
+  title: 'Encuestas en accionables · UBITS — Elkin Garcia',
   description: 'Rediseño del producto completo de encuestas de UBITS: crear, secciones, histórico, responder, resultados y acciones.',
 }
 
