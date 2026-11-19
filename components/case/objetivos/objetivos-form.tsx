@@ -1,12 +1,15 @@
 'use client'
 
 import Image from 'next/image'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { OBJ_CASE, type Shot } from '@/lib/content/cases/objetivos/objetivos-case'
 import { Block, Body, SubHead } from '@/components/case/barberlytics/ui'
 import { ESCALA, tramoDe } from './cascade-model'
-import { BUILDER_SPOTS, HOME_SPOTS } from './form-spots'
+import { HOME_SPOTS } from './form-spots'
+import { BuilderLive } from './forma-builder'
+import { FocusGoal } from './forma-focus'
+import { ResultsLive } from './forma-results'
 import { ShotStage } from './shot-stage'
 
 /** Dos capturas en abanico: al pasar el cursor se abren y la elegida pasa al frente. */
@@ -40,44 +43,6 @@ function FanPair({ shots }: { shots: readonly Shot[] }) {
         )
       })}
     </div>
-  )
-}
-
-/** El constructor paso a paso: cada paso se recorre zona por zona y después pasa al siguiente. */
-function BuilderStepper() {
-  const { t } = useLocale()
-  const steps = OBJ_CASE.form.steps
-  const [active, setActive] = useState(0)
-  const [auto, setAuto] = useState(true)
-  const step = steps[active]
-  const next = useCallback(() => {
-    if (auto) setActive((i) => (i + 1) % steps.length)
-  }, [auto, steps.length])
-
-  return (
-    <figure data-reveal>
-      <ol className="mb-6 flex flex-wrap gap-2">
-        {steps.map((s, i) => (
-          <li key={s.id}>
-            <button
-              type="button"
-              aria-current={i === active}
-              onClick={() => {
-                setAuto(false)
-                setActive(i)
-              }}
-              className="flex items-center gap-2.5 rounded-full border border-fg/20 py-1.5 pl-1.5 pr-4 text-sm transition-colors hover:border-fg/50 aria-[current=true]:border-signal aria-[current=true]:bg-signal aria-[current=true]:text-paper"
-            >
-              <span className={`grid h-6 w-6 place-items-center rounded-full font-mono text-[11px] ${i === active ? 'bg-paper/20' : i < active ? 'bg-signal/15 text-signal' : 'bg-fg/10'}`}>{i < active ? '✓' : i + 1}</span>
-              {t(s.label)}
-            </button>
-          </li>
-        ))}
-      </ol>
-      <div key={step.id} className="obj-fade">
-        <ShotStage shot={step.shot} spots={BUILDER_SPOTS[step.id] ?? []} url={step.id === 'carga' ? 'playground · /admin/desempeno-cultura/objetivos' : 'playground · /admin/desempeno-cultura/objetivos/crear'} onTourEnd={next} />
-      </div>
-    </figure>
   )
 }
 
@@ -123,59 +88,6 @@ function ScaleExplorer() {
   )
 }
 
-/** Las siete pestañas de resultados como un mazo: la elegida pasa al frente. */
-function ResultsDeck() {
-  const { t } = useLocale()
-  const tabs = OBJ_CASE.form.tabs
-  const [active, setActive] = useState(0)
-  return (
-    <figure data-reveal className="grid gap-8 lg:grid-cols-[13rem_minmax(0,1fr)]">
-      <ol role="tablist" aria-label={t({ es: 'Pestañas de resultados', en: 'Results tabs' })} className="flex gap-1 overflow-x-auto lg:flex-col">
-        {tabs.map((tab, i) => (
-          <li key={tab.id}>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={i === active}
-              onClick={() => setActive(i)}
-              onMouseEnter={() => setActive(i)}
-              className="group flex w-full items-baseline gap-3 whitespace-nowrap border-l-2 border-transparent px-3 py-2 text-left transition-colors aria-selected:border-signal aria-selected:bg-fg/[0.05]"
-            >
-              <span className="font-mono text-[10px] opacity-50">{String(i + 1).padStart(2, '0')}</span>
-              <span className="text-sm group-aria-selected:text-signal">{t(tab.label)}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-      <div>
-        <div className="relative aspect-[1.6/1] [perspective:1800px]">
-          {tabs.map((tab, i) => {
-            const offset = (i - active + tabs.length) % tabs.length
-            const visible = offset < 3
-            return (
-              <div
-                key={tab.id}
-                className="absolute inset-0 origin-top transition-[transform,opacity] duration-700 ease-expo"
-                style={{
-                  transform: `translateY(${offset * -22}px) translateZ(${offset * -60}px) rotateX(${offset ? 6 : 0}deg) scale(${1 - offset * 0.04})`,
-                  opacity: visible ? 1 - offset * 0.3 : 0,
-                  zIndex: tabs.length - offset,
-                }}
-                aria-hidden={offset !== 0}
-              >
-                <div className="overflow-hidden rounded-[10px] ring-1 ring-fg/15 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.5)]">
-                  <Image src={tab.shot.src} width={2000} height={1250} alt={t(tab.shot.alt)} sizes="(min-width: 1024px) 60vw, 100vw" className="block h-auto w-full" />
-                </div>
-              </div>
-            )
-          })}
-        </div>
-        <figcaption key={tabs[active].id} className="obj-fade mono-label mt-4 opacity-70">{t(tabs[active].shot.caption)}</figcaption>
-      </div>
-    </figure>
-  )
-}
-
 /** 05 · La forma: el producto construido, en capturas reales del playground. */
 export function ObjetivosForm() {
   const { t } = useLocale()
@@ -185,18 +97,15 @@ export function ObjetivosForm() {
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(form.lead)}</p>
 
       <Block className="!mt-12">
-        <SubHead index="5.1">{t({ es: 'Inicio: qué atender antes de abrir un ciclo', en: 'Home: what to attend before opening a cycle' })}</SubHead>
-        <Body className="mb-8">{t({ es: '«Para atender» ordena por prioridad lo que pide acción —avance bajo a días del cierre, personas sin reportar— y el pulso compara cada cifra con los ciclos anteriores.', en: '“To attend” ranks what needs action —low progress days before close, people not reporting— and the pulse compares each figure with past cycles.' })}</Body>
-        <div data-reveal="device">
-          <ShotStage shot={form.home} spots={HOME_SPOTS} />
-        </div>
-        <FanPair shots={[form.noGoals, form.periods]} />
+        <SubHead index="5.1">{t({ es: 'Un objetivo, de cerca', en: 'One goal, up close' })}</SubHead>
+        <Body className="mb-8">{t({ es: 'El objetivo se destaca de la lista del ciclo y se ve su vida entera: Ricardo lo propone, su líder lo devuelve porque está escrito como tarea, lo reescribe como resultado, se aprueba y recién ahí empieza a contar. Color, frase y botón cambian con cada momento.', en: 'The goal stands out from the cycle list and you watch its whole life: Ricardo proposes it, his lead returns it because it’s written as a task, he rewrites it as a result, it’s approved and only then starts to count. Color, sentence and button change at each moment.' })}</Body>
+        <FocusGoal />
       </Block>
 
       <Block>
-        <SubHead index="5.2">{t({ es: 'Crear: el constructor de ciclos', en: 'Create: the cycle builder' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'Autoguarda cada pocos segundos y el panel «Así va el ciclo» cuenta lo que falta. El peso se revisa por persona: quedarse debajo de 100 % vale, pasarse no.', en: 'It autosaves every few seconds and the “How the cycle is going” panel counts what’s missing. Weight is checked per person: staying under 100 % is fine, going over isn’t.' })}</Body>
-        <BuilderStepper />
+        <SubHead index="5.2">{t({ es: 'El constructor, llenándose solo', en: 'The builder, filling itself in' })}</SubHead>
+        <Body className="mb-8">{t({ es: 'Cinco pasos y un panel, «Así va el ciclo», que cuenta lo que falta antes de continuar. Toca un paso para saltar a él.', en: 'Five steps and a panel, “How the cycle is going”, that counts what’s missing before moving on. Tap a step to jump to it.' })}</Body>
+        <BuilderLive />
       </Block>
 
       <Block>
@@ -205,9 +114,18 @@ export function ObjetivosForm() {
       </Block>
 
       <Block>
-        <SubHead index="5.4">{t({ es: 'Leer: siete pestañas de resultados', en: 'Read: seven results tabs' })}</SubHead>
-        <Body className="mb-10">{t({ es: 'Del resumen a los accionables, cada pestaña responde una pregunta distinta del mismo ciclo. Pasa por la lista.', en: 'From summary to actions, each tab answers a different question about the same cycle. Hover the list.' })}</Body>
-        <ResultsDeck />
+        <SubHead index="5.4">{t({ es: 'Siete pestañas del mismo ciclo', en: 'Seven tabs of the same cycle' })}</SubHead>
+        <Body className="mb-8">{t({ es: 'Del resumen a los accionables, cada pestaña responde una pregunta distinta. Son las pestañas reales de resultados, recreadas: rotan solas o tócalas.', en: 'From summary to actions, each tab answers a different question. These are the real results tabs, recreated: they cycle on their own, or tap them.' })}</Body>
+        <ResultsLive />
+      </Block>
+
+      <Block>
+        <SubHead index="5.5">{t({ es: 'Y así se ve en el playground', en: 'And this is how it looks in the playground' })}</SubHead>
+        <Body className="mb-8">{t({ es: 'La captura real del inicio, recorrida zona por zona: «Para atender» ordena por prioridad lo que pide acción y el pulso compara cada cifra con los ciclos anteriores.', en: 'The real home screenshot, toured area by area: “To attend” ranks what needs action and the pulse compares each figure with past cycles.' })}</Body>
+        <div data-reveal="device">
+          <ShotStage shot={form.home} spots={HOME_SPOTS} />
+        </div>
+        <FanPair shots={[form.noGoals, form.periods]} />
       </Block>
     </div>
   )
