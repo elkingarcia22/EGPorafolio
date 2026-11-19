@@ -45,10 +45,12 @@ export async function listProjects(): Promise<ProjectsResult> {
   }
 
   const rows: unknown[] = (data ?? []).map((row) => (row as { content: unknown }).content)
-  const valid = rows.filter(isProject).filter((p) => !RETIRED.has(p.slug))
-  if (valid.length < rows.length) {
-    console.error(`[projects] ${rows.length - valid.length} fila(s) con formato inválido fueron omitidas`)
+  const wellFormed = rows.filter(isProject)
+  if (wellFormed.length < rows.length) {
+    console.error(`[projects] ${rows.length - wellFormed.length} fila(s) con formato inválido fueron omitidas`)
   }
+  // Los retirados se omiten sin aviso: es a propósito, no un error de formato.
+  const valid = wellFormed.filter((p) => !RETIRED.has(p.slug))
   return valid.length > 0 ? { projects: withCodeCases(valid), source: 'supabase' } : LOCAL
 }
 
