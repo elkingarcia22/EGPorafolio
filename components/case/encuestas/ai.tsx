@@ -2,7 +2,6 @@
 
 import { useLocale, type L } from '@/lib/i18n'
 import { OrbitBuilder } from './ai-orbit'
-import { AiReadingPanel } from './ai-readings'
 import './ai-impact.css'
 
 const PROCESS: readonly { value: string; label: L }[] = [
@@ -59,14 +58,6 @@ export function SurveyAi() {
         <div data-reveal>
           <OrbitBuilder />
         </div>
-      </section>
-
-      <section>
-        <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-          <p data-reveal className="mono-label text-signal">{t({ es: 'En resultados · Análisis con IA', en: 'In results · AI analysis' })}</p>
-          <p data-reveal className="max-w-[46ch] text-sm opacity-70">{t({ es: 'La pestaña real de Clima Q1 2026: un resumen y cada lectura con su confiabilidad y la evidencia que la sostiene.', en: 'The real Climate Q1 2026 tab: a summary and every reading with its confidence and the evidence behind it.' })}</p>
-        </div>
-        <AiReadingPanel />
       </section>
 
       <section>

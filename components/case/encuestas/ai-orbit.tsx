@@ -331,9 +331,10 @@ export function OrbitBuilder() {
           className={`absolute inset-y-4 right-4 w-[calc(100%-2rem)] transition-[transform,opacity] duration-[900ms] ease-[cubic-bezier(0.32,0.72,0,1)] md:w-[23rem] ${docked ? 'max-md:pointer-events-none max-md:opacity-0' : ''}`}
           style={{ transform: docked ? 'none' : 'translateX(min(0px, calc(-50cqw + 11.5rem + 1rem)))' }}
         >
-          {/* Mientras Orbit trabaja, un anillo con el degradado de IA gira detrás del panel. */}
-          <div className={`pointer-events-none absolute -inset-[3px] overflow-hidden rounded-[22px] transition-opacity duration-500 ${working ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true">
-            <span className="enc-ai-ring absolute left-1/2 top-1/2 aspect-square w-[180%] -translate-x-1/2 -translate-y-1/2" style={{ background: 'conic-gradient(from 0deg, #285ee6, #7e2be0, #d22d6a, #eb6233, #285ee6)' }} />
+          {/* Mientras Orbit trabaja, el degradado de IA recorre el borde del panel: un solo trazo continuo que gira. */}
+          <div className={`pointer-events-none absolute -inset-[2px] transition-opacity duration-500 ${working ? 'opacity-100' : 'opacity-0'}`} aria-hidden="true">
+            <span className="enc-ai-border absolute inset-0 rounded-[18px] opacity-60 blur-md" />
+            <span className="enc-ai-border enc-ai-border-line absolute inset-0 rounded-[18px]" />
           </div>
           <div className="relative h-full">
             <Panel f={f} />

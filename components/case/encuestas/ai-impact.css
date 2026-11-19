@@ -43,3 +43,19 @@ html[data-motion='reduced'] .enc-ai-press {
 @media (prefers-reduced-motion: reduce) { .enc-ai-ring, .enc-ai-aurora, .enc-ai-spark, .enc-ai-pop { animation: none; } .enc-ai-spark { display: none; } }
 html[data-motion='reduced'] :is(.enc-ai-ring, .enc-ai-aurora, .enc-ai-spark, .enc-ai-pop) { animation: none; }
 html[data-motion='reduced'] .enc-ai-spark { display: none; }
+
+/* El borde de Orbit: un ángulo animado (@property) hace girar el degradado sobre el borde, sin cortes. */
+@property --enc-ai-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes enc-ai-angle { to { --enc-ai-angle: 360deg; } }
+.enc-ai-border {
+  background: conic-gradient(from var(--enc-ai-angle), #285ee6, #7e2be0, #d22d6a, #eb6233, #285ee6);
+  animation: enc-ai-angle 3.2s linear infinite;
+}
+.enc-ai-border-line {
+  padding: 2px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+@media (prefers-reduced-motion: reduce) { .enc-ai-border { animation: none; } }
+html[data-motion='reduced'] .enc-ai-border { animation: none; }

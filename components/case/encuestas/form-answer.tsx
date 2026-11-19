@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
-import { AGREEMENT, CLOSING, PAGE_CLARITY, PAGE_NPS, SURVEY, WELCOME } from '@/lib/content/cases/encuestas/answer-preview'
+import { CLOSING, PAGE_NPS, SURVEY } from '@/lib/content/cases/encuestas/answer-preview'
 import { UBITS_BLUE } from './shared'
 
-type Page = 'welcome' | 'clarity' | 'nps' | 'closing'
+type Page = 'nps' | 'closing'
 interface Frame {
   page: Page
-  likert?: readonly (number | null)[]
   nps?: number | null
   typed?: number
   /** El botón principal se ve presionado justo antes de pasar de página. */
@@ -18,27 +17,19 @@ interface Frame {
 
 const FOLLOW_UP_ANSWER = 'El equipo con el que trabajo y lo que aprendo cada semana.'
 const TYPE_STEPS = 8
+/** Arranca en la penúltima pantalla (el 0 a 10 con su pregunta de seguimiento) y cierra con «Respuestas enviadas». */
 const FRAMES: readonly Frame[] = [
-  { page: 'welcome', ms: 2600 },
-  { page: 'welcome', press: true, ms: 380 },
-  { page: 'clarity', likert: [null, null, null], ms: 1000 },
-  { page: 'clarity', likert: [4, null, null], ms: 900 },
-  { page: 'clarity', likert: [4, 5, null], ms: 900 },
-  { page: 'clarity', likert: [4, 5, 3], ms: 1200 },
-  { page: 'clarity', likert: [4, 5, 3], press: true, ms: 380 },
-  { page: 'nps', nps: null, ms: 1300 },
-  { page: 'nps', nps: 9, ms: 900 },
-  ...Array.from({ length: TYPE_STEPS }, (_, i): Frame => ({ page: 'nps', nps: 9, typed: (i + 1) / TYPE_STEPS, ms: 170 })),
-  { page: 'nps', nps: 9, typed: 1, ms: 700 },
-  { page: 'nps', nps: 9, typed: 1, press: true, ms: 380 },
+  { page: 'nps', nps: null, ms: 1100 },
+  { page: 'nps', nps: 9, ms: 800 },
+  ...Array.from({ length: TYPE_STEPS }, (_, i): Frame => ({ page: 'nps', nps: 9, typed: (i + 1) / TYPE_STEPS, ms: 150 })),
+  { page: 'nps', nps: 9, typed: 1, ms: 600 },
+  { page: 'nps', nps: 9, typed: 1, press: true, ms: 350 },
   { page: 'closing', ms: 0 },
 ]
 const LAST = FRAMES.length - 1
 
-/** Lo respondido en esta prueba: en la demostración se saltan las páginas 3 a 16 y la 18, como si ya estuvieran listas. */
+/** Lo respondido en esta prueba: la demostración arranca en la página 17, con las anteriores ya respondidas. */
 function answeredOf(f: Frame): number {
-  if (f.page === 'welcome') return 0
-  if (f.page === 'clarity') return (f.likert ?? []).filter((v) => v !== null).length
   if (f.page === 'nps') return SURVEY.questions - 1 - 5 + (f.nps !== null && f.nps !== undefined ? 1 : 0)
   return SURVEY.questions
 }
@@ -112,45 +103,6 @@ function Rain() {
   return <canvas ref={ref} className="pointer-events-none absolute inset-0 z-30 h-full w-full" aria-hidden="true" />
 }
 
-function Welcome() {
-  return (
-    <div className="encf-page space-y-3">
-      <div className="flex gap-1.5">
-        <span className="rounded-md bg-[#ecf1fa] px-1.5 py-0.5 text-[10px] font-medium text-[#0c5bef]">{SURVEY.kind}</span>
-        <span className="flex items-center gap-1 rounded-md border border-black/10 px-1.5 py-0.5 text-[10px]"><Svg d={Icon.eye} className="h-3 w-3" />{SURVEY.visibility}</span>
-      </div>
-      <p className="text-[19px] font-semibold leading-tight">{SURVEY.name}</p>
-      <p className="text-[12px] leading-snug text-[#5c646f]">{SURVEY.description}</p>
-      <p className="flex flex-wrap gap-x-4 text-[11px] text-[#5c646f]">
-        <span className="flex items-center gap-1"><Svg d={Icon.calendar} />Abre el {SURVEY.opens}</span>
-        <span className="flex items-center gap-1"><Svg d={Icon.clock} />Cierra el {SURVEY.closes}</span>
-      </p>
-      <div className="grid grid-cols-2 gap-3 rounded-xl border border-black/[0.07] bg-white p-3 sm:grid-cols-4">
-        {[
-          [Icon.layers, String(SURVEY.sections), 'Secciones'],
-          [Icon.list, String(SURVEY.questions), 'Preguntas'],
-          [Icon.clock, `${SURVEY.minutes} min`, 'Tiempo estimado'],
-          [Icon.eye, SURVEY.visibility, 'Respuestas con nombre'],
-        ].map(([d, v, l]) => (
-          <div key={l}>
-            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#ecf1fa] text-[#0c5bef]"><Svg d={d} /></span>
-            <p className="mt-1.5 text-[13px] font-bold">{v}</p>
-            <p className="text-[10px] text-[#5c646f]">{l}</p>
-          </div>
-        ))}
-      </div>
-      <div className="rounded-xl border border-black/[0.07] bg-[#f6f7fb]">
-        <p className="px-3 pt-2 text-[11px] font-semibold">Antes de empezar</p>
-        <div className="m-1 space-y-1.5 rounded-lg bg-white p-3 text-[11px] leading-snug">
-          {WELCOME.map((p) => (
-            <p key={p.text}>{p.strong ? <b>{p.text}</b> : p.text}{p.rest}</p>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function Cover({ trail, numbering, title, description, count, minutes }: { trail: string; numbering: string; title: string; description?: string; count: number; minutes: number }) {
   return (
     <div className="rounded-t-xl border border-b-0 border-black/[0.07] bg-[#f6f7fb] px-3 pb-2.5 pt-2">
@@ -173,36 +125,6 @@ function QuestionCard({ n, statement, answered, children }: { n: number; stateme
         {statement}
       </p>
       <div className="mt-2">{children}</div>
-    </div>
-  )
-}
-
-function Clarity({ likert }: { likert: readonly (number | null)[] }) {
-  return (
-    <div className="encf-page">
-      <p className="mb-2 text-[10px] text-[#5c646f]">{PAGE_CLARITY.trail} / <b className="text-[#303a47]">Subsección {PAGE_CLARITY.numbering} · {PAGE_CLARITY.title}</b></p>
-      <Cover trail={PAGE_CLARITY.trail} numbering={PAGE_CLARITY.numbering} title={PAGE_CLARITY.title} description={PAGE_CLARITY.description} count={3} minutes={PAGE_CLARITY.minutes} />
-      <div className="overflow-hidden rounded-b-xl">
-        {PAGE_CLARITY.questions.map((q, i) => (
-          <QuestionCard key={q} n={i + 1} statement={q} answered={likert[i] !== null}>
-            {/* La barra Likert del producto: cinco segmentos pegados; el elegido toma el color de marca. */}
-            <div className="grid grid-cols-5 overflow-hidden rounded-lg border border-black/10">
-              {AGREEMENT.map((label, s) => {
-                const on = likert[i] === s + 1
-                return (
-                  <span
-                    key={label}
-                    lang="es"
-                    className={`flex min-h-[2.9rem] items-center justify-center border-l border-black/10 px-[3px] text-center text-[8.5px] leading-[1.15] transition-colors duration-300 [hyphens:auto] first:border-l-0 ${on ? 'encf-tap bg-[#0c5bef]/10 font-semibold text-[#0c5bef] shadow-[inset_0_0_0_1.5px_#0c5bef]' : ''}`}
-                  >
-                    {label}
-                  </span>
-                )
-              })}
-            </div>
-          </QuestionCard>
-        ))}
-      </div>
     </div>
   )
 }
@@ -283,7 +205,7 @@ export function PhoneAnswer() {
     setI(0)
     setRun((r) => r + 1)
   }
-  const cta = f.page === 'welcome' ? 'Comenzar encuesta' : f.page === 'nps' ? 'Continuar' : f.page === 'closing' ? 'Cerrar vista previa' : 'Continuar'
+  const cta = 'Continuar'
 
   return (
     <div ref={box} className="relative flex justify-center py-4">
@@ -316,14 +238,12 @@ export function PhoneAnswer() {
           </div>
           <div className="flex min-h-0 flex-1 flex-col bg-[linear-gradient(180deg,#f3f6fd,#fff_40%)] px-3 pt-3">
             <div key={`${f.page}-${run}`} className="min-h-0 flex-1 overflow-hidden [mask-image:linear-gradient(180deg,#000_90%,transparent)]">
-              {f.page === 'welcome' && <Welcome />}
-              {f.page === 'clarity' && <Clarity likert={f.likert ?? [null, null, null]} />}
               {f.page === 'nps' && <Nps nps={f.nps ?? null} typed={f.typed} />}
               {f.page === 'closing' && <Closing onRestart={restart} />}
             </div>
             {f.page !== 'closing' && (
               <div className="flex shrink-0 items-center justify-between py-3">
-                <span className={`rounded-lg border border-black/15 px-3 py-1.5 text-[11px] ${f.page === 'welcome' ? 'invisible' : ''}`}>‹ Volver</span>
+                <span className={`rounded-lg border border-black/15 px-3 py-1.5 text-[11px]`}>‹ Volver</span>
                 <span className={`rounded-lg px-3 py-1.5 text-[11px] font-medium text-white transition-transform duration-150 ${f.press ? 'scale-95' : ''}`} style={{ background: UBITS_BLUE }}>{cta} ›</span>
               </div>
             )}
@@ -332,9 +252,6 @@ export function PhoneAnswer() {
           {f.page === 'closing' && !reducedMotion && <Rain key={run} />}
         </div>
       </div>
-      {f.page === 'nps' && f.nps === null && (
-        <p className="enc-fade absolute left-1/2 top-0 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#303a47] px-2.5 py-1 text-[10px] text-white">Demostración: de la página 2 salta a la 17</p>
-      )}
     </div>
   )
 }
