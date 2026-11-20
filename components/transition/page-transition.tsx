@@ -3,34 +3,54 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ConnectionSearch } from '@/components/home/connection-search'
 import { gsap, jumpToHash, scrollToTop } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
+import { useLocale } from '@/lib/i18n'
+import { COPY } from '@/lib/content/copy'
 
 type Navigate = (href: string, label?: string) => void
 
 let navigateHandler: Navigate | null = null
 
 const BAR_COUNT = 6
-/** Si la página no llega en este tiempo tras cubrir, la cortina muestra que está cargando. */
-const LOADING_HINT_MS = 260
+/** Mientras llega la página, el porcentaje sube hasta aquí (0–1) y espera */
+const WAIT_CAP = 0.9
+/** Lo que tarda en llegar a ese tope, como la carga del inicio */
+const LOAD_S = 2.2
+/** Tiempo mínimo con la red a la vista: alcanza a buscar y tejer algunas conexiones */
+const MIN_SHOW_MS = 900
+/** Cierre: el porcentaje llega a 100 y las conexiones se sueltan */
+const FINISH_S = 0.35
+const DISSOLVE_S = 0.5
 /** Red de seguridad: si la navegación del cliente no llega, se carga la página completa. */
 const HARD_NAV_MS = 12000
 
 /**
  * Cortina de barras verticales (las barras de la hoja de vida) que cubre
  * la pantalla al salir de una página y se retira al entrar a la nueva.
+ * Mientras cubre, se ve la misma carga del inicio: nodos que buscan
+ * conectarse y el porcentaje de la conexión.
  */
 export function TransitionOverlay() {
   const router = useRouter()
   const pathname = usePathname()
   const { reducedMotion } = useA11y()
+  const { t } = useLocale()
   const rootRef = useRef<HTMLDivElement>(null)
+  const countRef = useRef<HTMLSpanElement>(null)
   const isCovering = useRef(false)
   const firstRoute = useRef(true)
   const [label, setLabel] = useState('')
-  const [isWaiting, setIsWaiting] = useState(false)
-  /** La cortina ya tapa la pantalla: se muestra el centro (página y conexiones). */
+  /** La cortina ya tapa la pantalla: se muestra el centro (carga y página). */
   const [covered, setCovered] = useState(false)
+  /** Cada navegación monta una red nueva (la anterior se detiene al soltarse) */
+  const [netKey, setNetKey] = useState(0)
+  const [showNet, setShowNet] = useState(false)
+  const loadProgress = useRef(0)
+  const counter = useRef({ v: 0 })
+  const coveredAt = useRef(0)
+  const loadTween = useRef<gsap.core.Tween | null>(null)
   const timers = useRef<number[]>([])
 
   const clearTimers = () => {
@@ -39,6 +59,12 @@ export function TransitionOverlay() {
   }
 
   const bars = () => rootRef.current?.querySelectorAll<HTMLElement>('[data-bar]') ?? []
+
+  /** El porcentaje en pantalla y el avance que lee la red, siempre juntos. */
+  const syncCounter = () => {
+    loadProgress.current = counter.current.v / 100
+    if (countRef.current) countRef.current.textContent = String(Math.round(counter.current.v)).padStart(3, '0')
+  }
 
   const navigate = useCallback<Navigate>(
     (href, nextLabel = '') => {
@@ -49,6 +75,10 @@ export function TransitionOverlay() {
       // Pide la página mientras la cortina cubre: al terminar ya está lista.
       router.prefetch(href)
       setLabel(nextLabel)
+      counter.current.v = 0
+      syncCounter()
+      setNetKey((k) => k + 1)
+      setShowNet(true)
       setCovered(true)
       isCovering.current = true
       document.documentElement.dataset.transitioning = 'true'
@@ -62,12 +92,11 @@ export function TransitionOverlay() {
           ease: 'expo.inOut',
           stagger: 0.03,
           onComplete: () => {
+            coveredAt.current = performance.now()
             router.push(href)
+            loadTween.current = gsap.to(counter.current, { v: WAIT_CAP * 100, duration: LOAD_S, ease: 'power2.out', onUpdate: syncCounter })
             clearTimers()
-            timers.current = [
-              window.setTimeout(() => setIsWaiting(true), LOADING_HINT_MS),
-              window.setTimeout(() => window.location.assign(href), HARD_NAV_MS),
-            ]
+            timers.current = [window.setTimeout(() => window.location.assign(href), HARD_NAV_MS)]
           },
         },
       )
@@ -82,28 +111,36 @@ export function TransitionOverlay() {
     }
   }, [navigate])
 
-  // Al cambiar de ruta: a la sección del ancla (Proyectos → /#work) o arriba del todo, y retirar la cortina.
+  // Al cambiar de ruta: a la sección del ancla (Proyectos → /#work) o arriba del todo; la carga
+  // llega a 100, las conexiones se sueltan y la cortina se retira.
   useEffect(() => {
     // En la primera carga el navegador ya resuelve el ancla; saltar aquí choca con las animaciones que se arman.
     if (firstRoute.current) firstRoute.current = false
     else if (!jumpToHash()) scrollToTop()
     clearTimers()
-    setIsWaiting(false)
-    setCovered(false)
-    if (!isCovering.current || !rootRef.current) return
+    if (!isCovering.current || !rootRef.current) {
+      setCovered(false)
+      return
+    }
     isCovering.current = false
     const root = rootRef.current
-    gsap.to(bars(), {
-      scaleY: 0,
-      transformOrigin: '50% 0%',
-      duration: 0.55,
-      ease: 'expo.inOut',
-      stagger: 0.03,
-      onComplete: () => {
+    loadTween.current?.kill()
+    const wait = Math.max(0, MIN_SHOW_MS - (performance.now() - coveredAt.current)) / 1000
+    const dissolve = { v: 1 }
+    const tl = gsap
+      .timeline({ delay: wait })
+      .to(counter.current, { v: 100, duration: FINISH_S, ease: 'power1.out', onUpdate: syncCounter })
+      .call(() => setCovered(false))
+      .to(dissolve, { v: 0, duration: DISSOLVE_S, ease: 'power2.in', onUpdate: () => { loadProgress.current = dissolve.v } })
+      .to(bars(), { scaleY: 0, transformOrigin: '50% 0%', duration: 0.55, ease: 'expo.inOut', stagger: 0.03 }, '<0.1')
+      .call(() => {
         gsap.set(root, { visibility: 'hidden' })
         delete document.documentElement.dataset.transitioning
-      },
-    })
+        setShowNet(false)
+      })
+    return () => {
+      tl.kill()
+    }
   }, [pathname])
 
   return (
@@ -116,18 +153,17 @@ export function TransitionOverlay() {
       {Array.from({ length: BAR_COUNT }, (_, i) => (
         <div key={i} data-bar className="h-full flex-1 bg-void" style={{ transform: 'scaleY(0)' }} />
       ))}
-      {/* Al centro: la página que se abre y puntos que se van conectando mientras llega */}
-      <div className={`absolute inset-0 flex flex-col items-center justify-center gap-6 transition-opacity duration-300 ${covered ? 'opacity-100 delay-200' : 'opacity-0'}`}>
-        <svg viewBox="0 0 220 40" className="h-10 w-56 overflow-visible" aria-hidden="true">
-          {[0, 1, 2, 3].map((i) => (
-            <line key={i} x1={10 + i * 50} y1={20} x2={60 + i * 50} y2={20} pathLength={1} className="stroke-signal" strokeWidth="1.5" strokeDasharray="1" style={{ animation: covered ? `node-link 1.8s cubic-bezier(0.65,0,0.35,1) ${i * 0.18}s infinite` : 'none' }} />
-          ))}
-          {[0, 1, 2, 3, 4].map((i) => (
-            <circle key={i} cx={10 + i * 50} cy={20} r={4} className="fill-paper" style={{ transformOrigin: `${10 + i * 50}px 20px`, animation: covered ? `node-pulse 1.8s ease-in-out ${i * 0.18}s infinite` : 'none' }} />
-          ))}
-        </svg>
-        <p className="mono-label caret text-paper/80">{label}</p>
-        <p className={`mono-label text-paper/40 transition-opacity duration-300 ${isWaiting ? 'opacity-100' : 'opacity-0'}`}>Conectando…</p>
+      {/* La misma carga del inicio: nodos que buscan conectarse y el porcentaje */}
+      <div className={`absolute inset-0 transition-opacity duration-300 ${covered ? 'opacity-100 delay-150' : 'opacity-0'}`}>
+        {showNet && <ConnectionSearch key={netKey} progress={loadProgress} className="absolute inset-0 h-full w-full" />}
+        <div className="relative flex h-full flex-col items-center justify-center gap-5 px-[var(--gutter)]">
+          <span className="mono-label flex items-center gap-3 tabular-nums text-paper/70">
+            <span className="h-px w-8 bg-current" />
+            <span>{t(COPY.hero.loading)} · <span ref={countRef}>000</span>%</span>
+            <span className="h-px w-8 bg-current" />
+          </span>
+          {label && <p className="mono-label caret text-paper/80">{label}</p>}
+        </div>
       </div>
     </div>
   )

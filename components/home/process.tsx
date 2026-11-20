@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
-import { BroadcastVisual, FormVisual, FrequencyVisual, NoiseVisual } from './process-visuals'
+import { BroadcastVisual, FormVisual, PatternVisual, NoiseVisual } from './process-visuals'
 import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
@@ -36,7 +36,7 @@ const STAGES: readonly Stage[] = [
       en: 'I find the pattern that repeats: the insight behind the pain and the opportunity worth pursuing.',
     },
     ai: { es: 'Contrasto hipótesis con usuarios sintéticos antes de probar con reales.', en: 'I stress-test hypotheses with synthetic users before real ones.' },
-    Visual: FrequencyVisual,
+    Visual: PatternVisual,
   },
   {
     key: 'form',

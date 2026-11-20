@@ -44,7 +44,7 @@ const MAX_PULSES = 18
 const PULSE_SPAWN_CHANCE = 0.08
 const HOVER_MIN_PROGRESS = 0.8
 /** Duración de la transformación entre dos figuras */
-const MORPH_MS = 1300
+const MORPH_MS = 950
 
 interface Pulse {
   from: number
@@ -237,8 +237,8 @@ export function NetworkCanvas({
       let formedLinks = 0
       const linkSets: [readonly (readonly [number, number])[], number][] = from
         ? [
-            [morphLinks, Math.max(0, 1 - rawMorph * 2.2)],
-            [graph.links, Math.max(0, (rawMorph - 0.45) / 0.55)],
+            [morphLinks, Math.max(0, 1 - rawMorph * 1.6)],
+            [graph.links, Math.max(0, (rawMorph - 0.25) / 0.75)],
           ]
         : [[graph.links, 1]]
       for (const [links, setAlpha] of linkSets) {

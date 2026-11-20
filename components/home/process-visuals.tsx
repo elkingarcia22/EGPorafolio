@@ -26,19 +26,94 @@ export function NoiseVisual() {
   )
 }
 
-export function FrequencyVisual() {
+const PATTERN_NODES = [
+  { x: 14, y: 22 },
+  { x: 38, y: 70 },
+  { x: 62, y: 30 },
+  { x: 86, y: 78 },
+  { x: 100, y: 48 },
+  { x: 124, y: 18 },
+  { x: 140, y: 72 },
+  { x: 166, y: 36 },
+  { x: 188, y: 82 },
+  { x: 182, y: 12 },
+]
+
+/** Conexiones débiles: el ruido de fondo entre los puntos. */
+const FAINT_EDGES: ReadonlyArray<readonly [number, number]> = [
+  [0, 1], [1, 3], [2, 5], [3, 6], [5, 9], [6, 8], [7, 9], [0, 2], [6, 7],
+]
+
+/** El patrón que emerge: conexiones que convergen en el nodo central (4). */
+const PATTERN_EDGES: ReadonlyArray<readonly [number, number]> = [
+  [0, 2], [2, 4], [1, 4], [4, 3], [4, 5], [4, 6], [6, 7], [5, 7], [7, 8],
+]
+
+const HUB = 4
+const EDGE_LENGTH = 120
+
+export function PatternVisual() {
   return (
-    <svg viewBox="0 0 200 100" className="h-full w-full" fill="none" aria-hidden="true">
-      <path d="M0 50 H200" className="stroke-current opacity-20" strokeWidth="0.5" />
-      <path
-        d="M0 50 C 10 10, 20 90, 30 50 S 50 20, 60 50 S 80 70, 90 50 S 110 35, 120 50 S 140 58, 150 50 S 170 47, 180 50 S 195 50, 200 50"
-        className="stroke-current"
-        strokeWidth="1.5"
-        strokeDasharray="400"
-        style={{ animation: 'wave 3.2s cubic-bezier(.16,1,.3,1) infinite' }}
+    <svg viewBox="0 0 200 100" className="pattern-visual h-full w-full" fill="none" aria-hidden="true">
+      {FAINT_EDGES.map(([a, b], i) => (
+        <line
+          key={`f${i}`}
+          x1={PATTERN_NODES[a].x}
+          y1={PATTERN_NODES[a].y}
+          x2={PATTERN_NODES[b].x}
+          y2={PATTERN_NODES[b].y}
+          className="stroke-current opacity-15"
+          strokeWidth="0.5"
+          strokeDasharray="2 3"
+        />
+      ))}
+      {PATTERN_EDGES.map(([a, b], i) => (
+        <line
+          key={`p${i}`}
+          x1={PATTERN_NODES[a].x}
+          y1={PATTERN_NODES[a].y}
+          x2={PATTERN_NODES[b].x}
+          y2={PATTERN_NODES[b].y}
+          className={a === HUB || b === HUB ? 'stroke-signal' : 'stroke-current'}
+          strokeWidth="1.1"
+          strokeDasharray={EDGE_LENGTH}
+          style={{ animation: `connect 4s ${i * 0.22}s cubic-bezier(.16,1,.3,1) infinite` }}
+        />
+      ))}
+      {PATTERN_NODES.map((n, i) =>
+        i === HUB ? null : (
+          <circle
+            key={`n${i}`}
+            cx={n.x}
+            cy={n.y}
+            r="2.2"
+            className="fill-current"
+            style={{ animation: `node 4s ${i * 0.18}s ease-in-out infinite` }}
+          />
+        ),
+      )}
+      <circle
+        cx={PATTERN_NODES[HUB].x}
+        cy={PATTERN_NODES[HUB].y}
+        r="5"
+        className="stroke-signal"
+        strokeWidth="0.8"
+        style={{ transformOrigin: `${PATTERN_NODES[HUB].x}px ${PATTERN_NODES[HUB].y}px`, animation: 'hub 2s ease-out infinite' }}
       />
-      <circle cx="30" cy="50" r="3" className="fill-signal" />
-      <style>{`@keyframes wave { from { stroke-dashoffset: 400 } to { stroke-dashoffset: 0 } }`}</style>
+      <circle cx={PATTERN_NODES[HUB].x} cy={PATTERN_NODES[HUB].y} r="3.4" className="fill-signal" />
+      <style>{`
+        @keyframes connect {
+          0% { stroke-dashoffset: ${EDGE_LENGTH}; opacity: 0 }
+          10% { opacity: 1 }
+          45%, 80% { stroke-dashoffset: 0; opacity: 1 }
+          100% { stroke-dashoffset: 0; opacity: 0 }
+        }
+        @keyframes node { 0%, 100% { opacity: .35 } 40%, 80% { opacity: 1 } }
+        @keyframes hub { from { transform: scale(1); opacity: .9 } to { transform: scale(2.6); opacity: 0 } }
+        @media (prefers-reduced-motion: reduce) {
+          .pattern-visual * { animation: none !important; stroke-dashoffset: 0 }
+        }
+      `}</style>
     </svg>
   )
 }

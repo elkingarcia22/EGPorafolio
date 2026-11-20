@@ -12,10 +12,10 @@ const TERMS: Record<Locale, readonly string[]> = {
   es: ['UX', 'UI', 'CX', 'IA', 'BX', 'DX'],
   en: ['UX', 'UI', 'CX', 'AI', 'BX', 'DX'],
 }
-/** Cada cuánto cambia sola la figura (con el EG ya formado) */
-const AUTO_MS = 4200
+/** Cada cuánto cambia sola la figura (con el EG ya formado): la transformación más una pausa corta */
+const AUTO_MS = 1900
 /** Pausa mínima entre dos cambios por hover (evita cambios en cadena) */
-const HOVER_COOLDOWN_MS = 1600
+const HOVER_COOLDOWN_MS = 1000
 /** Desde qué avance del scroll el EG cuenta como formado */
 const FORMED_PROGRESS = 0.95
 
@@ -76,7 +76,7 @@ export function useMonogramCycle(
     if (!graphs || !active || reducedMotion) return
     const timer = window.setInterval(() => {
       const formed = progress.current > FORMED_PROGRESS
-      const idle = performance.now() - lastChange.current > AUTO_MS * 0.8
+      const idle = performance.now() - lastChange.current > AUTO_MS * 0.6
       if (formed && idle && !document.hidden) advance()
     }, AUTO_MS)
     return () => window.clearInterval(timer)

@@ -7,7 +7,8 @@ import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
-import { gsap, scrambleText, scrollToHeroSignature } from '@/lib/motion'
+import { useHeroSnap, type HeroSnap } from './use-hero-snap'
+import { gsap, scrambleText, scrollToHeroSignature, HERO_SIGNATURE_AT } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -28,6 +29,9 @@ const AUTO_SCROLL_DELAY_MS = 900
 const AUTO_SCROLL_S = 2.4
 /** Si al arrancar la página ya está deslizada más que esto, la carga se salta. */
 const SCROLLED_PX = 80
+
+/** Momento de la línea de tiempo en que el puente ("Mi trabajo es diseñar…") está completo */
+const SIGNAL_REST_AT = 0.52
 
 /**
  * La carga solo se ve una vez por visita. Si vuelves al inicio desde otra página,
@@ -159,6 +163,9 @@ export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const progress = useRef(0)
   const [heroInView, setHeroInView] = useState(true)
+  // Pasos en los que el hero puede quedar quieto: titular, puente, firma con el EG y salida.
+  const snap = useRef<HeroSnap>({ trigger: null, rests: [] })
+  useHeroSnap(snap, !reducedMotion)
   // El EG como red, que se transforma en UX, UI, CX… y vuelve al EG.
   const monogram = useMonogramCycle(locale, progress, heroInView, reducedMotion)
   const headline = t(COPY.hero.noise)
@@ -216,9 +223,17 @@ export function Hero() {
         .to(q('[data-phase="signal"]'), { autoAlpha: 0, y: -40, duration: 0.12 }, 0.58)
         .fromTo(q('[data-phase="name"]'), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 0.16 }, 0.7)
         .fromTo(q('[data-bar]'), { scaleY: 0 }, { scaleY: 1, duration: 0.14, stagger: 0.03 }, 0.72)
+
+      snap.current = {
+        trigger: tl.scrollTrigger ?? null,
+        rests: [0, SIGNAL_REST_AT / tl.duration(), HERO_SIGNATURE_AT, 1],
+      }
     }, section)
 
-    return () => ctx.revert()
+    return () => {
+      snap.current = { trigger: null, rests: [] }
+      ctx.revert()
+    }
   }, [reducedMotion])
 
   return (
