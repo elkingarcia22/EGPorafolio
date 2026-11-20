@@ -1,14 +1,14 @@
-import { DM_Sans, Fraunces, Inter, Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google'
+import localFont from 'next/font/local'
 
 /*
  * Familias del sistema Thema para la muestra tipográfica del caso. Sin precarga:
  * solo se descargan cuando la sección aparece.
  */
-const fraunces = Fraunces({ subsets: ['latin'], weight: ['400', '600'], display: 'swap', preload: false })
-const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '700'], display: 'swap', preload: false })
-const inter = Inter({ subsets: ['latin'], weight: ['400', '600'], display: 'swap', preload: false })
-const grotesk = Space_Grotesk({ subsets: ['latin'], weight: ['400', '600'], display: 'swap', preload: false })
-const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '600'], display: 'swap', preload: false })
+const fraunces = localFont({ src: '../../../../app/fonts/fraunces.woff2', weight: '100 900', display: 'swap', preload: false })
+const jakarta = localFont({ src: '../../../../app/fonts/plus-jakarta-sans.woff2', weight: '200 800', display: 'swap', preload: false })
+const inter = localFont({ src: '../../../../app/fonts/inter.woff2', weight: '100 900', display: 'swap', preload: false })
+const grotesk = localFont({ src: '../../../../app/fonts/space-grotesk.woff2', weight: '300 700', display: 'swap', preload: false })
+const dmSans = localFont({ src: '../../../../app/fonts/dm-sans.woff2', weight: '100 1000', display: 'swap', preload: false })
 
 export const SPECIMEN_FONTS = [
   { name: 'Fraunces', role: 'Títulos · editorial', className: fraunces.className },

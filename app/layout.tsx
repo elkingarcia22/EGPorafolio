@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Caveat, Jost, JetBrains_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import { LocaleProvider } from '@/lib/i18n'
 import { A11yProvider } from '@/lib/a11y'
@@ -9,24 +9,25 @@ import { Cursor } from '@/components/ui/cursor'
 import { TransitionOverlay } from '@/components/transition/page-transition'
 
 // Jost: geométrica tipo Futura, como la hoja de vida.
-const display = Jost({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+// Fuentes servidas desde el propio sitio: el build no depende de Google Fonts.
+const display = localFont({
+  src: './fonts/jost.woff2',
+  weight: '100 900',
   variable: '--font-display',
   display: 'swap',
 })
 
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
+const mono = localFont({
+  src: './fonts/jetbrains-mono.woff2',
+  weight: '100 800',
   variable: '--font-mono',
   display: 'swap',
 })
 
 // Caveat: letra a mano para los bocetos de los casos (tableros tipo Miro).
-const hand = Caveat({
-  subsets: ['latin'],
-  weight: ['500', '700'],
+const hand = localFont({
+  src: './fonts/caveat.woff2',
+  weight: '400 700',
   variable: '--font-hand',
   display: 'swap',
 })

@@ -1,11 +1,11 @@
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 
 /**
  * La marca de SellUp tal como está en el producto (repo SellUp, `app-sidebar.tsx` y `globals.css`): la palabra va en
  * Inter negrita con tracking apretado y «Up» en el color de marca; el ícono es la U imán sobre el degradado de marca.
  * Inter es una tercera familia en el portafolio, pero solo para la palabra: es la tipografía real del producto.
  */
-const inter = Inter({ subsets: ['latin'], weight: ['700'], display: 'swap' })
+const inter = localFont({ src: '../../../app/fonts/inter.woff2', weight: '100 900', display: 'swap' })
 
 type Tone = 'light' | 'dark'
 

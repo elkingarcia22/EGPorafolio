@@ -87,9 +87,9 @@ export function EncuestasHero() {
           <span className="mono-label opacity-60">N° 05.26 · {t(c.eyebrow)}</span>
         </div>
 
-        <div className="relative grid items-end gap-8 md:grid-cols-12">
-          <h1 className="font-light leading-[0.9] tracking-tight md:col-span-7">
-            <span className="block text-[clamp(3.4rem,1rem+9vw,10rem)]">
+        <div className="relative grid items-end gap-8 lg:grid-cols-12">
+          <h1 className="font-light leading-[0.9] tracking-tight lg:col-span-7">
+            <span className="block text-[clamp(2.8rem,1rem+5.2vw,6.5rem)]">
               {titleWords.map((w, i) => (
                 <span key={`${w}-${i}`} className="inline-block overflow-hidden pb-[0.08em] align-bottom">
                   <span data-hero-word className="inline-block">{w}&nbsp;</span>
@@ -104,7 +104,7 @@ export function EncuestasHero() {
               ))}
             </span>
           </h1>
-          <p data-hero-fade className="text-lg leading-relaxed opacity-85 md:col-span-5">{t(c.lead)}</p>
+          <p data-hero-fade className="text-lg leading-relaxed opacity-85 lg:col-span-5">{t(c.lead)}</p>
         </div>
 
         <div data-hero-stage className="relative mx-auto mt-16 max-w-6xl lg:mb-32 lg:mt-24">
