@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { A11yPanel } from './a11y-panel'
 import { ProjectsMenu, ProjectsSubmenu } from './projects-menu'
-import { CvViewer, CV_HASH } from './cv-viewer'
+import { CvViewer, cvModeFromHash, type CvMode } from './cv-viewer'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { ScrollTrigger, scrollToHeroSignature, scrollToTarget } from '@/lib/motion'
@@ -15,9 +15,9 @@ const NAV = [
   { id: 'work', label: COPY.nav.work },
   { id: 'process', label: COPY.nav.process },
   { id: 'about', label: COPY.nav.about },
-  { id: 'agent', label: COPY.nav.agent },
-  // La hoja de vida abre un visor; Contacto va al final.
+  // La hoja de vida abre un visor; el Agente va justo antes de Contacto, al final.
   { id: 'cv', label: COPY.cv.nav },
+  { id: 'agent', label: COPY.nav.agent },
   { id: 'contact', label: COPY.nav.contact },
 ] as const
 
@@ -120,19 +120,24 @@ export function SiteHeader() {
   const scrolled = useScrolled()
   const solid = scrolled || menuOpen
   const [cvOpen, setCvOpen] = useState(false)
+  const [cvMode, setCvMode] = useState<CvMode>('light')
   const openCv = () => {
     setMenuOpen(false)
+    setCvMode('light')
     setCvOpen(true)
   }
   const closeCv = useCallback(() => {
     setCvOpen(false)
-    if (window.location.hash === CV_HASH) history.replaceState(null, '', window.location.pathname + window.location.search)
+    if (cvModeFromHash(window.location.hash)) history.replaceState(null, '', window.location.pathname + window.location.search)
   }, [])
 
-  // El enlace compartido (…/#hoja-de-vida) abre el visor directamente.
+  // El enlace compartido (…/#hoja-de-vida o …/#hoja-de-vida-oscura) abre el visor en esa versión.
   useEffect(() => {
     const check = () => {
-      if (window.location.hash === CV_HASH) setCvOpen(true)
+      const mode = cvModeFromHash(window.location.hash)
+      if (!mode) return
+      setCvMode(mode)
+      setCvOpen(true)
     }
     check()
     window.addEventListener('hashchange', check)
@@ -266,7 +271,7 @@ export function SiteHeader() {
       )}
 
       <A11yPanel open={a11yOpen} onClose={closeA11y} returnFocusTo={a11yButton} />
-      <CvViewer open={cvOpen} onClose={closeCv} />
+      <CvViewer open={cvOpen} onClose={closeCv} initialMode={cvMode} />
     </header>
   )
 }

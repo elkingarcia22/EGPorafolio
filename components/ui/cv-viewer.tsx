@@ -6,13 +6,38 @@ import { useLocale } from '@/lib/i18n'
 import { useA11y } from '@/lib/a11y'
 import { COPY } from '@/lib/content/copy'
 
-export const CV_PDF = '/cv/elkin-garcia-hoja-de-vida.pdf'
-const CV_PREVIEW = '/cv/elkin-garcia-hoja-de-vida.jpg'
-const CV_FILENAME = 'Elkin-Garcia-Hoja-de-vida.pdf'
-/** Proporción de la página (ancho / alto) de la hoja de vida */
-const PAGE_ASPECT = 2597 / 3300
-/** Ancla con la que el enlace compartido abre el visor */
+/** Versión de la hoja de vida que se ve, se descarga y se comparte */
+export type CvMode = 'light' | 'dark'
+
+/** Ancla con la que el enlace compartido abre el visor (versión light) */
 export const CV_HASH = '#hoja-de-vida'
+const CV_HASH_DARK = '#hoja-de-vida-oscura'
+
+const CV_ASSETS: Record<CvMode, { preview: string; pdf: string; filename: string; hash: string }> = {
+  light: {
+    preview: '/cv/elkin-garcia-hoja-de-vida.jpg',
+    pdf: '/cv/elkin-garcia-hoja-de-vida.pdf',
+    filename: 'Elkin-Garcia-Hoja-de-vida.pdf',
+    hash: CV_HASH,
+  },
+  dark: {
+    preview: '/cv/elkin-garcia-hoja-de-vida-oscura.jpg',
+    pdf: '/cv/elkin-garcia-hoja-de-vida-oscura.pdf',
+    filename: 'Elkin-Garcia-Hoja-de-vida-oscura.pdf',
+    hash: CV_HASH_DARK,
+  },
+}
+const CV_MODES: CvMode[] = ['light', 'dark']
+
+/** Versión que pide un ancla del visor, o null si el ancla no es del visor. */
+export function cvModeFromHash(hash: string): CvMode | null {
+  if (hash === CV_HASH) return 'light'
+  if (hash === CV_HASH_DARK) return 'dark'
+  return null
+}
+
+/** Proporción de la página (ancho / alto): carta, 8.5 × 11 in */
+const PAGE_ASPECT = 8.5 / 11
 
 /** Niveles de zoom; 1 = la página completa cabe en pantalla */
 const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3] as const
@@ -23,6 +48,8 @@ const COPIED_MS = 2200
 interface CvViewerProps {
   open: boolean
   onClose: () => void
+  /** Versión con la que abre (la del enlace compartido); light por defecto */
+  initialMode?: CvMode
 }
 
 function ToolButton({ label, onClick, disabled, children }: { label: string; onClick: () => void; disabled?: boolean; children: React.ReactNode }) {
@@ -59,8 +86,8 @@ function useStageSize(ref: React.RefObject<HTMLDivElement | null>, open: boolean
 }
 
 /** Copia el enlace o usa el menú nativo de compartir (móvil). */
-async function shareLink(text: string): Promise<'shared' | 'copied' | 'failed'> {
-  const url = `${window.location.origin}/${CV_HASH}`
+async function shareLink(text: string, mode: CvMode): Promise<'shared' | 'copied' | 'failed'> {
+  const url = `${window.location.origin}/${CV_ASSETS[mode].hash}`
   const touch = window.matchMedia('(pointer: coarse)').matches
   if (touch && navigator.share) {
     try {
@@ -94,9 +121,10 @@ function copyWithSelection(text: string): boolean {
 
 /**
  * Visor de la hoja de vida: la página en grande, con zoom (botones,
- * teclado o pellizco), enlace para compartir y descarga del PDF.
+ * teclado o pellizco), versión light o dark, y enlace para compartir y
+ * descarga del PDF de la versión que se está viendo.
  */
-export function CvViewer({ open, onClose }: CvViewerProps) {
+export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -104,6 +132,8 @@ export function CvViewer({ open, onClose }: CvViewerProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
   const [zoomIndex, setZoomIndex] = useState(FIT_INDEX)
   const [copied, setCopied] = useState(false)
+  const [mode, setMode] = useState<CvMode>(initialMode)
+  const asset = CV_ASSETS[mode]
   const stage = useStageSize(stageRef, open)
   const zoom = ZOOM_STEPS[zoomIndex]
 
@@ -142,6 +172,7 @@ export function CvViewer({ open, onClose }: CvViewerProps) {
     const prevOverflow = html.style.overflow
     html.style.overflow = 'hidden'
     setZoomIndex(FIT_INDEX)
+    setMode(initialMode)
     center.current = { x: 0.5, y: 0.5 }
     closeRef.current?.focus()
 
@@ -155,6 +186,8 @@ export function CvViewer({ open, onClose }: CvViewerProps) {
       lenis?.start()
       trigger?.focus()
     }
+    // initialMode solo se aplica al abrir; cambiarlo con el visor abierto no lo reinicia.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, reducedMotion])
 
   // Teclado: Esc cierra, +/− amplían, 0 ajusta; Tab no sale del visor.
@@ -231,7 +264,7 @@ export function CvViewer({ open, onClose }: CvViewerProps) {
   }, [copied])
 
   const onShare = async () => {
-    const result = await shareLink(t(COPY.cv.shareText))
+    const result = await shareLink(t(COPY.cv.shareText), mode)
     if (result === 'copied') setCopied(true)
   }
 
@@ -287,6 +320,31 @@ export function CvViewer({ open, onClose }: CvViewerProps) {
             </ToolButton>
           </div>
 
+          <div className="flex items-center border border-paper/15" role="group" aria-label={t(COPY.cv.version)}>
+            {CV_MODES.map((m) => (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={mode === m}
+                onClick={() => {
+                  setMode(m)
+                  // Si se abrió desde un enlace compartido, la dirección sigue a la versión visible.
+                  if (cvModeFromHash(window.location.hash)) history.replaceState(null, '', CV_ASSETS[m].hash)
+                }}
+                title={t(COPY.cv[m])}
+                className={`mono-label flex h-9 items-center gap-2 px-2.5 transition-colors md:px-3 ${mode === m ? 'bg-paper text-ink' : 'text-paper/70 hover:text-paper'}`}
+              >
+                {m === 'light' ? (
+                  <svg viewBox="0 0 24 24" className={icon} {...stroke} aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className={icon} {...stroke} aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></svg>
+                )}
+                <span className="hidden md:inline">{t(COPY.cv[m])}</span>
+                <span className="sr-only md:hidden">{t(COPY.cv[m])}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="relative">
             <ToolButton label={t(COPY.cv.share)} onClick={onShare}>
               <svg viewBox="0 0 24 24" className={icon} {...stroke}>
@@ -303,8 +361,8 @@ export function CvViewer({ open, onClose }: CvViewerProps) {
           </div>
 
           <a
-            href={CV_PDF}
-            download={CV_FILENAME}
+            href={asset.pdf}
+            download={asset.filename}
             className="mono-label flex h-9 items-center gap-2 bg-signal px-3 text-paper transition-colors hover:bg-paper hover:text-ink md:px-4"
           >
             <svg viewBox="0 0 24 24" className={icon} {...stroke} aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
@@ -348,12 +406,13 @@ export function CvViewer({ open, onClose }: CvViewerProps) {
             // eslint-disable-next-line @next/next/no-img-element -- imagen estática ya optimizada
             <img
               data-cv-page
-              src={CV_PREVIEW}
-              alt={t(COPY.cv.alt)}
+              key={mode}
+              src={asset.preview}
+              alt={`${t(COPY.cv.alt)} ${t(COPY.cv[mode])}.`}
               width={pageWidth}
               height={Math.round(pageWidth / PAGE_ASPECT)}
               draggable={false}
-              className="block max-w-none bg-paper shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
+              className={`block max-w-none ${mode === 'dark' ? 'bg-[#16181b] ring-1 ring-paper/10' : 'bg-paper'} shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]`}
               style={{ width: pageWidth, height: Math.round(pageWidth / PAGE_ASPECT) }}
             />
           )}
