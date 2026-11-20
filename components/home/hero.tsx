@@ -26,6 +26,8 @@ const BOOT_HIDDEN = 'opacity-0'
 /** Al volver al inicio: espera a que la cortina se retire y baja hasta el EG. */
 const AUTO_SCROLL_DELAY_MS = 900
 const AUTO_SCROLL_S = 2.4
+/** Si al arrancar la página ya está deslizada más que esto, la carga se salta. */
+const SCROLLED_PX = 80
 
 /**
  * La carga solo se ve una vez por visita. Si vuelves al inicio desde otra página,
@@ -124,7 +126,19 @@ function useBoot(
     document.fonts?.ready.then(start).catch(start)
     const fallback = window.setTimeout(start, 1500)
 
+    // Al recargar con el scroll ya abajo (el navegador lo restaura), la carga no se queda
+    // encima del EG: se completa al instante. Igual si se desliza mientras carga.
+    const finishIfScrolled = () => {
+      if (window.scrollY < SCROLLED_PX) return
+      started = true
+      tl.progress(1)
+      window.removeEventListener('scroll', finishIfScrolled)
+    }
+    window.addEventListener('scroll', finishIfScrolled, { passive: true })
+    finishIfScrolled()
+
     return () => {
+      window.removeEventListener('scroll', finishIfScrolled)
       window.clearTimeout(fallback)
       cancelScramble?.()
       tl.kill()
