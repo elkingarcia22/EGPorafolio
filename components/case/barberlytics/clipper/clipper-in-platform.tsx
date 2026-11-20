@@ -43,7 +43,8 @@ const LEGEND: readonly { at: number; title: L; body: L }[] = [
 function Laptop({ step }: { step: number }) {
   const { t } = useLocale()
   const open = step >= 1 && step <= 6
-  const applied = step === 6
+  // Sigue «Aplicada» mientras el panel sale (paso 7): no cambia de texto a media salida.
+  const applied = step >= 6
   // En el celular se hace zoom a la mitad derecha de la pantalla: el panel de Clipper ocupa casi todo y se lee.
   const narrow = useNarrow()
   return (

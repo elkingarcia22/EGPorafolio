@@ -42,6 +42,8 @@ const SPOTLIGHT: readonly { r: number; c: number; note: L; unlocked?: L }[] = [
   { r: 4, c: 1, note: { es: 'el bienestar de Tecnología pide atención', en: 'Tech well-being needs attention' } },
 ]
 const SPOT_MS = 1700
+/** Lo que tarda la entrada celda a celda del mapa en celular (último retraso + duración de `hd-pop`). */
+const ENTRY_MS = 2400
 
 /** En vivo (celular): cada cuánto llega una respuesta y cuántas llegan antes de que el ciclo vuelva a empezar. */
 const LIVE_MS = 1500
@@ -167,7 +169,18 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
   liveNow.current = liveTick
   useEffect(() => setLiveBase(liveNow.current), [play])
   const k = lively && play > 0 ? Math.max(0, liveTick - liveBase) % LIVE_SPAN : 0
-  const restart = lively ? play : undefined
+  // Solo la primera entrada cuenta desde 0; en las vueltas siguientes los números siguen desde donde están (sin saltar a 0).
+  const entry = Math.min(play, 1)
+  const replay = lively && play > 1 ? play : 0
+  const restart = lively ? entry : undefined
+  // La entrada celda a celda dura ~1,9 s; después ninguna celda vuelve a `hd-pop` (si no, una celda que cambia de
+  // clase, como Comercial al abrirse o cerrarse, se apagaría de golpe y volvería a entrar sola).
+  const [entryDone, setEntryDone] = useState(false)
+  useEffect(() => {
+    if (!lively || play < 1) return
+    const id = window.setTimeout(() => setEntryDone(true), ENTRY_MS)
+    return () => window.clearTimeout(id)
+  }, [lively, play])
   const enpsShown = useCount(enps + (k ? ENPS_DRIFT[k % ENPS_DRIFT.length] : 0), restart)
   const flash = k ? liveCell(k) : null
   const spot = lively && play > 0 ? SPOTLIGHT[spotTick % SPOTLIGHT.length] : null
@@ -220,7 +233,7 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
             <div className="min-w-0 rounded-xl border border-black/[0.07] p-3">
               <p className="text-[10px] font-medium text-[#5c646f] max-lg:text-[11px]">eNPS</p>
               <p className="mt-1 text-[26px] font-semibold leading-none tabular-nums" style={{ color: enpsShown >= 30 ? '#2e8a55' : '#303a47' }}>+{enpsShown}</p>
-              <div key={lively ? play : undefined} className={`mt-2 flex h-1.5 overflow-hidden rounded-full ${lively ? 'hd-grow max-lg:h-2' : ''}`} aria-hidden="true">
+              <div key={lively ? entry : undefined} className={`mt-2 flex h-1.5 overflow-hidden rounded-full ${lively ? 'hd-grow max-lg:h-2' : ''}`} aria-hidden="true">
                 <span className="transition-[width] duration-700" style={{ width: `${(100 - enpsShown) / 2 - 8}%`, background: FAV[0] }} />
                 <span style={{ width: '16%', background: FAV[2] }} />
                 <span className="flex-1" style={{ background: FAV[4] }} />
@@ -235,7 +248,7 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
                 {FAV.map((f) => <span key={f} className="h-1.5 w-3 rounded-sm" style={{ background: f }} />)}
               </p>
             </div>
-            <div key={lively ? `grid-${play}` : undefined} className="grid grid-cols-[4.6rem_repeat(5,minmax(0,1fr))] gap-1 text-[10px] max-lg:text-[11px] max-sm:grid-cols-[4.1rem_repeat(5,minmax(0,1fr))]">
+            <div key={lively ? `grid-${entry}` : undefined} className="grid grid-cols-[4.6rem_repeat(5,minmax(0,1fr))] gap-1 text-[10px] max-lg:text-[11px] max-sm:grid-cols-[4.1rem_repeat(5,minmax(0,1fr))]">
               <span />
               {AREAS.map((a, c) => {
                 const n = c === GROWING_AREA ? growingN : a.n
@@ -260,13 +273,17 @@ export function ResultsDashboard({ answered, growingN, enps, pulse, lively = fal
                     const flashing = flash !== null && flash.r === r && flash.c === c && !reserved
                     const fresh = c === GROWING_AREA && !reserved && pulse
                     const lit = spot !== null && spot.r === r && spot.c === c
-                    // En celular cada celda entra de a una, fila por fila, la primera vez y en cada vuelta.
-                    const pop = lively && !fresh
+                    // En celular cada celda entra de a una la primera vez; en cada vuelta una ola la atenúa y la devuelve,
+                    // en diagonal, sin dejar el mapa vacío.
+                    const pop = lively && !fresh && !replay && !entryDone
+                    const wave = lively && !fresh && replay > 0
+                    // En escritorio, al volver a empezar la portada, Comercial vuelve a cerrarse con el mismo gesto con que se abrió.
+                    const relock = !lively && reserved && c === GROWING_AREA
                     return (
                       <span
-                        key={`${a.name}-${reserved}`}
-                        className={`relative flex h-7 items-center justify-center rounded-md font-mono tabular-nums transition-[transform,box-shadow,background-color] duration-500 ${fresh ? 'hd-unlock' : pop ? 'hd-pop' : ''} ${lit ? 'z-10 scale-[1.18] shadow-[0_0_0_2px_#0c5bef,0_8px_18px_-6px_rgba(12,91,239,0.6)]' : ''}`}
-                        style={{ ...(reserved ? { background: '#f1f2f4', color: '#979ba3' } : { background: favColor(score), color: '#14161a' }), animationDelay: fresh ? `${r * 70}ms` : pop ? `${300 + (r * AREAS.length + c) * 55}ms` : undefined }}
+                        key={`${a.name}-${reserved}-${replay}`}
+                        className={`relative flex h-7 items-center justify-center rounded-md font-mono tabular-nums transition-[transform,box-shadow,background-color] duration-500 ${fresh || relock ? 'hd-unlock' : pop ? 'hd-pop' : wave ? 'hd-wave' : ''} ${lit ? 'z-10 scale-[1.18] shadow-[0_0_0_2px_#0c5bef,0_8px_18px_-6px_rgba(12,91,239,0.6)]' : ''}`}
+                        style={{ ...(reserved ? { background: '#f1f2f4', color: '#979ba3' } : { background: favColor(score), color: '#14161a' }), animationDelay: fresh || relock ? `${r * 70}ms` : pop ? `${300 + (r * AREAS.length + c) * 55}ms` : wave ? `${(r + c) * 70}ms` : undefined }}
                         title={reserved ? t({ es: 'Reservado: por debajo del mínimo', en: 'Reserved: below the minimum' }) : undefined}
                       >
                         {reserved ? <Lock className="h-3 w-3" /> : score.toFixed(1).replace('.', ',')}

@@ -17,6 +17,8 @@ const STEPS: readonly StoryStep[] = [
   { label: { es: 'Queda verificada y la IA la usa', en: 'Verified, and the AI uses it' }, from: 11 },
 ]
 const LOOP = 20
+/** Último tick: la fuente destacada se desvanece ya verificada y vuelve «Por validar» oculta. */
+const isLeaving = (time: number) => time === LOOP - 1
 
 const ROWS = [
   { name: 'Supersociedades SIIS', country: 'Colombia', next: 'Snapshot SIIS 2024 cargado con 10.000 empresas. Primera fuente de NIT por nombre en cada corrida del Agente 1; alimenta la capa gratuita por industria.', use: 'Conectada' },
@@ -41,6 +43,7 @@ export function CatalogScreenAt({ time }: { time: number }) {
   const verified = now === 2
   const testing = now === 1
   const progress = testing ? Math.min(10, (time - 5) * 2) : verified ? 10 : 0
+  const leaving = isLeaving(time)
   const filter = verified ? 'Verificadas' : 'Por validar'
   const th = 'px-3 py-2.5 text-left font-medium text-white/60'
   return (
@@ -71,7 +74,7 @@ export function CatalogScreenAt({ time }: { time: number }) {
             <tr><th /><th className={th}>Fuente <ArrowUpDown className="inline h-3 w-3 opacity-40" /></th><th className={th}>País</th><th className={th}>Estado</th><th className={th}>Siguiente acción</th><th className={th}>Uso por la IA</th><th className={th}>Acción</th></tr>
           </thead>
           <tbody>
-            <tr className="transition-all duration-[400ms]" style={{ background: HIGHLIGHT.background, boxShadow: `inset 3px 0 0 ${verified ? '#34d399' : '#6b8cff'}` }}>
+            <tr className="transition-all duration-[400ms]" style={{ background: HIGHLIGHT.background, boxShadow: `inset 3px 0 0 ${verified ? '#34d399' : '#6b8cff'}`, opacity: leaving ? 0 : 1 }}>
               <td className="pl-2 text-white/30"><GripVertical className="h-4 w-4" /></td>
               <td className="px-3 py-3 font-medium">DENUE · Directorio de unidades económicas</td>
               <td className="px-3">México</td>
@@ -113,7 +116,8 @@ function CatalogMobile({ time }: { time: number }) {
   const now = stepAt(STEPS, time)
   const verified = now === 2
   const testing = now === 1
-  const progress = testing ? Math.min(10, (time - 5) * 2) : verified ? 10 : 0
+  const leaving = isLeaving(time)
+  const progress = testing ? Math.min(10, (time - 5) * 2) : verified && !leaving ? 10 : 0
   return (
     <div className="rounded-[20px] bg-[#0a0a0a] p-4 text-white ring-1 ring-white/10" style={{ fontFamily: REAL.font }}>
       <p className="text-[17px] font-semibold tracking-tight">Catálogo de fuentes</p>
@@ -122,7 +126,7 @@ function CatalogMobile({ time }: { time: number }) {
         <Chip label="Verificadas" n={verified ? 82 : 81} on={verified} />
         <Chip label="Por validar" n={verified ? 14 : 15} on={!verified} />
       </div>
-      <div className="mt-3 rounded-xl border px-3.5 py-3 transition-all duration-[400ms]" style={{ borderColor: verified ? 'rgba(52,211,153,0.5)' : 'rgba(107,140,255,0.6)', background: HIGHLIGHT.background }}>
+      <div className="mt-3 rounded-xl border px-3.5 py-3 transition-all duration-[400ms]" style={{ borderColor: verified ? 'rgba(52,211,153,0.5)' : 'rgba(107,140,255,0.6)', background: HIGHLIGHT.background, opacity: leaving ? 0 : 1 }}>
         <div className="flex items-start gap-2">
           <span className="min-w-0 flex-1">
             <span className="block text-[14px] font-medium leading-snug">DENUE · Directorio de unidades económicas</span>

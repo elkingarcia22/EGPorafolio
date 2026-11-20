@@ -21,23 +21,37 @@ const CHAIN: readonly Link[] = [
   { q: { es: '¿Qué le digo?', en: 'What do I say?' }, agent: { es: 'Agente 3', en: 'Agent 3' }, out: { es: 'Primer contacto con contexto', en: 'First contact with context' } },
 ]
 
+/** Ticks del bucle de la cadena: 6 pasos, 2 de pausa y 1 de salida. */
+const CHAIN_LOOP = 9
+
 /** Cadena animada: un pulso recorre los agentes y se detiene en cada persona. */
 function Chain() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.3)
   const tick = useTick(560)
-  // 0..5: agente, persona, agente, persona, agente, persona (llamada)
-  const at = reducedMotion ? 5 : tick % 7
+  // 0..5: agente, persona, agente, persona, agente, persona (llamada); 6–7 pausa con todo
+  // encendido; 8 salida: todo se apaga junto y la línea se desvanece en vez de encogerse.
+  const at = reducedMotion ? 5 : tick % CHAIN_LOOP
+  const exit = at === CHAIN_LOOP - 1
+  const restart = !reducedMotion && at === 0
   return (
     <div ref={ref} className="relative">
       <div className="absolute left-[8%] right-[8%] top-[46px] hidden h-px bg-white/10 md:block" aria-hidden="true">
-        <span className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#285ee6] via-[#d22d6a] to-[#eb6233] transition-[width] duration-1000 ease-linear" style={{ width: seen ? `${Math.min(at, 5) * 20}%` : '0%' }} />
+        <span
+          className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#285ee6] via-[#d22d6a] to-[#eb6233]"
+          style={{
+            width: seen && !exit && !restart ? `${Math.min(at, 5) * 20}%` : exit ? '100%' : '0%',
+            opacity: exit ? 0 : 1,
+            // Al volver a empezar, la línea ya está oculta: se pone en cero sin animar el ancho.
+            transition: restart ? 'none' : 'width 1000ms linear, opacity 500ms ease-in',
+          }}
+        />
       </div>
       <ol className="relative grid gap-6 md:grid-cols-3">
         {CHAIN.map((c, i) => {
-          const lit = seen && at >= i * 2
-          const approved = seen && at >= i * 2 + 1
+          const lit = seen && !exit && at >= i * 2
+          const approved = seen && !exit && at >= i * 2 + 1
           return (
             <li key={c.q.es} className="relative text-center">
               <div className={`mx-auto grid h-[92px] w-[92px] place-items-center rounded-full ring-1 transition-all duration-700 ${lit ? 'ring-[#7e2be0]/70 shadow-[0_0_60px_rgba(126,43,224,0.45)]' : 'ring-white/10'}`} style={{ background: '#0d0e10' }}>
@@ -53,7 +67,7 @@ function Chain() {
           )
         })}
       </ol>
-      <p className={`mt-10 text-center text-sm transition-all duration-700 ${seen && at >= 5 ? 'text-[#b7c6ff] opacity-100' : 'opacity-0'}`}>
+      <p className={`mt-10 text-center text-sm transition-all duration-700 ${seen && !exit && at >= 5 ? 'text-[#b7c6ff] opacity-100' : 'opacity-0'}`}>
         {t({ es: '→ El vendedor llama sabiendo a quién, por qué y qué decir.', en: '→ The rep calls knowing who, why and what to say.' })}
       </p>
     </div>

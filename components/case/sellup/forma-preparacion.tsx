@@ -36,14 +36,19 @@ export function FirstContactPrep() {
   const [ref, time, jump] = useSceneTime(LOOP, 25)
   const scene = stepAt(STEPS, time)
   const [channel, setChannel] = useState<Channel>('email')
-  const u = Math.max(0, time - 14)
+  // Cada escena se reinicia solo mientras está oculta: el imán vuelve al principio cuando el
+  // abanico ya cubrió la escena, y el abanico conserva su último estado mientras se desvanece.
+  const FAN_FROM = STEPS[1].from
+  const FADE_TICKS = 2
+  const magnetTime = time < FAN_FROM + FADE_TICKS ? time + 5 : 5
+  const u = time >= FAN_FROM ? time - FAN_FROM : time < FADE_TICKS ? LOOP - 1 - FAN_FROM : 0
   return (
     <div ref={ref}>
       <StorySteps steps={STEPS} time={time} kicker={{ es: 'Agente 3', en: 'Agent 3' }} onPick={jump} />
       <SceneStage
         active={scene}
         scenes={[
-          <Magnet key="magnet" time={time + 5} />,
+          <Magnet key="magnet" time={magnetTime} />,
           <DetailScene key="fan" width={FAN_W} height={FAN_H} view={fanView(u, channel)}><FanScene u={u} onChannel={setChannel} /></DetailScene>,
         ]}
       />

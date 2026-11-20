@@ -73,7 +73,7 @@ function Magnet({ time }: { time: number }) {
   const fake = FRAGMENTS.some((f, i) => f.fake && time === fragAt(i))
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10" style={{ height: STAGE_H, background: 'radial-gradient(ellipse at 50% 30%, #1b1430 0%, #0d0d0f 70%)' }}>
-      <style>{'@keyframes a3m-ring{0%{transform:scale(.6);opacity:.7}100%{transform:scale(2.2);opacity:0}}'}</style>
+      <style>{'@keyframes a3m-ring{0%{transform:scale(.6);opacity:0}15%{opacity:.7}100%{transform:scale(2.2);opacity:0}}'}</style>
       {[0, 1, 2].map((k) => (
         <span key={k} className="absolute left-1/2 h-[100px] w-[100px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#7e2be0]/50 motion-reduce:hidden" style={{ top: RUMBO_Y, animation: `a3m-ring 2.4s ease-out ${k * 0.8}s infinite` }} aria-hidden="true" />
       ))}

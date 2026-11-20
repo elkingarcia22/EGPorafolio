@@ -23,17 +23,19 @@ const CASES = [
 /** 01 · Con solo el celular, cada uno entra por su camino. */
 function CoverDemo() {
   const { t } = useLocale()
-  const { step, round } = useStep(900, 5)
+  // Paso 5: la tarjeta sale antes de cambiar de cliente, así su nombre no cambia mientras se desvanece.
+  const { step, round } = useStep(900, 6)
   const c = CASES[round % CASES.length]
   const typed = c.phone.slice(0, Math.min(c.phone.length, Math.round((step / 2) * c.phone.length)))
-  const decided = step >= 3
+  const { reducedMotion } = useA11y()
+  const decided = step >= 3 && (step < 5 || reducedMotion)
   return (
     <div className="flex h-full flex-col justify-center gap-4">
       <div className="flex items-center gap-2">
         <span className="rounded-md border border-fg/15 bg-bg px-2.5 py-2 font-mono text-[12px] opacity-60">+57</span>
-        <span className="flex-1 rounded-md border bg-bg px-3 py-2 font-mono text-[13px] tabular-nums transition-colors duration-300" style={{ borderColor: decided ? GOLD : 'rgb(var(--fg) / 0.15)' }}>
+        <span className="flex-1 rounded-md border bg-bg px-3 py-2 font-mono text-[13px] tabular-nums transition-colors duration-300" style={{ borderColor: step >= 3 ? GOLD : 'rgb(var(--fg) / 0.15)' }}>
           {typed || <span className="opacity-35">000 000 0000</span>}
-          {!decided && <span className="caret" />}
+          {step < 3 && <span className="caret" />}
         </span>
       </div>
       <div className={`flex items-center justify-between gap-3 transition-all duration-500 ease-expo ${decided ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}>

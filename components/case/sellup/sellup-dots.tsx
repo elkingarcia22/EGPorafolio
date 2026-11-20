@@ -62,7 +62,7 @@ const PAINS: readonly Pain[] = [
 ]
 
 /** Pestañas del navegador que se apilan mientras el vendedor busca a mano. */
-function TabPile({ tabs, on, gone }: { tabs: readonly string[]; on: boolean; gone: boolean }) {
+function TabPile({ tabs, on, gone, reset = false }: { tabs: readonly string[]; on: boolean; gone: boolean; reset?: boolean }) {
   const tick = useTick(700)
   const active = tick % tabs.length
   return (
@@ -75,8 +75,9 @@ function TabPile({ tabs, on, gone }: { tabs: readonly string[]; on: boolean; gon
             top: i * 16,
             left: i * 8,
             background: i === active ? APP.cardHi : APP.card,
-            opacity: on && !gone ? 1 : 0,
-            transform: gone ? `translate(${140 + i * 10}%, ${-i * 10}px) scale(0.35) rotate(${i * 8}deg)` : on ? `rotate(${(i % 2 ? 1 : -1) * (i * 0.6)}deg)` : 'translateY(30px)',
+            opacity: on && !gone && !reset ? 1 : 0,
+            // `reset`: ya ocultas, vuelven abajo para entrar de nuevo desde ahí (no rebobinan el vuelo).
+            transform: reset ? 'translateY(30px)' : gone ? `translate(${140 + i * 10}%, ${-i * 10}px) scale(0.35) rotate(${i * 8}deg)` : on ? `rotate(${(i % 2 ? 1 : -1) * (i * 0.6)}deg)` : 'translateY(30px)',
             transitionDelay: `${(gone ? tabs.length - i : i) * 110}ms`,
             zIndex: i,
           }}
@@ -103,7 +104,10 @@ function PainRow({ p, index }: { p: Pain; index: number }) {
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLLIElement>(0.35)
   const tick = useTick(600)
-  const swapped = seen && (reducedMotion || (tick + 9 - index * 2) % 9 >= 4)
+  const phase = (tick + 9 - index * 2) % 9
+  const swapped = seen && (reducedMotion || phase >= 4)
+  // Último tick del ciclo: las pestañas, ya fuera de vista, se reubican abajo antes de volver.
+  const reset = seen && !reducedMotion && phase === 8
   return (
     <li ref={ref} className="relative grid gap-5 border-t border-white/10 pt-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:gap-10">
       <div className={`transition-[opacity,filter] duration-700 ${swapped ? 'opacity-40 blur-[1px] md:opacity-25' : 'opacity-100'}`}>
@@ -118,7 +122,7 @@ function PainRow({ p, index }: { p: Pain; index: number }) {
           </div>
           <span className="whitespace-nowrap font-mono text-xs text-white/60">≈ {p.hours} h / {t({ es: 'semana', en: 'week' })}</span>
         </div>
-        <div className="mt-5"><TabPile tabs={p.tabs} on={seen} gone={swapped} /></div>
+        <div className="mt-5"><TabPile tabs={p.tabs} on={seen} gone={swapped && !reset} reset={reset} /></div>
       </div>
       <div
         className={`relative z-10 self-center rounded-[16px] p-5 ring-1 transition-all duration-[900ms] ease-expo ${seen ? 'opacity-100' : 'translate-x-6 opacity-0'} ${

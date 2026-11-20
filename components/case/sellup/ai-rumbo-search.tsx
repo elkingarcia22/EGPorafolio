@@ -1,6 +1,7 @@
 'use client'
 
 import { useLocale, type L } from '@/lib/i18n'
+import { useA11y } from '@/lib/a11y'
 import { APP, Pill, RumboOrb } from './platform'
 import { useInView } from './ui'
 import { useLoop } from './ai-hooks'
@@ -61,14 +62,20 @@ const RESULTS: readonly { name: string; cite: L; tone: 'green' | 'blue' }[] = [
   { name: 'Laboratorios Ceiba', cite: { es: 'Sitio web · «1.200 colaboradores»', en: 'Website · “1,200 staff”' }, tone: 'blue' },
 ]
 
-const TOTAL = THOUGHTS.length + 3
+/** Los pensamientos, una pausa con todo a la vista y un último paso de salida (todo se desvanece junto). */
+const TOTAL = THOUGHTS.length + 4
+const EXIT = TOTAL - 1
 
 /** Cómo busca Rumbo: baja la cascada de fuentes, lee, cita, verifica y se detiene. */
 export function RumboSearch() {
   const { t } = useLocale()
+  const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.35)
-  const [step] = useLoop(TOTAL, 750, seen)
-  const goal = step >= 6
+  const [tick] = useLoop(TOTAL, 750, seen && !reducedMotion)
+  // Con movimiento reducido queda quieto en el final de la corrida.
+  const step = reducedMotion ? THOUGHTS.length - 1 : tick
+  const exit = step === EXIT
+  const goal = step >= 6 && !exit
   const compact = useCompact()
   const L = compact ? TALL : WIDE
   const [cx, cy] = L.center
@@ -78,7 +85,7 @@ export function RumboSearch() {
   const state = (i: number): 'idle' | 'busy' | 'done' | 'skip' => {
     if (SOURCES[i].cost === 'paid') return goal ? 'skip' : 'idle'
     if (i === active) return 'busy'
-    return step > i + 1 ? 'done' : 'idle'
+    return step > i + 1 && !exit ? 'done' : 'idle'
   }
 
   return (
@@ -120,7 +127,7 @@ export function RumboSearch() {
         <p className="mono-label mb-3 flex items-center gap-2 opacity-60"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#7e2be0]" />{t({ es: 'Lo que Rumbo está pensando', en: 'What Rumbo is thinking' })}</p>
         <ol className="space-y-2 text-[13px]">
           {THOUGHTS.map((th, i) => {
-            const shown = i <= step
+            const shown = i <= step && !exit
             return (
               <li key={th.es} className={`flex gap-2 transition-all duration-500 ${shown ? 'opacity-100' : 'translate-y-1 opacity-0'} ${i === Math.min(step, THOUGHTS.length - 1) ? '' : 'text-white/50'}`}>
                 <span className="font-mono text-[11px] text-[#a78bfa] lg:text-[10px]">{String(i + 1).padStart(2, '0')}</span>
@@ -129,7 +136,7 @@ export function RumboSearch() {
             )
           })}
         </ol>
-        <ul className={`mt-4 space-y-1.5 transition-all duration-700 ${step >= THOUGHTS.length - 1 ? 'opacity-100' : 'translate-y-2 opacity-0'}`}>
+        <ul className={`mt-4 space-y-1.5 transition-all duration-700 ${step >= THOUGHTS.length - 1 && !exit ? 'opacity-100' : 'translate-y-2 opacity-0'}`}>
           {RESULTS.map((r) => (
             <li key={r.name} className="flex items-center justify-between gap-2 rounded-[10px] px-3 py-2 ring-1 ring-white/[0.08]" style={{ background: APP.card }}>
               <span className="truncate text-[12px]">{r.name}</span>

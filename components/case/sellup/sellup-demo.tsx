@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
+import { useA11y } from '@/lib/a11y'
 import { CaseDemo } from '@/components/case/kit/case-demo'
 import { RecordModal } from '@/components/case/kit/record-modal'
 import { useTick } from '../barberlytics/thema/live-pieces'
@@ -10,11 +11,11 @@ import { useCompact } from './camera'
 import { RealFrame, type RealNav } from './real-app'
 import { DetailScene, Scaled } from './forma-stage'
 import { FLOW_LOOP, FlowBoard, FlowScreen } from './forma-flujo'
-import { MAP_H, MAP_W, SearchMap } from './forma-a1-map'
+import { A1_LOOP, MAP_H, MAP_W, SearchMap } from './forma-a1-map'
 import { SearchRadarMobile } from './forma-a1-radar-mobile'
 import { CompanyReview, ContactReview } from './real-review-tables'
 import { CompanyDetail, ContactDetail } from './real-detail'
-import { PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
+import { A2_LOOP, PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
 import { PeopleRadarMobile } from './forma-a2-radar-mobile'
 import { PhoneDecoder, type A2Phone } from './forma-a2-phone'
 import { MAGNET_H, MAGNET_W, MagnetScene } from './forma-a3-magnet'
@@ -35,30 +36,48 @@ import { RumboSearch } from './ai-rumbo-search'
 const TICK_MS = 560
 const BLUE = '91 126 255'
 
-/** Reloj en bucle de `loop` ticks: en el modal todo está a la vista, no hace falta esperar a verlo. */
-function useLoop(loop: number): number {
-  return useTick(TICK_MS) % loop
+/**
+ * Reloj en bucle de `loop` ticks: en el modal todo está a la vista, no hace falta esperar a verlo.
+ * Con movimiento reducido se queda quieto en `still`, un momento que cuenta la historia completa.
+ */
+function useLoop(loop: number, still: number): number {
+  const { reducedMotion } = useA11y()
+  const tick = useTick(TICK_MS) % loop
+  return reducedMotion ? still : tick
+}
+
+/**
+ * Cierre del bucle para escenas que no tienen salida propia: en el último tick la escena
+ * se desvanece, se reinicia oculta y vuelve con un fundido, en vez de rebobinarse a la vista.
+ */
+function LoopFade({ time, loop, children }: { time: number; loop: number; children: ReactNode }) {
+  const out = time === loop - 1
+  return (
+    <div style={{ opacity: out ? 0 : 1, transition: out ? 'opacity 320ms ease-in' : 'opacity 420ms ease-out 200ms' }}>
+      {children}
+    </div>
+  )
 }
 
 /** Encuadre de las tablas en teléfono: desde el borde del contenido. */
 const TABLE_VIEW = { cx: 0, x: 252, cy: 300, w: 400, h: 560 }
 
 function Flow() {
-  const time = useLoop(FLOW_LOOP)
+  const time = useLoop(FLOW_LOOP, 22)
   const compact = useCompact()
   if (compact) return <FlowBoard time={time} />
   return <RealFrame active="flujo" crumb={['Flujo de prospección']} height={640}><FlowScreen time={time} /></RealFrame>
 }
 
 function Agent1() {
-  const time = useLoop(14)
+  const time = useLoop(A1_LOOP, 9)
   const compact = useCompact()
   if (compact) return <SearchRadarMobile t={time} />
   return <Scaled width={MAP_W} height={MAP_H}><SearchMap t={time} /></Scaled>
 }
 
 function Review({ kind }: { kind: 'empresas' | 'contactos' }) {
-  const time = useLoop(10)
+  const time = useLoop(10, 5)
   const arrived = time >= 2
   const nav: RealNav = kind === 'empresas' ? 'revisar' : 'contactos'
   return (
@@ -69,14 +88,14 @@ function Review({ kind }: { kind: 'empresas' | 'contactos' }) {
 }
 
 function Company() {
-  const time = useLoop(12)
+  const time = useLoop(12, 0)
   const compact = useCompact()
   if (compact) return <CompanyDetail show inline stack panel={time < 6 ? 0 : 1} />
   return <DetailScene><CompanyDetail show inline /></DetailScene>
 }
 
 function Agent2() {
-  const time = useLoop(16)
+  const time = useLoop(A2_LOOP, 11)
   const compact = useCompact()
   if (compact) return <PeopleRadarMobile t={time} />
   return <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={time} /></Scaled>
@@ -85,25 +104,36 @@ function Agent2() {
 const phoneAt = (time: number): A2Phone => (time < 3 ? 'idle' : time < 5 ? 'apollo' : time < 7 ? 'lusha' : 'done')
 
 function Phone() {
-  const time = useLoop(12)
+  const time = useLoop(12, 9)
   const compact = useCompact()
   const slot = <PhoneDecoder state={phoneAt(time)} pressed={time === 3} />
   if (compact) return <ContactDetail show inline stack phone="idle" phoneSlot={slot} />
   return <DetailScene><ContactDetail show inline phone="idle" phoneSlot={slot} /></DetailScene>
 }
 
+const RESEARCH_LOOP = 20
+
 function Research() {
-  const time = useLoop(20)
+  const time = useLoop(RESEARCH_LOOP, 15)
   const compact = useCompact()
-  if (compact) return <MagnetMobile time={time + 4} />
-  return <DetailScene width={MAGNET_W} height={MAGNET_H}><MagnetScene time={time + 4} /></DetailScene>
+  return (
+    <LoopFade time={time} loop={RESEARCH_LOOP}>
+      {compact ? <MagnetMobile time={time + 4} /> : <DetailScene width={MAGNET_W} height={MAGNET_H}><MagnetScene time={time + 4} /></DetailScene>}
+    </LoopFade>
+  )
 }
 
+const MESSAGE_LOOP = 24
+
 function Message() {
-  const u = useLoop(24)
+  const u = useLoop(MESSAGE_LOOP, 12)
   const [channel, setChannel] = useState<Parameters<typeof fanView>[1]>('email')
   const compact = useCompact()
-  return <DetailScene width={FAN_W} height={FAN_H} view={compact ? fanView(u, channel) : undefined}><FanScene u={u} onChannel={setChannel} /></DetailScene>
+  return (
+    <LoopFade time={u} loop={MESSAGE_LOOP}>
+      <DetailScene width={FAN_W} height={FAN_H} view={compact ? fanView(u, channel) : undefined}><FanScene u={u} onChannel={setChannel} /></DetailScene>
+    </LoopFade>
+  )
 }
 
 interface Module {

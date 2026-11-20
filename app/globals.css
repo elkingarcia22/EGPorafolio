@@ -251,3 +251,6 @@ html[data-motion='reduced'] [style*='node-link'], html[data-motion='reduced'] [s
   0% { background-position: 120% 0; }
   60%, 100% { background-position: -20% 0; }
 }
+/* Barberlytics · calendario en vivo: al reiniciar el día la línea de la hora se cruza en fundido en vez de rebobinar */
+@keyframes bl-fade-in { from { opacity: 0; } }
+@keyframes bl-fade-out { to { opacity: 0; } }

@@ -147,7 +147,7 @@ function EvalSwarm() {
 
 /* ── El filtro de cifras: un recorrido de modelo a pantalla ────────────── */
 
-const GUARD_STEPS = 6
+const GUARD_STEPS = 7
 
 function GuardFlow() {
   const { t } = useLocale()
@@ -156,9 +156,14 @@ function GuardFlow() {
   const tick = useTick(1500)
   const step = reducedMotion ? 5 : tick % GUARD_STEPS
   // 0 el modelo escribe · 1 viaja al filtro · 2 lo frena · 3 vuelve a corregir · 4 viaja de nuevo · 5 llega a la pantalla
-  const packetX = [8, 50, 50, 8, 50, 92][step]
+  // 6 el paquete y el rastro se apagan en la pantalla; en 0 reaparecen en el modelo sin rebobinar por la pista.
+  const packetX = [8, 50, 50, 8, 50, 92, 92][step]
   const caught = step === 2 || step === 3
-  const passed = step === 5
+  const passed = step >= 5
+  const leaving = step === 6
+  const restart = step === 0
+  const trailMotion = restart ? 'transition-opacity duration-500' : 'transition-[width,opacity] duration-700 ease-expo'
+  const packetMotion = restart ? 'transition-opacity duration-500' : 'transition-[left,background-color,opacity] duration-700 ease-expo'
   const text = step >= 3 ? t(guard.after) : t(guard.before)
   const node = (x: number, label: L, sub: L, on: boolean, tone?: string) => (
     <div className="absolute top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2" style={{ left: `${x}%` }}>
@@ -181,12 +186,12 @@ function GuardFlow() {
 
       <div className="relative mt-8 h-[170px]">
         <span className="absolute left-[8%] right-[8%] top-1/2 h-px -translate-y-[26px] bg-white/10" aria-hidden="true" />
-        <span className="absolute left-[8%] top-1/2 h-[2px] -translate-y-[26px] rounded-full transition-[width] duration-700 ease-expo" style={{ width: `${packetX - 8}%`, backgroundImage: caught ? `linear-gradient(90deg,#de8c3a,${RED})` : AI_GRADIENT }} aria-hidden="true" />
+        <span className={`absolute left-[8%] top-1/2 h-[2px] -translate-y-[26px] rounded-full ${trailMotion}`} style={{ width: `${packetX - 8}%`, opacity: leaving ? 0 : 1, backgroundImage: caught ? `linear-gradient(90deg,#de8c3a,${RED})` : AI_GRADIENT }} aria-hidden="true" />
         {node(8, { es: 'Modelo', en: 'Model' }, { es: 'escribe la respuesta', en: 'writes the answer' }, step === 0 || step === 3)}
         {node(50, { es: 'Filtro', en: 'Guard' }, { es: 'compara con lo consultado', en: 'checks against the lookup' }, step >= 1 && step <= 4, caught ? RED : GREEN)}
         {node(92, { es: 'Pantalla', en: 'Screen' }, { es: 'lo que ve la persona', en: 'what the person sees' }, passed, GREEN)}
         {/* El paquete que viaja */}
-        <span className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-[31px] rounded-full transition-[left,background-color] duration-700 ease-expo" style={{ left: `${packetX}%`, background: caught ? RED : passed ? GREEN : '#f0ce86', boxShadow: `0 0 16px ${caught ? RED : '#de8c3a'}` }} aria-hidden="true" />
+        <span className={`absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-[31px] rounded-full ${packetMotion}`} style={{ left: `${packetX}%`, opacity: leaving ? 0 : 1, background: caught ? RED : passed ? GREEN : '#f0ce86', boxShadow: `0 0 16px ${caught ? RED : '#de8c3a'}` }} aria-hidden="true" />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center">

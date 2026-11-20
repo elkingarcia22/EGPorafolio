@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   ALL_FIELDS,
   APPTS,
@@ -123,6 +124,14 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
   const narrow = useNarrow()
   const cols = BARBERS.slice(0, narrow ? Math.min(columns, 2) : columns)
   const counts = cols.map((_, c) => APPTS.filter((a) => a.col === c && stageAt(a, now) !== 'paid').length)
+  // Cuando el reloj vuelve a empezar el día, la línea de la hora no rebobina por toda la rejilla:
+  // la de antes se desvanece donde estaba y la nueva aparece arriba (lap cambia la key de ambas).
+  const [prevNow, setPrevNow] = useState(now)
+  const [lap, setLap] = useState({ n: 0, from: now })
+  if (now !== prevNow) {
+    if (now < prevNow) setLap({ n: lap.n + 1, from: prevNow })
+    setPrevNow(now)
+  }
   const grid = { gridTemplateColumns: `3.4rem repeat(${cols.length}, minmax(0, 1fr))` }
   return (
     <div className={`overflow-hidden rounded-2xl border border-white/10 bg-[#141210] text-[#efe9dd] ${className}`}>
@@ -132,7 +141,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
           <div key={b} className="relative border-l border-white/[0.06] px-2 py-2.5">
             <p className="truncate text-xs font-medium">{b}</p>
             <p className="truncate text-[10px] text-white/45 max-sm:text-[11px]">{counts[c] ? `${counts[c]} por atender` : 'Sin pendientes'}</p>
-            <span className="absolute inset-x-0 bottom-0 h-[2px] bg-[#d9b36a]/70 transition-[width] duration-700" style={{ width: `${Math.min(100, (now / HALF_HOURS) * 100)}%` }} />
+            <span key={lap.n} className="absolute inset-x-0 bottom-0 h-[2px] bg-[#d9b36a]/70 transition-[width] duration-700" style={{ width: `${Math.min(100, (now / HALF_HOURS) * 100)}%`, animation: lap.n ? 'bl-fade-in 0.7s ease both' : undefined }} />
           </div>
         ))}
       </div>
@@ -175,7 +184,13 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
             ))}
           </div>
         ))}
-        <div className="pointer-events-none absolute inset-x-0 z-10 flex items-center transition-[top] duration-500 ease-linear" style={{ top: now * px }}>
+        {lap.n > 0 && (
+          <div key={`out-${lap.n}`} className="pointer-events-none absolute inset-x-0 z-10 flex items-center" style={{ top: lap.from * px, animation: 'bl-fade-out 0.6s ease both' }} aria-hidden="true">
+            <span className="ml-0.5 rounded-full bg-[#e5484d] px-1.5 py-[1px] font-mono text-[9px] text-white max-sm:text-[10.5px]">{fmt(lap.from)}</span>
+            <span className="h-px flex-1 bg-[#e5484d]" />
+          </div>
+        )}
+        <div key={`now-${lap.n}`} className="pointer-events-none absolute inset-x-0 z-10 flex items-center transition-[top] duration-500 ease-linear" style={{ top: now * px, animation: lap.n ? 'bl-fade-in 0.7s ease 0.15s both' : undefined }}>
           <span className="ml-0.5 rounded-full bg-[#e5484d] px-1.5 py-[1px] font-mono text-[9px] text-white max-sm:text-[10.5px]">{fmt(now)}</span>
           <span className="h-px flex-1 bg-[#e5484d]" />
         </div>

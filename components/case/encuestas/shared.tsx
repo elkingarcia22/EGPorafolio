@@ -33,6 +33,27 @@ export function useTicker(ms: number, enabled = true): number {
   return tick
 }
 
+/**
+ * Un bucle de `steps` pasos que no rebobina de golpe: tras el último paso hay uno de salida (`leaving`) en el que
+ * todo se desvanece junto, y la vuelta siguiente (`cycle` cambia) arranca de cero ya oculta y entra con un fundido.
+ */
+export function useLoop(ms: number, steps: number, enabled = true): { step: number; cycle: number; leaving: boolean } {
+  const tick = useTicker(ms, enabled)
+  const total = steps + 1
+  const s = tick % total
+  const leaving = s === steps
+  return { step: leaving ? steps - 1 : s, cycle: Math.floor(tick / total), leaving }
+}
+
+/** Envoltura de una vuelta de `useLoop`: se apaga en la salida y se vuelve a montar (con fundido) en cada vuelta. */
+export function LoopFade({ cycle, leaving, className = '', children }: { cycle: number; leaving: boolean; className?: string; children: React.ReactNode }) {
+  return (
+    <div key={cycle} className={`${cycle > 0 ? 'hd-loop-in' : ''} transition-[opacity,transform] duration-500 ease-out ${leaving ? 'hd-loop-out' : ''} ${className}`}>
+      {children}
+    </div>
+  )
+}
+
 interface ScreenProps {
   shot: Shot
   /** Ruta real del playground, se muestra en la barra. */

@@ -117,7 +117,7 @@ export function SourceCatalog() {
           </div>
         </div>
 
-        <div key={c.code} className="rounded-[20px] border border-[#6b8cff]/40 bg-gradient-to-br from-[#161c33] to-[#121318] p-6 shadow-[0_30px_80px_-30px_rgba(40,94,230,0.55)]">
+        <div key={c.code} className="animate-[catalogIn_.4s_cubic-bezier(.16,1,.3,1)] rounded-[20px] border motion-reduce:animate-none border-[#6b8cff]/40 bg-gradient-to-br from-[#161c33] to-[#121318] p-6 shadow-[0_30px_80px_-30px_rgba(40,94,230,0.55)]">
           <p className="flex items-center gap-3">
             <span className="text-4xl" aria-hidden="true">{c.flag}</span>
             <span>
@@ -139,6 +139,7 @@ export function SourceCatalog() {
         </div>
       </div>
 
+      <style>{'@keyframes catalogIn{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:none}}'}</style>
       <p className="mono-label mb-4 mt-14 text-white/50 max-md:mt-10">{t({ es: 'Fuentes destacadas · filas en Producción', en: 'Featured sources · rows in Production' })}</p>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-md:[&>li:nth-child(n+4)]:hidden">
         {FEATURED.map((f, i) => (

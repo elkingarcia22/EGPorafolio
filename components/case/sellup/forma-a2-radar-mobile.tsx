@@ -1,7 +1,7 @@
 'use client'
 
 import { Building2, Check, Minus } from 'lucide-react'
-import { CREDITS, PEOPLE, RINGS } from './forma-a2-radar'
+import { CREDITS, PEOPLE, RINGS, isA2Exit } from './forma-a2-radar'
 import { useWidth } from './camera'
 
 /**
@@ -44,7 +44,10 @@ function Radar({ t }: { t: number }) {
   const outer = c - EDGE
   const scanning = t >= 2 && t < 10
   const rise = t >= 10
-  const lit = (ring: number) => t >= RINGS[ring].at
+  const exit = isA2Exit(t)
+  const ready = t >= 1 && !exit
+  const found = (ring: number) => t >= RINGS[ring].at
+  const lit = (ring: number) => !exit && found(ring)
   const pos = (ring: number, deg: number) => {
     const a = (deg * Math.PI) / 180
     const r = ringRadius(ring, outer)
@@ -72,7 +75,7 @@ function Radar({ t }: { t: number }) {
                 stroke={lit(k) && k < 3 ? 'url(#a2m-ring)' : 'rgba(255,255,255,0.12)'}
                 strokeWidth={lit(k) && k < 3 ? 1.6 : 1}
                 strokeDasharray={k === 3 ? '4 6' : undefined}
-                style={{ transition: 'stroke 300ms, opacity 300ms', opacity: t >= 1 ? (k === 3 && t >= 8 ? 0.35 : 1) : 0 }}
+                style={{ transition: 'stroke 300ms, opacity 300ms', opacity: ready ? (k === 3 && t >= 8 ? 0.35 : 1) : 0 }}
               />
             ))}
             {PEOPLE.map((p) => {
@@ -90,7 +93,7 @@ function Radar({ t }: { t: number }) {
 
           {/* Personas */}
           {PEOPLE.map((p) => {
-            const on = lit(p.ring)
+            const on = found(p.ring)
             const decider = Boolean(p.role)
             const q = on ? pos(p.ring, p.deg) : { x: c, y: c }
             return (
@@ -101,7 +104,7 @@ function Radar({ t }: { t: number }) {
                   width: AVATAR,
                   height: AVATAR,
                   transform: `translate(${q.x - AVATAR / 2}px, ${q.y - AVATAR / 2}px) scale(${on ? (rise && decider ? 1.15 : 1) : 0.2})`,
-                  opacity: on ? (rise && !decider ? 0.2 : 1) : 0,
+                  opacity: on && !exit ? (rise && !decider ? 0.2 : 1) : 0,
                   background: decider ? 'linear-gradient(135deg,#285ee6,#7e2be0 60%,#d22d6a)' : '#23252d',
                   boxShadow: decider && on ? '0 0 0 3px rgba(107,140,255,0.25), 0 0 20px rgba(126,43,224,0.6)' : 'none',
                   color: decider ? '#fff' : 'rgba(255,255,255,0.75)',
@@ -126,8 +129,9 @@ function Radar({ t }: { t: number }) {
 
 /** Quienes deciden, con su cargo: aparecen cuando suben en el radar. */
 function Deciders({ t }: { t: number }) {
-  const rise = t >= 10
-  const fly = t >= 12
+  const exit = isA2Exit(t)
+  const rise = t >= 10 && !exit
+  const fly = t >= 12 && !exit
   const deciders = PEOPLE.filter((p) => p.role)
   return (
     <div className={CARD}>
@@ -150,7 +154,7 @@ function Deciders({ t }: { t: number }) {
 
 /** La cascada de fuentes: el mismo listado que en escritorio, a todo el ancho. */
 function Cascade({ t }: { t: number }) {
-  const lit = (ring: number) => t >= RINGS[ring].at
+  const lit = (ring: number) => !isA2Exit(t) && t >= RINGS[ring].at
   return (
     <ul className={`${CARD} space-y-1.5`}>
       {RINGS.map((ring, k) => (
@@ -166,16 +170,18 @@ function Cascade({ t }: { t: number }) {
 
 /** Los créditos: se reservan antes de llamar y lo que no se usa vuelve. */
 function Credits({ t }: { t: number }) {
-  const used = t >= 6 ? 3 : 0
-  const back = t >= 10
+  const exit = isA2Exit(t)
+  const ready = t >= 1 && !exit
+  const used = t >= 6 && !exit ? 3 : 0
+  const back = t >= 10 && !exit
   return (
     <div className={CARD}>
-      <p className="flex items-center text-[12px] text-white/60">Créditos reservados<span className="ml-auto font-semibold tabular-nums text-white">{t >= 1 ? CREDITS : 0}</span></p>
+      <p className="flex items-center text-[12px] text-white/60">Créditos reservados<span className="ml-auto font-semibold tabular-nums text-white">{ready ? CREDITS : 0}</span></p>
       <div className="mt-2 grid grid-cols-8 gap-1">
         {Array.from({ length: CREDITS }, (_, k) => {
           const isUsed = k < used
           const isBack = back && !isUsed
-          return <span key={k} className="h-3 rounded-sm transition-all duration-300" style={{ transitionDelay: `${k * 40}ms`, background: t < 1 ? 'rgba(255,255,255,0.08)' : isUsed ? '#eb6233' : isBack ? '#34d399' : '#6b8cff', transform: isBack ? 'translateY(-3px)' : 'none' }} />
+          return <span key={k} className="h-3 rounded-sm transition-all duration-300" style={{ transitionDelay: `${k * 40}ms`, background: !ready ? 'rgba(255,255,255,0.08)' : isUsed ? '#eb6233' : isBack ? '#34d399' : '#6b8cff', transform: isBack ? 'translateY(-3px)' : 'none' }} />
         })}
       </div>
       <p className="mt-2 text-[12px] text-white/55">{back ? '3 usados · 5 devueltos' : used ? '3 usados en Apollo' : 'Se reservan antes de llamar'}</p>

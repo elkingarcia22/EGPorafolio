@@ -68,6 +68,12 @@ export const STOPS: readonly Stop[] = [
   { country: 'Chile', flag: '🇨🇱', query: 'Agroindustria · más de 200 empleados', at: [-71, -34], from: 7, found: 7, pins: [{ name: 'Frutícola Los Andes', at: [-70.6, -32.8] }, { name: 'Agrícola Río Claro', at: [-70.7, -34.4], star: true }, { name: 'Viñedos Cordillera', at: [-71.6, -35.6] }, { name: 'Salmones Patagonia', at: [-72.9, -40] }] },
 ]
 export const FLY_AT = 10
+/**
+ * Largo del bucle (ticks). El último tick es la salida: todo se desvanece junto en su
+ * lugar y el radar vuelve a México ya oculto, así el reinicio no se ve.
+ */
+export const A1_LOOP = 14
+export const isA1Exit = (t: number) => t >= A1_LOOP - 1
 
 export const SOURCES = [
   { name: 'HubSpot · libres', t: 1, note: 'gratis' },
@@ -87,10 +93,12 @@ const TAIL = 'M12 20.4 L10.3 14.9 L12 15.9 L13.7 14.9 Z'
 export const stopAt = (t: number) => STOPS.reduce((acc, s, i) => (t >= s.from ? i : acc), 0)
 
 /** El radar: círculos de la brújula de Rumbo, barrido con su degradado y la aguja al centro. */
-function Radar({ x, y, k, spin }: { x: number; y: number; k: number; spin: boolean }) {
+function Radar({ x, y, k, spin, hidden = false, jump = false }: { x: number; y: number; k: number; spin: boolean; hidden?: boolean; jump?: boolean }) {
   const d = RADIUS * 2
+  // `jump`: vuelve al inicio del bucle; cambia de lugar sin recorrer el mapa y aparece con un fundido.
+  const transition = jump ? 'opacity 380ms ease-out 120ms' : `left 480ms ${EXPO}, top 480ms ${EXPO}, opacity 320ms ease-in`
   return (
-    <div className="pointer-events-none absolute" style={{ left: x - RADIUS, top: y - RADIUS, width: d, height: d, transition: `left 480ms ${EXPO}, top 480ms ${EXPO}` }}>
+    <div className="pointer-events-none absolute" style={{ left: x - RADIUS, top: y - RADIUS, width: d, height: d, opacity: hidden ? 0 : 1, transition }}>
       {[1, 0.66, 0.33].map((r) => (
         <span key={r} className="absolute rounded-full border" style={{ inset: `${((1 - r) / 2) * 100}%`, borderColor: r === 1 ? 'rgba(157,176,255,0.5)' : 'rgba(157,176,255,0.22)' }} />
       ))}
@@ -116,6 +124,7 @@ export function SearchMap({ t: tick, still = false }: { t: number; still?: boole
   const stop = STOPS[idx]
   const [rx, ry] = px(stop.at)
   const fly = !still && t >= FLY_AT
+  const exit = !still && isA1Exit(t)
   const pinOn = (s: Stop, j: number) => t >= s.from + Math.ceil(j / 2)
   const total = STOPS.reduce((n, s, i) => n + (i < idx ? s.found : i === idx ? Math.round(s.found * Math.min(1, (t - s.from + 1) / 2)) : 0), 0)
   const chile = STOPS[STOPS.length - 1]
@@ -132,7 +141,7 @@ export function SearchMap({ t: tick, still = false }: { t: number; still?: boole
       <div className="absolute left-0 top-0 h-full w-[620px] overflow-hidden" style={{ maskImage: 'linear-gradient(to bottom,transparent 0,#000 96px)', WebkitMaskImage: 'linear-gradient(to bottom,transparent 0,#000 96px)' }}>
         <svg viewBox={`0 0 620 ${MAP_H}`} className="absolute inset-0 h-full w-full" aria-hidden="true">
           {DOTS.map((d) => {
-            const near = Math.hypot(d.x - rx, d.y - ry) < RADIUS
+            const near = !exit && Math.hypot(d.x - rx, d.y - ry) < RADIUS
             return <circle key={`${d.x}-${d.y}`} cx={d.x} cy={d.y} r={near ? 2.3 : 2} fill={near ? '#7d93ff' : 'rgba(255,255,255,0.15)'} style={{ transition: 'fill 350ms' }} />
           })}
           {STOPS.map((s, i) =>
@@ -141,7 +150,7 @@ export function SearchMap({ t: tick, still = false }: { t: number; still?: boole
               const on = still ? i === STOPS.length - 1 || i < idx : i < idx || (i === idx && pinOn(s, j))
               const dim = i < idx && !p.star
               return (
-                <g key={p.name} style={{ transform: on ? 'scale(1)' : 'scale(0)', transformBox: 'fill-box', transformOrigin: 'center', transition: `transform 380ms ${SPRING}`, opacity: dim ? 0.55 : 1 }}>
+                <g key={p.name} style={{ transform: on ? 'scale(1)' : 'scale(0)', transformBox: 'fill-box', transformOrigin: 'center', transition: `transform 380ms ${SPRING}, opacity 320ms`, opacity: on && !exit ? (dim ? 0.55 : 1) : 0 }}>
                   <circle cx={x} cy={y} r={p.star ? 5 : 3.6} fill={p.star ? '#fff' : '#b7c6ff'} stroke={p.star ? '#d22d6a' : 'none'} strokeWidth={2} />
                   {on && !still && i === idx && <circle cx={x} cy={y} r={4} fill="none" stroke={p.star ? '#eb6233' : '#9db0ff'} style={{ transformBox: 'fill-box', transformOrigin: 'center', animation: 'a1r-ping 900ms ease-out 2' }} />}
                 </g>
@@ -171,7 +180,7 @@ export function SearchMap({ t: tick, still = false }: { t: number; still?: boole
             </span>
           )
         })}
-        <Radar x={rx} y={ry} k={idx} spin={!still && !fly} />
+        <Radar x={rx} y={ry} k={idx} spin={!still && !fly} hidden={exit} jump={!still && t === 0} />
         <span className="absolute left-[470px] top-[70px] rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] text-white/50 ring-1 ring-white/10">+ España</span>
       </div>
 
@@ -179,7 +188,7 @@ export function SearchMap({ t: tick, still = false }: { t: number; still?: boole
       <div className="absolute right-6 top-[78px] w-[300px]">
         <div className="flex gap-1.5">
           {STOPS.map((s, i) => (
-            <span key={s.country} className="flex-1 rounded-lg px-2 py-1.5 text-center text-[11.5px] ring-1" style={{ background: i === idx && !fly ? 'linear-gradient(135deg,rgba(40,94,230,0.35),rgba(126,43,224,0.25))' : i < idx ? 'rgba(255,255,255,0.05)' : 'transparent', color: i <= idx ? '#fff' : 'rgba(255,255,255,0.35)', borderColor: 'transparent', boxShadow: i === idx && !fly ? '0 0 0 1px rgba(157,176,255,0.55)' : '0 0 0 1px rgba(255,255,255,0.08)', transition: `all 300ms ${EXPO}` }}>
+            <span key={s.country} className="flex-1 rounded-lg px-2 py-1.5 text-center text-[11.5px] ring-1" style={{ background: i === idx && !fly ? 'linear-gradient(135deg,rgba(40,94,230,0.35),rgba(126,43,224,0.25))' : i < idx && !exit ? 'rgba(255,255,255,0.05)' : 'transparent', color: i <= idx && !exit ? '#fff' : 'rgba(255,255,255,0.35)', borderColor: 'transparent', boxShadow: i === idx && !fly ? '0 0 0 1px rgba(157,176,255,0.55)' : '0 0 0 1px rgba(255,255,255,0.08)', transition: `all 300ms ${EXPO}` }}>
               {s.flag} {s.country}
             </span>
           ))}
@@ -187,7 +196,7 @@ export function SearchMap({ t: tick, still = false }: { t: number; still?: boole
         <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-white/40">Fuentes · primero lo gratis</p>
         <ul className="mt-2 space-y-1">
           {SOURCES.map((s) => {
-            const on = still || t >= s.t
+            const on = still || (!exit && t >= s.t)
             const skip = 'skip' in s && s.skip
             return (
               <li key={s.name} className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12.5px]" style={{ background: on && !skip ? 'rgba(107,140,255,0.14)' : 'rgba(255,255,255,0.03)', color: on ? (skip ? 'rgba(255,255,255,0.45)' : '#fff') : 'rgba(255,255,255,0.35)', transform: on ? 'none' : 'translateX(-6px)', transition: `all 300ms ${EXPO}` }}>
@@ -199,7 +208,7 @@ export function SearchMap({ t: tick, still = false }: { t: number; still?: boole
           })}
         </ul>
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <div className="rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10"><p key={total} className="text-[24px] font-semibold tabular-nums" style={{ animation: still ? undefined : 'a1-bump 260ms ease-out' }}>{still ? 27 : total}</p><p className="text-[11px] text-white/50">candidatas</p></div>
+          <div className="rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10"><p key={total} className="text-[24px] font-semibold tabular-nums" style={{ animation: still ? undefined : 'a1-bump 260ms ease-out', opacity: exit ? 0 : 1, transition: 'opacity 320ms' }}>{still ? 27 : total}</p><p className="text-[11px] text-white/50">candidatas</p></div>
           <div className="rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10"><p className="text-[24px] font-semibold tabular-nums text-emerald-300">0</p><p className="text-[11px] text-white/50">créditos usados</p></div>
         </div>
         <ul className="mt-4 space-y-1">

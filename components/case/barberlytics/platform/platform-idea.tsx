@@ -166,6 +166,7 @@ function ProposeDemo() {
   const proposing = step >= 1
   const applied = step === 3
   const undone = step === 4
+  // En el paso 0 la barra sale en fundido: conserva «Deshecho» hasta desaparecer.
   const offset = applied ? 0.8 : 0
   return (
     <div className={`${PANEL} flex flex-col gap-3`}>
@@ -188,7 +189,7 @@ function ProposeDemo() {
         <span className="text-white/80">
           {applied
             ? t({ es: 'Movidas 3 citas · por el retraso de Emilio', en: 'Moved 3 visits · Emilio’s delay' })
-            : undone
+            : undone || step === 0
               ? t({ es: 'Deshecho · todo como estaba', en: 'Undone · back as it was' })
               : t({ es: 'Mover 3 citas de Emilio +20 min', en: 'Move 3 of Emilio’s visits +20 min' })}
         </span>

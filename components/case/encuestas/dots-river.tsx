@@ -9,6 +9,8 @@ const W = 1000
 const H = 220
 const X0 = 30
 const X1 = 970
+/** Tramo (en unidades del dibujo) en el que cada punto se enciende al entrar y se apaga al salir. */
+const EDGE_FADE = 45
 const stationX = (i: number, n: number) => 90 + (i * (W - 180)) / (n - 1)
 const baseY = (x: number) => Math.round((110 + Math.sin(x / 150) * 22) * 10) / 10
 
@@ -65,17 +67,19 @@ export function ParticipationRiver({ stations, active, onPick }: RiverProps) {
         const x = X0 + ((p.phase + time * p.speed) % 1) * (X1 - X0)
         const el = dots[i]
         if (!el) return
+        // Al volver a la izquierda cada punto se apaga en el borde derecho y se enciende en el izquierdo: nunca salta.
+        const edge = Math.max(0, Math.min(1, (x - X0) / EDGE_FADE, (X1 - x) / EDGE_FADE))
         const sx = p.dropAt >= 0 ? stationX(p.dropAt, n) + 14 : Infinity
         if (x > sx) {
           const dx = x - sx
           el.setAttribute('cx', String(sx + dx * 0.35))
           el.setAttribute('cy', String(baseY(sx) + p.lane * 0.6 + dx * 0.7))
-          el.setAttribute('opacity', String(Math.max(0, 0.95 - dx / 130)))
+          el.setAttribute('opacity', String(Math.max(0, 0.95 - dx / 130) * edge))
           el.setAttribute('class', 'fill-[#e0675f]')
         } else {
           el.setAttribute('cx', String(x))
           el.setAttribute('cy', String(baseY(x) + p.lane * (1 - ((x - X0) / (X1 - X0)) * 0.45)))
-          el.setAttribute('opacity', '0.9')
+          el.setAttribute('opacity', String(0.9 * edge))
           el.setAttribute('class', 'fill-signal')
         }
       })

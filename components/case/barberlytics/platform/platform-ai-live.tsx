@@ -22,22 +22,36 @@ const LOOK: readonly { kind: L; title: L; hue: string }[] = [
   { kind: { es: 'Riesgo', en: 'Risk' }, title: { es: '2 citas con riesgo de no venir', en: '2 visits at risk of no-show' }, hue: '#ff6b72' },
 ]
 
-/** Escribe la frase letra a letra y vuelve a empezar. */
+const LEAVE_MS = 600
+
+/**
+ * Escribe la frase letra a letra, la deja un momento y vuelve a empezar: antes de borrar,
+ * la frase y lo que entendió se desvanecen juntos (`leaving`), así el reinicio no es un corte.
+ */
 function useTyping(text: string, speed = 55, hold = 3800) {
   const { reducedMotion } = useA11y()
   const [n, setN] = useState(reducedMotion ? text.length : 0)
+  const [leaving, setLeaving] = useState(false)
   useEffect(() => {
     if (reducedMotion) return
-    const id = window.setTimeout(() => setN((k) => (k >= text.length ? 0 : k + 1)), n >= text.length ? hold : speed)
+    if (leaving) {
+      const id = window.setTimeout(() => {
+        setN(0)
+        setLeaving(false)
+      }, LEAVE_MS)
+      return () => window.clearTimeout(id)
+    }
+    const done = n >= text.length
+    const id = window.setTimeout(() => (done ? setLeaving(true) : setN((k) => k + 1)), done ? hold : speed)
     return () => window.clearTimeout(id)
-  }, [n, text, speed, hold, reducedMotion])
-  return n
+  }, [n, leaving, text, speed, hold, reducedMotion])
+  return { n, leaving }
 }
 
 export function TypingBooking() {
   const { t } = useLocale()
-  const n = useTyping(PHRASE)
-  const done = n >= PHRASE.length
+  const { n, leaving } = useTyping(PHRASE)
+  const done = n >= PHRASE.length && !leaving
   const tick = useTick(2600)
   return (
     <div data-reveal="device" className="h-full rounded-3xl bg-[#0f0d0b] p-5 text-[#efe9dd] md:p-6">
@@ -48,11 +62,11 @@ export function TypingBooking() {
         <p className="text-sm text-[#e9c27a]">{t({ es: 'Agendar escribiendo', en: 'Book by typing' })}</p>
         <p className="mt-1 text-[11px] text-white/50">{t({ es: '¿Qué cita quieres agendar?', en: 'What visit do you want to book?' })}</p>
         <p className="mt-3 min-h-[3.2rem] rounded-xl bg-black/30 px-3 py-2.5 font-mono text-[13px]">
-          {PHRASE.slice(0, n)}
+          <span className={`transition-opacity duration-500 ${leaving ? 'opacity-0' : 'opacity-100'}`}>{PHRASE.slice(0, n)}</span>
           <span className="ml-0.5 inline-block h-4 w-[2px] translate-y-0.5 animate-pulse bg-[#d9b36a]" aria-hidden="true" />
         </p>
-        <ul className="mt-3 flex min-h-[4.5rem] flex-wrap content-start gap-1.5">
-          {done &&
+        <ul className={`mt-3 flex min-h-[4.5rem] flex-wrap content-start gap-1.5 transition-opacity duration-500 ${leaving ? 'opacity-0' : 'opacity-100'}`}>
+          {n >= PHRASE.length &&
             PARSED.map((p, i) => (
               <li key={p.key.es} className="animate-[ramp-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both] rounded-lg bg-white/[0.06] px-2.5 py-1 text-[11px]" style={{ animationDelay: `${i * 110}ms` }}>
                 <span className="text-white/45">{t(p.key)} · </span>

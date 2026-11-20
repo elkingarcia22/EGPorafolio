@@ -12,8 +12,9 @@ import { ClipperOrb, type ClipperOrbState } from '../clipper-orb'
 import { useTick } from '../thema/live-pieces'
 import { Wave } from './clipper-pieces'
 
-/** Guion de la portada: escucha, pregunta, consulta, responde, propone y se aplica. */
-const SCRIPT_STEPS = 7
+/** Guion de la portada: escucha, pregunta, consulta, responde, propone, se aplica y sale todo junto. */
+const SCRIPT_STEPS = 8
+const EXIT_STEP = SCRIPT_STEPS - 1
 
 const AI_GRADIENT = 'linear-gradient(120deg,#f0ce86,#de8c3a 45%,#2e9cb0 75%,#3f72d8)'
 
@@ -31,7 +32,9 @@ export function ClipperHero() {
   const { reducedMotion } = useA11y()
   const ref = useRef<HTMLDivElement>(null)
   const tick = useTick(1500)
-  const step = reducedMotion ? SCRIPT_STEPS - 2 : tick % SCRIPT_STEPS
+  const step = reducedMotion ? EXIT_STEP - 2 : tick % SCRIPT_STEPS
+  // En la salida el guion se queda completo mientras se desvanece; al volver a 0 ya no hay nada a la vista.
+  const live = step < EXIT_STEP
   const state: ClipperOrbState = step === 0 ? 'listening' : step === 2 ? 'thinking' : 'idle'
 
   useEffect(() => {
@@ -92,26 +95,26 @@ export function ClipperHero() {
               <span className="text-xs text-white/70">«¿Cuánto llevo cobrado hoy…»</span>
             </div>
           </Bubble>
-          <Bubble show={step >= 1} className="left-[2%] top-[22%] w-[min(300px,44%)]">
+          <Bubble show={live && step >= 1} className="left-[2%] top-[22%] w-[min(300px,44%)]">
             <p className="rounded-2xl rounded-tl-sm bg-white/[0.08] px-4 py-3 text-sm">¿Cuánto llevo cobrado hoy?</p>
           </Bubble>
-          <Bubble show={step >= 2} className="right-[3%] top-[12%] w-[min(280px,44%)]">
+          <Bubble show={live && step >= 2} className="right-[3%] top-[12%] w-[min(280px,44%)]">
             <p className="flex items-center gap-2 rounded-full border border-[#2e9cb0]/40 bg-[#2e9cb0]/10 px-3 py-1.5 font-mono text-[11px] text-[#7fd3e3]">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#7fd3e3]" />
               {t({ es: 'Consulté · Cuentas del periodo', en: 'Looked up · Period accounts' })}
             </p>
           </Bubble>
-          <Bubble show={step >= 3} className="right-[1%] top-[28%] w-[min(320px,46%)]">
+          <Bubble show={live && step >= 3} className="right-[1%] top-[28%] w-[min(320px,46%)]">
             <div className="rounded-2xl rounded-tr-sm p-[1.5px]" style={{ backgroundImage: AI_GRADIENT }}>
               <p className="rounded-[15px] bg-[#141210] px-4 py-3 text-sm leading-relaxed">
                 {t({ es: 'Llevas US$ 658 cobrados de US$ 2.676 del día. Faltan 4 citas por cobrar.', en: 'You’ve collected US$ 658 of today’s US$ 2,676. 4 visits left to charge.' })}
               </p>
             </div>
           </Bubble>
-          <Bubble show={step >= 4} className="bottom-[10%] left-[4%] w-[min(300px,44%)]">
+          <Bubble show={live && step >= 4} className="bottom-[10%] left-[4%] w-[min(300px,44%)]">
             <p className="rounded-2xl rounded-tl-sm bg-white/[0.08] px-4 py-3 text-sm">{t({ es: 'Pásale la de las 4 de Mateo a las 5', en: 'Move Mateo’s 4 o’clock to 5' })}</p>
           </Bubble>
-          <Bubble show={step >= 5} className="bottom-[6%] right-[3%] w-[min(300px,46%)]">
+          <Bubble show={live && step >= 5} className="bottom-[6%] right-[3%] w-[min(300px,46%)]">
             <div className="rounded-2xl border border-white/15 bg-[#141210]/95 p-4 text-sm backdrop-blur">
               <p className="mono-label text-white/50">{step >= 6 ? t({ es: 'Aplicado', en: 'Applied' }) : t({ es: 'Propuesta', en: 'Proposal' })}</p>
               <p className="mt-1 font-medium">{t({ es: 'Mover la cita', en: 'Move the visit' })}</p>

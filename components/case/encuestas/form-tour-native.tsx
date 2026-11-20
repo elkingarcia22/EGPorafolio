@@ -268,12 +268,41 @@ function Ia({ spot }: { spot: number }) {
 
 const STOPS = [Inicio, Crear, Responder, Historico, Resultados, Ia] as const
 
-/** La parada `stop` dibujada en HTML, con el recuadro `spot` encendido. */
+/** Cuánto se queda la parada anterior debajo de la nueva mientras esta aparece encima. */
+const CROSSFADE_MS = 700
+
+/**
+ * La parada `stop` dibujada en HTML, con el recuadro `spot` encendido. Al cambiar de parada (también al volver de la
+ * última a la primera) la anterior se queda quieta debajo mientras la nueva aparece encima: nunca hay un cuadro vacío.
+ */
 export function NativeStop({ stop, spot }: { stop: number; spot: number }) {
-  const Stop = STOPS[stop] ?? Inicio
+  const [shown, setShown] = useState(stop)
+  const [prev, setPrev] = useState<number | null>(null)
+  if (stop !== shown) {
+    setPrev(shown)
+    setShown(stop)
+  }
+  useEffect(() => {
+    if (prev === null) return
+    const id = window.setTimeout(() => setPrev(null), CROSSFADE_MS)
+    return () => window.clearTimeout(id)
+  }, [prev])
+  const layers = prev !== null && prev !== stop ? [prev, stop] : [stop]
   return (
-    <div key={stop} className="enc-fade flex min-h-[29rem] flex-col gap-3 bg-[linear-gradient(170deg,#f3f6fd,#fff_40%)] p-4 text-[#303a47]">
-      <Stop spot={spot} />
+    <div className="relative">
+      {layers.map((k) => {
+        const Stop = STOPS[k] ?? Inicio
+        const on = k === stop
+        return (
+          <div
+            key={k}
+            aria-hidden={!on}
+            className={`flex min-h-[29rem] flex-col gap-3 bg-[linear-gradient(170deg,#f3f6fd,#fff_40%)] p-4 text-[#303a47] ${on ? 'enc-fade relative' : 'pointer-events-none absolute inset-0 overflow-hidden'}`}
+          >
+            <Stop spot={on ? spot : -1} />
+          </div>
+        )
+      })}
     </div>
   )
 }

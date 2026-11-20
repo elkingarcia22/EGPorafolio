@@ -38,10 +38,19 @@ export function ClipperOrb({ size = 128, state = 'idle', className = '', stops }
       style={{ '--clipper-orb-size': `${size}px`, ...themeVars } as React.CSSProperties}
     >
       <span className="clipper-orb__halo" />
-      <span className="clipper-orb__ring" />
+      {/* Al pensar se suma un halo rápido que entra en fundido: el halo base nunca cambia de ritmo. */}
+      <span className="clipper-orb__boost">
+        <span className="clipper-orb__halo clipper-orb__halo--fast" />
+      </span>
+      {/* El anillo gira siempre igual; al pensar, su capa de arriba suma vueltas y al terminar se pausa donde está. */}
+      <span className="clipper-orb__spin">
+        <span className="clipper-orb__ring" />
+      </span>
       <span className="clipper-orb__sphere">
         <svg className="clipper-orb__stripes" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
-          <path className="clipper-orb__stripes-band" d={STRIPES} />
+          <g className="clipper-orb__stripes-boost">
+            <path className="clipper-orb__stripes-band" d={STRIPES} />
+          </g>
         </svg>
       </span>
       <span className="clipper-orb__glass" />

@@ -39,8 +39,9 @@ export function ObjetivosHero() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const ref = useRef<HTMLDivElement>(null)
-  const { objetivos, pulse, pulseKey, last } = useCheckinLoop(OBJETIVOS, { enabled: !reducedMotion, every: 2600 })
   const [inView, setInView] = useState(true)
+  // Solo reporta mientras la portada está en vista: así el ciclo no se agota mientras se lee el caso.
+  const { objetivos, pulse, pulseKey, last } = useCheckinLoop(OBJETIVOS, { enabled: !reducedMotion && inView, every: 2600 })
   const desktop = useMedia(DESKTOP_QUERY)
 
   useEffect(() => {

@@ -63,13 +63,20 @@ export function useCheckinLoop(initial: readonly ObjetivoPersona[], { enabled, e
     if (!enabled) return
     const id = window.setInterval(() => {
       const candidates = current.current.filter((o) => cuenta(o) && o.avance < MAX)
-      if (candidates.length === 0) return
+      if (candidates.length === 0) {
+        // Todos llegaron al tope: empieza otro periodo con las cifras de partida. Los anillos bajan
+        // con su transición en vez de quedarse quietos para siempre.
+        current.current = initial
+        setObjetivos(initial)
+        setPulse(null)
+        return
+      }
       turn.current += 3
       const pick = candidates[turn.current % candidates.length]
       apply(pick.id, pick.avance + 3 + ((turn.current * 7) % 6))
     }, every)
     return () => window.clearInterval(id)
-  }, [enabled, every, apply])
+  }, [enabled, every, apply, initial])
 
   return { objetivos, pulse, pulseKey, last, report: apply, update }
 }

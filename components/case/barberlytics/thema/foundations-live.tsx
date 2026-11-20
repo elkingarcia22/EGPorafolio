@@ -95,8 +95,13 @@ function TypeTile({ theme }: { theme: ThemeShot }) {
         <p className="mono-label mt-1 text-white/45">{font.role}</p>
       </div>
       <div className="absolute inset-x-0 bottom-6 overflow-hidden">
-        <p key={`m-${font.name}`} className={`${font.className} animate-[marquee_14s_linear_infinite] whitespace-nowrap text-xl text-white/35`}>
-          Cortes con oficio, a tu hora · Reserva en segundos · Tu barbero de siempre · Cortes con oficio, a tu hora · Reserva en segundos · Tu barbero de siempre ·
+        {/* Sin key por fuente: la cinta no se reinicia cada vez que cambia la tipografía. Dos copias idénticas: el -50 % empalma exacto. */}
+        <p className={`${font.className} flex w-max animate-[marquee_14s_linear_infinite] whitespace-nowrap text-xl text-white/35`}>
+          {[0, 1].map((k) => (
+            <span key={k} className="shrink-0 pr-[0.35em]" aria-hidden={k === 1 || undefined}>
+              Cortes con oficio, a tu hora · Reserva en segundos · Tu barbero de siempre ·
+            </span>
+          ))}
         </p>
       </div>
     </div>
@@ -106,10 +111,12 @@ function TypeTile({ theme }: { theme: ThemeShot }) {
 /* ── Radios ───────────────────────────────────────────────────────────── */
 
 const RADII = [0, 8, 14, 22, 999]
+/** Ida y vuelta (0 → full → 0) para no pasar de círculo a cuadrado de un paso. */
+const RADII_LOOP = [...RADII, ...RADII.slice(1, -1).reverse()]
 
 function RadiusTile({ theme }: { theme: ThemeShot }) {
   const tick = useTick(1300)
-  const r = RADII[tick % RADII.length]
+  const r = RADII_LOOP[tick % RADII_LOOP.length]
   return (
     <div className={TILE}>
       <p className="mono-label text-white/50">Radios · 4 escalas</p>

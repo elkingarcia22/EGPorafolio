@@ -15,6 +15,8 @@ import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 const BLUE = '#0c5bef'
 const ramp = 'animate-[ramp-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both]'
 const delay = (ms: number) => ({ animationDelay: `${ms}ms` })
+/** Lo que tarda cada pieza en desvanecerse antes de que entre la siguiente. */
+const LEAVE_MS = 320
 
 /** Escribe un texto letra a letra desde un retraso. */
 function useTyped(text: string, wait = 250, speed = 14): string {
@@ -257,7 +259,11 @@ const SCENES: readonly { id: string; label: L; ms: number; Scene: () => JSX.Elem
 export function ObjetivosAi() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
-  const [i, setI] = useState(0)
+  // `turn` solo crece: la pieza es `turn % SCENES.length` y el halo gira siempre hacia adelante,
+  // también al volver de «Listos» a «Crear con IA» (nueve piezas × 40° = una vuelta entera).
+  const [turn, setTurn] = useState(0)
+  const i = turn % SCENES.length
+  const [leaving, setLeaving] = useState(false)
   const [pinned, setPinned] = useState(false)
   const [inView, setInView] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -270,11 +276,24 @@ export function ObjetivosAi() {
     return () => io.disconnect()
   }, [])
 
+  // Cada pieza se desvanece antes de dar paso a la siguiente; al cerrar la vuelta, la línea del
+  // flujo se vacía con ella en vez de borrarse de golpe.
   useEffect(() => {
     if (pinned || reducedMotion || !inView) return
-    const id = window.setTimeout(() => setI((v) => (v + 1) % SCENES.length), SCENES[i].ms)
-    return () => window.clearTimeout(id)
+    const ms = SCENES[i].ms
+    const leave = window.setTimeout(() => setLeaving(true), ms - LEAVE_MS)
+    const next = window.setTimeout(() => {
+      setTurn((v) => v + 1)
+      setLeaving(false)
+    }, ms)
+    return () => {
+      window.clearTimeout(leave)
+      window.clearTimeout(next)
+      setLeaving(false)
+    }
   }, [i, pinned, reducedMotion, inView])
+
+  const closing = leaving && i === SCENES.length - 1
 
   const scene = SCENES[reducedMotion ? SCENES.length - 1 : i]
 
@@ -283,11 +302,11 @@ export function ObjetivosAi() {
       <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(OBJ_CASE.ai.lead)}</p>
 
       <div ref={ref} data-reveal="device" className="relative mt-10 overflow-hidden rounded-3xl bg-[#0b0d16] text-white">
-        <span className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(from_200deg,#ff5ca8,#7b5cff,#0c5bef,#ff9a5c,#ff5ca8)] opacity-25 blur-3xl transition-transform duration-[1200ms] ease-expo" style={{ transform: `translate(-50%, -50%) rotate(${i * 40}deg) scale(${1 + (i % 3) * 0.08})` }} aria-hidden="true" />
+        <span className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(from_200deg,#ff5ca8,#7b5cff,#0c5bef,#ff9a5c,#ff5ca8)] opacity-25 blur-3xl transition-transform duration-[1200ms] ease-expo" style={{ transform: `translate(-50%, -50%) rotate(${turn * 40}deg) scale(${1 + (i % 3) * 0.08})` }} aria-hidden="true" />
 
         {/* El escenario: una sola pieza en primer plano. */}
         <div className="relative grid min-h-[420px] place-items-center px-4 py-12 md:min-h-[460px]">
-          <div key={scene.id} className="grid w-full place-items-center">
+          <div key={scene.id} className="grid w-full place-items-center transition-[opacity,transform] ease-out" style={{ opacity: leaving ? 0 : 1, transform: leaving ? 'translateY(-8px) scale(0.98)' : 'none', transitionDuration: `${LEAVE_MS}ms` }}>
             <scene.Scene />
           </div>
         </div>
@@ -299,7 +318,7 @@ export function ObjetivosAi() {
               <button
                 type="button"
                 onClick={() => {
-                  setI(k)
+                  setTurn((v) => v - (v % SCENES.length) + k)
                   setPinned(true)
                 }}
                 aria-current={k === i}
@@ -307,8 +326,12 @@ export function ObjetivosAi() {
                 className="group block w-full py-1 text-left"
               >
                 <span className="relative block h-1 overflow-hidden rounded-full bg-white/15">
-                  {k < i && <span className="absolute inset-0 bg-white/60" />}
-                  {k === i && <span key={`${i}-${pinned}`} className="absolute inset-0 origin-left bg-gradient-to-r from-[#7b5cff] to-[#0c5bef]" style={pinned || reducedMotion ? undefined : { animation: `view-progress ${s.ms}ms linear both` }} />}
+                  {k < i && <span className="absolute inset-0 bg-white/60 transition-opacity" style={{ opacity: closing ? 0 : 1, transitionDuration: `${LEAVE_MS}ms` }} />}
+                  {k === i && (
+                    <span className="absolute inset-0 transition-opacity" style={{ opacity: closing ? 0 : 1, transitionDuration: `${LEAVE_MS}ms` }}>
+                      <span key={`${i}-${pinned}`} className="absolute inset-0 origin-left bg-gradient-to-r from-[#7b5cff] to-[#0c5bef]" style={pinned || reducedMotion ? undefined : { animation: `view-progress ${s.ms}ms linear both` }} />
+                    </span>
+                  )}
                 </span>
                 <span className={`mt-2 hidden truncate text-[11px] transition-colors md:block ${k === i ? 'text-white' : 'text-white/40 group-hover:text-white/70'}`}>{t(s.label)}</span>
               </button>

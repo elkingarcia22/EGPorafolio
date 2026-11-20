@@ -92,7 +92,7 @@ export function MagnetScene({ time }: { time: number }) {
   const pulling = FRAGMENTS.some((_, i) => time === fragAt(i))
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 text-white" style={{ width: MAGNET_W, height: MAGNET_H, background: 'radial-gradient(ellipse at 36% 50%, #1b1430 0%, #0d0d0f 60%)', fontFamily: REAL.font }}>
-      <style>{'@keyframes a3-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}.a3-bob{animation:a3-bob 3.2s ease-in-out infinite}@keyframes a3-ring{0%{transform:scale(.6);opacity:.7}100%{transform:scale(2.4);opacity:0}}'}</style>
+      <style>{'@keyframes a3-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}.a3-bob{animation:a3-bob 3.2s ease-in-out infinite}@keyframes a3-ring{0%{transform:scale(.6);opacity:0}15%{opacity:.7}100%{transform:scale(2.4);opacity:0}}'}</style>
 
       {/* Campo magnético */}
       {[0, 1, 2].map((k) => (

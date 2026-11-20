@@ -37,3 +37,13 @@ html[data-motion='reduced'] .hd-pop { animation: none; }
 .hd-flash { animation: hd-flash 0.9s ease-out both; }
 @media (prefers-reduced-motion: reduce) { .hd-plus, .hd-flash { animation: none; opacity: 0; } }
 html[data-motion='reduced'] :is(.hd-plus, .hd-flash) { animation: none; opacity: 0; }
+
+/* Bucles sin corte: cada vuelta nueva entra con un fundido suave (sin `fill` hacia adelante, para que la salida pueda usar transición). */
+@keyframes hd-loop-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.hd-loop-in { animation: hd-loop-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.hd-loop-out { opacity: 0; transform: translateY(-4px); }
+/* Al volver a empezar el tablero vivo: una ola que atenúa y devuelve cada celda, sin dejar el mapa vacío. */
+@keyframes hd-wave { 0%, 100% { opacity: 1; transform: none; } 40% { opacity: 0.35; transform: scale(0.82); } }
+.hd-wave { animation: hd-wave 0.7s cubic-bezier(0.45, 0, 0.55, 1) both; }
+@media (prefers-reduced-motion: reduce) { .hd-loop-in, .hd-wave { animation: none; } }
+html[data-motion='reduced'] :is(.hd-loop-in, .hd-wave) { animation: none; }

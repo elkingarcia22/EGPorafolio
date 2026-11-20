@@ -6,18 +6,54 @@ import { useLocale, type L } from '@/lib/i18n'
 import { TABLET_QUERY, useMedia } from './use-media'
 
 const AUTO_MS = 6000
+/** Lo que tarda el escenario en desvanecerse antes de pasar solo al siguiente principio. */
+const LEAVE_MS = 450
 const BLUE = 'rgb(64,96,255)'
 
-/** Un contador que avanza solo mientras el movimiento esté permitido. */
-function useTick(ms: number, steps: number): number {
+/**
+ * Un momento de la escena: qué estado muestra (`s`), cuánto dura y si la escena está oculta.
+ * Los bucles cierran así: el último estado se sostiene, la escena se desvanece entera sin
+ * cambiar, se reinicia mientras está oculta y vuelve a aparecer en el primer estado.
+ */
+interface Beat {
+  s: number
+  ms: number
+  hidden?: boolean
+}
+
+const EXIT_MS = 600
+const RESET_MS = 900
+
+/** Recorre los momentos mientras el movimiento esté permitido; con movimiento reducido, el estado final. */
+function useBeats(beats: readonly Beat[]): Beat {
   const { reducedMotion } = useA11y()
-  const [i, setI] = useState(0)
+  const [i, setI] = useState(beats[0].hidden ? 1 : 0)
   useEffect(() => {
     if (reducedMotion) return
-    const id = window.setInterval(() => setI((v) => (v + 1) % steps), ms)
-    return () => window.clearInterval(id)
-  }, [ms, steps, reducedMotion])
-  return reducedMotion ? steps - 1 : i
+    const id = window.setTimeout(() => setI((v) => (v + 1) % beats.length), beats[i].ms)
+    return () => window.clearTimeout(id)
+  }, [i, beats, reducedMotion])
+  if (reducedMotion) return { s: Math.max(...beats.map((b) => b.s)), ms: 0 }
+  return beats[i]
+}
+
+/** Arma un bucle con cierre: oculto y reiniciado, los pasos, el final sostenido y la salida. */
+const loopBeats = (steps: readonly number[], hold: number): readonly Beat[] => {
+  const last = steps.length - 1
+  return [
+    { s: 0, ms: RESET_MS, hidden: true },
+    ...steps.map((ms, s) => ({ s, ms: s === last ? hold : ms })),
+    { s: last, ms: EXIT_MS, hidden: true },
+  ]
+}
+
+/** El contenedor que desvanece la escena entera al cerrar el bucle. */
+function LoopFade({ hidden, children }: { hidden?: boolean; children: React.ReactNode }) {
+  return (
+    <div className="h-full transition-opacity duration-500 ease-out" style={{ opacity: hidden ? 0 : 1 }}>
+      {children}
+    </div>
+  )
 }
 
 /* ── 01 · El norte primero ─────────────────────────────────────────────── */
@@ -34,11 +70,14 @@ const NORTH = {
   narrow: { w: 340, h: 300, root: { x: 20, w: 300 }, rootFont: 19, leafX: (x: number) => 4 + (x / 180) * 114, leafW: 104, leafY: 168, leafH: 98, leafFont: 15, mid: 170 },
 } as const
 
+const NORTH_BEATS = loopBeats([700, 1300, 1300, 1300], 2400)
+
 function NorthScene() {
-  const step = useTick(1300, 4)
+  const { s: step, hidden } = useBeats(NORTH_BEATS)
   const narrow = !useMedia(TABLET_QUERY)
   const g = narrow ? NORTH.narrow : NORTH.wide
   return (
+    <LoopFade hidden={hidden}>
     <svg viewBox={`0 0 ${g.w} ${g.h}`} className="h-full w-full" role="img" aria-label="Tres objetivos: dos cuelgan del norte de la empresa y uno queda sin alinear">
       <rect x={g.root.x} y="16" width={g.root.w} height="60" rx="14" fill={BLUE} />
       <text x={g.mid} y="53" textAnchor="middle" fontSize={g.rootFont} fill="#fff">Crecer los ingresos un 15 %</text>
@@ -50,7 +89,8 @@ function NorthScene() {
         return (
           <g key={leaf.label} className="transition-opacity duration-700" style={{ opacity: shown ? 1 : 0.15 }}>
             <path d={path} fill="none" stroke={leaf.aligned ? BLUE : 'currentColor'} strokeOpacity={leaf.aligned ? 0.9 : 0.35} strokeWidth={leaf.aligned ? 3 : 1.5} strokeDasharray={leaf.aligned ? undefined : '5 6'} />
-            {leaf.aligned && shown && <path d={path} fill="none" stroke={BLUE} strokeWidth={7} strokeLinecap="round" pathLength={1} strokeDasharray="0.04 0.96" className="obj-flow" />}
+            {/* La chispa se apaga con su hoja en vez de desaparecer de golpe. */}
+            {leaf.aligned && <path d={path} fill="none" stroke={BLUE} strokeWidth={7} strokeLinecap="round" pathLength={1} strokeDasharray="0.04 0.96" className="obj-flow transition-opacity duration-700" style={{ opacity: shown ? 1 : 0 }} />}
             <rect x={x} y={g.leafY} width={g.leafW} height={g.leafH} rx="12" fill="var(--obj-card)" stroke={leaf.aligned ? BLUE : 'currentColor'} strokeOpacity={leaf.aligned ? 0.6 : 0.25} />
             <foreignObject x={x + 10} y={g.leafY + 8} width={g.leafW - 20} height={g.leafH - 14}>
               <p style={{ fontSize: g.leafFont, lineHeight: 1.2, margin: 0 }}>{leaf.label}</p>
@@ -62,15 +102,19 @@ function NorthScene() {
         )
       })}
     </svg>
+    </LoopFade>
   )
 }
 
 /* ── 02 · Acordar antes de medir ───────────────────────────────────────── */
 
+const APPROVE_BEATS = loopBeats([900, 1500, 1500, 1500], 2200)
+
 function ApproveScene() {
-  const step = useTick(1500, 4)
+  const { s: step, hidden } = useBeats(APPROVE_BEATS)
   const approved = step >= 2
   return (
+    <LoopFade hidden={hidden}>
     <div className="flex h-full flex-col justify-center gap-5 px-2">
       <div className="relative rounded-2xl bg-[var(--obj-card)] p-5 shadow-[0_24px_50px_-30px_rgba(0,0,0,0.5)] ring-1 ring-fg/10">
         <div className="flex items-center justify-between gap-3">
@@ -88,18 +132,23 @@ function ApproveScene() {
         <span className="rounded-full border border-fg/25 px-4 py-1.5 text-[12px]">Devolver con motivo</span>
       </div>
     </div>
+    </LoopFade>
   )
 }
 
 /* ── 03 · Constancia antes que % ───────────────────────────────────────── */
 
+/** Nueve semanas (0 a 8) a 650 ms; la última se sostiene antes de cerrar. */
+const STREAK_BEATS = loopBeats(Array.from({ length: 9 }, () => 650), 2000)
+
 function StreakScene() {
-  const week = useTick(650, 10)
+  const { s: week, hidden } = useBeats(STREAK_BEATS)
   const people = [
     { who: 'Ana · meta retadora', pct: 41, weeks: 8 },
     { who: 'Luis · meta cómoda', pct: 96, weeks: 2 },
   ]
   return (
+    <LoopFade hidden={hidden}>
     <div className="flex h-full flex-col justify-center gap-6 px-2">
       {people.map((p) => {
         const filled = Math.min(week, p.weeks)
@@ -123,6 +172,7 @@ function StreakScene() {
       })}
       <p className="font-mono text-[11px] opacity-60">se reconoce a Ana: volvió cada semana aunque su % sea menor</p>
     </div>
+    </LoopFade>
   )
 }
 
@@ -135,8 +185,11 @@ const CELLS = [
   { area: 'Marca', n: 6 },
 ]
 
+/** Nombres ↔ cifra: un fundido cruzado en ambos sentidos, sin reinicio. */
+const COUNT_BEATS: readonly Beat[] = [{ s: 0, ms: 1800 }, { s: 1, ms: 1800 }]
+
 function CountScene() {
-  const step = useTick(1800, 2)
+  const { s: step } = useBeats(COUNT_BEATS)
   const names = ['Ricardo T.', 'Nicolás R.', 'Carlos N.']
   return (
     <div className="flex h-full flex-col justify-center gap-5 px-2">
@@ -195,10 +248,21 @@ export function PrinciplesStage() {
     return () => io.disconnect()
   }, [])
 
+  const [leaving, setLeaving] = useState(false)
+
+  // Al pasar solo, el escenario se desvanece primero; el siguiente entra con su propio fundido.
   useEffect(() => {
     if (!auto || reducedMotion || !inView) return
-    const id = window.setTimeout(() => setActive((i) => (i + 1) % PRINCIPLES.length), AUTO_MS)
-    return () => window.clearTimeout(id)
+    const leave = window.setTimeout(() => setLeaving(true), AUTO_MS - LEAVE_MS)
+    const next = window.setTimeout(() => {
+      setActive((i) => (i + 1) % PRINCIPLES.length)
+      setLeaving(false)
+    }, AUTO_MS)
+    return () => {
+      window.clearTimeout(leave)
+      window.clearTimeout(next)
+      setLeaving(false)
+    }
   }, [active, auto, reducedMotion, inView])
 
   const { Scene, title, body } = PRINCIPLES[active]
@@ -230,6 +294,7 @@ export function PrinciplesStage() {
 
       <div role="tabpanel" className="relative overflow-hidden rounded-3xl bg-fg/[0.04] ring-1 ring-fg/10 [--obj-card:rgb(var(--bg))]">
         <span className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-signal opacity-15 blur-3xl" aria-hidden="true" />
+        <div className="relative transition-opacity ease-out" style={{ opacity: leaving ? 0 : 1, transitionDuration: `${LEAVE_MS}ms` }}>
         <div key={active} className="obj-rise relative h-[300px] p-6 md:p-8">
           <Scene />
         </div>
@@ -237,6 +302,7 @@ export function PrinciplesStage() {
           <span className="mono-label text-signal">{t({ es: 'Principio', en: 'Principle' })} 0{active + 1}</span>
           <p className="mt-2 text-xl leading-snug">{t(title)}</p>
           <p className="mt-2 max-w-[52ch] text-sm leading-relaxed opacity-70">{t(body)}</p>
+        </div>
         </div>
       </div>
     </div>

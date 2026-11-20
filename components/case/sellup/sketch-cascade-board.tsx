@@ -140,7 +140,7 @@ export function CascadeBoard() {
   const { t } = useLocale()
   const [agent, setAgent] = useState<AgentId>('a1')
   const [scenario, setScenario] = useState<Scenario>('real')
-  const [tick, setTick] = useState(0)
+  const [count, setCount] = useState(0)
   const [ref, seen] = useInView<HTMLDivElement>(0.25)
 
   const cascade = SELLUP_CASE.patterns.cascades.find((c) => c.id === agent) ?? SELLUP_CASE.patterns.cascades[0]
@@ -150,14 +150,20 @@ export function CascadeBoard() {
   const cycle = route.length + REST_TICKS
 
   useEffect(() => {
-    setTick(0)
+    setCount(0)
   }, [agent, scenario])
 
   useEffect(() => {
     if (!seen) return
-    const id = window.setInterval(() => setTick((v) => (v + 1) % cycle), TICK_MS)
+    const id = window.setInterval(() => setCount((v) => v + 1), TICK_MS)
     return () => window.clearInterval(id)
-  }, [seen, cycle])
+  }, [seen])
+
+  const tick = count % cycle
+  // Al cerrar la pausa el paquete se desvanece abajo y reaparece arriba con un fundido:
+  // no sube rebobinando por la cascada.
+  const leaving = tick === cycle - 1
+  const looped = count >= cycle && tick === 0
 
   const step = Math.min(tick, route.length - 1)
   const pos = route[step]
@@ -207,8 +213,14 @@ export function CascadeBoard() {
 
         {/* El paquete que recorre la cascada */}
         <div
-          className="absolute z-10 transition-[left,top] duration-700 ease-out"
-          style={{ left: pct(px, W), top: pct(py, H), width: pct(30, W) }}
+          className="absolute z-10"
+          style={{
+            left: pct(px, W),
+            top: pct(py, H),
+            width: pct(30, W),
+            opacity: leaving ? 0 : 1,
+            transition: looped ? 'opacity 420ms ease-out 120ms' : 'left 700ms ease-out, top 700ms ease-out, opacity 320ms ease-in',
+          }}
           aria-hidden="true"
         >
           <span className="block aspect-square w-full rounded-full border-[0.18cqw] border-[#2a2d33] bg-[#e8743b] shadow-[0_0_0_0.5cqw_rgba(232,116,59,0.25)]" />

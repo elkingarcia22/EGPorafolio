@@ -35,10 +35,14 @@ const QUERIES = ['Andrés Vargas', 'Corte clásico', 'Fade con barba']
 export function TypingSearch() {
   const tick = useTick(110)
   const cycle = 34
+  const erase = 6
   const word = QUERIES[Math.floor(tick / cycle) % QUERIES.length]
   const pos = tick % cycle
-  const typed = word.slice(0, Math.min(word.length, pos))
-  const showResults = pos > word.length + 3
+  // Al final del ciclo los resultados se van primero y la búsqueda se borra letra a letra, como haría alguien.
+  const erasing = pos >= cycle - erase
+  const kept = erasing ? Math.round(word.length * ((cycle - pos - 1) / erase)) : pos
+  const typed = word.slice(0, Math.min(word.length, kept))
+  const showResults = pos > word.length + 3 && pos < cycle - erase - 2
   return (
     <div className={`${CARD} w-[260px]`}>
       <Label>Buscar cliente o servicio</Label>
@@ -146,7 +150,11 @@ const SPARK = 'M0,34 L14,30 L28,32 L42,24 L56,26 L70,16 L84,18 L100,6'
 
 export function RisingKpi() {
   const tick = useTick(140)
-  const value = 31000 + ((tick * 97) % 7004)
+  // Sube durante RISE pasos y baja con calma en FALL: el contador nunca salta de vuelta al inicio.
+  const RISE = 72
+  const FALL = 18
+  const p = tick % (RISE + FALL)
+  const value = 31000 + Math.round(97 * (p < RISE ? p : (RISE * (RISE + FALL - p)) / FALL))
   return (
     <div className={`${CARD} w-[240px]`}>
       <Label>Ventas de la semana</Label>
@@ -225,7 +233,9 @@ const SEGMENTS = ['Día', 'Semana', 'Mes']
 
 export function Segmented() {
   const tick = useTick(1600)
-  const active = tick % SEGMENTS.length
+  // Va y vuelve (Día → Semana → Mes → Semana…): la pastilla nunca cruza todo el control de regreso.
+  const bounce = tick % (SEGMENTS.length * 2 - 2)
+  const active = bounce < SEGMENTS.length ? bounce : SEGMENTS.length * 2 - 2 - bounce
   return (
     <div className={`${CARD} w-[230px] p-1.5`}>
       <div className="relative grid grid-cols-3 text-center text-xs">
@@ -275,6 +285,8 @@ export function ClipperMini() {
   const tick = useTick(70)
   const cycle = SUGGESTION.length + 40
   const shown = SUGGESTION.slice(0, Math.min(SUGGESTION.length, tick % cycle))
+  // Los últimos pasos del ciclo el texto se desvanece antes de volver a escribirse.
+  const fading = tick % cycle >= cycle - 8
   return (
     <div className={`${CARD} w-[280px]`}>
       <div className="mb-2 flex items-center gap-2 text-xs">
@@ -283,7 +295,7 @@ export function ClipperMini() {
         <span className="text-[#efe9dd]/40">· sugerencia</span>
       </div>
       <p className="min-h-[3.2em] text-xs leading-relaxed text-[#efe9dd]/85">
-        {shown}
+        <span className={`transition-opacity duration-500 ${fading ? 'opacity-0' : 'opacity-100'}`}>{shown}</span>
         <span className="ml-0.5 inline-block h-3 w-px animate-pulse bg-[#efe9dd] align-middle" aria-hidden="true" />
       </p>
       <div className="mt-3 flex gap-2 text-[11px]">

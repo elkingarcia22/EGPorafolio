@@ -6,7 +6,7 @@ import type { PanelOption } from './real-rumbo-panel'
 import { AgentStructure, type StructureItem } from './forma-structure'
 import { ReplicaNote } from './real-story'
 import { Scaled, useSceneTime } from './forma-stage'
-import { MAP_H, MAP_W, SearchMap } from './forma-a1-map'
+import { A1_LOOP, MAP_H, MAP_W, SearchMap } from './forma-a1-map'
 import { SearchRadarMobile } from './forma-a1-radar-mobile'
 import { useCompact } from './camera'
 
@@ -16,7 +16,7 @@ import { useCompact } from './camera'
  */
 
 /** Ticks de 0,56 s: 0–9 el radar recorre los países, 10–13 las candidatas salen a revisar. */
-const LOOP = 14
+const LOOP = A1_LOOP
 
 /** Los seis tipos de búsqueda, con el texto de la app. */
 const TYPES: readonly PanelOption[] = [

@@ -23,23 +23,35 @@ export function FloatCard({ label, active, light = false, children }: { label: s
 
 const PROMPT: L = { es: 'Quiero medir liderazgo y bienestar en el equipo comercial, 3 secciones en escala', en: 'I want to measure leadership and well-being in the sales team, 3 sections on a scale' }
 
+const CLEAR_MS = 380
+
 /** «Crear con IA»: el pedido se escribe y aparecen las secciones que propone el agente. */
 export function AiPromptCard({ active, still }: { active: boolean; still: boolean }) {
   const { t } = useLocale()
   const text = t(PROMPT)
   const [chars, setChars] = useState(still ? text.length : 0)
+  // Al volver a tocarle, el pedido anterior se desvanece antes de reescribirse (no se borra de golpe).
+  const [clearing, setClearing] = useState(false)
   useEffect(() => {
     if (still) return setChars(text.length)
     if (!active) return
-    setChars(0)
-    const id = window.setInterval(() => setChars((c) => (c >= text.length ? c : c + 2)), 28)
-    return () => window.clearInterval(id)
+    let typing = 0
+    setClearing(true)
+    const wait = window.setTimeout(() => {
+      setChars(0)
+      setClearing(false)
+      typing = window.setInterval(() => setChars((c) => (c >= text.length ? c : c + 2)), 28)
+    }, CLEAR_MS)
+    return () => {
+      window.clearTimeout(wait)
+      window.clearInterval(typing)
+    }
   }, [active, still, text])
-  const done = chars >= text.length
+  const done = chars >= text.length && !clearing
   return (
     <>
       <p className="min-h-[3.6em] rounded-lg bg-white/[0.06] p-2 text-[11px] leading-snug text-white/85">
-        {text.slice(0, chars)}
+        <span className={`transition-opacity duration-300 ${clearing ? 'opacity-0' : ''}`}>{text.slice(0, chars)}</span>
         {!done && <span className="hd-caret ml-px inline-block h-3 w-px translate-y-0.5 bg-white" />}
       </p>
       <div className="mt-2 space-y-1">

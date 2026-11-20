@@ -1,7 +1,7 @@
 'use client'
 
 import { Check, Minus } from 'lucide-react'
-import { FLY_AT, SOURCES, STOPS, stopAt, type Stop } from './forma-a1-map'
+import { FLY_AT, SOURCES, STOPS, isA1Exit, stopAt, type Stop } from './forma-a1-map'
 
 /**
  * Agente 1 · el radar de búsqueda, rehecho para teléfono y tableta (no es un recorte
@@ -68,6 +68,8 @@ export function SearchRadarMobile({ t: tick, still = false }: { t: number; still
   const idx = stopAt(t)
   const stop = STOPS[idx]
   const fly = !still && t >= FLY_AT
+  // Último tick del bucle: la lista, las fuentes y el contador se desvanecen juntos antes de volver a México.
+  const exit = !still && isA1Exit(t)
   const total = STOPS.reduce((n, s, i) => n + (i < idx ? s.found : i === idx ? Math.round(s.found * Math.min(1, (t - s.from + 1) / 2)) : 0), 0)
   const found = stop.pins.filter((_, j) => still || pinOn(stop, j, t))
   return (
@@ -80,13 +82,13 @@ export function SearchRadarMobile({ t: tick, still = false }: { t: number; still
         <style>{'@keyframes a1m-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}'}</style>
         <div className="mt-3 grid grid-cols-4 gap-1.5">
           {STOPS.map((s, i) => (
-            <span key={s.country} className="rounded-lg px-1 py-1.5 text-center text-[11.5px] leading-tight" style={{ background: i === idx && !fly ? 'linear-gradient(135deg,rgba(40,94,230,0.35),rgba(126,43,224,0.25))' : i < idx ? 'rgba(255,255,255,0.05)' : 'transparent', color: i <= idx ? '#fff' : 'rgba(255,255,255,0.4)', boxShadow: i === idx && !fly ? '0 0 0 1px rgba(157,176,255,0.55)' : '0 0 0 1px rgba(255,255,255,0.08)', transition: `all 300ms ${EXPO}` }}>
+            <span key={s.country} className="rounded-lg px-1 py-1.5 text-center text-[11.5px] leading-tight" style={{ background: i === idx && !fly ? 'linear-gradient(135deg,rgba(40,94,230,0.35),rgba(126,43,224,0.25))' : i < idx && !exit ? 'rgba(255,255,255,0.05)' : 'transparent', color: i <= idx && !exit ? '#fff' : 'rgba(255,255,255,0.4)', boxShadow: i === idx && !fly ? '0 0 0 1px rgba(157,176,255,0.55)' : '0 0 0 1px rgba(255,255,255,0.08)', transition: `all 300ms ${EXPO}` }}>
               <span className="block" aria-hidden="true">{s.flag}</span>{s.country}
             </span>
           ))}
         </div>
         <div className="mt-5"><Radar t={t} still={still} stop={stop} /></div>
-        <ul className="mt-4 flex min-h-[60px] flex-wrap content-start justify-center gap-1.5" aria-label="Empresas encontradas">
+        <ul className="mt-4 flex min-h-[60px] flex-wrap content-start justify-center gap-1.5 transition-opacity duration-300" style={{ opacity: exit ? 0 : 1 }} aria-label="Empresas encontradas">
           {(fly ? STOPS[STOPS.length - 1].pins : found).map((p) => (
             <li key={p.name} className="rounded-md px-2 py-0.5 text-[12px]" style={{ background: p.star ? 'linear-gradient(90deg,#285ee6,#7e2be0)' : 'rgba(20,22,30,0.9)', boxShadow: '0 0 0 1px rgba(157,176,255,0.3)', animation: still ? undefined : 'a1m-in 300ms ease-out' }}>
               {p.name}{p.star ? ' · Nueva' : ''}
@@ -99,7 +101,7 @@ export function SearchRadarMobile({ t: tick, still = false }: { t: number; still
         <p className="text-[11px] uppercase tracking-[0.16em] text-white/45">Fuentes · primero lo gratis</p>
         <ul className="mt-2 space-y-1">
           {SOURCES.map((s) => {
-            const on = still || t >= s.t
+            const on = still || (!exit && t >= s.t)
             const skip = 'skip' in s && s.skip
             return (
               <li key={s.name} className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px]" style={{ background: on && !skip ? 'rgba(107,140,255,0.14)' : 'rgba(255,255,255,0.03)', color: on ? (skip ? 'rgba(255,255,255,0.5)' : '#fff') : 'rgba(255,255,255,0.4)', transition: `all 300ms ${EXPO}` }}>
@@ -111,7 +113,7 @@ export function SearchRadarMobile({ t: tick, still = false }: { t: number; still
           })}
         </ul>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10"><p className="text-[24px] font-semibold tabular-nums">{still ? 27 : total}</p><p className="text-[12px] text-white/55">candidatas</p></div>
+          <div className="rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10"><p className="text-[24px] font-semibold tabular-nums transition-opacity duration-300" style={{ opacity: exit ? 0 : 1 }}>{still ? 27 : total}</p><p className="text-[12px] text-white/55">candidatas</p></div>
           <div className="rounded-xl bg-white/[0.04] px-3 py-2 ring-1 ring-white/10"><p className="text-[24px] font-semibold tabular-nums text-emerald-300">0</p><p className="text-[12px] text-white/55">créditos usados</p></div>
         </div>
       </div>

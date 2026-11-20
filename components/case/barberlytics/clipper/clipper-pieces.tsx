@@ -59,7 +59,9 @@ const LOOP_STEPS: readonly L[] = [
   { es: 'Revisa que cada cifra salga de los datos', en: 'Checks every figure comes from the data' },
   { es: 'Responde y dice qué consultó', en: 'Answers and says what it looked up' },
 ]
-const PHASES_PER_Q = 6
+/** Seis fases por pregunta y una séptima de salida: todo se desvanece junto antes de la siguiente. */
+const PHASES_PER_Q = 7
+const EXIT_PHASE = 6
 
 export function AgentLoop() {
   const { t } = useLocale()
@@ -69,6 +71,7 @@ export function AgentLoop() {
   const ex = CLIPPER_CASE.exchanges[qi]
   const denied = ex.tool === 'nomina'
   const answer = useTyped(t(ex.a), phase >= 4)
+  const leaving = phase === EXIT_PHASE
   return (
     <div data-reveal="device" className={STAGE}>
       <StageFx />
@@ -80,6 +83,7 @@ export function AgentLoop() {
             <span className="text-sm font-medium">Clipper</span>
             <span className="ml-auto rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-white/55">{t(ex.role)}</span>
           </div>
+          <div className={`flex flex-1 flex-col gap-3 transition-opacity duration-500 ${leaving ? 'opacity-0' : 'opacity-100'}`}>
           <p key={`q-${qi}`} className="ml-auto max-w-[85%] animate-[ramp-in_0.5s_cubic-bezier(0.16,1,0.3,1)_both] rounded-2xl rounded-tr-sm bg-white/[0.08] px-4 py-2.5 text-sm">{t(ex.q)}</p>
           {phase >= 1 && phase < 4 && <p className="font-mono text-[11px] text-white/45">{t({ es: 'Razonando…', en: 'Reasoning…' })}</p>}
           {phase >= 4 && (
@@ -99,6 +103,7 @@ export function AgentLoop() {
               <span>Copiar</span><span>👍</span><span>👎</span><span>Regenerar</span><span>{t({ es: 'Leer en voz alta', en: 'Read aloud' })}</span>
             </div>
           )}
+          </div>
         </div>
 
         {/* Por dentro */}
@@ -107,22 +112,24 @@ export function AgentLoop() {
           <ol className="relative space-y-7 pl-11">
             {/* El riel y la luz que baja por él mientras piensa */}
             <span className="absolute bottom-3 left-[14px] top-3 w-[2px] rounded-full bg-white/10" aria-hidden="true" />
-            <span className="absolute left-[14px] top-3 w-[2px] rounded-full transition-[height] duration-700 ease-expo" style={{ height: `calc(${(Math.min(phase, 3) / 3) * 100}% - 1.5rem)`, backgroundImage: 'linear-gradient(#f0ce86,#de8c3a,#2e9cb0,#3f72d8)' }} aria-hidden="true" />
+            <span className="absolute left-[14px] top-3 w-[2px] rounded-full transition-[height] duration-700 ease-expo" style={{ height: `calc(${(leaving ? 0 : Math.min(phase, 3) / 3) * 100}% - 1.5rem)`, backgroundImage: 'linear-gradient(#f0ce86,#de8c3a,#2e9cb0,#3f72d8)' }} aria-hidden="true" />
             {LOOP_STEPS.map((s, i) => {
-              const on = phase >= i && phase < 6
-              const now = phase === i || (i === 3 && phase >= 3)
+              const on = phase >= i && !leaving
+              const now = !leaving && (phase === i || (i === 3 && phase >= 3))
               return (
                 <li key={s.es} className={`relative transition-all duration-500 ${on ? 'opacity-100' : 'opacity-35'}`}>
                   <span className={`absolute -left-11 top-0 flex h-[30px] w-[30px] items-center justify-center rounded-full font-mono text-[11px] transition-all duration-500 ${on ? 'text-[#16130f]' : 'border border-white/20 bg-[#0f0d0b] text-white/50'}`} style={on ? { backgroundImage: AI_GRADIENT, boxShadow: now ? '0 0 0 6px rgba(222,140,58,0.18), 0 0 24px rgba(46,156,176,0.5)' : undefined } : undefined}>
                     {i + 1}
                   </span>
                   <p className={`pt-1 transition-all duration-500 ${now ? 'text-lg' : 'text-sm'}`}>{t(s)}</p>
-                  {i === 1 && on && (
-                    <p className={`mt-2 inline-flex animate-[ramp-in_0.4s_both] items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[11px] ${denied ? 'bg-[#ff6b72]/15 text-[#ff8a8e]' : 'bg-[#2e9cb0]/15 text-[#7fd3e3]'}`}>
+                  {i === 1 && phase >= 1 && (
+                    <p className={`transition-opacity duration-500 ${leaving ? 'opacity-0' : ''}`}>
+                    <span className={`mt-2 inline-flex animate-[ramp-in_0.4s_both] items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[11px] ${denied ? 'bg-[#ff6b72]/15 text-[#ff8a8e]' : 'bg-[#2e9cb0]/15 text-[#7fd3e3]'}`}>
                       {ex.tool}{denied ? ' ✕' : ''}
+                    </span>
                     </p>
                   )}
-                  {i === 2 && on && <p className="mt-2 animate-[ramp-in_0.4s_both] text-[12px] text-[#5fd39a]">✓ {t(ex.check)}</p>}
+                  {i === 2 && phase >= 2 && <p className={`transition-opacity duration-500 ${leaving ? 'opacity-0' : ''}`}><span className="mt-2 block animate-[ramp-in_0.4s_both] text-[12px] text-[#5fd39a]">✓ {t(ex.check)}</span></p>}
                 </li>
               )
             })}

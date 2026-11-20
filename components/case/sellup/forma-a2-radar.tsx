@@ -50,15 +50,24 @@ const DECIDERS = PEOPLE.map((p, k) => (p.role ? k : -1)).filter((k) => k >= 0)
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)'
 export const CREDITS = 8
+/**
+ * Largo del bucle (ticks). El último es la salida: personas, anillos, cascada y créditos
+ * se desvanecen juntos en su lugar; al volver a 0 las personas regresan al centro ya ocultas.
+ */
+export const A2_LOOP = 16
+export const isA2Exit = (t: number) => t >= A2_LOOP - 1
 
 /** `t`: segundos (ticks) desde que empieza la escena del radar. */
 export function PeopleRadar({ t }: { t: number }) {
   const scanning = t >= 2 && t < 10
   const rise = t >= 10
   const fly = t >= 12
-  const lit = (ring: number) => t >= RINGS[ring].at
-  const used = t >= 6 ? 3 : 0
-  const back = t >= 10
+  const exit = isA2Exit(t)
+  const found = (ring: number) => t >= RINGS[ring].at
+  const lit = (ring: number) => !exit && found(ring)
+  const used = t >= 6 && !exit ? 3 : 0
+  const back = t >= 10 && !exit
+  const ready = t >= 1 && !exit
   return (
     <div className="relative overflow-hidden rounded-[22px] text-white" style={{ width: RADAR_W, height: RADAR_H, background: 'radial-gradient(ellipse at 50% 55%,#151a2e 0%,#0b0c10 70%)', fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}>
       <div className="pointer-events-none absolute inset-0 opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.5) 1px,transparent 1px)', backgroundSize: '22px 22px' }} />
@@ -84,7 +93,7 @@ export function PeopleRadar({ t }: { t: number }) {
             stroke={lit(k) && k < 3 ? 'url(#a2-ring)' : 'rgba(255,255,255,0.1)'}
             strokeWidth={lit(k) && k < 3 ? 1.6 : 1}
             strokeDasharray={k === 3 ? '4 6' : undefined}
-            style={{ transition: `stroke 300ms, opacity 300ms`, opacity: t >= 1 ? (k === 3 && t >= 8 ? 0.35 : 1) : 0 }}
+            style={{ transition: `stroke 300ms, opacity 300ms`, opacity: ready ? (k === 3 && t >= 8 ? 0.35 : 1) : 0 }}
           />
         ))}
         {PEOPLE.map((p, k) => (
@@ -125,7 +134,7 @@ export function PeopleRadar({ t }: { t: number }) {
           style={{
             left: Math.round(CX + ring.r * 0.978) - 6,
             top: Math.round(CY - ring.r * 0.208),
-            opacity: t >= 1 ? 1 : 0,
+            opacity: ready ? 1 : 0,
             background: lit(k) ? (k === 3 ? 'rgba(255,255,255,0.05)' : 'rgba(107,140,255,0.2)') : 'rgba(10,10,12,0.9)',
             color: lit(k) ? (k === 3 ? 'rgba(255,255,255,0.45)' : '#fff') : 'rgba(255,255,255,0.4)',
             boxShadow: lit(k) && k < 3 ? '0 0 18px rgba(107,140,255,0.45)' : 'none',
@@ -138,7 +147,7 @@ export function PeopleRadar({ t }: { t: number }) {
 
       {/* Personas */}
       {PEOPLE.map((p, k) => {
-        const on = lit(p.ring)
+        const on = found(p.ring)
         const d = DECIDERS.indexOf(k)
         const isDecider = d >= 0
         const laneX = 210 + d * 180
@@ -151,7 +160,7 @@ export function PeopleRadar({ t }: { t: number }) {
             className="absolute left-0 top-0"
             style={{
               transform: `translate(${gone ? 1020 : x}px, ${y}px) scale(${on ? 1 : 0.2})`,
-              opacity: on ? (rise && !isDecider ? 0.18 : gone ? 0 : 1) : 0,
+              opacity: on && !exit ? (rise && !isDecider ? 0.18 : gone ? 0 : 1) : 0,
               filter: gone ? 'blur(6px)' : 'none',
               transition: `transform ${gone ? 380 : 450}ms ${EASE} ${gone ? d * 60 : 0}ms, opacity 300ms, filter 300ms`,
             }}
@@ -198,7 +207,7 @@ export function PeopleRadar({ t }: { t: number }) {
 
       {/* Créditos */}
       <div className="absolute bottom-5 right-6 w-[230px] rounded-xl bg-black/40 p-3 ring-1 ring-white/10">
-        <p className="flex items-center text-[12px] text-white/60">Créditos reservados<span className="ml-auto font-semibold tabular-nums text-white">{t >= 1 ? CREDITS : 0}</span></p>
+        <p className="flex items-center text-[12px] text-white/60">Créditos reservados<span className="ml-auto font-semibold tabular-nums text-white">{ready ? CREDITS : 0}</span></p>
         <div className="mt-2 grid grid-cols-8 gap-1">
           {Array.from({ length: CREDITS }, (_, k) => {
             const isUsed = k < used
@@ -209,7 +218,7 @@ export function PeopleRadar({ t }: { t: number }) {
                 className="h-3 rounded-sm transition-all duration-300"
                 style={{
                   transitionDelay: `${k * 40}ms`,
-                  background: t < 1 ? 'rgba(255,255,255,0.08)' : isUsed ? '#eb6233' : isBack ? '#34d399' : '#6b8cff',
+                  background: !ready ? 'rgba(255,255,255,0.08)' : isUsed ? '#eb6233' : isBack ? '#34d399' : '#6b8cff',
                   transform: isBack ? 'translateY(-3px)' : 'none',
                 }}
               />

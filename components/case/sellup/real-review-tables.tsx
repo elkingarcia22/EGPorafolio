@@ -80,7 +80,7 @@ export function CompanyReview({ arrived, focus }: { arrived: boolean; focus: boo
       <div className={`grid ${CO_COLS} gap-4 border-b border-white/10 px-5 py-2.5 text-[12px] text-white/50`}>
         <Box /><Th>Empresa</Th><Th>País</Th><Th>Sector</Th><Th>Calidad</Th><Th>Estado</Th>
       </div>
-      <div className="overflow-hidden transition-[max-height] duration-[400ms] ease-expo" style={{ maxHeight: arrived ? 70 : 0 }}>
+      <div className="overflow-hidden transition-[max-height,opacity] duration-[400ms] ease-expo" style={{ maxHeight: arrived ? 70 : 0, opacity: arrived ? 1 : 0 }}>
         <div className="transition-all duration-[400ms]" style={focus ? FRESH : undefined}><CoRow c={NEW_CO} /></div>
       </div>
       {COMPANIES.slice(0, 6).map((c) => <CoRow key={c.name} c={c} />)}
@@ -131,7 +131,7 @@ export function ContactReview({ arrived, focus }: { arrived: boolean; focus: boo
       <div className={`grid ${CT_COLS} gap-4 border-b border-white/10 px-5 py-2.5 text-[12px] text-white/50`}>
         <Box /><Th>Nombre</Th><Th>Cargo</Th><Th>Empresa</Th><Th>Fuente</Th><Th>Relevancia</Th>
       </div>
-      <div className="overflow-hidden transition-[max-height] duration-[400ms] ease-expo" style={{ maxHeight: arrived ? 56 : 0 }}>
+      <div className="overflow-hidden transition-[max-height,opacity] duration-[400ms] ease-expo" style={{ maxHeight: arrived ? 56 : 0, opacity: arrived ? 1 : 0 }}>
         <div className="transition-all duration-[400ms]" style={focus ? FRESH : undefined}><CtRow c={NEW_CT} /></div>
       </div>
       {CONTACTS.slice(0, 7).map((c) => <CtRow key={c.name} c={c} />)}

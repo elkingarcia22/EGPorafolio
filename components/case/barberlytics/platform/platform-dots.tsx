@@ -99,10 +99,13 @@ const CLICKS: readonly L[] = [
 /** 02 · «Demasiados clics»: llegar, sentar y cobrar contados uno por uno. */
 function TooManyClicks() {
   const { t } = useLocale()
-  const step = useStep(420, CLICKS.length + 4)
+  // Cuenta hasta 11, se queda un momento y sale en fundido antes de volver a 1 (sin desplomarse de golpe).
+  const step = useStep(420, CLICKS.length + 6)
   const n = Math.min(step + 1, CLICKS.length)
+  const { reducedMotion } = useA11y()
+  const leaving = !reducedMotion && step >= CLICKS.length + 4
   return (
-    <div>
+    <div className={`transition-opacity duration-500 ${leaving ? 'opacity-0' : 'opacity-100'}`}>
       <div className="flex items-baseline gap-3">
         <span className="text-5xl font-light tabular-nums text-[#ff6b72]">{n}</span>
         <span className="text-[12px] opacity-60">{t({ es: 'clics si cada paso es abrir, editar y guardar', en: 'clicks if every step is open, edit and save' })}</span>

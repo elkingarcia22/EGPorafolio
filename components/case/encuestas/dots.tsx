@@ -89,7 +89,7 @@ function MeasurementJourney() {
             {i === active && !pinned && !hover && !reducedMotion ? (
               <span key={`${s.id}-run`} className="block h-full bg-signal" style={{ animation: `hd-grow ${ADVANCE_MS}ms linear both`, transformOrigin: 'left' }} />
             ) : (
-              <span className={`block h-full ${i <= active ? 'bg-signal' : ''}`} />
+              <span className={`block h-full transition-colors duration-500 ${i <= active ? 'bg-signal' : 'bg-transparent'}`} />
             )}
           </span>
         ))}

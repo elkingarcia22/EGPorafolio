@@ -83,7 +83,11 @@ function StepBody({ step }: { step: Step }) {
 
 export function AiChatFlow() {
   const { t } = useLocale()
-  const { ref, step } = useConversation(STEPS.length)
+  const { ref, step: rawStep } = useConversation(STEPS.length)
+  // Al final de la pausa la conversación entera se desvanece (leaving) y, ya invisible, se pliega:
+  // nunca se ve el salto de los pasos colapsando a cero.
+  const leaving = rawStep >= STEPS.length + PAUSE_STEPS - 1
+  const step = rawStep >= STEPS.length + PAUSE_STEPS ? -1 : rawStep
   const thinking = step >= 0 && step < STEPS.length
 
   return (
@@ -93,7 +97,7 @@ export function AiChatFlow() {
         <span className="text-sm font-medium">{t({ es: 'Construir con la IA', en: 'Building with AI' })}</span>
         <span className="ml-auto font-mono text-[10px] text-white/40">Claude Code · Thema</span>
       </div>
-      <div className="min-h-[520px] space-y-4 p-5 md:p-7">
+      <div className={`min-h-[520px] space-y-4 p-5 transition-opacity duration-500 md:p-7 ${leaving ? 'opacity-0' : 'opacity-100'}`}>
         <div className="flex justify-end">
           <p className={`max-w-[80%] rounded-2xl rounded-br-md bg-[#d9b36a] px-4 py-3 text-sm text-[#17140f] transition-all duration-500 ${step >= 0 ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>{t(PROMPT)}</p>
         </div>

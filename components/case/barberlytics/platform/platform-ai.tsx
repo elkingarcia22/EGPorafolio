@@ -40,6 +40,8 @@ function CalendarProposes() {
   const late = phase >= 1 && phase <= 3
   const preview = phase === 2
   const applied = phase === 3
+  // La tarjeta conserva el texto de «aplicado» mientras se desvanece en la fase de deshacer.
+  const cardApplied = phase >= 3
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#121009] p-4 text-[#efe9dd] md:p-6">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -85,12 +87,12 @@ function CalendarProposes() {
       <div className={`mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#d9b36a]/40 bg-[#d9b36a]/[0.08] p-3 transition-all duration-500 ${preview || applied ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>
         <span className="rounded-full border border-[#d9b36a]/50 px-2 py-0.5 text-[10px] text-[#e9c27a]">{t({ es: 'Sugerencia', en: 'Suggestion' })}</span>
         <p className="flex-1 text-xs">
-          {applied
+          {cardApplied
             ? t({ es: 'Movidas 20 min porque la cita anterior se alargó · Diego no se toca: eligió esa hora.', en: 'Moved 20 min because the previous visit ran long · Diego stays: he chose that time.' })
             : t({ es: '3 citas se corren 20 min con Emilio', en: '3 visits shift 20 min with Emilio' })}
         </p>
-        {!applied && <span className="text-xs text-white/55">{t({ es: 'Descartar', en: 'Discard' })}</span>}
-        <span className="rounded-md px-3 py-1.5 text-xs font-semibold text-[#16130f]" style={{ background: GOLD }}>{applied ? t({ es: 'Deshacer', en: 'Undo' }) : t({ es: 'Aplicar', en: 'Apply' })}</span>
+        {!cardApplied && <span className="text-xs text-white/55">{t({ es: 'Descartar', en: 'Discard' })}</span>}
+        <span className="rounded-md px-3 py-1.5 text-xs font-semibold text-[#16130f]" style={{ background: GOLD }}>{cardApplied ? t({ es: 'Deshacer', en: 'Undo' }) : t({ es: 'Aplicar', en: 'Apply' })}</span>
       </div>
     </div>
   )

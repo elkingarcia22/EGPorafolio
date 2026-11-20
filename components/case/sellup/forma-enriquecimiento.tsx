@@ -4,7 +4,7 @@ import { useLocale } from '@/lib/i18n'
 import { AgentStructure, type StructureItem } from './forma-structure'
 import { ReplicaNote } from './real-story'
 import { Scaled, useSceneTime } from './forma-stage'
-import { PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
+import { A2_LOOP, PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
 import { PeopleRadarMobile } from './forma-a2-radar-mobile'
 import { useCompact } from './camera'
 
@@ -15,7 +15,7 @@ import { useCompact } from './camera'
  */
 
 /** Ticks de 0,56 s: 0–9 barrido, 10–11 suben los decisores, 12–15 salen a revisar. */
-const LOOP = 16
+const LOOP = A2_LOOP
 
 const STRUCTURE: readonly StructureItem[] = [
   { title: { es: 'Una empresa', en: 'One company' }, body: { es: 'Por nombre, dominio o HubSpot ID. También sirve el correo de alguien que trabaje allí.', en: 'By name, domain or HubSpot ID. Someone’s work email works too.' }, note: { es: 'HubSpot → lo ya conocido → Apollo → Lusha', en: 'HubSpot → already known → Apollo → Lusha' } },

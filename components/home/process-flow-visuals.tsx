@@ -116,18 +116,21 @@ export function DemoMark() {
   )
 }
 
-/** Las animaciones de las marcas (quietas con «reducir movimiento»). */
+/**
+ * Las animaciones de las marcas (quietas con «reducir movimiento»). Cada ciclo termina donde
+ * empieza: el trazo se borra hacia adelante, las barras bajan y la luz se apaga en la punta.
+ */
 export function ProcessMarksStyle() {
   return (
     <style>{`
       @keyframes pf-blink { 50% { opacity: .2 } }
       @keyframes pf-pull { 50% { transform: scale(.55) } }
       @keyframes pf-glow { 50% { opacity: .45; transform: scale(.92) } }
-      @keyframes pf-draw { 0% { stroke-dashoffset: 100 } 60%, 100% { stroke-dashoffset: 0 } }
+      @keyframes pf-draw { 0% { stroke-dashoffset: 100 } 50%, 72% { stroke-dashoffset: 0 } 100% { stroke-dashoffset: -100 } }
       @keyframes pf-build { 0%, 10% { opacity: .15 } 35%, 85% { opacity: 1 } 100% { opacity: .15 } }
       @keyframes pf-spin { to { transform: rotate(360deg) } }
-      @keyframes pf-rise { 0% { transform: scaleY(.2) } 45%, 100% { transform: scaleY(1) } }
-      @keyframes pf-comet { from { transform: translateX(-100%) } to { transform: translateX(0) } }
+      @keyframes pf-rise { 0% { transform: scaleY(.2) } 40%, 72% { transform: scaleY(1) } 100% { transform: scaleY(.2) } }
+      @keyframes pf-comet { 0% { transform: translateX(-100%) } 80% { transform: translateX(0); opacity: 1 } 100% { transform: translateX(0); opacity: 0 } }
       @keyframes pf-tap { 0%, 100% { transform: translate(0, 0) } 50% { transform: translate(-14px, -18px) } }
       @media (prefers-reduced-motion: reduce) { [style*='pf-'], [class*='pf-comet'] { animation: none !important } }
       html[data-motion='reduced'] [style*='pf-'], html[data-motion='reduced'] [class*='pf-comet'] { animation: none !important }

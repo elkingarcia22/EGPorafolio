@@ -48,6 +48,13 @@ const PHASES: readonly { label: L; dock: string }[] = [
 export const FLOW_LOOP = 24
 const LOOP = FLOW_LOOP
 const phaseAt = (t: number) => (t < 7 ? 0 : t < 14 ? 1 : 2)
+/**
+ * La tarjeta está en el tablero del tick 1 al penúltimo. En el último sale hacia adelante
+ * (se desvanece avanzando) y vuelve a la primera etapa ya oculta: el bucle no la arrastra
+ * de regreso por encima del tablero.
+ */
+const onBoard = (t: number) => t >= 1 && t < LOOP - 1
+const leaving = (t: number) => t >= LOOP - 1
 
 function Card({ name, where, children }: { name: string; where: string; children: React.ReactNode }) {
   return (
@@ -98,17 +105,20 @@ function WaitingCard({ name, where, ready, faded = false }: { name: string; wher
 
 export function FlowBoard({ time, wide = false }: { time: number; wide?: boolean }) {
   const phase = phaseAt(time)
-  const shown = time >= 1
+  const shown = onBoard(time)
+  const arrived = time >= 1
+  const exit = leaving(time)
   const others = [[], ENRICH, FIRST] as const
-  const counts = [shown && phase === 0 ? 1 : 0, 97 + (phase === 1 ? 1 : 0), 6 + (phase === 2 ? 1 : 0)]
+  const counts = [shown && phase === 0 ? 1 : 0, 97 + (phase === 1 ? 1 : 0), 6 + (arrived && phase === 2 ? 1 : 0)]
+  const lift = exit ? 0 : -14
   const stageH = wide ? STAGE_H.wide : STAGE_H.tall
   const travel = wide
-    ? { left: PAD, width: `calc((100% - ${2 * STAGE_GAP}px) / 3 - ${2 * PAD}px)`, transform: `translate(calc(${phase} * (100% + ${2 * PAD + STAGE_GAP}px)), ${shown ? 0 : -14}px)` }
-    : { left: PAD, right: PAD, transform: `translateY(${phase * (stageH + STAGE_GAP) + (shown ? 0 : -14)}px)` }
+    ? { left: PAD, width: `calc((100% - ${2 * STAGE_GAP}px) / 3 - ${2 * PAD}px)`, transform: `translate(calc(${phase} * (100% + ${2 * PAD + STAGE_GAP}px) + ${exit ? 28 : 0}px), ${shown ? 0 : lift}px)` }
+    : { left: PAD, right: PAD, transform: `translateY(${phase * (stageH + STAGE_GAP) + (shown ? 0 : exit ? 18 : lift)}px)` }
   return (
     <div className={`rounded-[20px] bg-[#0a0a0a] text-white ring-1 ring-white/10 ${wide ? 'p-6' : 'p-4'}`} style={{ fontFamily: REAL.font }}>
       <p className={`${wide ? 'text-[22px]' : 'text-[17px]'} font-semibold tracking-tight`}>Flujo de prospección</p>
-      <p className="mt-0.5 text-[12px] text-white/55">{shown ? 104 : 103} empresas · en qué etapa está cada una</p>
+      <p className="mt-0.5 text-[12px] text-white/55">{arrived ? 104 : 103} empresas · en qué etapa está cada una</p>
       <div className={`relative mt-4 ${wide ? 'grid grid-cols-3' : ''}`} style={wide ? { columnGap: STAGE_GAP } : undefined}>
         {COLS.map((c, i) => {
           const hosting = shown && phase === i
@@ -163,10 +173,12 @@ export function FlowBoard({ time, wide = false }: { time: number; wide?: boolean
 /** El tablero real, con «Clínica Andina» saltando de columna en columna. */
 export function FlowScreen({ time }: { time: number }) {
   const phase = phaseAt(time)
-  const shown = time >= 1
+  const shown = onBoard(time)
+  const arrived = time >= 1
+  const exit = leaving(time)
   const at = phase
   const enrichCount = 97 + (at === 1 ? 1 : 0)
-  const firstCount = 6 + (at === 2 ? 1 : 0)
+  const firstCount = 6 + (arrived && at === 2 ? 1 : 0)
   const tag = <FlowTag time={time} />
   return (
     <div className="px-8 pt-7">
@@ -180,7 +192,7 @@ export function FlowScreen({ time }: { time: number }) {
       </div>
       <div className="mt-5 flex items-center text-[12.5px]">
         <span className="flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1"><SlidersHorizontal className="h-3.5 w-3.5" />Filtros<ChevronDown className="h-3 w-3 opacity-60" /></span>
-        <span className="ml-auto text-white/45">{shown ? 104 : 103} empresas</span>
+        <span className="ml-auto text-white/45">{arrived ? 104 : 103} empresas</span>
       </div>
 
       <div className="relative mt-4 flex" style={{ gap: GAP }}>
@@ -223,7 +235,7 @@ export function FlowScreen({ time }: { time: number }) {
         {/* La empresa destacada: se mueve por encima del tablero */}
         <div
           className="absolute top-[58px] transition-[transform,opacity,width] duration-500 ease-expo"
-          style={{ width: COLS[at].w - 16, transform: `translate(${COL_X[at] + 8}px, ${shown ? 0 : -18}px)`, opacity: shown ? 1 : 0 }}
+          style={{ width: COLS[at].w - 16, transform: `translate(${COL_X[at] + 8 + (exit ? 32 : 0)}px, ${shown || exit ? 0 : -18}px)`, opacity: shown ? 1 : 0 }}
         >
           <div className="relative rounded-xl border px-3.5 py-3" style={{ height: CARD_H - 10, borderColor: '#6b8cff', background: 'linear-gradient(135deg,#1d2440,#1a1530)', boxShadow: '0 0 0 3px rgba(107,140,255,0.2), 0 20px 40px -16px rgba(107,140,255,0.6)' }}>
             <p className="truncate pr-4 text-[13.5px] font-semibold">Clínica Andina</p>

@@ -47,13 +47,21 @@ const GROUPS = [
 ].map((g, i) => ({ ...g, y: 40 + i * 98 }))
 
 export const GOALS = [
-  { id: 'ingresos', title: 'Crecer los ingresos un 15 %', meta: '48,6 % del peso · avance 9,8 %', top: ['Operaciones', 'Tecnología', 'Logística'], y: 150 },
+  { id: 'ingresos', title: 'Crecer los ingresos un 15 %', meta: '48,6 % del peso · avance 9,8 %', top: ['Operaciones', 'Tecnología', 'Logística'], y: 150 },
   { id: 'marca', title: 'Ser la marca preferida de los clientes', meta: '26,2 % del peso · avance 11 %', top: ['Tecnología', 'Operaciones', 'Logística'], y: 380 },
   { id: 'eficiencia', title: 'Operar con más eficiencia', meta: '23,8 % del peso · avance 8,3 %', top: ['Marketing', 'Logística', 'Finanzas'], y: 610 },
 ] as const
 
 const FOCUS = PEOPLE[0]
 const FOCUS_GROUP = GROUPS[0]
+
+/**
+ * Todo lo de las tarjetas se mide en cqw (ancho del lienzo): relleno, radio y
+ * puntos escalan junto con la caja, así el texto nunca se sale del borde,
+ * sea cual sea el ancho (celular, portada o caso).
+ */
+const CARD = { borderRadius: '0.8cqw', lineHeight: 1.25 } as const
+const dot = (side: 'left' | 'right'): React.CSSProperties => ({ [side]: '-0.3cqw', width: '0.6cqw', height: '0.6cqw' })
 
 const curve = (x1: number, y1: number, x2: number, y2: number) => {
   const dx = (x2 - x1) / 2
@@ -78,6 +86,10 @@ const camera = (shot: (typeof SHOTS)[number]) => {
   const ty = (0.5 - (shot.s * shot.cy) / H) * 100
   return `translate(${tx.toFixed(2)}%, ${ty.toFixed(2)}%) scale(${shot.s})`
 }
+
+/** Al cerrar el bucle: lo que tarda en desvanecerse y lo que espera oculto a que la cámara vuelva. */
+const LOOP_FADE_MS = 550
+const LOOP_REENTER_MS = 850
 
 /** Cuánto dura cada toma; el lienzo pasa a la siguiente al terminar. */
 export const CASCADE_STEPS = SHOTS.map((shot) => shot.ms)
@@ -127,26 +139,26 @@ export function CascadeCanvas({ phase, className = '' }: { phase: number; classN
         {PEOPLE.map((p, i) => {
           const on = i === 0 || all
           return (
-            <div key={p.name} className={`absolute flex items-center gap-2 rounded-xl border bg-white px-2.5 transition-opacity duration-500 ${i === 0 ? 'border-[#0c5bef] shadow-[0_0_0_4px_rgba(12,91,239,0.15)]' : 'border-black/10 shadow-sm'}`} style={{ left: `${(PERSON.x / W) * 100}%`, top: `${(p.y / H) * 100}%`, width: `${(PERSON.w / W) * 100}%`, height: `${(PERSON.h / H) * 100}%`, opacity: on ? 1 : 0.15, transitionDelay: on && i ? `${i * 60}ms` : '0ms' }}>
+            <div key={p.name} className={`absolute flex items-center border bg-white transition-opacity duration-500 ${i === 0 ? 'border-[#0c5bef] shadow-[0_0_0_4px_rgba(12,91,239,0.15)]' : 'border-black/10 shadow-sm'}`} style={{ ...CARD, gap: '0.6cqw', padding: '0 0.8cqw', left: `${(PERSON.x / W) * 100}%`, top: `${(p.y / H) * 100}%`, width: `${(PERSON.w / W) * 100}%`, height: `${(PERSON.h / H) * 100}%`, opacity: on ? 1 : 0.15, transitionDelay: on && i ? `${i * 60}ms` : '0ms' }}>
               <span className="grid aspect-square h-[55%] shrink-0 place-items-center rounded-full bg-[#0c5bef]/10 text-[0.55em] font-medium text-[#0c5bef]" style={{ fontSize: '1.2cqw' }}>{p.name.split(' ').slice(0, 2).map((w) => w[0]).join('')}</span>
               <span className="min-w-0 leading-tight" style={{ fontSize: '1.2cqw' }}>
                 <span className="block truncate font-medium">{p.name}</span>
                 <span className="block truncate text-black/50">{p.area}</span>
               </span>
-              <span className="absolute -right-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#0c5bef]" />
+              <span className="absolute top-1/2 -translate-y-1/2 rounded-full bg-[#0c5bef]" style={dot('right')} />
             </div>
           )
         })}
-        <div className={`absolute grid place-items-center rounded-xl border border-dashed border-black/20 text-black/45 transition-opacity duration-500 ${all ? 'opacity-100' : 'opacity-0'}`} style={{ left: `${(PERSON.x / W) * 100}%`, top: `${((50 + 8 * 82) / H) * 100}%`, width: `${(PERSON.w / W) * 100}%`, height: `${(PERSON.h / H) * 100}%`, fontSize: '1.2cqw' }}>
+        <div className={`absolute grid place-items-center border border-dashed border-black/20 text-black/45 transition-opacity duration-500 ${all ? 'opacity-100' : 'opacity-0'}`} style={{ left: `${(PERSON.x / W) * 100}%`, top: `${((50 + 8 * 82) / H) * 100}%`, width: `${(PERSON.w / W) * 100}%`, height: `${(PERSON.h / H) * 100}%`, fontSize: '1.2cqw', ...CARD }}>
           + 72 personas más
         </div>
 
         {GROUPS.map((g, i) => {
           const on = i === 0 ? phase >= 1 : all
           return (
-            <div key={g.area} className={`absolute rounded-xl border bg-white px-3 py-2 transition-opacity duration-500 ${i === 0 && phase >= 1 ? 'border-[#0c5bef]/60' : 'border-black/10'} shadow-sm`} style={{ left: `${(GROUP.x / W) * 100}%`, top: `${(g.y / H) * 100}%`, width: `${(GROUP.w / W) * 100}%`, height: `${(GROUP.h / H) * 100}%`, opacity: on ? 1 : 0.12, fontSize: '1.3cqw', transitionDelay: on && i ? `${300 + i * 50}ms` : '0ms' }}>
-              <span className="absolute -left-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#0c5bef]/50" />
-              <span className="absolute -right-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#0c5bef]" />
+            <div key={g.area} className={`absolute flex flex-col justify-center border bg-white transition-opacity duration-500 ${i === 0 && phase >= 1 ? 'border-[#0c5bef]/60' : 'border-black/10'} shadow-sm`} style={{ ...CARD, padding: '0 1cqw', left: `${(GROUP.x / W) * 100}%`, top: `${(g.y / H) * 100}%`, width: `${(GROUP.w / W) * 100}%`, height: `${(GROUP.h / H) * 100}%`, opacity: on ? 1 : 0.12, fontSize: '1.3cqw', transitionDelay: on && i ? `${300 + i * 50}ms` : '0ms' }}>
+              <span className="absolute top-1/2 -translate-y-1/2 rounded-full bg-[#0c5bef]/50" style={dot('left')} />
+              <span className="absolute top-1/2 -translate-y-1/2 rounded-full bg-[#0c5bef]" style={dot('right')} />
               <span className="block truncate font-medium">{g.area}</span>
               <span className="block truncate text-black/50">Área · {g.people} personas</span>
             </div>
@@ -156,10 +168,10 @@ export function CascadeCanvas({ phase, className = '' }: { phase: number; classN
         {GOALS.map((goal, i) => {
           const on = phase >= 2 ? (all || goal.id !== 'eficiencia') : false
           return (
-            <div key={goal.id} className="absolute rounded-xl border border-[#0c5bef]/30 bg-[#0c5bef] px-3 py-2.5 text-white shadow-[0_14px_30px_-12px_rgba(12,91,239,0.8)] transition-opacity duration-500" style={{ left: `${(GOAL.x / W) * 100}%`, top: `${(goal.y / H) * 100}%`, width: `${(GOAL.w / W) * 100}%`, height: `${(GOAL.h / H) * 100}%`, opacity: on ? 1 : 0.12, fontSize: '1.3cqw', transitionDelay: on ? `${200 + i * 80}ms` : '0ms' }}>
-              <span className="absolute -left-[4px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white" />
-              <span className="block font-medium leading-tight">{goal.title}</span>
-              <span className="mt-1 block truncate text-white/70">{goal.meta}</span>
+            <div key={goal.id} className="absolute flex flex-col justify-center border border-[#0c5bef]/30 bg-[#0c5bef] text-white shadow-[0_14px_30px_-12px_rgba(12,91,239,0.8)] transition-opacity duration-500" style={{ ...CARD, padding: '0 1.1cqw', left: `${(GOAL.x / W) * 100}%`, top: `${(goal.y / H) * 100}%`, width: `${(GOAL.w / W) * 100}%`, height: `${(GOAL.h / H) * 100}%`, opacity: on ? 1 : 0.12, fontSize: '1.3cqw', transitionDelay: on ? `${200 + i * 80}ms` : '0ms' }}>
+              <span className="absolute top-1/2 -translate-y-1/2 rounded-full bg-white" style={dot('left')} />
+              <span className="block font-medium">{goal.title}</span>
+              <span className="block truncate text-white/70" style={{ marginTop: '0.3cqw' }}>{goal.meta}</span>
             </div>
           )
         })}
@@ -247,11 +259,26 @@ export function AlignmentBuilder() {
     return () => io.disconnect()
   }, [])
 
+  // Cierre del bucle: tras la vista completa, el lienzo se desvanece entero, vuelve a la primera
+  // toma mientras está oculto (la cámara viaja sin verse) y reaparece; nada se borra a la vista.
+  const [hidden, setHidden] = useState(false)
+  const last = SHOTS.length - 1
+
   useEffect(() => {
-    if (reducedMotion || !inView) return
-    const id = window.setTimeout(() => setPhase((p) => (p + 1) % SHOTS.length), SHOTS[phase].ms)
+    if (reducedMotion || !inView || hidden) return
+    const id = window.setTimeout(() => (phase === last ? setHidden(true) : setPhase((p) => p + 1)), SHOTS[phase].ms)
     return () => window.clearTimeout(id)
-  }, [phase, inView, reducedMotion])
+  }, [phase, inView, reducedMotion, hidden, last])
+
+  useEffect(() => {
+    if (!hidden) return
+    if (phase !== 0) {
+      const id = window.setTimeout(() => setPhase(0), LOOP_FADE_MS)
+      return () => window.clearTimeout(id)
+    }
+    const id = window.setTimeout(() => setHidden(false), LOOP_REENTER_MS)
+    return () => window.clearTimeout(id)
+  }, [hidden, phase])
 
   const all = phase >= 3
   const counter = all ? '3 de 3 objetivos de empresa con aporte' : phase >= 2 ? '1 persona → 1 grupo → 2 objetivos' : phase >= 1 ? '1 persona → 1 grupo' : '1 persona'
@@ -274,7 +301,9 @@ export function AlignmentBuilder() {
           </span>
         </div>
 
-        {desktop ? <CascadeCanvas phase={phase} /> : <CascadeStack phase={phase} />}
+        <div className="transition-opacity duration-500 ease-out" style={{ opacity: hidden ? 0 : 1 }}>
+          {desktop ? <CascadeCanvas phase={phase} /> : <CascadeStack phase={phase} />}
+        </div>
 
         <div className="hidden flex-wrap items-center gap-x-5 gap-y-1 border-t border-black/[0.06] px-5 py-3 text-[11px] text-black/50 lg:flex">
           <span className="flex items-center gap-1.5"><span className="h-0.5 w-5 rounded bg-[#0c5bef]" /> {t({ es: 'Las tres áreas que más empujan', en: 'The three areas that push most' })}</span>

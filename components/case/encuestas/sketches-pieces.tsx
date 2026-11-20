@@ -1,7 +1,7 @@
 'use client'
 
 import { useLocale, type L } from '@/lib/i18n'
-import { FAV, favColor, Lock, UBITS_BLUE, useTicker } from './shared'
+import { FAV, favColor, Lock, LoopFade, UBITS_BLUE, useLoop, useTicker } from './shared'
 
 const LIKERT: readonly L[] = [
   { es: 'Nada', en: 'None' },
@@ -25,10 +25,12 @@ function LikertPiece({ tick }: { tick: number }) {
   )
 }
 
-function StepperPiece({ tick }: { tick: number }) {
-  const current = (tick % 5) + 1
+function StepperPiece() {
+  // Cinco pasos, una pausa con los cinco listos y una salida en fundido: los candados nunca vuelven de golpe.
+  const { step, cycle, leaving } = useLoop(1600, 6)
+  const current = step + 1
   return (
-    <div className="flex items-center">
+    <LoopFade cycle={cycle} leaving={leaving} className="flex items-center">
       {[1, 2, 3, 4, 5].map((n) => {
         const done = n < current
         const here = n === current
@@ -41,7 +43,7 @@ function StepperPiece({ tick }: { tick: number }) {
           </div>
         )
       })}
-    </div>
+    </LoopFade>
   )
 }
 
@@ -108,7 +110,7 @@ export function PlatformPieces() {
   const { t } = useLocale()
   const tick = useTicker(1600)
   const pieces: readonly { from: L; name: L; node: React.ReactNode }[] = [
-    { from: { es: 'del boceto 03', en: 'from sketch 03' }, name: { es: 'Pasos con candado', en: 'Locked steps' }, node: <StepperPiece tick={tick} /> },
+    { from: { es: 'del boceto 03', en: 'from sketch 03' }, name: { es: 'Pasos con candado', en: 'Locked steps' }, node: <StepperPiece /> },
     { from: { es: 'del boceto 03', en: 'from sketch 03' }, name: { es: 'Numeración derivada', en: 'Derived numbering' }, node: <NumberingPiece /> },
     { from: { es: 'del boceto 04', en: 'from sketch 04' }, name: { es: 'Escala Likert', en: 'Likert scale' }, node: <LikertPiece tick={tick} /> },
     { from: { es: 'del boceto 04', en: 'from sketch 04' }, name: { es: 'Celda reservada', en: 'Reserved cell' }, node: <LockPiece tick={tick} /> },

@@ -87,12 +87,13 @@ export function Orbit({ phase, still, markSize, compact = false }: { phase: numb
           </defs>
           {ORBIT.map((o) => {
             const on = p.sources.includes(o.name)
+            // El trazo y su pulso siguen vivos mientras el grupo se apaga: se desvanecen, no se cortan.
             return (
               <g key={o.name} style={{ opacity: on ? 1 : 0, transition: 'opacity 600ms' }}>
                 <line x1={o.x} y1={o.y} x2="50" y2="50" stroke={`url(#${beam})`} strokeWidth="0.4" strokeDasharray="1.5 1.5">
-                  {on && !still && <animate attributeName="stroke-dashoffset" from="6" to="0" dur="0.8s" repeatCount="indefinite" />}
+                  {!still && <animate attributeName="stroke-dashoffset" from="6" to="0" dur="0.8s" repeatCount="indefinite" />}
                 </line>
-                {on && !still && (
+                {!still && (
                   <circle r="0.9" fill="#b7c6ff">
                     <animateMotion dur="1.4s" repeatCount="indefinite" path={`M${o.x},${o.y} L50,50`} />
                   </circle>
@@ -148,11 +149,12 @@ export function HeroRumbo() {
 
       {/* En móvil, un solo letrero bajo la órbita: el del momento */}
       {activeTag && (
-        <p key={activeTag.title.es} className="order-2 mx-auto rounded-[14px] bg-[#5b7eff]/[0.14] px-4 py-2.5 text-center ring-1 ring-[#5b7eff]/60 lg:hidden">
+        <p key={activeTag.title.es} className="order-2 mx-auto animate-[heroTagIn_.35s_cubic-bezier(.16,1,.3,1)] rounded-[14px] bg-[#5b7eff]/[0.14] px-4 py-2.5 text-center ring-1 ring-[#5b7eff]/60 lg:hidden">
           <span className="block text-[13px] font-medium">{t(activeTag.title)}</span>
           <span className="block text-[11px] text-white/55">{t(activeTag.body)}</span>
         </p>
       )}
+      <style>{'@keyframes heroTagIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}'}</style>
     </div>
   )
 }

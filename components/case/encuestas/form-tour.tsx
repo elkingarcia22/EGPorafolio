@@ -142,13 +142,14 @@ export function ProductTour() {
                 key={`${st.id}-${i === stop ? spot : 'x'}`}
                 className="block h-full origin-left rounded-full bg-signal"
                 style={
+                  // Las barras ya llenas se vacían con una transición al volver a la primera parada (no de golpe).
                   i < stop
-                    ? { transform: 'scaleX(1)' }
+                    ? { transform: 'scaleX(1)', transition: 'transform 600ms cubic-bezier(0.4, 0, 0.2, 1)' }
                     : i === stop
                       ? playing
                         ? { transform: `scaleX(${spot / st.spots.length})`, animation: `encf-tourbar ${SPOT_MS}ms linear forwards`, ['--from' as string]: spot / st.spots.length, ['--to' as string]: (spot + 1) / st.spots.length }
                         : { transform: `scaleX(${(spot + 1) / st.spots.length})` }
-                      : { transform: 'scaleX(0)' }
+                      : { transform: 'scaleX(0)', transition: 'transform 600ms cubic-bezier(0.4, 0, 0.2, 1)' }
                 }
               />
             </span>

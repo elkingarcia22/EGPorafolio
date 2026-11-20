@@ -13,6 +13,10 @@
   width: var(--clipper-orb-size);
   height: var(--clipper-orb-size);
   flex-shrink: 0;
+  --clipper-orb-beat-amp: 0;
+  transform: scale(calc(1 + 0.045 * var(--clipper-orb-beat) * var(--clipper-orb-beat-amp)));
+  animation: clipper-orb-beat 1.2s ease-in-out infinite;
+  transition: --clipper-orb-beat-amp 0.6s ease;
 }
 
 @keyframes clipper-orb-spin {
@@ -25,9 +29,27 @@
   50% { transform: scale(1.12); opacity: 0.85; }
 }
 
+/*
+ * Cambiar de estado nunca cambia la duración de una animación en marcha (eso la hace saltar de fase).
+ * Cada aceleración es una capa aparte: entra en fundido o se pausa donde está.
+ * El latido escala con --clipper-orb-beat (la fase, siempre corriendo) por --clipper-orb-beat-amp
+ * (0 en reposo, 1 al escuchar, con transición), así entra y sale sin brinco.
+ */
+@property --clipper-orb-beat {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --clipper-orb-beat-amp {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
 @keyframes clipper-orb-beat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.045); }
+  0%, 100% { --clipper-orb-beat: 0; }
+  50% { --clipper-orb-beat: 1; }
 }
 
 @keyframes clipper-orb-rotate {
@@ -51,6 +73,26 @@
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
   animation: clipper-orb-rotate 6s linear infinite;
+}
+
+/* Capas de aceleración: 1/6 s + 1/1,83 s ≈ 1/1,4 s (anillo) y 1/1,6 s + 1/2,06 s ≈ 1/0,9 s (franjas). */
+.clipper-orb__boost {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.clipper-orb__halo--fast { animation-duration: 1.4s; }
+
+.clipper-orb__spin {
+  position: absolute;
+  inset: 0;
+  animation: clipper-orb-rotate 1.83s linear infinite paused;
+}
+
+.clipper-orb__stripes-boost {
+  animation: clipper-orb-spin 2.06s linear infinite paused;
 }
 
 .clipper-orb__sphere {
@@ -89,13 +131,13 @@
   animation: clipper-orb-spin 1.6s linear infinite;
 }
 
-/* Escuchando: gira más rápido y la esfera late. */
-.clipper-orb[data-state='listening'] .clipper-orb__stripes-band { animation-duration: 0.9s; }
-.clipper-orb[data-state='listening'] { animation: clipper-orb-beat 1.2s ease-in-out infinite; }
+/* Escuchando: las franjas corren más rápido y la esfera late. */
+.clipper-orb[data-state='listening'] .clipper-orb__stripes-boost { animation-play-state: running; }
+.clipper-orb[data-state='listening'] { --clipper-orb-beat-amp: 1; }
 
 /* Pensando: el halo se aviva y el anillo corre. */
-.clipper-orb[data-state='thinking'] .clipper-orb__halo,
-.clipper-orb[data-state='thinking'] .clipper-orb__ring { animation-duration: 1.4s; }
+.clipper-orb[data-state='thinking'] .clipper-orb__boost { opacity: 1; }
+.clipper-orb[data-state='thinking'] .clipper-orb__spin { animation-play-state: running; }
 
 @media (prefers-reduced-motion: reduce) {
   .clipper-orb,

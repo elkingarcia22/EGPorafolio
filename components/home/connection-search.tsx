@@ -120,10 +120,13 @@ export function ConnectionSearch({ progress, className }: Props) {
 
     // Intentos en curso: la línea se tiende; si conecta queda, si no se recoge.
     const drawProbes = (now: number) => {
+      const reach = Math.min(width, height) * SEARCH_REACH * 1.4
       probes = probes.filter((pr) => {
         const age = now - pr.born
         const na = nodes[pr.a]
         const nb = nodes[pr.b]
+        // Si un nodo dio la vuelta por el borde, el intento se suelta en vez de cruzar el lienzo.
+        if (Math.hypot(na.x - nb.x, na.y - nb.y) > reach) return false
         let reachT = Math.min(1, age / PROBE_MS)
         let alpha = 0.55
         if (age > PROBE_MS) {
