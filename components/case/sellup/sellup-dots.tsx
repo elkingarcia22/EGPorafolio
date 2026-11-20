@@ -111,7 +111,7 @@ function PainRow({ p, index }: { p: Pain; index: number }) {
           <span className={`mono-label transition-colors duration-700 ${swapped ? 'text-[#b7c6ff]' : 'text-red-300/80'}`}>{swapped ? t({ es: 'Con SellUp', en: 'With SellUp' }) : t({ es: 'Hoy', en: 'Today' })} · {p.n}</span>
         </p>
         <p className={`mt-2 text-[clamp(1.4rem,1rem+1.2vw,2rem)] font-light leading-tight decoration-red-400/80 decoration-2 transition-all duration-700 ${swapped ? 'line-through' : ''}`}>{t(p.today)}</p>
-        <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-white/65">{t(p.detail)}</p>
+        <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-white/65 max-md:hidden">{t(p.detail)}</p>
         <div className="mt-5 flex items-center gap-4">
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
             <span className="block h-full rounded-full bg-red-400/70 transition-[width] duration-[1600ms] ease-expo" style={{ width: seen ? `${(p.hours / 6) * 100}%` : '0%' }} />
@@ -151,13 +151,13 @@ export function SellUpDots() {
       <p data-reveal="mask" className="max-w-[24ch] text-[clamp(1.8rem,1rem+2.6vw,3.4rem)] font-light leading-[1.08] tracking-tight">
         {t({ es: 'El vendedor gastaba la semana buscando, y llegaba a la llamada sin saber qué decir.', en: 'Reps spent the week searching, and reached the call without knowing what to say.' })}
       </p>
-      <p data-reveal className="mt-8 max-w-[62ch] text-lg leading-relaxed opacity-80">
+      <p data-reveal className="mt-8 max-w-[62ch] text-lg leading-relaxed opacity-80 max-md:hidden">
         {t({ es: 'En UBITS la prospección era artesanal. Cada vendedor buscaba empresas a mano, buscaba a mano a las personas que deciden, y hacía la primera llamada con poco contexto: sin conocer lo nuevo de la empresa, sus dolores ni sus necesidades. SellUp nació para cambiar esas tres tareas, una por agente.', en: 'At UBITS, prospecting was handcrafted. Each rep searched for companies by hand, searched by hand for the people who decide, and made the first call with little context: without knowing what was new at the company, its pains or its needs. SellUp was born to change those three tasks, one per agent.' })}
       </p>
-      <ol className="mt-16 space-y-14">
+      <ol className="mt-16 space-y-14 max-md:mt-10 max-md:space-y-10">
         {PAINS.map((p, i) => <PainRow key={p.n} p={p} index={i} />)}
       </ol>
-      <p className="mt-10 text-xs text-white/40">{t({ es: 'Horas por semana: cifras de referencia estimadas, no una medición.', en: 'Hours per week: estimated reference figures, not a measurement.' })}</p>
+      <p className="mt-10 text-xs text-white/40 max-md:hidden">{t({ es: 'Horas por semana: cifras de referencia estimadas, no una medición.', en: 'Hours per week: estimated reference figures, not a measurement.' })}</p>
     </div>
   )
 }

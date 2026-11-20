@@ -9,6 +9,7 @@ import { SellUpMark, useInView } from './ui'
 import { COUNTRIES, FEATURED } from './forma-catalog-data'
 import { CatalogScreen } from './forma-catalogo'
 import { Tablet } from './device-frames'
+import { useCompact } from './camera'
 
 /** 5.5 · El catálogo como red: SellUp conectado a 20 países y sus fuentes oficiales. */
 
@@ -47,6 +48,7 @@ function Big({ value, label, on }: { value: number; label: string; on: boolean }
 
 export function SourceCatalog() {
   const { t } = useLocale()
+  const compact = useCompact()
   const { reducedMotion } = useA11y()
   const [ref, seen] = useInView<HTMLDivElement>(0.2)
   const tick = useTick(1300)
@@ -131,14 +133,14 @@ export function SourceCatalog() {
           <ul className="mt-2 space-y-1.5">
             {c.free.map((s) => <li key={s} className="flex items-start gap-2 text-sm"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />{s}</li>)}
           </ul>
-          <p className="mt-6 border-t border-white/10 pt-4 text-xs leading-relaxed text-white/50">
+          <p className="mt-6 border-t border-white/10 pt-4 text-xs leading-relaxed text-white/50 max-md:hidden">
             {t({ es: 'Cada corrida pasa por estas dos capas gratis antes de pagarle a Apollo o Lusha. Toca otro país para ver sus fuentes.', en: 'Every run goes through these two free layers before paying Apollo or Lusha. Tap another country to see its sources.' })}
           </p>
         </div>
       </div>
 
-      <p className="mono-label mb-4 mt-14 text-white/50">{t({ es: 'Fuentes destacadas · filas en Producción', en: 'Featured sources · rows in Production' })}</p>
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <p className="mono-label mb-4 mt-14 text-white/50 max-md:mt-10">{t({ es: 'Fuentes destacadas · filas en Producción', en: 'Featured sources · rows in Production' })}</p>
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-md:[&>li:nth-child(n+4)]:hidden">
         {FEATURED.map((f, i) => (
           <li key={f.name} data-reveal className={`rounded-[18px] border p-5 ${i === 4 ? 'border-[#6b8cff]/50 bg-[#6b8cff]/10' : 'border-white/10 bg-white/[0.03]'}`}>
             <p className="flex items-center gap-2 text-sm text-white/70"><span aria-hidden="true">{f.flag}</span>{f.name}</p>
@@ -148,13 +150,13 @@ export function SourceCatalog() {
         ))}
       </ul>
 
-      <div className="mt-14 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
-        <p className="max-w-[40ch] leading-relaxed text-white/70">
+      <div className="mt-14 grid items-center gap-8 max-md:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
+        <p className="max-w-[40ch] leading-relaxed text-white/70 max-md:hidden">
           {t({ es: 'En la app, cada fuente tiene su estado, su siguiente acción y si la IA puede usarla sola. Una fuente nueva queda «Por validar» hasta probarla con datos reales.', en: 'In the app, every source has its status, next action and whether the AI can use it on its own. A new source stays “To validate” until it’s tested with real data.' })}
         </p>
-        <Tablet><CatalogScreen /></Tablet>
+        {compact ? <CatalogScreen /> : <Tablet><CatalogScreen /></Tablet>}
       </div>
-      <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40">{t({ es: 'Datos reales del catálogo (14-10-2026) · la pantalla es una réplica', en: 'Real catalog data (14 Oct 2026) · the screen is a replica' })}</p>
+      <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40 max-md:hidden">{t({ es: 'Datos reales del catálogo (14-10-2026) · la pantalla es una réplica', en: 'Real catalog data (14 Oct 2026) · the screen is a replica' })}</p>
     </div>
   )
 }

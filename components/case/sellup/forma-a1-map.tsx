@@ -50,7 +50,7 @@ const DOTS: readonly { x: number; y: number }[] = (() => {
   return out
 })()
 
-interface Stop {
+export interface Stop {
   country: string
   flag: string
   query: string
@@ -61,15 +61,15 @@ interface Stop {
 }
 
 /** Las paradas del radar: cada una es una búsqueda del equipo (empresas de ejemplo). */
-const STOPS: readonly Stop[] = [
+export const STOPS: readonly Stop[] = [
   { country: 'México', flag: '🇲🇽', query: 'Salud · más de 200 empleados', at: [-101, 21], from: 0, found: 9, pins: [{ name: 'Clínica Andina', at: [-99.2, 19.5] }, { name: 'Grupo Vital Salud', at: [-103.4, 20.7] }, { name: 'Hospitales del Valle', at: [-100.3, 25.7] }] },
   { country: 'Colombia', flag: '🇨🇴', query: 'Banca y seguros', at: [-74.5, 5], from: 3, found: 6, pins: [{ name: 'Banca Solar', at: [-74.1, 4.7] }, { name: 'Seguros Ceiba', at: [-75.6, 6.2] }] },
   { country: 'Perú', flag: '🇵🇪', query: 'Minería y energía', at: [-75.5, -10], from: 5, found: 5, pins: [{ name: 'Minera Altiplano', at: [-77, -12] }, { name: 'Energía Andina', at: [-71.5, -16.4] }] },
   { country: 'Chile', flag: '🇨🇱', query: 'Agroindustria · más de 200 empleados', at: [-71, -34], from: 7, found: 7, pins: [{ name: 'Frutícola Los Andes', at: [-70.6, -32.8] }, { name: 'Agrícola Río Claro', at: [-70.7, -34.4], star: true }, { name: 'Viñedos Cordillera', at: [-71.6, -35.6] }, { name: 'Salmones Patagonia', at: [-72.9, -40] }] },
 ]
-const FLY_AT = 10
+export const FLY_AT = 10
 
-const SOURCES = [
+export const SOURCES = [
   { name: 'HubSpot · libres', t: 1, note: 'gratis' },
   { name: 'Registros oficiales', t: 2, note: 'gratis' },
   { name: 'Banco de empresas', t: 4, note: 'gratis' },
@@ -84,7 +84,7 @@ const SWEEP = 'conic-gradient(from 0deg, rgba(40,94,230,0) 0deg, rgba(40,94,230,
 const NEEDLE = 'M12 3.6 L15.4 12.6 L12 10.7 L8.6 12.6 Z'
 const TAIL = 'M12 20.4 L10.3 14.9 L12 15.9 L13.7 14.9 Z'
 
-const stopAt = (t: number) => STOPS.reduce((acc, s, i) => (t >= s.from ? i : acc), 0)
+export const stopAt = (t: number) => STOPS.reduce((acc, s, i) => (t >= s.from ? i : acc), 0)
 
 /** El radar: círculos de la brújula de Rumbo, barrido con su degradado y la aguja al centro. */
 function Radar({ x, y, k, spin }: { x: number; y: number; k: number; spin: boolean }) {
@@ -108,14 +108,6 @@ function Radar({ x, y, k, spin }: { x: number; y: number; k: number; spin: boole
     </div>
   )
 }
-
-/** Dónde está el radar (px de diseño) en el tick `t`: lo sigue la cámara en pantallas chicas. */
-export function radarAt(tick: number, still = false): readonly [number, number] {
-  return px(STOPS[stopAt(still ? FLY_AT - 1 : tick)].at)
-}
-
-/** Encuadre de la columna derecha (países, fuentes y contadores). */
-export const MAP_SIDE_VIEW = { cx: MAP_W - 24 - 150, cy: 78 + 166, w: 316, h: 336 } as const
 
 /** `t`: ticks desde que empieza la escena (0–10). */
 export function SearchMap({ t: tick, still = false }: { t: number; still?: boolean }) {

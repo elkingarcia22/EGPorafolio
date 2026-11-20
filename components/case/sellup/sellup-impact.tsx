@@ -84,7 +84,7 @@ export function SellUpImpact() {
       <p data-reveal="mask" className="max-w-[24ch] text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.1] tracking-tight">
         {t({ es: 'Más tiempo vendiendo, mejores primeras llamadas, más ARR.', en: 'More time selling, better first calls, more ARR.' })}
       </p>
-      <p data-reveal className="mt-6 max-w-[62ch] leading-relaxed opacity-80">
+      <p data-reveal className="mt-6 max-w-[62ch] leading-relaxed opacity-80 max-md:hidden">
         {t({ es: 'SellUp se entregó hace poco y todavía no hay ventas que atribuirle. Esta es la proyección con la que se justifica la inversión: un equipo de 6 vendedores, supuestos moderados y el costo de IA que ya medimos en Producción.', en: 'SellUp shipped recently and there are no sales to attribute to it yet. This is the projection that justifies the investment: a team of 6 reps, moderate assumptions and the AI cost we already measured in Production.' })}
       </p>
 

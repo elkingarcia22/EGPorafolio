@@ -72,7 +72,7 @@ export function StorySteps({ steps, time, kicker, onPick }: { steps: readonly St
 export function ReplicaNote({ real = false }: { real?: boolean }) {
   const { t } = useLocale()
   return (
-    <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40">
+    <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-white/40 max-md:hidden">
       {real
         ? t({ es: 'Réplica de la pantalla real · cifras agregadas reales de Producción (nov. 2026)', en: 'Replica of the real screen · real aggregate Production figures (Nov 2026)' })
         : t({ es: 'Réplica de la pantalla real · datos de ejemplo', en: 'Replica of the real screen · sample data' })}

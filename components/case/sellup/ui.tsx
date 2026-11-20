@@ -52,7 +52,7 @@ export function useInView<T extends HTMLElement>(threshold = 0.3): [React.RefObj
 }
 
 /** Encabezado numerado de una sub-sección dentro de un capítulo. */
-export function Section({ n, title, body, children }: { n: string; title: L; body: L; children: React.ReactNode }) {
+export function Section({ n, title, body, short, children }: { n: string; title: L; body: L; short?: L; children: React.ReactNode }) {
   const { t } = useLocale()
   return (
     <section className="mt-[clamp(4rem,3rem+4vw,7rem)] first:mt-0">
@@ -60,7 +60,10 @@ export function Section({ n, title, body, children }: { n: string; title: L; bod
         <span className="mono-label text-signal">{n}</span>
         {t(title)}
       </h3>
-      <p data-reveal className="mb-8 max-w-[62ch] leading-relaxed opacity-80">{t(body)}</p>
+      {/* En teléfono, si hay versión corta, va solo la frase clave: menos texto y menos scroll. */}
+      <p data-reveal className="mb-8 max-w-[62ch] leading-relaxed opacity-80">
+        {short ? <><span className="md:hidden">{t(short)}</span><span className="max-md:hidden">{t(body)}</span></> : t(body)}
+      </p>
       {children}
     </section>
   )

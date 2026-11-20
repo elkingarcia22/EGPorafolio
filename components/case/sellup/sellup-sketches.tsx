@@ -33,7 +33,7 @@ export function SellUpSketches() {
         })}
       </p>
       <CascadeBoard />
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
+      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80 max-md:hidden">
         {t({
           es: 'Los tres agentes necesitaban una sola voz. Así dibujé a Rumbo: su marca, una conversación en vez de un formulario y un solo asistente para toda la cadena, construido en cuatro días de octubre.',
           en: 'The three agents needed a single voice. This is how I drew Rumbo: its mark, a conversation instead of a form, and one assistant for the whole chain, built in four days of October.',

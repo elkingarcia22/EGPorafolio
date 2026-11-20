@@ -1,7 +1,8 @@
 'use client'
 
 import { ArrowRight, ArrowUpDown, Check, GripVertical, Loader2, MoreHorizontal, Search, Sheet } from 'lucide-react'
-import { RealCard, RealFrame, RealTag } from './real-app'
+import { REAL, RealCard, RealFrame, RealTag } from './real-app'
+import { useCompact } from './camera'
 import { HIGHLIGHT, stepAt, useStoryTime, type StoryStep } from './real-story'
 
 /**
@@ -16,13 +17,6 @@ const STEPS: readonly StoryStep[] = [
   { label: { es: 'Queda verificada y la IA la usa', en: 'Verified, and the AI uses it' }, from: 11 },
 ]
 const LOOP = 20
-
-/** Encuadre en pantallas chicas: la fuente nueva, su prueba y cómo queda. */
-const VIEWS = [
-  { cx: 0, x: 248, cy: 330, w: 420, h: 420 },
-  { cx: 840, cy: 330, w: 420, h: 420 },
-  { cx: 640, cy: 330, w: 420, h: 420 },
-] as const
 
 const ROWS = [
   { name: 'Supersociedades SIIS', country: 'Colombia', next: 'Snapshot SIIS 2024 cargado con 10.000 empresas. Primera fuente de NIT por nombre en cada corrida del Agente 1; alimenta la capa gratuita por industria.', use: 'Conectada' },
@@ -42,7 +36,7 @@ function Chip({ label, n, on }: { label: string; n: number; on: boolean }) {
   )
 }
 
-function Screen({ time }: { time: number }) {
+export function CatalogScreenAt({ time }: { time: number }) {
   const now = stepAt(STEPS, time)
   const verified = now === 2
   const testing = now === 1
@@ -110,13 +104,64 @@ function Screen({ time }: { time: number }) {
   )
 }
 
-/** La pantalla real sola (para ir dentro de un dispositivo). */
+/**
+ * El catálogo en teléfono y tableta: sin marco de tableta ni pantalla encogida. La
+ * fuente nueva es una tarjeta a todo el ancho que pasa de «Por validar» a «Verificada»
+ * mientras se prueba; debajo, otras fuentes ya verificadas.
+ */
+function CatalogMobile({ time }: { time: number }) {
+  const now = stepAt(STEPS, time)
+  const verified = now === 2
+  const testing = now === 1
+  const progress = testing ? Math.min(10, (time - 5) * 2) : verified ? 10 : 0
+  return (
+    <div className="rounded-[20px] bg-[#0a0a0a] p-4 text-white ring-1 ring-white/10" style={{ fontFamily: REAL.font }}>
+      <p className="text-[17px] font-semibold tracking-tight">Catálogo de fuentes</p>
+      <p className="mt-0.5 text-[12px] text-white/55">Usadas por la IA · {verified ? 82 : 81} verificadas · {verified ? 14 : 15} por validar</p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <Chip label="Verificadas" n={verified ? 82 : 81} on={verified} />
+        <Chip label="Por validar" n={verified ? 14 : 15} on={!verified} />
+      </div>
+      <div className="mt-3 rounded-xl border px-3.5 py-3 transition-all duration-[400ms]" style={{ borderColor: verified ? 'rgba(52,211,153,0.5)' : 'rgba(107,140,255,0.6)', background: HIGHLIGHT.background }}>
+        <div className="flex items-start gap-2">
+          <span className="min-w-0 flex-1">
+            <span className="block text-[14px] font-medium leading-snug">DENUE · Directorio de unidades económicas</span>
+            <span className="block text-[12px] text-white/55">México</span>
+          </span>
+          {verified ? <RealTag tone="green">Verificada</RealTag> : <RealTag tone="amber">Por validar</RealTag>}
+        </div>
+        <p className="mt-2 text-[12.5px] leading-snug text-white/75">
+          {verified ? 'Validada con 10 empresas de prueba: 10 con RFC y tamaño. Entra a la capa gratuita del Agente 1.' : testing ? (
+            <span className="flex items-center gap-2"><Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />Probando con empresas reales: {progress} de 10</span>
+          ) : 'Probar la descarga por actividad y tamaño antes de conectarla.'}
+        </p>
+        <span className="mt-2 block h-1 overflow-hidden rounded-full bg-white/10"><span className="block h-full transition-[width] duration-[400ms]" style={{ width: `${progress * 10}%`, background: verified ? '#34d399' : '#6b8cff' }} /></span>
+        <p className="mt-2 text-[12px]">{verified ? <span className="flex items-center gap-1.5 text-emerald-300"><Check className="h-3.5 w-3.5" />Conectada · la IA la usa sola</span> : <span className="text-white/50">Sin conectar</span>}</p>
+      </div>
+      <ul className="mt-2 space-y-2">
+        {ROWS.slice(0, 3).map((r) => (
+          <li key={r.name} className={`rounded-xl border border-white/[0.08] px-3.5 py-2.5 transition-opacity duration-500 ${verified ? 'opacity-100' : 'opacity-45'}`}>
+            <div className="flex items-start gap-2">
+              <span className="min-w-0 flex-1"><span className="block truncate text-[13.5px] font-medium">{r.name}</span><span className="block text-[12px] text-white/50">{r.country}</span></span>
+              <RealTag tone="green">Verificada</RealTag>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[12px] text-white/50">Mostrando 4 de {verified ? 82 : 101} fuentes</p>
+    </div>
+  )
+}
+
+/** La pantalla real sola (para ir dentro de un dispositivo); en pantallas chicas, la versión de teléfono. */
 export function CatalogScreen() {
   const [ref, time] = useStoryTime(LOOP, 14)
+  const compact = useCompact()
+  if (compact) return <div ref={ref}><CatalogMobile time={time} /></div>
   return (
     <div ref={ref}>
-      <RealFrame active="catalogo" crumb={['Catálogo de fuentes']} height={820} view={VIEWS[stepAt(STEPS, time)]}>
-        <Screen time={time} />
+      <RealFrame active="catalogo" crumb={['Catálogo de fuentes']} height={820}>
+        <CatalogScreenAt time={time} />
       </RealFrame>
     </div>
   )

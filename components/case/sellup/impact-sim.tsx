@@ -79,7 +79,7 @@ export function ImpactSimulator() {
             </div>
           ))}
         </dl>
-        <p className="text-[11px] leading-snug opacity-45">
+        <p className="text-[11px] leading-snug opacity-45 max-md:hidden">
           {t({ es: `Costo total del año: ${usd(p.cost, locale)} (IA + plataforma). Supuestos: contrato promedio US$12.000, 20% de conexiones a reunión, 8% de reuniones a cierre.`, en: `Total yearly cost: ${usd(p.cost, locale)} (AI + platform). Assumptions: average deal US$12,000, 20% of connections to meeting, 8% of meetings to close.` })}
         </p>
       </div>

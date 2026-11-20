@@ -75,7 +75,7 @@ export function SellUpIdea() {
           <li key={p.title.es} data-reveal className="bg-[#0d0e10] p-6">
             <span className="mono-label text-signal">0{i + 1}</span>
             <p className="mt-3 text-lg leading-snug">{t(p.title)}</p>
-            <p className="mt-2 text-sm leading-relaxed text-white/60">{t(p.body)}</p>
+            <p className="mt-2 text-sm leading-relaxed text-white/60 max-md:hidden">{t(p.body)}</p>
           </li>
         ))}
       </ul>

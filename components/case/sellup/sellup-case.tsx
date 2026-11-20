@@ -11,6 +11,7 @@ import { SellUpSketches } from './sellup-sketches'
 import { SellUpForm } from './sellup-form'
 import { SellUpAi } from './sellup-ai'
 import { SellUpImpact } from './sellup-impact'
+import { SellUpDemo } from './sellup-demo'
 
 /** Caso SellUp: los tres agentes, de los puntos al impacto. */
 export function SellUpCase({ next }: { next: NextLink }) {
@@ -28,6 +29,7 @@ export function SellUpCase({ next }: { next: NextLink }) {
         forma: SellUpForm,
         ia: SellUpAi,
         impacto: SellUpImpact,
+        demo: SellUpDemo,
       }}
     />
   )
