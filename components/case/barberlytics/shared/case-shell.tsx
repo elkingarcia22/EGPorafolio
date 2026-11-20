@@ -61,7 +61,7 @@ export function CaseShell({ title, hero, content }: CaseShellProps) {
       {/* En tablet el índice se oculta: el contenido usa todo el ancho en vez de apretarse a 9 columnas. */}
       <div className="grid gap-10 px-[var(--gutter)] lg:grid-cols-12">
         <aside className="hidden lg:col-span-3 lg:block">
-          <ChapterNav chapters={chapters} label={title} />
+          <ChapterNav chapters={chapters} label={title} back={{ href: '/proyectos/barberlytics', label: { es: 'Proyectos de Barberlytics', en: 'Barberlytics projects' } }} />
         </aside>
         <div className="min-w-0 lg:col-span-9">
           {chapters.map((meta) => {
