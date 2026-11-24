@@ -58,8 +58,8 @@ export const PROFILE = {
   startYear: 2011,
   currentYear: 2026,
   summary: {
-    es: 'Design Engineer con más de 10 años liderando proyectos digitales end-to-end. Combino investigación, diseño visual y sistemas de diseño, e integro IA para acelerar ideación, validación y pruebas. Hoy además construyo las herramientas: productos que usan miles de personas.',
-    en: 'Design Engineer with 10+ years leading digital projects end to end. I combine research, visual design and design systems, and I use AI to speed up ideation, validation and testing. Today I also build the tools themselves: products used by thousands of people.',
+    es: 'Llevo más de 10 años liderando el diseño de productos digitales de principio a fin. Investigo, diseño interfaces y sistemas de diseño, y uso IA para idear, validar y probar más rápido. Hoy también construyo lo que diseño: productos que usan miles de personas.',
+    en: 'I’ve spent 10+ years leading the design of digital products from start to finish. I research, design interfaces and design systems, and use AI to ideate, validate and test faster. Today I also build what I design: products used by thousands of people.',
   } satisfies L,
 } as const
 
