@@ -33,9 +33,9 @@ const hand = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Elkin Garcia — Diseñador UX/UI que construye con IA',
+  title: 'Elkin Garcia — Design Engineer · Producto con IA',
   description:
-    'Portafolio de Elkin Garcia: Senior Product & UX/UI Designer. De ideas desconectadas a producto: investigación, diseño, sistemas y productos construidos con IA.',
+    'Portafolio de Elkin Garcia: Design Engineer. De ideas desconectadas a producto: investigación, diseño, sistemas y productos construidos con IA.',
   authors: [{ name: 'Elkin Garcia' }],
 }
 

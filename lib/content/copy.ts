@@ -92,8 +92,8 @@ export const COPY = {
     nav: { es: 'Hoja de vida', en: 'Résumé' },
     title: { es: 'Hoja de vida — Elkin Garcia', en: 'Résumé — Elkin Garcia' },
     alt: {
-      es: 'Hoja de vida de Elkin Garcia, Diseñador UX/UI: perfil, experiencia, educación, habilidades y tecnología.',
-      en: 'Elkin Garcia’s résumé, UX/UI Designer: profile, experience, education, skills and technology.',
+      es: 'Hoja de vida de Elkin Garcia, Design Engineer: perfil, experiencia, educación, habilidades y tecnología.',
+      en: 'Elkin Garcia’s résumé, Design Engineer: profile, experience, education, skills and technology.',
     },
     zoomIn: { es: 'Ampliar', en: 'Zoom in' },
     zoomOut: { es: 'Reducir', en: 'Zoom out' },
@@ -105,7 +105,7 @@ export const COPY = {
     light: { es: 'Light', en: 'Light' },
     dark: { es: 'Dark', en: 'Dark' },
     close: { es: 'Cerrar', en: 'Close' },
-    shareText: { es: 'Hoja de vida de Elkin Garcia — Diseñador UX/UI', en: 'Elkin Garcia’s résumé — UX/UI Designer' },
+    shareText: { es: 'Hoja de vida de Elkin Garcia — Design Engineer', en: 'Elkin Garcia’s résumé — Design Engineer' },
   },
   a11y: {
     open: { es: 'Accesibilidad', en: 'Accessibility' },

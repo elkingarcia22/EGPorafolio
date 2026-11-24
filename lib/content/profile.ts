@@ -54,12 +54,12 @@ export const PROFILE = {
   /** URL completa del perfil de LinkedIn; si está vacía, no se muestra */
   linkedin: 'https://www.linkedin.com/in/elikingarciaux',
   location: { es: 'Bogotá, Colombia', en: 'Bogotá, Colombia' } satisfies L,
-  role: { es: 'Diseñador UX/UI Specialist', en: 'UX/UI Design Specialist' } satisfies L,
+  role: { es: 'Design Engineer', en: 'Design Engineer' } satisfies L,
   startYear: 2011,
   currentYear: 2026,
   summary: {
-    es: 'Senior Product & UX/UI Designer con más de 10 años liderando proyectos digitales end-to-end. Combino investigación, diseño visual y sistemas de diseño, e integro IA para acelerar ideación, validación y pruebas. Hoy además construyo las herramientas: productos que usan miles de personas.',
-    en: 'Senior Product & UX/UI Designer with 10+ years leading digital projects end to end. I combine research, visual design and design systems, and I use AI to speed up ideation, validation and testing. Today I also build the tools themselves: products used by thousands of people.',
+    es: 'Design Engineer con más de 10 años liderando proyectos digitales end-to-end. Combino investigación, diseño visual y sistemas de diseño, e integro IA para acelerar ideación, validación y pruebas. Hoy además construyo las herramientas: productos que usan miles de personas.',
+    en: 'Design Engineer with 10+ years leading digital projects end to end. I combine research, visual design and design systems, and I use AI to speed up ideation, validation and testing. Today I also build the tools themselves: products used by thousands of people.',
   } satisfies L,
 } as const
 
@@ -70,7 +70,7 @@ export const JOBS: readonly Job[] = [
     location: { es: 'Colombia · Híbrido', en: 'Colombia · Hybrid' },
     period: '2021 — 2026',
     roles: [
-      { title: { es: 'Diseñador UX/UI Senior Specialist', en: 'Senior UX/UI Design Specialist' }, period: '2023 — hoy' },
+      { title: { es: 'Design Engineer', en: 'Design Engineer' }, period: '2023 — hoy' },
       { title: { es: 'Diseñador UX/UI Senior', en: 'Senior UX/UI Designer' }, period: 'jun 2021 — 2023' },
     ],
     summary: {
