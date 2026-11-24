@@ -2,7 +2,6 @@
 
 import { useLocale } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
-import { CoverageGrid } from './coverage-grid'
 import { PrinciplesStage } from './principles-stage'
 
 /** 03 · La idea: la pregunta y cuatro principios, cada uno con su demostración. */
@@ -18,11 +17,8 @@ export function ObjetivosIdea() {
           en: 'The core of the idea: never force a company to change its method. Model, who writes, measure and length are chosen; everything after that reads those rules.',
         })}
       </p>
-      <div className="mt-12">
-        <CoverageGrid />
-      </div>
 
-      <p data-reveal className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Y cuatro principios que valen para cualquier modelo', en: 'And four principles that hold for any model' })}</p>
+      <p data-reveal className="mono-label mb-6 mt-12 opacity-60">{t({ es: 'Y cuatro principios que valen para cualquier modelo', en: 'And four principles that hold for any model' })}</p>
       <PrinciplesStage />
     </div>
   )
