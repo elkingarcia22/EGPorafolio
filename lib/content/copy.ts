@@ -33,6 +33,10 @@ export const COPY = {
       en: 'I listen to people [[research]] until I find the dots that matter. I connect them into systems [[system]] that scale. And I use AI [[ai]] to go from idea to product in days, not months.',
     },
   },
+  backToTop: {
+    label: { es: 'Arriba', en: 'Top' },
+    aria: { es: 'Volver al inicio de la página', en: 'Back to top of the page' },
+  },
   process: {
     label: { es: 'Proceso', en: 'Process' },
     title: { es: 'De puntos a conexiones', en: 'From dots to connections' },
