@@ -36,6 +36,9 @@ const SIZE = 420
 const CX = SIZE / 2
 const RADIUS = 160
 const GAP = 4 // grados entre arcos
+const MOMENT_INTERVAL_MS = 2200
+/** Cada cuánto se alterna sola la vista entre «Plataforma actual» y «Rediseño». */
+const MODE_INTERVAL_MS = 5000
 
 const polar = (deg: number, r: number) => {
   const rad = ((deg - 90) * Math.PI) / 180
@@ -61,7 +64,14 @@ export function LifecycleRing() {
   // Recorre los momentos solo mientras nadie haya tocado el anillo.
   useEffect(() => {
     if (!auto || reducedMotion) return
-    const id = window.setInterval(() => setActive((i) => (i + 1) % MOMENTS.length), 2200)
+    const id = window.setInterval(() => setActive((i) => (i + 1) % MOMENTS.length), MOMENT_INTERVAL_MS)
+    return () => window.clearInterval(id)
+  }, [auto, reducedMotion])
+
+  // Alterna sola entre la plataforma actual y el rediseño hasta que alguien elija una.
+  useEffect(() => {
+    if (!auto || reducedMotion) return
+    const id = window.setInterval(() => setMode((m) => (m === 'antes' ? 'rediseno' : 'antes')), MODE_INTERVAL_MS)
     return () => window.clearInterval(id)
   }, [auto, reducedMotion])
 
@@ -116,10 +126,22 @@ export function LifecycleRing() {
               type="button"
               role="radio"
               aria-checked={mode === id}
-              onClick={() => setMode(id)}
-              className="mono-label px-4 py-2 transition-colors aria-checked:bg-fg aria-checked:text-bg"
+              onClick={() => {
+                setAuto(false)
+                setMode(id)
+              }}
+              className="mono-label relative overflow-hidden px-4 py-2 transition-colors duration-500 aria-checked:bg-fg aria-checked:text-bg"
             >
               {id === 'antes' ? t({ es: 'Plataforma actual', en: 'Current platform' }) : t({ es: 'Rediseño', en: 'Redesign' })}
+              {/* Cuenta regresiva hasta el siguiente cambio automático */}
+              {auto && !reducedMotion && mode === id && (
+                <span
+                  key={mode}
+                  aria-hidden="true"
+                  className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-signal"
+                  style={{ animation: `view-progress ${MODE_INTERVAL_MS}ms linear forwards` }}
+                />
+              )}
             </button>
           ))}
         </div>
