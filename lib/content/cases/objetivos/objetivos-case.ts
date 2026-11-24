@@ -65,8 +65,8 @@ export const OBJ_CASE = {
 
   patterns: {
     lead: {
-      es: 'No había entrevistas ni métricas de uso del módulo: la investigación fue de producto. Primero comparé cómo escriben objetivos empresas que trabajan distinto —OKR, KPI, SMART, NCT, MBO— y después cómo otras herramientas consiguen que la gente reporte. De las dos salieron reglas que quedaron escritas en el código.',
-      en: 'There were no interviews or usage metrics for the module: research was product research. First I compared how companies that work differently write goals —OKR, KPI, SMART, NCT, MBO— and then how other tools get people to report. Both produced rules that ended up written into the code.',
+      es: 'Sin entrevistas ni métricas de uso, la investigación fue de producto: comparé cómo escriben objetivos cinco tipos de empresa y de ahí salieron las reglas que quedaron en el código.',
+      en: 'With no interviews or usage metrics, research was product research: I compared how five kinds of companies write goals, and that produced the rules that ended up in the code.',
     } as L,
     insights: [
       { es: 'Premiar la constancia de reportar, no el % crudo: el % castiga a quien se pone metas ambiciosas.', en: 'Reward the habit of reporting, not the raw %: raw % punishes ambitious goals.' },
