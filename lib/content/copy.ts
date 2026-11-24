@@ -21,8 +21,8 @@ export const COPY = {
     loading: { es: 'Cargando conexión', en: 'Loading connection' },
     keepTuning: { es: 'Desliza para seguir conectando', en: 'Scroll to keep connecting' },
     tagline: {
-      es: 'Conecto investigación, diseño y tecnología para crear productos que la gente usa — y con IA, también los construyo.',
-      en: 'I connect research, design and technology to create products people actually use — and with AI, I build them too.',
+      es: 'Investigo, diseño y, con IA, construyo productos que la gente sí usa.',
+      en: 'I research, design and, with AI, build products people actually use.',
     },
   },
   manifesto: {
