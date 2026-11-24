@@ -47,7 +47,7 @@ function WorkCard({ project }: { project: Project }) {
 
           <span
             ref={titleRef}
-            className="mt-3 block text-[clamp(1.5rem,0.9rem+1.1vw,2.05rem)] font-light leading-[1.05] tracking-tight"
+            className="mt-3 block text-[clamp(1.6rem,0.9rem+1.6vw,2.6rem)] font-light leading-[1.05] tracking-tight"
           >
             {title}
           </span>
@@ -89,7 +89,7 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
         </div>
       </div>
 
-      <ul className="grid gap-5 md:grid-cols-2 xl:grid-cols-4 xl:gap-4 2xl:gap-6">
+      <ul className="grid gap-5 md:grid-cols-2 lg:gap-8">
         {projects.map((project) => (
           <WorkCard key={project.slug} project={project} />
         ))}
