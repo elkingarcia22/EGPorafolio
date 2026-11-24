@@ -162,7 +162,7 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
   const atTop = pos <= 0.001
   const atBottom = pos >= 0.999 || visible >= 1
   const btn = 'grid h-9 w-full place-items-center rounded-md border border-white/20 text-white/70 transition-colors hover:border-white/60 hover:text-white disabled:pointer-events-none disabled:opacity-25'
-  const round = 'grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/25 text-white transition-colors active:bg-white/10 disabled:opacity-25'
+  const round = 'grid h-10 w-10 shrink-0 place-items-center rounded-full text-white/80 transition-colors active:bg-white/15 disabled:opacity-25'
 
   return (
     <div
@@ -208,18 +208,29 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
         </div>
       </div>
 
-      {/* Teléfono: subir, bajar y ampliar debajo de la ventana. */}
-      <div className="flex items-center gap-2 md:hidden">
-        <button type="button" onClick={() => step(-1)} disabled={atTop} aria-label={t({ es: 'Subir', en: 'Scroll up' })} className={round}>
-          <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg>
-        </button>
-        <button type="button" onClick={() => step(1)} disabled={atBottom} aria-label={t({ es: 'Bajar', en: 'Scroll down' })} className={round}>
-          <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" /></svg>
-        </button>
-        <button type="button" onClick={() => setZoomOpen(true)} className="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white px-5 text-[14px] font-medium text-[#0b0d16] transition-transform active:scale-[0.97]">
-          <ExpandIcon />
-          {t({ es: 'Ampliar', en: 'Enlarge' })}
-        </button>
+      {/* Teléfono: a la izquierda, por dónde va en la página; a la derecha, subir, bajar y ampliar. */}
+      <div className="flex items-center gap-4 md:hidden">
+        <div className="min-w-0 flex-1" aria-hidden="true">
+          <div className="relative h-1 overflow-hidden rounded-full bg-white/10">
+            <span
+              className="absolute inset-y-0 rounded-full bg-[#0c5bef]"
+              style={{ width: `${Math.max(visible, 0.06) * 100}%`, left: `${pos * (1 - Math.max(visible, 0.06)) * 100}%` }}
+            />
+          </div>
+          <p className="mt-1.5 font-mono text-[10px] tabular-nums text-white/40">{Math.round(pos * 100)} %</p>
+        </div>
+        <div className="flex shrink-0 items-center rounded-full border border-white/15 bg-white/[0.04] p-1 backdrop-blur">
+          <button type="button" onClick={() => step(-1)} disabled={atTop} aria-label={t({ es: 'Subir', en: 'Scroll up' })} className={round}>
+            <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg>
+          </button>
+          <button type="button" onClick={() => step(1)} disabled={atBottom} aria-label={t({ es: 'Bajar', en: 'Scroll down' })} className={round}>
+            <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" /></svg>
+          </button>
+          <span className="mx-1 h-5 w-px bg-white/15" aria-hidden="true" />
+          <button type="button" onClick={() => setZoomOpen(true)} aria-label={t({ es: 'Ampliar', en: 'Enlarge' })} className={round}>
+            <ExpandIcon />
+          </button>
+        </div>
       </div>
 
       {/* El minimapa (se toca o se arrastra) y los botones para subir y bajar. */}
