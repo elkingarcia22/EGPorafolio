@@ -26,7 +26,7 @@ export const COPY = {
     },
   },
   manifesto: {
-    label: { es: 'Manifiesto', en: 'Manifesto' },
+    label: { es: 'Enfoque', en: 'Approach' },
     // [[x]] marca un chip con ícono dentro de la frase
     text: {
       es: 'Escucho a las personas [[research]] hasta encontrar los puntos que importan. Los conecto en sistemas [[system]] que escalan. Y uso la IA [[ai]] para pasar de la idea al producto en días, no en meses.',
