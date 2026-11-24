@@ -6,6 +6,7 @@ import { TransitionLink } from '@/components/transition/page-transition'
 import { A11yPanel } from './a11y-panel'
 import { ProjectsMenu, ProjectsSubmenu } from './projects-menu'
 import { ContactMenu, ContactQuickActions } from './contact-menu'
+import { ContactIcon } from './contact-channels'
 import { CvViewer, cvModeFromHash, type CvMode } from './cv-viewer'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -116,10 +117,11 @@ export function SiteHeader() {
   const isHome = pathname === '/'
   const [a11yOpen, setA11yOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [quickOpen, setQuickOpen] = useState(false)
   const a11yButton = useRef<HTMLButtonElement>(null)
   const closeA11y = useCallback(() => setA11yOpen(false), [])
   const scrolled = useScrolled()
-  const solid = scrolled || menuOpen
+  const solid = scrolled || menuOpen || quickOpen
   const [cvOpen, setCvOpen] = useState(false)
   const [cvMode, setCvMode] = useState<CvMode>('light')
   const openCv = () => {
@@ -217,7 +219,7 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2.5 min-[360px]:gap-3 sm:gap-5">
           <ConnectionsReadout />
           <LanguageToggle />
           <button
@@ -235,15 +237,43 @@ export function SiteHeader() {
           </button>
           <button
             type="button"
+            aria-expanded={quickOpen}
+            aria-controls="mobile-quick-contact"
+            aria-label={t(COPY.contact.menuTitle)}
+            onClick={() => {
+              setMenuOpen(false)
+              setQuickOpen((v) => !v)
+            }}
+            className="flex h-8 items-center gap-1.5 rounded-full bg-signal px-3 text-paper transition-transform active:scale-95 lg:hidden"
+          >
+            {quickOpen ? (
+              <span aria-hidden="true" className="text-sm leading-none">✕</span>
+            ) : (
+              <ContactIcon name="phone" className="h-3.5 w-3.5" />
+            )}
+            <span className="mono-label max-[359px]:sr-only">{t(COPY.nav.contact)}</span>
+          </button>
+          <button
+            type="button"
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            onClick={() => setMenuOpen((v) => !v)}
+            onClick={() => {
+              setQuickOpen(false)
+              setMenuOpen((v) => !v)
+            }}
             className="mono-label lg:hidden"
           >
             {menuOpen ? '✕' : 'Menu'}
           </button>
         </div>
       </div>
+
+      {quickOpen && (
+        <div id="mobile-quick-contact" className="relative border-t border-fg/15 bg-bg px-[var(--gutter)] pb-5 pt-4 lg:hidden">
+          <p className="mono-label opacity-60">{t(COPY.contact.menuTitle)}</p>
+          <ContactQuickActions onNavigate={() => setQuickOpen(false)} />
+        </div>
+      )}
 
       {menuOpen && (
         <nav id="mobile-menu" aria-label="Principal móvil" className="relative border-t border-fg/15 bg-bg px-[var(--gutter)] py-6 lg:hidden">
