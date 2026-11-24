@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { A11yPanel } from './a11y-panel'
 import { ProjectsMenu, ProjectsSubmenu } from './projects-menu'
+import { ContactMenu, ContactQuickActions } from './contact-menu'
 import { CvViewer, cvModeFromHash, type CvMode } from './cv-viewer'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -188,6 +189,8 @@ export function SiteHeader() {
                 </li>
               ) : item.id === 'work' ? (
                 <ProjectsMenu key={item.id} onWorkClick={goTo(item.id)} />
+              ) : item.id === 'contact' ? (
+                <ContactMenu key={item.id} onContactClick={goTo(item.id)} />
               ) : item.id === 'cv' ? (
                 <li key={item.id}>
                   <button
@@ -257,11 +260,12 @@ export function SiteHeader() {
                     {t(item.label)}
                   </button>
                 ) : (
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <TransitionLink href={`/#${item.id}`} onClick={goTo(item.id)} className="brand-title text-2xl">
                       {t(item.label)}
                     </TransitionLink>
                     {item.id === 'work' && <ProjectsSubmenu onNavigate={() => setMenuOpen(false)} />}
+                    {item.id === 'contact' && <ContactQuickActions onNavigate={() => setMenuOpen(false)} />}
                   </div>
                 )}
               </li>

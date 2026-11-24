@@ -84,6 +84,14 @@ export const COPY = {
     call: { es: 'Llámame', en: 'Call me' },
     whatsapp: { es: 'Escríbeme por WhatsApp', en: 'Message me on WhatsApp' },
     linkedin: { es: 'Conectemos en LinkedIn', en: 'Connect on LinkedIn' },
+    quick: {
+      email: { es: 'Correo', en: 'Email' },
+      whatsapp: { es: 'WhatsApp', en: 'WhatsApp' },
+      call: { es: 'Llamar', en: 'Call' },
+      linkedin: { es: 'LinkedIn', en: 'LinkedIn' },
+    },
+    menuTitle: { es: 'Hablemos directo', en: 'Let’s talk directly' },
+    goToSection: { es: 'Ir a contacto', en: 'Go to contact' },
     mailSubject: { es: 'Hola Elkin — vi tu portafolio', en: 'Hi Elkin — I saw your portfolio' },
     waMessage: {
       es: 'Hola Elkin, vi tu portafolio y me gustaría hablar contigo.',

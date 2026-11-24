@@ -4,35 +4,14 @@ import { Fragment, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { SignalNetwork } from './signal-network'
-import { useLocale, type L } from '@/lib/i18n'
+import { useLocale } from '@/lib/i18n'
+import { ContactIcon, useContactChannels, type ContactChannel } from '@/components/ui/contact-channels'
 import { COPY } from '@/lib/content/copy'
 import { PROFILE } from '@/lib/content/profile'
 
 const COPIED_RESET_MS = 2000
 
-type IconName = 'mail' | 'phone' | 'whatsapp' | 'linkedin'
-
-const ICONS: Record<IconName, React.ReactNode> = {
-  mail: <path d="M3 6h18v12H3zM3 7l9 6 9-6" />,
-  phone: <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" />,
-  whatsapp: (
-    <>
-      <path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z" />
-      <path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 1a4 4 0 0 1-2-2l1-1-1-2z" />
-    </>
-  ),
-  linkedin: <path d="M4 9h4v11H4zM6 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM10 9h4v1.6A4 4 0 0 1 20 13v7h-4v-6a2 2 0 0 0-4 0v6h-4z" />,
-}
-
-interface Channel {
-  icon: IconName
-  label: L
-  value: string
-  href: string
-  external?: boolean
-}
-
-function ChannelRow({ channel, index }: { channel: Channel; index: number }) {
+function ChannelRow({ channel, index }: { channel: ContactChannel; index: number }) {
   const { t } = useLocale()
   return (
     <li>
@@ -49,17 +28,7 @@ function ChannelRow({ channel, index }: { channel: Channel; index: number }) {
           className="absolute inset-0 origin-bottom scale-y-0 bg-signal transition-transform duration-500 ease-expo group-hover:scale-y-100 group-focus-visible:scale-y-100"
         />
         <span className="mono-label relative w-6 shrink-0 opacity-40 transition-colors group-hover:text-paper group-hover:opacity-80">0{index + 1}</span>
-        <svg
-          viewBox="0 0 24 24"
-          className="relative h-6 w-6 shrink-0 transition-colors group-hover:text-paper"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          {ICONS[channel.icon]}
-        </svg>
+        <ContactIcon name={channel.icon} className="relative h-6 w-6 shrink-0 transition-colors group-hover:text-paper" />
         <span className="relative min-w-0 flex-1 transition-transform duration-500 ease-expo group-hover:translate-x-1.5">
           <span className="mono-label block opacity-60 transition-colors group-hover:text-paper group-hover:opacity-80">{t(channel.label)}</span>
           <span className="block text-[clamp(1rem,0.8rem+1vw,1.75rem)] font-light leading-snug transition-colors [overflow-wrap:anywhere] group-hover:text-paper">
@@ -93,33 +62,7 @@ export function Contact() {
     }
   }
 
-  const channels: Channel[] = [
-    {
-      icon: 'mail',
-      label: COPY.contact.email,
-      value: PROFILE.email,
-      href: `mailto:${PROFILE.email}?subject=${encodeURIComponent(t(COPY.contact.mailSubject))}`,
-    },
-    {
-      icon: 'whatsapp',
-      label: COPY.contact.whatsapp,
-      value: PROFILE.phoneDisplay,
-      href: `https://wa.me/${PROFILE.phone}?text=${encodeURIComponent(t(COPY.contact.waMessage))}`,
-      external: true,
-    },
-    { icon: 'phone', label: COPY.contact.call, value: PROFILE.phoneDisplay, href: `tel:+${PROFILE.phone}` },
-    ...(PROFILE.linkedin
-      ? [
-          {
-            icon: 'linkedin' as const,
-            label: COPY.contact.linkedin,
-            value: PROFILE.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\//, ''),
-            href: PROFILE.linkedin,
-            external: true,
-          },
-        ]
-      : []),
-  ]
+  const channels = useContactChannels()
 
   return (
     <ToneSection tone="dark" as="footer" id="contact" className="px-[var(--gutter)] pb-10 pt-[clamp(5rem,3rem+8vw,10rem)]">
