@@ -10,8 +10,8 @@ import { CaseDemo } from '@/components/case/kit/case-demo'
 /** El playground de UBITS publicado desde la rama `staging`. */
 const STAGING = 'https://staging-playground.ubits.co'
 const MODULE = '/admin/desempeno-cultura/encuestas'
-/** `ver=todos` enciende también lo que llega en Q1 2027 (IA, accionables, «Para atender»). */
-const FLAGS = '?ver=todos'
+/** `ver=todos` enciende también lo que llega en Q1 2027 (IA, accionables, «Para atender»); `marcas=no` quita los chips «Nuevo». */
+const FLAGS = '?ver=todos&marcas=no'
 
 /**
  * El marco del playground se ve completo, pero el riel de navegación (72 px) y la barra superior (60 px), que llevan a

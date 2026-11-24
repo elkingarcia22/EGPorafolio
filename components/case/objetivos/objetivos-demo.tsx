@@ -6,8 +6,8 @@ import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 import { RecordModal } from '@/components/case/kit/record-modal'
 import { CaseDemo } from '@/components/case/kit/case-demo'
 
-/** El staging público del playground de UBITS; `ver=backlog` abre el alcance completo. */
-const DEMO_URL = 'https://staging-playground.ubits.co/admin/desempeno-cultura/objetivos?ver=backlog'
+/** El staging público del playground de UBITS; `ver=backlog` abre el alcance completo y `marcas=no` quita los chips «Nuevo». */
+const DEMO_URL = 'https://staging-playground.ubits.co/admin/desempeno-cultura/objetivos?ver=backlog&marcas=no'
 
 /**
  * Igual que la demo de Encuestas: el playground se dibuja a 1.199 px (justo bajo el `NARROW_WINDOW`
