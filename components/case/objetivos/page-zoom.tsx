@@ -96,7 +96,7 @@ export function PageZoom({ src, w, h, label, path, onClose }: PageZoomProps) {
   const btn = 'grid h-10 w-10 place-items-center rounded-full border border-white/25 text-lg text-white transition-colors hover:border-white disabled:opacity-30'
 
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label={label} className="obj-fade fixed inset-0 z-[200] flex flex-col bg-[#05060b]/95 text-white backdrop-blur-sm">
+    <div role="dialog" aria-modal="true" aria-label={label} className="obj-fade fixed inset-0 z-[78] flex flex-col bg-[#05060b]/95 text-white backdrop-blur-sm">
       <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{label}</p>
@@ -105,7 +105,9 @@ export function PageZoom({ src, w, h, label, path, onClose }: PageZoomProps) {
         <button type="button" onClick={() => zoomBy(-1)} disabled={zi === 0} aria-label={t({ es: 'Alejar', en: 'Zoom out' })} className={btn}>−</button>
         <span className="w-12 text-center font-mono text-xs tabular-nums text-white/70" aria-live="polite">{Math.round(zoom * 100)} %</span>
         <button type="button" onClick={() => zoomBy(1)} disabled={zi === ZOOM_STEPS.length - 1} aria-label={t({ es: 'Acercar', en: 'Zoom in' })} className={btn}>+</button>
-        <button ref={closeRef} type="button" onClick={onClose} aria-label={t({ es: 'Cerrar', en: 'Close' })} className={`${btn} ml-1`}>✕</button>
+        <button ref={closeRef} type="button" onClick={onClose} aria-label={t({ es: 'Cerrar', en: 'Close' })} className="ml-1 grid h-10 w-10 place-items-center rounded-full bg-white text-[#05060b] transition-transform active:scale-95">
+          <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" /></svg>
+        </button>
       </header>
 
       <div
