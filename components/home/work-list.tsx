@@ -16,44 +16,61 @@ function WorkCard({ project }: { project: Project }) {
   const { reducedMotion } = useA11y()
   const titleRef = useRef<HTMLSpanElement>(null)
   const title = t(project.title)
+  const accent = `rgb(${project.accent})`
 
   const enter = () => {
     if (titleRef.current && !reducedMotion) scrambleText(titleRef.current, title, 450)
   }
 
   return (
-    <li className="border-t border-fg/15 pt-6 md:pt-8">
+    <li className="flex">
       <TransitionLink
         href={`/proyectos/${project.slug}`}
         transitionLabel={`N° ${project.frequency} · ${title}`}
         data-cursor={t(COPY.work.open)}
         onMouseEnter={enter}
         onFocus={enter}
-        className="group flex h-full flex-col"
+        className="group relative flex w-full flex-col overflow-hidden rounded-xl border border-fg/10 bg-fg/[0.025] p-2.5 transition-[border-color,box-shadow,transform] duration-500 ease-expo hover:-translate-y-1 hover:border-fg/25 hover:shadow-[0_24px_48px_-28px_rgb(var(--fg)/0.45)]"
       >
-        <div className="flex items-baseline justify-between gap-4">
-          <span className="mono-label opacity-50">N° {project.frequency}</span>
-          <span className="flex items-baseline gap-4">
-            <span className="brand-title text-xs opacity-70">{project.client}</span>
-            <span className="mono-label opacity-60">{project.year.slice(-4)}</span>
+        <div className="relative overflow-hidden rounded-lg">
+          <div className="transition-transform duration-700 ease-expo group-hover:scale-[1.035]">
+            <ProjectPreview project={project} compact />
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col px-2 pb-1.5 pt-5">
+          <div className="flex items-center gap-2">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
+            <span className="brand-title text-[0.68rem] opacity-70">{project.client}</span>
+            <span className="mono-label ml-auto opacity-50">N° {project.frequency}</span>
+          </div>
+
+          <span
+            ref={titleRef}
+            className="mt-3 block text-[clamp(1.5rem,0.9rem+1.1vw,2.05rem)] font-light leading-[1.05] tracking-tight"
+          >
+            {title}
+          </span>
+
+          <p className="mb-6 mt-3 line-clamp-3 text-sm leading-relaxed opacity-65">{t(project.tagline)}</p>
+
+          <div className="mt-auto flex items-center justify-between border-t border-fg/10 pt-4">
+            <span className="mono-label opacity-70 transition-opacity group-hover:opacity-100">{t(COPY.work.open)}</span>
             <span
               aria-hidden="true"
-              className="text-xl transition-transform duration-500 ease-expo group-hover:-translate-y-0.5 group-hover:translate-x-1 group-hover:text-signal"
+              className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-full border border-fg/15 text-base transition-[transform,background-color,border-color,color] duration-500 ease-expo group-hover:rotate-45 group-hover:border-transparent group-hover:text-paper"
             >
-              ↗
+              <span className="absolute inset-0 scale-0 rounded-full transition-transform duration-500 ease-expo group-hover:scale-100" style={{ background: accent }} />
+              <span className="relative">↗</span>
             </span>
-          </span>
+          </div>
         </div>
+
         <span
-          ref={titleRef}
-          className="mt-4 block text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.02] tracking-tight"
-        >
-          {title}
-        </span>
-        <div className="mt-6 overflow-hidden rounded-md transition-transform duration-700 ease-expo group-hover:-translate-y-1 lg:mt-auto lg:pt-6">
-          <ProjectPreview project={project} className="rounded-md lg:hidden" compact />
-          <ProjectPreview project={project} className="hidden rounded-md lg:block" />
-        </div>
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 transition-transform duration-700 ease-expo group-hover:scale-x-100"
+          style={{ background: accent }}
+        />
       </TransitionLink>
     </li>
   )
@@ -72,7 +89,7 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
         </div>
       </div>
 
-      <ul className="grid gap-x-[clamp(2rem,1rem+3vw,4.5rem)] gap-y-16 lg:grid-cols-2 lg:gap-y-24">
+      <ul className="grid gap-5 md:grid-cols-2 xl:grid-cols-4 xl:gap-4 2xl:gap-6">
         {projects.map((project) => (
           <WorkCard key={project.slug} project={project} />
         ))}

@@ -43,7 +43,7 @@ export function EncuestasPreview({ compact = false }: { compact?: boolean }) {
   const mid = (TEMPLATES.length - 1) / 2
 
   return (
-    <div className={`relative overflow-hidden bg-[linear-gradient(160deg,#ffffff,#eef2fb_60%,#e4ebfa)] text-[#303a47] ${compact ? 'aspect-[4/3.6] md:aspect-[16/10]' : 'aspect-[4/3]'}`}>
+    <div className={`relative overflow-hidden bg-[linear-gradient(160deg,#ffffff,#eef2fb_60%,#e4ebfa)] text-[#303a47] ${compact ? 'aspect-[4/3.6] md:aspect-[4/3]' : 'aspect-[4/3]'}`}>
       <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 -translate-y-1/4 translate-x-1/4 rounded-full bg-[#0c5bef]/15 blur-3xl" aria-hidden="true" />
       <div className="absolute left-[6%] top-[7%]">
         <p className={`${compact ? 'text-xl' : 'text-[17px]'} font-bold leading-tight`}>Encuestas</p>
