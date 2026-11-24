@@ -1,90 +1,67 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { TransitionLink } from '@/components/transition/page-transition'
-import { hasCustomPreview, ProjectPreview } from './project-preview'
-import { gsap, scrambleText } from '@/lib/motion'
+import { ProjectPreview } from './project-preview'
+import { scrambleText } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import type { Project } from '@/lib/content/projects'
 
-function WorkRow({ project, onHover }: { project: Project; onHover: (p: Project | null) => void }) {
+function WorkCard({ project }: { project: Project }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const titleRef = useRef<HTMLSpanElement>(null)
   const title = t(project.title)
 
   const enter = () => {
-    onHover(project)
     if (titleRef.current && !reducedMotion) scrambleText(titleRef.current, title, 450)
   }
 
   return (
-    <li className="border-t border-fg/15 last:border-b">
+    <li className="border-t border-fg/15 pt-6 md:pt-8">
       <TransitionLink
         href={`/proyectos/${project.slug}`}
         transitionLabel={`N° ${project.frequency} · ${title}`}
         data-cursor={t(COPY.work.open)}
         onMouseEnter={enter}
-        onMouseLeave={() => onHover(null)}
         onFocus={enter}
-        onBlur={() => onHover(null)}
-        className="group grid grid-cols-12 items-baseline gap-4 py-7 transition-[padding] duration-500 ease-expo md:py-9 md:hover:pl-6"
+        className="group flex h-full flex-col"
       >
-        <span className="mono-label col-span-12 opacity-50 md:col-span-2">N° {project.frequency}</span>
+        <div className="flex items-baseline justify-between gap-4">
+          <span className="mono-label opacity-50">N° {project.frequency}</span>
+          <span className="flex items-baseline gap-4">
+            <span className="brand-title text-xs opacity-70">{project.client}</span>
+            <span className="mono-label opacity-60">{project.year.slice(-4)}</span>
+            <span
+              aria-hidden="true"
+              className="text-xl transition-transform duration-500 ease-expo group-hover:-translate-y-0.5 group-hover:translate-x-1 group-hover:text-signal"
+            >
+              ↗
+            </span>
+          </span>
+        </div>
         <span
           ref={titleRef}
-          className="col-span-12 text-[clamp(1.8rem,1rem+3vw,3.8rem)] font-light leading-none tracking-tight md:col-span-6"
+          className="mt-4 block text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.02] tracking-tight"
         >
           {title}
         </span>
-        <span className="brand-title col-span-6 text-xs opacity-70 md:col-span-2">{project.client}</span>
-        <span className="mono-label col-span-5 text-right opacity-60 md:col-span-1">{project.year.slice(-4)}</span>
-        <span
-          aria-hidden="true"
-          className="col-span-1 text-right text-xl transition-transform duration-500 ease-expo group-hover:translate-x-1 group-hover:text-signal"
-        >
-          ↗
-        </span>
-        <div className="col-span-12 mt-4 md:col-span-10 md:col-start-3 lg:hidden">
-          <ProjectPreview project={project} className="rounded-md" compact />
+        <div className="mt-6 overflow-hidden rounded-md transition-transform duration-700 ease-expo group-hover:-translate-y-1 lg:mt-auto lg:pt-6">
+          <ProjectPreview project={project} className="rounded-md lg:hidden" compact />
+          <ProjectPreview project={project} className="hidden rounded-md lg:block" />
         </div>
       </TransitionLink>
     </li>
   )
 }
 
-/** Lista de proyectos como "nodos" con vista previa que sigue al cursor. */
+/** Proyectos como tarjetas: la vista previa se ve de una vez, sin tener que pasar el cursor. */
 export function WorkList({ projects }: { projects: readonly Project[] }) {
   const { t } = useLocale()
-  const [active, setActive] = useState<Project | null>(null)
-  const previewRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const preview = previewRef.current
-    if (!preview) return
-    const xTo = gsap.quickTo(preview, 'x', { duration: 0.6, ease: 'expo' })
-    const yTo = gsap.quickTo(preview, 'y', { duration: 0.6, ease: 'expo' })
-    const move = (e: PointerEvent) => {
-      xTo(e.clientX + 24)
-      yTo(e.clientY - 120)
-    }
-    window.addEventListener('pointermove', move)
-    return () => window.removeEventListener('pointermove', move)
-  }, [])
-
-  useEffect(() => {
-    const preview = previewRef.current
-    if (!preview) return
-    gsap.to(preview, {
-      clipPath: active ? 'inset(0% 0% 0% 0%)' : 'inset(50% 50% 50% 50%)',
-      duration: 0.6,
-      ease: 'expo.out',
-    })
-  }, [active])
 
   return (
     <ToneSection tone="light" id="work" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
@@ -95,28 +72,11 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
         </div>
       </div>
 
-      <ul>
+      <ul className="grid gap-x-[clamp(2rem,1rem+3vw,4.5rem)] gap-y-16 lg:grid-cols-2 lg:gap-y-24">
         {projects.map((project) => (
-          <WorkRow key={project.slug} project={project} onHover={setActive} />
+          <WorkCard key={project.slug} project={project} />
         ))}
       </ul>
-
-      <div
-        ref={previewRef}
-        aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-40 hidden lg:block ${active && hasCustomPreview(active.slug) ? 'w-[min(32rem,38vw)]' : 'w-[min(26rem,32vw)]'}`}
-        style={{ clipPath: 'inset(50% 50% 50% 50%)' }}
-      >
-        {active && (
-          <div className="bg-void p-2 shadow-2xl">
-            <ProjectPreview project={active} />
-            <div className="flex items-center justify-between px-1 pt-2 text-paper">
-              <span className="mono-label">N° {active.frequency}</span>
-              <span className="h-2 w-2 rounded-full" style={{ background: `rgb(${active.accent})` }} />
-            </div>
-          </div>
-        )}
-      </div>
     </ToneSection>
   )
 }

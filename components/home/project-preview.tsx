@@ -26,8 +26,6 @@ const COMPACT_PREVIEWS: Partial<Record<string, PreviewComponent>> = {
   sellup: SellupCompactPreview,
 }
 
-export const hasCustomPreview = (slug: string): boolean => Boolean(PREVIEWS[slug])
-
 interface ProjectPreviewProps {
   project: Project
   className?: string
