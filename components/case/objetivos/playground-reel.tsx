@@ -4,14 +4,12 @@ import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
-import { DESKTOP_QUERY, useMedia } from './use-media'
-import { MINI_PAGES } from './playground-mini'
+import { PageZoom } from './page-zoom'
 
-/** Proporción de la ventana del navegador (alto / ancho). */
+/** Proporción de la ventana del navegador en escritorio (alto / ancho). */
 const FRAME = 10 / 16
-
-/** Debajo de lg, cada cuánto pasa sola a la siguiente página mientras nadie toque las pestañas. */
-const MINI_MS = 7000
+/** Tras soltar el dedo, cuánto espera antes de volver a moverse sola. */
+const TOUCH_RESUME_MS = 4000
 /** Pausa en cada extremo de la página antes de dar la vuelta. */
 const EDGE_HOLD_MS = 1400
 /** Cuánto baja o sube cada botón, en fracción de la ventana. */
@@ -46,7 +44,35 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
   const miniRef = useRef<HTMLDivElement>(null)
   const pausedRef = useRef(false)
   const [pos, setPos] = useState(0)
-  const visible = Math.min(1, (FRAME * page.w) / page.h)
+  const [zoomOpen, setZoomOpen] = useState(false)
+  const resumeTimer = useRef<number | null>(null)
+  // Qué fracción de la página cabe en la ventana; se mide porque la ventana cambia de forma en el teléfono.
+  const [visible, setVisible] = useState(Math.min(1, (FRAME * page.w) / page.h))
+  const measure = () => {
+    const el = viewRef.current
+    if (el && el.scrollHeight) setVisible(Math.min(1, el.clientHeight / el.scrollHeight))
+  }
+  useEffect(() => {
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+  useEffect(() => {
+    pausedRef.current = zoomOpen
+  }, [zoomOpen])
+
+  const pause = () => {
+    if (resumeTimer.current !== null) window.clearTimeout(resumeTimer.current)
+    pausedRef.current = true
+  }
+  const resume = (e: React.PointerEvent) => {
+    if (zoomOpen) return
+    if (e.pointerType === 'mouse') {
+      pausedRef.current = false
+      return
+    }
+    // Con el dedo, se le deja un momento a quien está leyendo antes de seguir sola.
+    resumeTimer.current = window.setTimeout(() => (pausedRef.current = false), TOUCH_RESUME_MS)
+  }
 
   // Auto-desplazamiento de ida y vuelta, con un acumulador propio: scrollTop se redondea a enteros.
   useEffect(() => {
@@ -93,6 +119,7 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
     if (!el) return
     const max = el.scrollHeight - el.clientHeight
     setPos(max > 0 ? el.scrollTop / max : 0)
+    measure()
   }
 
   const step = (dir: 1 | -1) => {
@@ -139,10 +166,11 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
   return (
     <div
       className="relative grid gap-5 md:grid-cols-[minmax(0,1fr)_88px]"
-      onPointerEnter={() => (pausedRef.current = true)}
-      onPointerLeave={() => (pausedRef.current = false)}
-      onFocus={() => (pausedRef.current = true)}
-      onBlur={() => (pausedRef.current = false)}
+      onPointerEnter={pause}
+      onPointerDown={pause}
+      onPointerLeave={resume}
+      onFocus={pause}
+      onBlur={() => !zoomOpen && (pausedRef.current = false)}
     >
       {/* La ventana: la página entera, a su resolución, desplazable de verdad. */}
       <div className="overflow-hidden rounded-xl bg-white shadow-[0_50px_100px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/10">
@@ -162,8 +190,7 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
           onPointerMove={onViewMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
-          className="relative cursor-grab overflow-y-auto overscroll-contain [scrollbar-width:none] focus-visible:outline-none active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
-          style={{ aspectRatio: `${1 / FRAME}` }}
+          className="relative aspect-[4/5] cursor-grab overflow-y-auto overscroll-contain [scrollbar-width:none] focus-visible:outline-none active:cursor-grabbing sm:aspect-[4/3] md:aspect-[16/10] [&::-webkit-scrollbar]:hidden"
         >
           <Image
             key={page.id}
@@ -174,9 +201,23 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
             sizes="(min-width: 1024px) 60vw, 100vw"
             quality={90}
             draggable={false}
+            onLoad={measure}
             className="obj-fade block h-auto w-full select-none"
           />
         </div>
+      </div>
+
+      {/* Teléfono: subir, bajar y ampliar debajo de la ventana. */}
+      <div className="flex gap-2 md:hidden">
+        <button type="button" onClick={() => step(-1)} disabled={atTop} aria-label={t({ es: 'Subir', en: 'Scroll up' })} className={`${btn} w-12`}>
+          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" /></svg>
+        </button>
+        <button type="button" onClick={() => step(1)} disabled={atBottom} aria-label={t({ es: 'Bajar', en: 'Scroll down' })} className={`${btn} w-12`}>
+          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" /></svg>
+        </button>
+        <button type="button" onClick={() => setZoomOpen(true)} className={`${btn} flex-1 gap-2 !flex items-center justify-center text-[13px]`}>
+          <ExpandIcon /> {t({ es: 'Ampliar', en: 'Enlarge' })}
+        </button>
       </div>
 
       {/* El minimapa (se toca o se arrastra) y los botones para subir y bajar. */}
@@ -200,8 +241,23 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
         <button type="button" onClick={() => step(1)} disabled={atBottom} aria-label={t({ es: 'Bajar', en: 'Scroll down' })} className={btn}>
           <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" /></svg>
         </button>
+        <button type="button" onClick={() => setZoomOpen(true)} aria-label={t({ es: 'Ampliar', en: 'Enlarge' })} className={btn}>
+          <ExpandIcon />
+        </button>
       </div>
+
+      {zoomOpen && (
+        <PageZoom src={page.src} w={page.w} h={page.h} label={t(page.label)} path={page.path} onClose={() => setZoomOpen(false)} />
+      )}
     </div>
+  )
+}
+
+function ExpandIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" />
+    </svg>
   )
 }
 
@@ -214,33 +270,12 @@ export function PlaygroundReel() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const [active, setActive] = useState(1)
-  const desktop = useMedia(DESKTOP_QUERY)
-  const [auto, setAuto] = useState(true)
-  const [inView, setInView] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
   const page = PAGES[active]
-  // Lo que se ve de la página: el alto de la ventana sobre el alto de la captura, a igual ancho.
-  const visible = Math.min(1, (FRAME * page.w) / page.h)
   const seconds = Math.max(10, Math.round(page.h / 180))
-  const motion = !reducedMotion && visible < 1
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el || desktop) return
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.4 })
-    io.observe(el)
-    return () => io.disconnect()
-  }, [desktop])
-
-  // Teléfono y tableta: las piezas se recorren solas (como los pasos de Encuestas) hasta que alguien toca.
-  useEffect(() => {
-    if (desktop || !auto || !inView || reducedMotion) return
-    const id = window.setTimeout(() => setActive((i) => (i + 1) % PAGES.length), MINI_MS)
-    return () => window.clearTimeout(id)
-  }, [active, auto, inView, desktop, reducedMotion])
+  const motion = !reducedMotion && (FRAME * page.w) / page.h < 1
 
   return (
-    <div ref={ref} data-reveal="device" className="relative overflow-hidden rounded-3xl bg-[#0b0d16] p-4 text-white md:p-8">
+    <div data-reveal="device" className="relative overflow-hidden rounded-3xl bg-[#0b0d16] p-4 text-white md:p-8">
       <span className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[#0c5bef] opacity-25 blur-3xl" aria-hidden="true" />
 
       <div role="tablist" aria-label={t({ es: 'Páginas del producto', en: 'Product pages' })} className="relative mb-5 flex flex-wrap gap-2">
@@ -250,53 +285,20 @@ export function PlaygroundReel() {
             type="button"
             role="tab"
             aria-selected={i === active}
-            onClick={() => {
-              setAuto(false)
-              setActive(i)
-            }}
+            onClick={() => setActive(i)}
             className="relative overflow-hidden rounded-full border border-white/15 px-4 py-1.5 text-[13px] text-white/60 transition-colors hover:text-white aria-selected:border-white aria-selected:bg-white aria-selected:text-[#0b0d16]"
           >
             {t(p.label)}
-            {!desktop && i === active && auto && inView && !reducedMotion && (
-              <span key={active} className="obj-progress absolute inset-x-3 bottom-0.5 h-0.5 origin-left rounded-full bg-[#0c5bef]" style={{ animationDuration: `${MINI_MS}ms` }} aria-hidden="true" />
-            )}
           </button>
         ))}
       </div>
 
-      {desktop ? (
-        <PageViewer page={page} motion={motion} seconds={seconds} />
-      ) : (
-        /* Teléfono y tableta: la pieza clave de cada página, recreada en HTML para que se lea. */
-        <div className="relative overflow-hidden rounded-xl bg-[#f4f5f8] shadow-[0_50px_100px_-30px_rgba(0,0,0,0.85)] ring-1 ring-white/10">
-          <div className="flex min-w-0 items-center gap-1.5 border-b border-black/5 px-3 py-2" aria-hidden="true">
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#ff5f57]" />
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#febc2e]" />
-            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#28c840]" />
-            <span className="ml-2 min-w-0 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[11px] leading-5 text-black/45">ubits · {page.path}</span>
-          </div>
-          {/* Las cuatro piezas ocupan la misma celda: la caja toma el alto de la más alta y no salta al
-              cambiar de pestaña. La activa se monta de nuevo para que su animación vuelva a correr. */}
-          <div className="grid p-3 text-[#161a2c] sm:p-4">
-            {PAGES.map((p, i) => {
-              const Mini = MINI_PAGES[p.id]
-              const on = i === active
-              return (
-                <div key={on ? `${p.id}-on` : `${p.id}-off`} className={`[grid-area:1/1] ${on ? '' : 'invisible'}`} aria-hidden={!on}>
-                  <Mini />
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      <PageViewer page={page} motion={motion} seconds={seconds} />
 
       <p key={page.id} className="obj-fade relative mt-5 max-w-[62ch] text-sm leading-relaxed text-white/70">
         <b className="font-medium text-white">{t(page.label)}.</b> {t(page.note)}
         <span className="mt-1 block text-[11px] text-white/40">
-          {desktop
-            ? t({ es: 'Captura de página completa del producto, 19 nov 2026. Recórrela con la rueda, arrastrándola o desde el minimapa.', en: 'Full-page product capture, Nov 19, 2026. Explore it with the wheel, by dragging or from the minimap.' })
-            : t({ es: 'Recreado de la página del producto con sus cifras, 19 nov 2026. Toca una pestaña para elegir.', en: 'Recreated from the product page with its figures, Nov 19, 2026. Tap a tab to choose.' })}
+          {t({ es: 'Captura de página completa del producto, 19 nov 2026. Recórrela a mano o amplíala para moverte por ella.', en: 'Full-page product capture, Nov 19, 2026. Scroll through it or enlarge it to move around.' })}
         </span>
       </p>
     </div>

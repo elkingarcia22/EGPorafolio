@@ -29,7 +29,7 @@ export function ObjetivosForm() {
 
       <Block>
         <SubHead index="5.3">{t({ es: 'Y así se ve el producto construido', en: 'And this is the built product' })}</SubHead>
-        <Body className="mb-8">{t({ es: 'Las páginas reales, enteras y a su resolución: cada una baja sola dentro del navegador y el minimapa marca por dónde va.', en: 'The real pages, whole and at their own resolution: each scrolls on its own inside the browser and the minimap shows where it is.' })}</Body>
+        <Body className="mb-8">{t({ es: 'Las páginas reales, enteras y a su resolución. Bajan solas, pero puedes recorrerlas a mano o ampliarlas para mirar el detalle.', en: 'The real pages, whole and at their own resolution. They scroll on their own, but you can move through them or enlarge them to see the detail.' })}</Body>
         <PlaygroundReel />
       </Block>
     </div>
