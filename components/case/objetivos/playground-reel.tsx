@@ -150,7 +150,7 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
           <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-3 h-5 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[10px] leading-5 text-black/45">staging-playground.ubits.co{page.path}</span>
+          <span className="ml-3 h-5 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[10px] leading-5 text-black/45">ubits · {page.path}</span>
         </div>
         <div
           ref={viewRef}
@@ -243,7 +243,7 @@ export function PlaygroundReel() {
     <div ref={ref} data-reveal="device" className="relative overflow-hidden rounded-3xl bg-[#0b0d16] p-4 text-white md:p-8">
       <span className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[#0c5bef] opacity-25 blur-3xl" aria-hidden="true" />
 
-      <div role="tablist" aria-label={t({ es: 'Páginas del playground', en: 'Playground pages' })} className="relative mb-5 flex flex-wrap gap-2">
+      <div role="tablist" aria-label={t({ es: 'Páginas del producto', en: 'Product pages' })} className="relative mb-5 flex flex-wrap gap-2">
         {PAGES.map((p, i) => (
           <button
             key={p.id}
@@ -273,7 +273,7 @@ export function PlaygroundReel() {
             <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#ff5f57]" />
             <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#febc2e]" />
             <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#28c840]" />
-            <span className="ml-2 min-w-0 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[11px] leading-5 text-black/45">staging-playground.ubits.co{page.path}</span>
+            <span className="ml-2 min-w-0 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[11px] leading-5 text-black/45">ubits · {page.path}</span>
           </div>
           {/* Las cuatro piezas ocupan la misma celda: la caja toma el alto de la más alta y no salta al
               cambiar de pestaña. La activa se monta de nuevo para que su animación vuelva a correr. */}
@@ -295,8 +295,8 @@ export function PlaygroundReel() {
         <b className="font-medium text-white">{t(page.label)}.</b> {t(page.note)}
         <span className="mt-1 block text-[11px] text-white/40">
           {desktop
-            ? t({ es: 'Captura de página completa del staging, 19 nov 2026. Recórrela con la rueda, arrastrándola o desde el minimapa.', en: 'Full-page staging capture, Nov 19, 2026. Explore it with the wheel, by dragging or from the minimap.' })
-            : t({ es: 'Recreado de la página del staging con sus cifras, 19 nov 2026. Toca una pestaña para elegir.', en: 'Recreated from the staging page with its figures, Nov 19, 2026. Tap a tab to choose.' })}
+            ? t({ es: 'Captura de página completa del producto, 19 nov 2026. Recórrela con la rueda, arrastrándola o desde el minimapa.', en: 'Full-page product capture, Nov 19, 2026. Explore it with the wheel, by dragging or from the minimap.' })
+            : t({ es: 'Recreado de la página del producto con sus cifras, 19 nov 2026. Toca una pestaña para elegir.', en: 'Recreated from the product page with its figures, Nov 19, 2026. Tap a tab to choose.' })}
         </span>
       </p>
     </div>

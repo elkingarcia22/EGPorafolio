@@ -85,8 +85,8 @@ export const OBJ_CASE = {
 
   form: {
     lead: {
-      es: 'El rediseño se construyó en el playground de UBITS, en React, sobre el sistema de diseño de la empresa. Aquí, los bloques reales de Resultados y el mapa de alineación con las cifras de un ciclo del staging; al final, las páginas reales completas.',
-      en: 'The redesign was built in UBITS’ playground, in React, on the company design system. Here, the real Results blocks and the alignment map with the figures of a staging cycle; at the end, the real full pages.',
+      es: 'El rediseño se construyó como producto, en React, sobre el sistema de diseño de UBITS. Aquí, los bloques reales de Resultados y el mapa de alineación con las cifras de un ciclo de prueba; al final, las páginas reales completas.',
+      en: 'The redesign was built as a product, in React, on UBITS’ design system. Here, the real Results blocks and the alignment map with the figures of a test cycle; at the end, the real full pages.',
     } as L,
     steps: [
       { id: 'general', label: { es: 'Parametrización', en: 'Setup' }, shot: { src: img('crear'), alt: { es: 'Paso 1 del constructor: nombre, duración y fechas', en: 'Builder step 1: name, duration and dates' }, caption: { es: 'Nombre, duración y quién redacta. «Así va el ciclo» dice qué falta.', en: 'Name, duration and who writes. “How the cycle is going” says what’s missing.' } } },
@@ -141,8 +141,8 @@ export const OBJ_CASE = {
 
   demo: {
     lead: {
-      es: 'El módulo real, en el staging del playground de UBITS: la vista del administrador de Objetivos con el alcance completo activado, sin el resto de la plataforma. Crea un ciclo o abre los resultados de uno.',
-      en: 'The real module, on UBITS’ playground staging: the Goals admin view with the full scope switched on, without the rest of the platform. Create a cycle or open a cycle’s results.',
+      es: 'El módulo real, construido y en vivo: la vista del administrador de Objetivos con el alcance completo activado, sin el resto de la plataforma. Crea un ciclo o abre los resultados de uno.',
+      en: 'The real module, built and live: the Goals admin view with the full scope switched on, without the rest of the platform. Create a cycle or open a cycle’s results.',
     } as L,
   },
 } as const

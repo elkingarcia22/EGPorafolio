@@ -341,7 +341,7 @@ export function ObjetivosAi() {
       </div>
 
       <p className="mt-4 text-[12px] opacity-55">
-        {t({ es: 'Recreado con los textos, las opciones y el resultado de «Crear la estrategia con IA» en el staging (KPIs corporativos 2026). El reto, el contexto y la apuesta son un ejemplo escrito para la prueba. En el prototipo la IA son reglas sobre el brief, sin modelo.', en: 'Recreated with the copy, options and result of “Create the strategy with AI” on staging (KPIs corporativos 2026). The challenge, context and bet are an example written for the test. In the prototype the AI is rules over the brief, no model.' })}
+        {t({ es: 'Recreado con los textos, las opciones y el resultado de «Crear la estrategia con IA» en el producto (KPIs corporativos 2026). El reto, el contexto y la apuesta son un ejemplo escrito para la prueba. En el prototipo la IA son reglas sobre el brief, sin modelo.', en: 'Recreated with the copy, options and result of “Create the strategy with AI” in the product (KPIs corporativos 2026). The challenge, context and bet are an example written for the test. In the prototype the AI is rules over the brief, no model.' })}
       </p>
     </div>
   )

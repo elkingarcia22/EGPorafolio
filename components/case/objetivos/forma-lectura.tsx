@@ -329,8 +329,8 @@ export function CycleReading() {
 
       <p className="relative mt-5 text-[11px] text-white/45">
         {t({
-          es: `Bloques y textos de la pestaña Resultados del playground; cifras del staging (${CICLO.personas} personas · ${CICLO.objetivos} objetivos · ${CICLO.reportaron} reportaron). Son datos sembrados, no de un cliente.`,
-          en: `Blocks and copy from the playground’s Results tab; figures from staging (${CICLO.personas} people · ${CICLO.objetivos} goals · ${CICLO.reportaron} reported). Seeded data, not a client’s.`,
+          es: `Bloques y textos de la pestaña Resultados del producto; cifras de un ciclo de prueba (${CICLO.personas} personas · ${CICLO.objetivos} objetivos · ${CICLO.reportaron} reportaron). Son datos sembrados, no de un cliente.`,
+          en: `Blocks and copy from the product’s Results tab; figures from a test cycle (${CICLO.personas} people · ${CICLO.objetivos} goals · ${CICLO.reportaron} reported). Seeded data, not a client’s.`,
         })}
       </p>
     </div>

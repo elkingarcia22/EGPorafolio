@@ -66,14 +66,14 @@ function StagingFrame({ entry }: { entry: Entry }) {
       {!loaded && (
         <p className="absolute inset-0 flex items-center justify-center gap-3 font-mono text-xs text-[#5c646f]" role="status">
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0c5bef] border-t-transparent" />
-          {t({ es: 'Abriendo el playground en staging…', en: 'Opening the playground on staging…' })}
+          {t({ es: 'Abriendo Encuestas…', en: 'Opening Surveys…' })}
         </p>
       )}
       {size && (
         <iframe
           key={entry.id}
           src={urlOf(entry)}
-          title={t({ es: `Encuestas en staging: ${entry.name.es}`, en: `Surveys on staging: ${entry.name.en}` })}
+          title={t({ es: `Encuestas: ${entry.name.es}`, en: `Surveys: ${entry.name.en}` })}
           onLoad={() => setLoaded(true)}
           className="absolute left-0 top-0 origin-top-left border-0 transition-opacity duration-500"
           style={{ width, height, transform: `scale(${scale})`, opacity: loaded ? 1 : 0 }}
@@ -104,10 +104,10 @@ export function SurveyDemo() {
       <CaseDemo
         title={{ es: 'El módulo real de Encuestas.', en: 'The real Surveys module.' }}
         lead={{
-          es: 'Es el playground de UBITS publicado desde la rama staging, con datos de prueba. Se ve la plataforma completa, pero solo está habilitado Encuestas. Recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
-          en: 'This is the UBITS playground published from the staging branch, with test data. You see the whole platform, but only Surveys is enabled. Explore freely: create, read results, NOM 035 or compare.',
+          es: 'Es el producto construido, en vivo y con datos de prueba. Se ve la plataforma completa, pero solo está habilitado Encuestas. Recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
+          en: 'This is the built product, live and with test data. You see the whole platform, but only Surveys is enabled. Explore freely: create, read results, NOM 035 or compare.',
         }}
-        url={`staging-playground.ubits.co${MODULE}`}
+        url={`ubits · ${MODULE}`}
         image={{ src: SHOTS.lista.src, width: SHOTS.lista.width, height: SHOTS.lista.height }}
         accent="64 96 255"
         onOpen={() => setOpen(ENTRIES[0].id)}
@@ -117,9 +117,9 @@ export function SurveyDemo() {
         ids={ENTRIES.map((e) => e.id)}
         openId={open}
         onOpenChange={setOpen}
-        title={t({ es: 'Encuestas · en vivo, en staging', en: 'Surveys · live, on staging' })}
+        title={t({ es: 'Encuestas · el producto en vivo', en: 'Surveys · the live product' })}
         titleLeading={<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-mono text-xs font-semibold text-white" style={{ background: UBITS_BLUE }}>En</span>}
-        description={entry ? `staging-playground.ubits.co${MODULE}${entry.path}` : undefined}
+        description={entry ? `ubits · ${MODULE}${entry.path}` : undefined}
         actions={
           entry && (
             <a href={urlOf(entry)} target="_blank" rel="noreferrer" className="inline-flex h-8 items-center rounded-md border border-white/15 px-3 font-mono text-[11px] text-white/75 hover:bg-white/10">

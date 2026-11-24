@@ -40,8 +40,8 @@ export function ThemaForm() {
         <SubTitle index="5.3">{t({ es: 'La documentación es código', en: 'The docs are code' })}</SubTitle>
         <p data-reveal className="mb-10 max-w-[62ch] leading-relaxed opacity-80">
           {t({
-            es: 'Cada componente tiene una ficha en el código: descripción, controles del playground, props y guías de uso. De esa ficha salen la página de la documentación, el catálogo que lee la IA y las pruebas.',
-            en: 'Every component has a sheet in code: description, playground controls, props and usage guides. From that sheet come the docs page, the catalog the AI reads and the tests.',
+            es: 'Cada componente tiene una ficha en el código: descripción, controles para probarlo, props y guías de uso. De esa ficha salen la página de la documentación, el catálogo que lee la IA y las pruebas.',
+            en: 'Every component has a sheet in code: description, controls to try it, props and usage guides. From that sheet come the docs page, the catalog the AI reads and the tests.',
           })}
         </p>
         <DocsAsCode />

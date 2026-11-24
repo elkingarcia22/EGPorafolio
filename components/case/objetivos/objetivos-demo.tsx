@@ -46,7 +46,7 @@ function ModuleOnly() {
       {!loaded && (
         <p className="absolute inset-0 flex items-center justify-center gap-3 font-mono text-xs text-[#5c646f]" role="status">
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#0c5bef] border-t-transparent" />
-          {t({ es: 'Abriendo el playground en staging…', en: 'Opening the playground on staging…' })}
+          {t({ es: 'Abriendo Objetivos…', en: 'Opening Goals…' })}
         </p>
       )}
       {size && (
@@ -82,7 +82,7 @@ export function ObjetivosDemo() {
       <CaseDemo
         title={{ es: 'El producto real, como administrador.', en: 'The real product, as admin.' }}
         lead={OBJ_CASE.demo.lead}
-        url="staging-playground.ubits.co/admin/desempeno-cultura/objetivos"
+        url="ubits · /admin/desempeno-cultura/objetivos"
         image={{ src: OBJ_CASE.form.home.src, width: 2000, height: 1250 }}
         accent="12 91 239"
         onOpen={() => setOpen('objetivos')}
@@ -94,7 +94,7 @@ export function ObjetivosDemo() {
         onOpenChange={setOpen}
         title={t({ es: 'Objetivos · Administrador', en: 'Goals · Admin' })}
         titleLeading={<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#0c5bef] font-mono text-xs font-semibold text-white">Ob</span>}
-        description={t({ es: 'Staging del playground de UBITS · el menú y la barra no navegan fuera de Objetivos', en: 'UBITS playground staging · menu and bar don’t leave Goals' })}
+        description={t({ es: 'El producto en vivo · el menú y la barra no navegan fuera de Objetivos', en: 'The live product · menu and bar don’t leave Goals' })}
       >
         {open && <ModuleOnly />}
       </RecordModal>

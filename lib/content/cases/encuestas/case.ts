@@ -135,7 +135,7 @@ export const ENCUESTAS_CASE = {
       { value: '99', label: { es: 'funcionalidades con fecha: 74 en Q4 2026, 24 en Q1 2027 y 1 en backlog', en: 'features with a date: 74 in Q4 2026, 24 in Q1 2027, 1 in backlog' } },
       { value: '487', label: { es: 'casos de uso documentados, cada uno con su subtarea', en: 'documented use cases, each with its subtask' } },
       { value: '4', label: { es: 'iteraciones del producto, del chat al sistema de diseño', en: 'product iterations, from chat to design system' } },
-      { value: '25', label: { es: 'pantallas reales en este caso, todas del playground', en: 'real screens in this case, all from the playground' } },
+      { value: '25', label: { es: 'pantallas reales en este caso, todas del producto construido', en: 'real screens in this case, all from the built product' } },
     ] satisfies readonly Fact[],
     goals: [
       { value: '−30 %', label: { es: 'tiempo para armar una encuesta de clima desde plantilla', en: 'time to build a climate survey from a template' }, reference: true },

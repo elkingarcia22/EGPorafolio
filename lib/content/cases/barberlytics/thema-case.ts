@@ -186,7 +186,7 @@ export const THEMA_CASE = {
       callouts: [
         { x: 5, y: 17, w: 41, h: 33, title: { es: 'Una promesa clara', en: 'A clear promise' }, body: { es: '«Un solo sistema. Los temas que necesites.» Con el gradiente del tema activo.', en: '“One system. The themes you need.” In the active theme’s gradient.' } },
         { x: 59.6, y: 16, w: 35.4, h: 52, title: { es: 'El tema se cambia en vivo', en: 'Themes switch live' }, body: { es: 'Diez temas, radio, densidad y tipografía; todo se puede exportar como CSS.', en: 'Ten themes, radius, density and typography; all exportable as CSS.' } },
-        { x: 5, y: 70, w: 31, h: 6, title: { es: 'Empezar por las piezas', en: 'Start from the pieces' }, body: { es: 'Cada componente con su playground, ejemplos, props y guías de uso.', en: 'Each component with its playground, examples, props and usage guides.' } },
+        { x: 5, y: 70, w: 31, h: 6, title: { es: 'Empezar por las piezas', en: 'Start from the pieces' }, body: { es: 'Cada componente con su zona de pruebas, ejemplos, props y guías de uso.', en: 'Each component with its sandbox, examples, props and usage guides.' } },
         { x: 0, y: 84, w: 100, h: 16, title: { es: 'El sistema en cifras', en: 'The system in numbers' }, body: { es: '218 componentes, 22 familias, 10 temas y 103 tokens por tema.', en: '218 components, 22 families, 10 themes and 103 tokens per theme.' } },
       ] satisfies Callout[],
     },

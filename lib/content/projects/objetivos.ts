@@ -66,14 +66,14 @@ export const objetivos: Project = {
     notes: [{ es: '¿quién redacta?', en: 'who writes?' }, { es: 'sin alinear', en: 'unaligned' }, { es: 'resumen en 5 bloques', en: '5-block summary' }],
   },
   form: {
-    caption: { es: 'Capturas reales del playground de UBITS con el alcance completo.', en: 'Real screenshots of UBITS’ playground with the full scope.' },
+    caption: { es: 'Capturas reales del producto construido, con el alcance completo.', en: 'Real screenshots of the built product, with the full scope.' },
   },
   ai: {
     intro: { es: 'IA para escribir objetivos, leer el ciclo y sincronizar el código con los casos de uso.', en: 'AI to write goals, read the cycle and sync code with use cases.' },
     steps: [
       { tool: 'Crear con IA', prompt: { es: 'Cinco preguntas, ningún campo técnico.', en: 'Five questions, no technical fields.' }, output: { es: 'Objetivos con dirección y medida deducidas', en: 'Goals with deduced direction and measure' } },
       { tool: 'Análisis con IA', prompt: { es: 'Leer el ciclo completo.', en: 'Read the whole cycle.' }, output: { es: 'Hallazgos, riesgos y acciones con evidencia', en: 'Findings, risks and actions with evidence' } },
-      { tool: 'Claude', prompt: { es: 'Cruzar cada cambio del playground con los casos de uso.', en: 'Match every playground change with the use cases.' }, output: { es: 'Propuestas con pantallazo para aprobación humana', en: 'Screenshot proposals for human approval' } },
+      { tool: 'Claude', prompt: { es: 'Cruzar cada cambio del producto con los casos de uso.', en: 'Match every product change with the use cases.' }, output: { es: 'Propuestas con pantallazo para aprobación humana', en: 'Screenshot proposals for human approval' } },
     ],
   },
   results: {

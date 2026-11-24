@@ -65,7 +65,7 @@ export function SurveyForm() {
         wide
         index={t({ es: 'Momento 05 · Resultados', en: 'Moment 05 · Results' })}
         title={{ es: 'Todo lo que dice una medición', en: 'Everything a measurement says' }}
-        why={{ es: 'Participación, favorabilidad, eNPS, sentimiento de los comentarios, mapa de calor, lecturas de la IA y accionables: cada vista responde una sola pregunta con la gráfica que le sirve. Las cifras son las reales del playground.', en: 'Participation, favorability, eNPS, comment sentiment, heatmap, AI readings and actions: each view answers a single question with the chart that suits it. The figures are the playground’s real ones.' }}
+        why={{ es: 'Participación, favorabilidad, eNPS, sentimiento de los comentarios, mapa de calor, lecturas de la IA y accionables: cada vista responde una sola pregunta con la gráfica que le sirve. Las cifras son las del producto construido.', en: 'Participation, favorability, eNPS, comment sentiment, heatmap, AI readings and actions: each view answers a single question with the chart that suits it. The figures are the built product’s own.' }}
       >
         <ResultsCollage />
       </Moment>
