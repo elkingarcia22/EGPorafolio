@@ -266,25 +266,47 @@ export function PrinciplesStage() {
   }, [active, auto, reducedMotion, inView])
 
   const { Scene, title, body } = PRINCIPLES[active]
+  const choose = (i: number) => {
+    setAuto(false)
+    setActive(i)
+  }
+  const running = auto && inView && !reducedMotion
 
   return (
-    <div ref={ref} data-reveal className="grid gap-8 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:gap-12">
-      <ol role="tablist" aria-label={t({ es: 'Principios', en: 'Principles' })}>
+    <div ref={ref} data-reveal className="grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:gap-12">
+      {/* Teléfono y tableta: cuatro pestañas compactas; el título y la explicación van en el panel. */}
+      <div role="tablist" aria-label={t({ es: 'Principios', en: 'Principles' })} className="grid grid-cols-4 border border-fg/20 p-1 xl:hidden">
+        {PRINCIPLES.map((p, i) => (
+          <button
+            key={p.title.es}
+            type="button"
+            role="tab"
+            aria-selected={i === active}
+            aria-label={t(p.title)}
+            onClick={() => choose(i)}
+            className="relative overflow-hidden py-2.5 font-mono text-[13px] tabular-nums transition-colors aria-selected:bg-signal aria-selected:text-paper"
+          >
+            0{i + 1}
+            {i === active && running && (
+              <span key={active} className="obj-progress absolute inset-x-0 bottom-0 h-0.5 origin-left bg-paper/70" style={{ animationDuration: `${AUTO_MS}ms` }} aria-hidden="true" />
+            )}
+          </button>
+        ))}
+      </div>
+
+      <ol role="tablist" aria-label={t({ es: 'Principios', en: 'Principles' })} className="hidden xl:block">
         {PRINCIPLES.map((p, i) => (
           <li key={p.title.es} className="border-t border-fg/15 last:border-b">
             <button
               type="button"
               role="tab"
               aria-selected={i === active}
-              onClick={() => {
-                setAuto(false)
-                setActive(i)
-              }}
+              onClick={() => choose(i)}
               className="group relative flex w-full items-baseline gap-5 py-5 text-left"
             >
               <span className={`font-light tabular-nums leading-none transition-[color,opacity] duration-500 text-[clamp(2.2rem,1.4rem+2vw,3.4rem)] ${i === active ? 'text-signal' : 'opacity-20 group-hover:opacity-50'}`}>0{i + 1}</span>
               <span className={`text-[clamp(1.1rem,0.9rem+0.6vw,1.5rem)] leading-snug transition-opacity duration-500 ${i === active ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`}>{t(p.title)}</span>
-              {i === active && auto && inView && !reducedMotion && (
+              {i === active && running && (
                 <span key={active} className="obj-progress absolute -top-px left-0 h-0.5 w-full origin-left bg-signal" style={{ animationDuration: `${AUTO_MS}ms` }} aria-hidden="true" />
               )}
             </button>
@@ -295,10 +317,10 @@ export function PrinciplesStage() {
       <div role="tabpanel" className="relative overflow-hidden rounded-3xl bg-fg/[0.04] ring-1 ring-fg/10 [--obj-card:rgb(var(--bg))]">
         <span className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-signal opacity-15 blur-3xl" aria-hidden="true" />
         <div className="relative transition-opacity ease-out" style={{ opacity: leaving ? 0 : 1, transitionDuration: `${LEAVE_MS}ms` }}>
-        <div key={active} className="obj-rise relative h-[300px] p-6 md:p-8">
+        <div key={active} className="obj-rise relative h-[250px] p-5 sm:h-[300px] md:p-8">
           <Scene />
         </div>
-        <div key={`txt-${active}`} className="obj-fade relative border-t border-fg/10 p-6 md:p-8">
+        <div key={`txt-${active}`} className="obj-fade relative border-t border-fg/10 p-5 md:p-8">
           <span className="mono-label text-signal">{t({ es: 'Principio', en: 'Principle' })} 0{active + 1}</span>
           <p className="mt-2 text-xl leading-snug">{t(title)}</p>
           <p className="mt-2 max-w-[52ch] text-sm leading-relaxed opacity-70">{t(body)}</p>
