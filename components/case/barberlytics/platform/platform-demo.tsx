@@ -34,6 +34,8 @@ function CalendarModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o
   const { t } = useLocale()
   const frameRef = useRef<HTMLDivElement>(null)
   const [wide, setWide] = useState(true)
+  // Si algo dentro de la app lleva fuera del calendario, esto lo trae de vuelta
+  const [reload, setReload] = useState(0)
 
   useEffect(() => {
     const el = frameRef.current
@@ -51,10 +53,15 @@ function CalendarModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o
       title={t({ es: 'Calendario de Barberlytics', en: 'Barberlytics calendar' })}
       titleLeading={<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#d9b36a] font-mono text-xs font-semibold text-[#16130f]">Bl</span>}
       description={t({ es: 'Datos de prueba · solo el calendario', en: 'Test data · calendar only' })}
+      actions={
+        <button type="button" onClick={() => setReload((n) => n + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[12px] text-white/75 transition-colors hover:border-white/40 hover:text-white">
+          <span aria-hidden="true">↺</span> {t({ es: 'Volver al calendario', en: 'Back to the calendar' })}
+        </button>
+      }
     >
       {open && (
         <div ref={frameRef} className="relative flex w-full flex-1">
-          <iframe src={DEMO_URL} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="w-full flex-1 bg-[#121009]" />
+          <iframe key={reload} src={DEMO_URL} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="w-full flex-1 bg-[#121009]" />
           <Blocker className="inset-x-0 top-0" style={{ height: APP.header }} label={t({ es: 'Solo el calendario en esta demo', en: 'Calendar only in this demo' })} />
           {wide && <Blocker className="bottom-0 left-0" style={{ top: APP.header, width: APP.rail }} />}
         </div>
