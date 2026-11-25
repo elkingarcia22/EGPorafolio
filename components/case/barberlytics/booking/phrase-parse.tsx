@@ -16,9 +16,9 @@ const TOKENS: readonly L[] = [
 /** Un color por cosa entendida, para unir la palabra con su etiqueta */
 const TONE = ['217 179 106', '106 168 255', '111 207 151', '255 126 182']
 /** Ritmo: cada letra, cada palabra que se entiende, la respuesta y la pausa antes de repetir (ms) */
-const TYPE_MS = 45
-const PIECE_MS = 420
-const HOLD_MS = 5200
+const TYPE_MS = 24
+const PIECE_MS = 200
+const HOLD_MS = 4000
 
 /** Las tres fases de la conversación: escribir, entender, responder */
 function useConversation(phraseLength: number, running: boolean, reduced: boolean) {
@@ -31,7 +31,7 @@ function useConversation(phraseLength: number, running: boolean, reduced: boolea
   useEffect(() => {
     if (!running || reduced) return
     let id: number
-    if (!typedAll) id = window.setTimeout(() => setTyped((n) => n + 1), typed === 0 ? 400 : TYPE_MS)
+    if (!typedAll) id = window.setTimeout(() => setTyped((n) => n + 1), typed === 0 ? 150 : TYPE_MS)
     else if (!answered) id = window.setTimeout(() => setPieces((n) => n + 1), PIECE_MS)
     else
       id = window.setTimeout(() => {
@@ -54,8 +54,8 @@ export function PhraseParse() {
   const { t } = useLocale()
   const { ai } = BOOKING_CASE
   const phrase = TOKENS.map((x) => t(x)).join(' ')
-  const { ref, inView, reducedMotion } = useAutoSteps<HTMLDivElement>(1, { intro: 0, step: 0 })
-  const build = useAutoSteps<HTMLOListElement>(ai.build.steps.length, { intro: 200, step: 260 })
+  const { ref, inView, reducedMotion } = useAutoSteps<HTMLDivElement>(1, { intro: 0, step: 0, rootMargin: '0px 0px -10% 0px' })
+  const build = useAutoSteps<HTMLOListElement>(ai.build.steps.length, { intro: 100, step: 150, rootMargin: '0px 0px -10% 0px' })
   const { typed, pieces, typedAll, answered } = useConversation(phrase.length, inView, reducedMotion)
 
   return (
@@ -97,7 +97,7 @@ export function PhraseParse() {
         </div>
 
         {/* Clipper responde */}
-        <div className="mt-5 flex items-end gap-3 transition-[opacity,transform] duration-500" style={{ opacity: answered ? 1 : 0, transform: `translateY(${answered ? 0 : 10}px)` }}>
+        <div className="mt-5 flex items-end gap-3 transition-[opacity,transform] duration-300" style={{ opacity: answered ? 1 : 0, transform: `translateY(${answered ? 0 : 10}px)` }}>
           <span aria-hidden="true" className="mb-1 h-7 w-7 shrink-0 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fff6df,rgb(var(--bk))_60%,rgb(var(--bk)/0.3))] shadow-[0_0_16px_rgb(var(--bk)/0.6)]" />
           <div className="rounded-[22px] rounded-bl-md border border-white/10 bg-[rgb(var(--void))] px-5 py-3">
             <p className="flex flex-wrap gap-x-3 gap-y-1 text-[15px]">
@@ -127,7 +127,8 @@ export function PhraseParse() {
             return (
               <li key={s.title.es} className="relative pb-6 pl-8 last:pb-0" style={{ opacity: on ? 1 : 0.15, transition: 'opacity .5s' }}>
                 <span className={`absolute left-0 top-[0.4em] h-[11px] w-[11px] rounded-full border transition-all duration-500 ${on ? 'border-white bg-[rgb(var(--bk))] shadow-[0_0_12px_rgb(var(--bk)/0.7)]' : 'border-white/40 bg-[rgb(var(--void))]'}`}>
-                  {i === 0 && <span data-fiber-from="bk-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />}
+                  {/* Del último paso, por debajo de todo, sale la fibra hacia «Impacto» */}
+                  {i === ai.build.steps.length - 1 && <span data-fiber-from="bk-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
                 <p className="text-[1.05rem] leading-snug">{t(s.title)}</p>
                 <p className="mt-1 text-sm leading-relaxed text-paper/60">{t(s.body)}</p>

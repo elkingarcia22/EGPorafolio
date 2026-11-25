@@ -34,6 +34,47 @@ export function SketchNotebook() {
     return () => window.clearTimeout(id)
   }, [inView, hold, reducedMotion, page])
 
+  // La vuelta de hoja: se levanta por la esquina, gira sobre el espiral mostrando
+  // su reverso, se oscurece al girar y deja sombra sobre la hoja de abajo.
+  const shown = useRef(page)
+  useEffect(() => {
+    const sheets = Array.from(stackRef.current?.querySelectorAll<HTMLElement>('[data-sheet]') ?? [])
+    if (!sheets.length) return
+    const from = shown.current
+    shown.current = page
+    const rest = (i: number) => (i < page ? { rotateX: -180, rotateZ: 0, autoAlpha: 0, zIndex: N - i } : { rotateX: 0, rotateZ: 0, autoAlpha: 1, zIndex: N - i })
+    if (reducedMotion || from === page) {
+      sheets.forEach((el, i) => gsap.set(el, rest(i)))
+      return
+    }
+    const forward = page > from
+    const moving = forward ? sheets.slice(from, page) : sheets.slice(page, from).reverse()
+    const tl = gsap.timeline({ onComplete: () => sheets.forEach((el, i) => gsap.set(el, rest(i))) })
+    moving.forEach((el, k) => {
+      const i = sheets.indexOf(el)
+      const shade = el.querySelector('[data-shade]')
+      const cast = sheets[i + 1]?.querySelector('[data-cast]')
+      const at = k * 0.18
+      if (forward) {
+        tl.set(el, { autoAlpha: 1, zIndex: 100 + k }, at)
+          .to(el, { rotateX: -16, rotateZ: -0.8, duration: 0.3, ease: 'power2.out' }, at)
+          .to(el, { rotateX: -180, rotateZ: 0, duration: 0.9, ease: 'power2.inOut' }, at + 0.3)
+          .fromTo(shade, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.in' }, at)
+          .set(el, { autoAlpha: 0 }, at + 1.2)
+        if (cast) tl.fromTo(cast, { opacity: 0.55 }, { opacity: 0, duration: 0.9, ease: 'power2.in' }, at + 0.3)
+      } else {
+        tl.set(el, { autoAlpha: 1, zIndex: 100 + k, rotateX: -180 }, at)
+          .to(el, { rotateX: -14, rotateZ: -0.6, duration: 0.9, ease: 'power2.inOut' }, at)
+          .to(el, { rotateX: 0, rotateZ: 0, duration: 0.3, ease: 'power2.out' }, at + 0.9)
+          .fromTo(shade, { opacity: 1 }, { opacity: 0, duration: 0.9, ease: 'power1.out' }, at + 0.3)
+        if (cast) tl.fromTo(cast, { opacity: 0 }, { opacity: 0.55, duration: 0.6 }, at).to(cast, { opacity: 0, duration: 0.4 }, at + 0.8)
+      }
+    })
+    return () => {
+      tl.kill()
+    }
+  }, [page, reducedMotion])
+
   // Al abrir una página: sus notas se pegan y sus flechas se dibujan
   useEffect(() => {
     const sheet = stackRef.current?.querySelectorAll<HTMLElement>('[data-sheet]')[page]
@@ -51,9 +92,9 @@ export function SketchNotebook() {
 
       <div className="mt-10 w-full max-w-[1000px] overflow-x-auto overscroll-x-contain pb-2" onPointerEnter={() => setHold(true)} onPointerLeave={() => setHold(false)}>
         <p className="mono-label mb-3 text-center opacity-50 md:hidden" aria-hidden="true">{t({ es: 'Desliza →', en: 'Swipe →' })}</p>
-        <div data-reveal-off className="relative mx-auto min-w-[820px] pt-5 [perspective:2200px]">
+        <div data-reveal-off className="relative mx-auto min-w-[820px] pt-5 [perspective:1800px] [perspective-origin:50%_-30%]">
           {/* El espiral, por encima de todas las hojas */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-[4%] top-0 z-[60] flex justify-between">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-[4%] top-0 z-[300] flex justify-between">
             {Array.from({ length: RINGS }, (_, i) => (
               <span key={i} className="h-7 w-2.5 rounded-full border-2 border-[#c9c4b6] bg-gradient-to-b from-[#3a3d44] to-[#1b1d21] shadow-[0_2px_3px_rgba(0,0,0,0.5)]" />
             ))}
@@ -65,7 +106,6 @@ export function SketchNotebook() {
 
           <div ref={stackRef} className="relative aspect-[1200/700] [&_figure]:overflow-visible [&_figure>div]:min-w-0 [&_figure>div>p]:hidden [&_figure>p]:hidden">
             {NOTEBOOK_PAGES.map(({ Page, title }, i) => {
-              const turned = i < page
               const on = i === page
               return (
                 <div
@@ -73,15 +113,23 @@ export function SketchNotebook() {
                   data-sheet
                   aria-hidden={!on}
                   inert={!on ? true : undefined}
-                  className="absolute inset-0 origin-top [backface-visibility:hidden]"
-                  style={{
-                    zIndex: N - i,
-                    transform: turned ? 'rotateX(-172deg)' : 'rotateX(0deg)',
-                    opacity: turned ? 0 : 1,
-                    transition: reducedMotion ? 'none' : 'transform 1s cubic-bezier(.6,0,.25,1), opacity .25s linear .75s',
-                  }}
+                  className="absolute inset-0 origin-top [transform-style:preserve-3d]"
+                  style={{ zIndex: N - i }}
                 >
-                  <Page />
+                  {/* El frente: el boceto */}
+                  <div className="absolute inset-0 [backface-visibility:hidden]">
+                    <Page />
+                    {/* La sombra que deja la hoja de arriba al pasar */}
+                    <span data-cast aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-xl bg-[linear-gradient(to_bottom,rgba(0,0,0,0.55),rgba(0,0,0,0.15)_45%,transparent)] opacity-0" />
+                    {/* La hoja se oscurece y brilla en la esquina mientras gira */}
+                    <span data-shade aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-xl bg-[linear-gradient(to_top,rgba(0,0,0,0.35),rgba(0,0,0,0.08)_40%,rgba(255,255,255,0.12)_75%,transparent)] opacity-0" />
+                  </div>
+                  {/* El reverso: papel liso con sus puntos */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-xl [backface-visibility:hidden] [transform:rotateX(180deg)]"
+                    style={{ backgroundColor: '#ece9e0', backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.12), transparent 35%), radial-gradient(rgba(42,45,51,0.12) 1px, transparent 1.2px)', backgroundSize: '100% 100%, 22px 22px' }}
+                  />
                 </div>
               )
             })}

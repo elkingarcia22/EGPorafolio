@@ -122,7 +122,7 @@ export function BookingCase() {
               <SectionFiber id="bk-bocetos" side="right">
                 {/* Desde detrás de las superficies baja hasta «IA en el proceso» */}
                 <SectionFiber id="bk-ia" side="down">
-                  {/* Del primer paso de cómo se construyó a «Impacto», por la izquierda */}
+                  {/* Del último paso de cómo se construyó a «Impacto», por la izquierda */}
                   <SectionFiber id="bk-impacto" side="left">
                     {/* De la última cifra baja hasta «Demo» */}
                     <SectionFiber id="bk-demo" side="down">
