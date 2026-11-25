@@ -281,7 +281,8 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
     >
       <div className="relative z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02] px-[var(--gutter)] py-3 backdrop-blur-xl">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
+          {/* Nodo de la barra: la transición llega aquí y salta por una fibra al nodo de la hoja (y al revés al cerrar) */}
+          <span data-transition-land="1" data-transition-from="2" className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
             <span className="absolute inset-0 rounded-full bg-signal shadow-[0_0_0_5px_rgb(var(--signal)/0.18),0_0_18px_4px_rgb(var(--signal)/0.6)]" />
           </span>
           <h2 id="cv-title" className="brand-title truncate text-[11px] md:text-xs">
@@ -413,7 +414,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
                 </span>
               )}
               {!zoomed && (
-                <span aria-hidden="true" data-transition-land data-transition-source="page" className="pointer-events-none absolute left-1/2 top-0 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_16px_4px_rgb(var(--signal)/0.6)]" />
+                <span aria-hidden="true" data-transition-land="2" data-transition-from="1" className="pointer-events-none absolute left-1/2 top-0 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_16px_4px_rgb(var(--signal)/0.6)]" />
               )}
             {/* eslint-disable-next-line @next/next/no-img-element -- imagen estática ya optimizada */}
             <img

@@ -6,7 +6,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { NeuralFlight } from '@/components/home/neural-flight'
 import { gsap, jumpToHash, scrollToTop } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { landingNode, landingOf, lightNode, sourcePoint, visibleElement } from './transition-nodes'
+import { landingOf, landingPath, lightNode, sourcePath } from './transition-nodes'
+import { travelAlongFiber } from './transition-fiber'
 
 type Navigate = (href: string, label?: string, trigger?: Element | null) => void
 type Cover = (action: () => void, trigger?: Element | null, fallback?: Element | null) => void
@@ -46,6 +47,10 @@ const FADE_OUT_S = 0.7
 const REVEAL_LEAD_S = 0.2
 /** La última neurona viaja hasta el destino de la página nueva (s) y se vuelve su anillo */
 const SEED_S = 0.95
+/** Cada salto entre dos puntos de una misma vista (p. ej. de la barra a la hoja de vida) (s) */
+const HOP_S = 0.6
+/** Tamaño de la neurona mientras salta entre puntos, antes de volverse el anillo final (px) */
+const HOP_DOT_PX = 18
 /** Espera breve tras el 100 %: la red guarda dónde quedó la última neurona */
 const SEED_MEASURE_S = 0.06
 /** Aviso a la página nueva: la carga se está yendo y ya puede armarse (ver `onPageReveal`) */
@@ -86,6 +91,8 @@ export function TransitionOverlay() {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const seedRef = useRef<HTMLDivElement>(null)
+  /** Capa de las fibras de luz que dibuja la neurona al viajar */
+  const fiberRef = useRef<SVGSVGElement>(null)
   /** Dónde se ve la última neurona de la carga (px), para que viaje al destino */
   const anchorRef = useRef<{ x: number; y: number } | null>(null)
   const isCovering = useRef(false)
@@ -111,10 +118,19 @@ export function TransitionOverlay() {
     loadProgress.current = counter.current.v / 100
   }
 
+  /** Cómo cancelar la salida de una transición sin cambio de página que aún no termina */
+  const inlineUncover = useRef<(() => void) | null>(null)
+
   /** La red se abre desde el nodo de salida hasta cubrir la pantalla; luego corre `onCovered`. */
   const startCover = useCallback((trigger: Element | null | undefined, onCovered: () => void) => {
     const root = rootRef.current
     if (!root) return
+    // Si la salida anterior (p. ej. al abrir la hoja de vida) aún corre, se corta: si no, al terminar
+    // apagaría esta transición.
+    inlineUncover.current?.()
+    inlineUncover.current = null
+    fiberRef.current?.replaceChildren()
+    gsap.set(root, { opacity: 1 })
     counter.current.v = 0
     anchorRef.current = null
     syncCounter()
@@ -123,7 +139,9 @@ export function TransitionOverlay() {
     setCovered(true)
     isCovering.current = true
     document.documentElement.dataset.transitioning = 'true'
-    const from = sourcePoint(trigger)
+    // Puntos de salida: la neurona los recorre (p. ej. de la hoja a la barra) y la red se abre desde el último.
+    const path = sourcePath(trigger)
+    const from = path[path.length - 1]
     const lens = { r: 0 }
     const reach = Math.hypot(Math.max(from.x, window.innerWidth - from.x), Math.max(from.y, window.innerHeight - from.y))
     const openLens = () => { root.style.clipPath = `circle(${lens.r}px at ${from.x}px ${from.y}px)` }
@@ -139,17 +157,29 @@ export function TransitionOverlay() {
         onCovered()
       },
     })
+    let at = 0
+    const fibers = fiberRef.current
+    if (seed && fibers && path.length > 1) {
+      gsap.set(seed, { x: path[0].x, y: path[0].y, width: FLARE_PX, height: FLARE_PX, xPercent: -50, yPercent: -50, scale: HOP_DOT_PX / FLARE_PX, autoAlpha: 1 })
+      gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
+      for (let i = 1; i < path.length; i++) {
+        tl.add(travelAlongFiber(fibers, seed, path[i - 1], path[i], HOP_S), at)
+        at += HOP_S
+      }
+    }
     // El nodo se enciende y dispara la red, que se abre desde él hasta cubrir la pantalla.
     // (No se escala la página: es muy alta y acercarla trababa cada cuadro.)
     if (seed) {
       // Desde un anillo (la O) sale con su tamaño y destella; desde un nodo de sección, crece desde el punto.
       const ring = from.size ?? FLARE_PX
-      gsap.set(seed, { x: from.x, y: from.y, width: ring, height: ring, xPercent: -50, yPercent: -50, scale: from.size ? 1 : 0.3, autoAlpha: 1 })
+      const flare = { x: from.x, y: from.y, width: ring, height: ring, xPercent: -50, yPercent: -50, scale: from.size ? 1 : 0.3, autoAlpha: 1 }
+      if (at) tl.set(seed, flare, at)
+      else gsap.set(seed, flare)
       gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
-      tl.to(seed, { scale: from.size ? 1.25 : 1.6, duration: ZOOM_S * 0.45, ease: 'power2.out' }, 0)
-        .to(seed, { scale: from.size ? 3 : 5, autoAlpha: 0, duration: ZOOM_S * 0.55, ease: 'power2.in' }, ZOOM_S * 0.45)
+      tl.to(seed, { scale: from.size ? 1.25 : 1.6, duration: ZOOM_S * 0.45, ease: 'power2.out' }, at)
+        .to(seed, { scale: from.size ? 3 : 5, autoAlpha: 0, duration: ZOOM_S * 0.55, ease: 'power2.in' }, at + ZOOM_S * 0.45)
     }
-    tl.to(lens, { r: reach, duration: ZOOM_S * 0.75, ease: 'expo.in', onUpdate: openLens }, ZOOM_S * 0.25)
+    tl.to(lens, { r: reach, duration: ZOOM_S * 0.75, ease: 'expo.in', onUpdate: openLens }, at + ZOOM_S * 0.25)
   }, [])
 
   /**
@@ -184,10 +214,13 @@ export function TransitionOverlay() {
       .to({}, { duration: SEED_MEASURE_S })
     tl.call(() => {
       const seed = seedRef.current
-      const target = landingNode() ?? visibleElement(fallback)
+      const fibers = fiberRef.current
+      const hops = landingPath(fallback)
+      const target = hops[hops.length - 1]
       const from = anchorRef.current
-      const landing = target ? landingOf(target) : null
-      if (!seed || !target || !from || !landing) {
+      const points = hops.map(landingOf)
+      const landing = points[points.length - 1]
+      if (!seed || !fibers || !target || !from || !landing || points.some((p) => !p)) {
         // Sin destino: la cámara salta hacia adelante y todo se disuelve (sin cortinilla).
         exit = gsap.timeline()
           .add(warp())
@@ -196,18 +229,29 @@ export function TransitionOverlay() {
           .call(finish)
         return
       }
-      // Con destino: la última neurona queda encendida y viaja hasta él mientras la red se va;
-      // al llegar crece hasta el tamaño del anillo y la página se arma desde ahí.
+      // Con destino: la última neurona queda encendida y viaja por una fibra de luz hasta él (y de
+      // punto en punto, si la vista tiene varios) mientras la red se va; al llegar crece hasta el
+      // tamaño del anillo y la página se arma desde ahí.
       const size = landing.size
       gsap.set(seed, { x: from.x, y: from.y, width: size, height: size, xPercent: -50, yPercent: -50, scale: 14 / size, autoAlpha: 1 })
       gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
       exit = gsap.timeline()
         .add(warp(), 0)
         .to(root, { autoAlpha: 0, duration: FADE_OUT_S, ease: 'power2.out' }, 0.15)
-        .to(seed, { x: landing.x, y: landing.y, scale: 1, duration: SEED_S, ease: 'expo.inOut' }, 0)
-        .to(seed.querySelector('[data-seed-core]'), { autoAlpha: 0, duration: SEED_S * 0.6, ease: 'power1.in' }, SEED_S * 0.4)
-        .call(() => { lightNode(target); reveal(true) }, undefined, SEED_S - 0.05)
-        .to(seed, { autoAlpha: 0, duration: 0.25 }, SEED_S + 0.1)
+      let at = 0
+      let prev: { x: number; y: number } = from
+      points.forEach((point, i) => {
+        if (!point) return
+        const last = i === points.length - 1
+        const duration = i === 0 ? SEED_S : HOP_S
+        exit?.add(travelAlongFiber(fibers, seed, prev, point, duration, { scale: last ? 1 : HOP_DOT_PX / size }), at)
+        at += duration
+        prev = point
+      })
+      exit
+        .to(seed.querySelector('[data-seed-core]'), { autoAlpha: 0, duration: SEED_S * 0.6, ease: 'power1.in' }, at - SEED_S * 0.6)
+        .call(() => { lightNode(target); reveal(true) }, undefined, at - 0.05)
+        .to(seed, { autoAlpha: 0, duration: 0.25 }, at + 0.1)
         .call(finish)
     })
     return () => {
@@ -234,7 +278,6 @@ export function TransitionOverlay() {
   )
 
   /** Sin cambiar de página: tras cubrir, `action` cambia lo de debajo y la cortina se retira. */
-  const inlineUncover = useRef<(() => void) | null>(null)
   const cover = useCallback<Cover>(
     (action, trigger, fallback) => {
       if (reducedMotion || !rootRef.current || isCovering.current) {
@@ -293,6 +336,13 @@ export function TransitionOverlay() {
         {showNet && <NeuralFlight key={netKey} progress={loadProgress} anchor={anchorRef} className="absolute inset-0 h-full w-full" />}
       </div>
     </div>
+    {/* Las fibras de luz que deja la neurona al viajar de un nodo a otro */}
+    <svg
+      ref={fiberRef}
+      data-palette-scope
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-[96] h-full w-full [&_path]:fill-none [&_path]:[stroke-linecap:round] [&_path]:[stroke-width:1.5] [&_path]:[stroke:rgb(var(--ice))] [&_path]:[filter:drop-shadow(0_0_4px_rgb(var(--signal)))_drop-shadow(0_0_12px_rgb(var(--signal)/0.6))]"
+    />
     {/* La última neurona de la carga: viaja al destino de la página nueva y se vuelve su anillo */}
     <div
       ref={seedRef}

@@ -9,7 +9,10 @@
  *   órbita); si hay varios en la sección, sale del que está al frente (`aria-current`)
  * - `data-transition-source="page"`: nodo de salida de lo que está a la vista (p. ej. la hoja de vida)
  * - `data-transition-target`: nodo de llegada de una página (también sirve de salida al dejarla)
- * - `data-transition-land`: punto de llegada sin anillo propio (p. ej. el nodo de la hoja de vida)
+ * - `data-transition-land="<orden>"`: puntos de llegada sin anillo propio; si hay varios, la neurona
+ *   salta de uno a otro en ese orden (p. ej. la barra de la hoja de vida y luego la hoja)
+ * - `data-transition-from="<orden>"`: puntos de salida en orden; la neurona los recorre y la red
+ *   se abre desde el último (al cerrar la hoja de vida: la hoja y luego la barra)
  */
 
 export interface Point {
@@ -138,4 +141,27 @@ function textCenter(el: Element | null): Point | null {
 export function lightNode(node: HTMLElement): void {
   const label = node.closest<HTMLElement>('[data-lit]')
   if (label) label.dataset.lit = 'true'
+}
+
+/** Elementos marcados con `attr` a la vista, en el orden que dice su valor. */
+function orderedVisible(attr: string): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>(`[${attr}]`))
+    .filter((el) => visibleCenter(el))
+    .sort((a, b) => Number(a.getAttribute(attr) || 0) - Number(b.getAttribute(attr) || 0))
+}
+
+/** Los puntos de salida: los de `data-transition-from` en orden o, si no hay, el nodo de salida. */
+export function sourcePath(trigger?: Element | null): Source[] {
+  const hops = orderedVisible('data-transition-from')
+    .map((el) => visibleCenter(el))
+    .filter((c): c is Point => c !== null)
+  return hops.length ? hops : [sourcePoint(trigger)]
+}
+
+/** Los nodos de llegada: los de `data-transition-land` en orden o, si no hay, el nodo de llegada. */
+export function landingPath(fallback?: Element | null): HTMLElement[] {
+  const hops = orderedVisible('data-transition-land')
+  if (hops.length) return hops
+  const node = landingNode() ?? visibleElement(fallback)
+  return node ? [node] : []
 }
