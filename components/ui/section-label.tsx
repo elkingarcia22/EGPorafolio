@@ -125,8 +125,16 @@ export function SectionLabel({ index, children, className = '', nodeRef, thread:
             <span className="absolute bottom-0 left-1/2 h-20 w-[4px] -translate-x-1/2 rounded-full bg-gradient-to-b from-transparent via-white/70 to-white shadow-[0_0_14px_3px_rgb(var(--signal))]" />
           </span>
         </span>}
-        {/* Nodo: redondo como los de la red; se enciende cuando la señal llega */}
-        <span className="absolute inset-0 scale-75 rounded-full bg-fg/50 transition-[transform,background-color,box-shadow] duration-500 ease-expo group-data-[lit=true]/label:scale-100 group-data-[lit=true]/label:bg-signal group-data-[lit=true]/label:shadow-[0_0_0_6px_rgb(var(--signal)/0.2),0_0_26px_4px_rgb(var(--signal)/0.7)]" />
+        {/* Primer plano: cuando la señal llega, una retícula enfoca el nodo (se cierra desde lejos y tiende su cruz) */}
+        <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" aria-hidden="true">
+          <span className="absolute left-1/2 top-1/2 h-[64px] w-[64px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgb(var(--signal)/0.22),transparent_70%)] opacity-0 transition-opacity duration-1000 group-data-[lit=true]/label:opacity-100" />
+          <span className="absolute left-1/2 top-1/2 h-[46px] w-[46px] -translate-x-1/2 -translate-y-1/2 scale-[2.6] rounded-full border border-signal/55 opacity-0 transition-[transform,opacity] duration-[1100ms] ease-expo group-data-[lit=true]/label:scale-100 group-data-[lit=true]/label:opacity-100" />
+          <span className="absolute right-[6px] top-0 h-px w-[78px] origin-right scale-x-0 bg-gradient-to-l from-signal/60 to-transparent transition-transform delay-300 duration-700 ease-expo group-data-[lit=true]/label:scale-x-100" />
+          <span className="absolute left-[6px] top-0 h-px w-[12px] origin-left scale-x-0 bg-gradient-to-r from-signal/60 to-transparent transition-transform delay-300 duration-700 ease-expo group-data-[lit=true]/label:scale-x-100" />
+          <span className="absolute left-0 top-[6px] h-[40px] w-px origin-top scale-y-0 bg-gradient-to-b from-signal/60 to-transparent transition-transform delay-300 duration-700 ease-expo group-data-[lit=true]/label:scale-y-100" />
+        </span>
+        {/* Nodo: redondo como los de la red; se enciende cuando la señal llega (núcleo claro con halo de la señal) */}
+        <span className="absolute inset-0 scale-75 rounded-full bg-fg/50 transition-[transform,background-color,box-shadow] duration-500 ease-expo group-data-[lit=true]/label:scale-100 group-data-[lit=true]/label:bg-[#fffaf0] group-data-[lit=true]/label:shadow-[0_0_0_3px_rgb(var(--signal)/0.35),0_0_22px_5px_rgb(var(--signal)/0.75)]" />
       </span>
       <span ref={indexRef} className="mono-label inline-block tabular-nums opacity-50">{index}</span>
       <span className="hairline h-px w-10 origin-left scale-x-0 transition-transform duration-700 ease-expo group-data-[lit=true]/label:scale-x-100" aria-hidden="true" />
