@@ -13,7 +13,9 @@ const DEMO_URL = `${PLATFORM_CASE.demo.base}?rol=recepcion&ir=${encodeURICompone
  * comentarios, entrada, avisos, cuenta) y, desde 1024 px de ancho, el riel de
  * navegación de la izquierda. Medidas de la app (px).
  */
-const APP = { header: 56, rail: 64, railFrom: 1024 }
+const APP = { header: 56, rail: 64, railFrom: 1024, menu: 240 }
+/** La app abre su menú al cargar y lo recoge sola a los 2,2 s: mientras tanto se tapa entero */
+const MENU_SETTLE_MS = 3200
 
 /** Tapa lo que no es el calendario: se ve, pero no se puede tocar. */
 function Blocker({ className, style, label }: { className: string; style?: React.CSSProperties; label?: string }) {
@@ -36,6 +38,19 @@ function CalendarModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o
   const [wide, setWide] = useState(true)
   // Si algo dentro de la app lleva fuera del calendario, esto lo trae de vuelta
   const [reload, setReload] = useState(0)
+  const [settling, setSettling] = useState(true)
+  const settleTimer = useRef<number | null>(null)
+  const onFrameLoad = () => {
+    if (settleTimer.current) window.clearTimeout(settleTimer.current)
+    settleTimer.current = window.setTimeout(() => setSettling(false), MENU_SETTLE_MS)
+  }
+  // Cada vez que se abre, el menú de la app vuelve a salir abierto un momento
+  useEffect(() => {
+    if (open) setSettling(true)
+  }, [open])
+  useEffect(() => () => {
+    if (settleTimer.current) window.clearTimeout(settleTimer.current)
+  }, [])
 
   useEffect(() => {
     const el = frameRef.current
@@ -54,16 +69,19 @@ function CalendarModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o
       titleLeading={<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#d9b36a] font-mono text-xs font-semibold text-[#16130f]">Bl</span>}
       description={t({ es: 'Datos de prueba · solo el calendario', en: 'Test data · calendar only' })}
       actions={
-        <button type="button" onClick={() => setReload((n) => n + 1)} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[12px] text-white/75 transition-colors hover:border-white/40 hover:text-white">
+        <button type="button" onClick={() => {
+            setSettling(true)
+            setReload((n) => n + 1)
+          }} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[12px] text-white/75 transition-colors hover:border-white/40 hover:text-white">
           <span aria-hidden="true">↺</span> {t({ es: 'Volver al calendario', en: 'Back to the calendar' })}
         </button>
       }
     >
       {open && (
         <div ref={frameRef} className="relative flex w-full flex-1">
-          <iframe key={reload} src={DEMO_URL} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="w-full flex-1 bg-[#121009]" />
+          <iframe key={reload} src={DEMO_URL} onLoad={onFrameLoad} title={t({ es: 'Calendario de Barberlytics, en vivo', en: 'Barberlytics calendar, live' })} className="w-full flex-1 bg-[#121009]" />
           <Blocker className="inset-x-0 top-0" style={{ height: APP.header }} label={t({ es: 'Solo el calendario en esta demo', en: 'Calendar only in this demo' })} />
-          {wide && <Blocker className="bottom-0 left-0" style={{ top: APP.header, width: APP.rail }} />}
+          {wide && <Blocker className="bottom-0 left-0 transition-[width] duration-300" style={{ top: APP.header, width: settling ? APP.menu : APP.rail }} />}
         </div>
       )}
     </RecordModal>
