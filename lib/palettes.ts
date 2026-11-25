@@ -31,7 +31,9 @@ export function projectTone(slug: string): string {
 }
 
 export const PALETTES: readonly Palette[] = [
-  { id: 'original', name: 'Azul · Magenta', signal: '64 96 255', spark: '255 84 170', ice: '150 190 255', cyan: '110 220 255' },
+  // La de SellUp: el azul eléctrico con el magenta/violeta del comienzo
+  { id: 'original', name: 'Azul · Magenta', signal: '64 96 255', spark: '255 84 170', ice: '150 190 255', cyan: '110 220 255',
+    projects: { objetivos: '64 96 255', barberlytics: '232 140 48', sellup: '91 126 255', encuestas: '12 91 239' } },
   // Colores de IA de Clipper (tema Premium dorado de Barberlytics): cobre y petróleo
   { id: 'clipper', name: 'Clipper · Dorado', signal: '222 140 58', ui: '217 179 106', spark: '46 156 176', ice: '240 206 134', cyan: '127 211 227',
     projects: { objetivos: '217 179 106', barberlytics: '222 140 58', sellup: '63 114 216', encuestas: '46 156 176' } },
@@ -47,47 +49,109 @@ export const PALETTES: readonly Palette[] = [
     projects: { objetivos: '78 196 204', barberlytics: '176 212 120', sellup: '96 156 232', encuestas: '60 170 150' } },
 ] as const
 
-export const DEFAULT_PALETTE_ID = 'clipper'
-const STORAGE_KEY = 'eg-palette'
+/** Paleta del inicio y de las páginas que no son de un proyecto. */
+export const HOME_PALETTE_ID = 'clipper'
+
+/** Cada proyecto tiene su propia paleta; al entrar a él, la página cambia de color. */
+export const PROJECT_PALETTE: Readonly<Record<ProjectSlug, string>> = {
+  sellup: 'original',
+  barberlytics: 'clipper',
+  objetivos: 'lima',
+  encuestas: 'azul-amarillo',
+}
+
 export const PALETTE_EVENT = 'eg:palettechange'
 
 export function findPalette(id: string | null | undefined): Palette {
   return PALETTES.find((p) => p.id === id) ?? PALETTES[0]
 }
 
-export function readStoredPaletteId(): string {
-  try {
-    return localStorage.getItem(STORAGE_KEY) ?? DEFAULT_PALETTE_ID
-  } catch {
-    return DEFAULT_PALETTE_ID
+/** La paleta que corresponde a una ruta: /proyectos/<slug>/… usa la del proyecto. */
+export function paletteForPath(pathname: string): Palette {
+  const slug = /^\/proyectos\/([^/?#]+)/.exec(pathname)?.[1] as ProjectSlug | undefined
+  return findPalette((slug && PROJECT_PALETTE[slug]) || HOME_PALETTE_ID)
+}
+
+type Rgb = readonly [number, number, number]
+
+/** Tokens ya resueltos, en números, para poder mezclar dos paletas. */
+export interface PaletteTokens {
+  signal: Rgb
+  glow: Rgb
+  spark: Rgb
+  ice: Rgb
+  cyan: Rgb
+  projects: Readonly<Record<ProjectSlug, Rgb>>
+}
+
+function parse(channels: string): Rgb {
+  const [r, g, b] = channels.trim().split(/\s+/).map(Number)
+  return [r, g, b]
+}
+
+export function tokensOf(palette: Palette): PaletteTokens {
+  const projects = Object.fromEntries(
+    PROJECT_SLUGS.map((slug) => [slug, parse(palette.projects?.[slug] ?? palette.ui ?? palette.signal)]),
+  ) as Record<ProjectSlug, Rgb>
+  return {
+    signal: parse(palette.ui ?? palette.signal),
+    glow: parse(palette.signal),
+    spark: parse(palette.spark),
+    ice: parse(palette.ice),
+    cyan: parse(palette.cyan),
+    projects,
   }
 }
 
-/** Pone los tokens en <html>, la guarda y avisa a los canvas. */
-export function applyPalette(id: string): Palette {
-  const palette = findPalette(id)
-  const root = document.documentElement
-  root.dataset.palette = palette.id
-  root.style.setProperty('--signal', palette.ui ?? palette.signal)
-  root.style.setProperty('--glow', palette.signal)
-  root.style.setProperty('--spark', palette.spark)
-  root.style.setProperty('--ice', palette.ice)
-  root.style.setProperty('--cyan', palette.cyan)
-  for (const slug of PROJECT_SLUGS) {
-    const tone = palette.projects?.[slug]
-    if (tone) root.style.setProperty(`--project-${slug}`, tone)
-    else root.style.removeProperty(`--project-${slug}`)
-  }
-  try {
-    localStorage.setItem(STORAGE_KEY, palette.id)
-  } catch {
-    /* sin almacenamiento: la paleta dura solo esta visita */
-  }
-  window.dispatchEvent(new CustomEvent<Palette>(PALETTE_EVENT, { detail: palette }))
-  return palette
+function mix(a: Rgb, b: Rgb, t: number): Rgb {
+  return [0, 1, 2].map((i) => Math.round(a[i] + (b[i] - a[i]) * t)) as unknown as Rgb
 }
 
-/** "64 96 255" → "64,96,255" (formato que usan los canvas) */
-export function toCanvasRgb(channels: string): string {
-  return channels.trim().split(/\s+/).join(',')
+/** Mezcla dos paletas (t = 0 → a, t = 1 → b). */
+export function blendTokens(a: PaletteTokens, b: PaletteTokens, t: number): PaletteTokens {
+  const projects = Object.fromEntries(PROJECT_SLUGS.map((slug) => [slug, mix(a.projects[slug], b.projects[slug], t)])) as Record<ProjectSlug, Rgb>
+  return {
+    signal: mix(a.signal, b.signal, t),
+    glow: mix(a.glow, b.glow, t),
+    spark: mix(a.spark, b.spark, t),
+    ice: mix(a.ice, b.ice, t),
+    cyan: mix(a.cyan, b.cyan, t),
+    projects,
+  }
+}
+
+function luminance([r, g, b]: Rgb): number {
+  const lin = (v: number) => {
+    const c = v / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+}
+
+/** Texto sobre un relleno de señal: oscuro si el color es claro, blanco si es oscuro. */
+function onSignal(signal: Rgb): string {
+  const l = luminance(signal)
+  const withDark = (l + 0.05) / (luminance([10, 11, 13]) + 0.05)
+  const withWhite = 1.05 / (l + 0.05)
+  return withDark >= withWhite ? '10 11 13' : '255 255 255'
+}
+
+const css = (c: Rgb) => c.join(' ')
+
+/** Pone los tokens en <html> y avisa a los canvas. */
+export function applyTokens(tokens: PaletteTokens): void {
+  const root = document.documentElement.style
+  root.setProperty('--signal', css(tokens.signal))
+  root.setProperty('--on-signal', onSignal(tokens.signal))
+  root.setProperty('--glow', css(tokens.glow))
+  root.setProperty('--spark', css(tokens.spark))
+  root.setProperty('--ice', css(tokens.ice))
+  root.setProperty('--cyan', css(tokens.cyan))
+  for (const slug of PROJECT_SLUGS) root.setProperty(`--project-${slug}`, css(tokens.projects[slug]))
+  window.dispatchEvent(new CustomEvent<PaletteTokens>(PALETTE_EVENT, { detail: tokens }))
+}
+
+/** [64, 96, 255] → "64,96,255" (formato que usan los canvas) */
+export function toCanvasRgb(c: Rgb): string {
+  return c.join(',')
 }

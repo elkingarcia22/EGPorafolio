@@ -6,6 +6,7 @@ import { A11yProvider } from '@/lib/a11y'
 import { SmoothScroll } from '@/components/providers/smooth-scroll'
 import { SiteHeader } from '@/components/ui/site-header'
 import { Cursor } from '@/components/ui/cursor'
+import { PaletteRoute } from '@/components/ui/palette-route'
 import { TransitionOverlay } from '@/components/transition/page-transition'
 
 // Jost: geométrica tipo Futura, como la hoja de vida.
@@ -62,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="main">{children}</main>
             <TransitionOverlay />
             <Cursor />
+            <PaletteRoute />
             <div className="grain" aria-hidden="true" />
           </A11yProvider>
         </LocaleProvider>

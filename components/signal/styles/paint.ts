@@ -1,6 +1,6 @@
 import type { Frame, FrameLink } from './types'
 
-import { toCanvasRgb, type Palette } from '@/lib/palettes'
+import { toCanvasRgb, type PaletteTokens } from '@/lib/palettes'
 
 /*
  * Tonos de la señal para los canvas. Son `let` exportados: los imports son
@@ -15,14 +15,16 @@ export let CYAN = '127,211,227'
 /** Chispa: solo para neuronas que "disparan", muy poco */
 export let SPARK = '46,156,176'
 
-export function setCanvasPalette(palette: Palette): void {
-  BLUE = toCanvasRgb(palette.signal)
-  ICE = toCanvasRgb(palette.ice)
-  CYAN = toCanvasRgb(palette.cyan)
-  SPARK = toCanvasRgb(palette.spark)
+export function setCanvasPalette(tokens: PaletteTokens): void {
+  BLUE = toCanvasRgb(tokens.glow)
+  ICE = toCanvasRgb(tokens.ice)
+  CYAN = toCanvasRgb(tokens.cyan)
+  SPARK = toCanvasRgb(tokens.spark)
 }
 
 const spriteCache = new Map<string, HTMLCanvasElement>()
+/** Tope de halos en caché: el cambio de paleta crea muchos tonos intermedios. */
+const MAX_SPRITES = 96
 
 /**
  * Halo radial pre-dibujado (se cachea): pintar halos con drawImage es mucho
@@ -46,6 +48,10 @@ export function glowSprite(rgb: string, soft = 0.55): HTMLCanvasElement {
     grad.addColorStop(1, `rgba(${rgb},0)`)
     g.fillStyle = grad
     g.fillRect(0, 0, size, size)
+  }
+  if (spriteCache.size >= MAX_SPRITES) {
+    const oldest = spriteCache.keys().next().value
+    if (oldest !== undefined) spriteCache.delete(oldest)
   }
   spriteCache.set(key, c)
   return c
