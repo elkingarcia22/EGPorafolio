@@ -43,12 +43,64 @@
   .pl-hub-sub { display: none; }
 }
 
+/* Bocetos: la hoja arrugada y la que se despliega al centro */
+.pl-crumple {
+  border-radius: 6px;
+  clip-path: polygon(6% 8%, 24% 0%, 47% 7%, 70% 1%, 94% 9%, 100% 34%, 93% 55%, 100% 78%, 90% 100%, 66% 92%, 43% 100%, 20% 93%, 2% 100%, 7% 74%, 0% 50%, 5% 27%);
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.5)) brightness(0.92) contrast(1.05);
+}
+.pl-creases {
+  background:
+    linear-gradient(118deg, transparent 31%, rgba(0, 0, 0, 0.16) 32%, rgba(255, 255, 255, 0.22) 33.5%, transparent 35%),
+    linear-gradient(62deg, transparent 54%, rgba(0, 0, 0, 0.14) 55%, rgba(255, 255, 255, 0.18) 56.5%, transparent 58%),
+    linear-gradient(160deg, transparent 66%, rgba(0, 0, 0, 0.12) 67%, rgba(255, 255, 255, 0.16) 68.5%, transparent 70%),
+    linear-gradient(25deg, transparent 18%, rgba(0, 0, 0, 0.12) 19%, transparent 21%),
+    radial-gradient(120% 90% at 30% 20%, rgba(255, 255, 255, 0.18), transparent 55%),
+    radial-gradient(90% 80% at 80% 90%, rgba(0, 0, 0, 0.22), transparent 60%);
+  mix-blend-mode: multiply;
+  border-radius: inherit;
+}
+@keyframes pl-unfold {
+  0% {
+    opacity: 0;
+    transform: translateY(-220px) scale(0.16) rotate(-10deg) rotateX(40deg);
+    clip-path: polygon(6% 8%, 24% 0%, 47% 7%, 70% 1%, 94% 9%, 100% 34%, 93% 55%, 100% 78%, 90% 100%, 66% 92%, 43% 100%, 20% 93%, 2% 100%, 7% 74%, 0% 50%, 5% 27%);
+  }
+  25% { opacity: 1; }
+  55% {
+    transform: translateY(-20px) scale(0.7) rotate(2deg) rotateX(18deg);
+    clip-path: polygon(3% 4%, 25% 1%, 48% 3%, 72% 0%, 97% 4%, 100% 33%, 97% 52%, 100% 77%, 96% 100%, 70% 97%, 45% 100%, 22% 97%, 1% 100%, 3% 74%, 0% 50%, 2% 26%);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    clip-path: polygon(0% 0%, 25% 0%, 50% 0%, 75% 0%, 100% 0%, 100% 33%, 100% 50%, 100% 75%, 100% 100%, 75% 100%, 50% 100%, 25% 100%, 0% 100%, 0% 75%, 0% 50%, 0% 25%);
+  }
+}
+.pl-unfold { transform-origin: 50% 0%; animation: pl-unfold 1100ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes pl-creases-out { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
+.pl-creases-out { animation: pl-creases-out 1600ms ease-out both; }
+
+/* IA: el borde de la propuesta se dibuja y luego queda punteado */
+@keyframes pl-trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.pl-trace { stroke-dasharray: 1; animation: pl-trace 700ms cubic-bezier(0.65, 0, 0.35, 1) both, pl-gone 400ms 650ms both; }
+@keyframes pl-gone { to { opacity: 0; } }
+@keyframes pl-appear { from { opacity: 0; } to { opacity: 1; } }
+.pl-appear { animation: pl-appear 500ms ease-out both; }
+
 @media (prefers-reduced-motion: reduce) {
-  .pl-fade, .pl-pop, .pl-signal, .pl-hot, .pl-drop, .pl-race { animation: none; }
+  .pl-fade, .pl-pop, .pl-signal, .pl-hot, .pl-drop, .pl-race, .pl-unfold, .pl-creases-out, .pl-trace, .pl-appear { animation: none; }
+  .pl-creases-out, .pl-trace { opacity: 0; }
 }
 html[data-motion='reduced'] .pl-fade,
 html[data-motion='reduced'] .pl-pop,
 html[data-motion='reduced'] .pl-signal,
 html[data-motion='reduced'] .pl-hot,
 html[data-motion='reduced'] .pl-drop,
-html[data-motion='reduced'] .pl-race { animation: none; }
+html[data-motion='reduced'] .pl-race,
+html[data-motion='reduced'] .pl-unfold,
+html[data-motion='reduced'] .pl-creases-out,
+html[data-motion='reduced'] .pl-trace,
+html[data-motion='reduced'] .pl-appear { animation: none; }
+html[data-motion='reduced'] .pl-creases-out,
+html[data-motion='reduced'] .pl-trace { opacity: 0; }

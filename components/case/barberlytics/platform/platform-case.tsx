@@ -19,8 +19,7 @@ import { PlatformHero } from './platform-hero'
 import { GridHub } from './grid-hub'
 import { SectorMatrix } from './sector-matrix'
 import { NeedsTree } from './needs-tree'
-import { CardAnatomyBoard } from './sketch-boards'
-import { ViewsBoard } from './sketch-views'
+import { SketchUnfold } from './sketch-unfold'
 import { CardStudio } from './card-studio'
 import { RealScreens } from './real-screens'
 import { GhostProposals } from './ghost-proposals'
@@ -83,17 +82,6 @@ function Idea() {
   )
 }
 
-/** Un boceto, con su rótulo arriba */
-function Sketch({ label, children }: { label: L; children: React.ReactNode }) {
-  const { t } = useLocale()
-  return (
-    <figure data-reveal="device">
-      <figcaption className="mono-label mb-4 text-center opacity-50">{t(label)}</figcaption>
-      {children}
-    </figure>
-  )
-}
-
 /** Un tramo de «Forma»: un rótulo corto que separa bocetos, tarjeta y pantallas */
 function Step({ n, label }: { n: string; label: L }) {
   const { t } = useLocale()
@@ -113,10 +101,7 @@ function Forma() {
         lead={{ es: 'Bocetos de la tarjeta y de las formas de ver el día; luego la tarjeta viva, con todo lo que se puede ajustar.', en: 'Sketches of the card and the ways to see the day; then the live card, with everything that can be adjusted.' }}
       />
       <Step n="a" label={{ es: 'Los bocetos', en: 'The sketches' }} />
-      <div className="space-y-14">
-        <Sketch label={{ es: 'La tarjeta dinámica', en: 'The dynamic card' }}><CardAnatomyBoard /></Sketch>
-        <Sketch label={{ es: 'Las rejillas: siete formas de ver el día', en: 'The grids: seven ways to see the day' }}><ViewsBoard /></Sketch>
-      </div>
+      <SketchUnfold />
       <Step n="b" label={{ es: 'La tarjeta, a gusto de cada quien', en: 'The card, each person’s way' }} />
       <CardStudio />
       <Step n="c" label={{ es: 'Así quedó en la plataforma', en: 'How it shipped in the platform' }} />
@@ -182,7 +167,7 @@ export function PlatformCase() {
       puntos: t(c.problem),
       patrones: t(c.research),
       idea: t(c.idea),
-      forma: t(c.form),
+      forma: t({ es: 'Bocetos y forma', en: 'Sketches and form' }),
       ia: t(c.ai),
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
