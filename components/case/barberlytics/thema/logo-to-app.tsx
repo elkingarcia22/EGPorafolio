@@ -149,9 +149,9 @@ export function LogoToApp() {
   const palette = [primary, shop.secondary, shade(primary, -0.45), shade(primary, 0.7)]
 
   return (
-    <div data-reveal="device" className="relative overflow-hidden rounded-3xl bg-[#0f0d0b] p-5 text-white md:p-10">
-      <span className="pointer-events-none absolute -left-24 top-1/2 h-[520px] w-[520px] -translate-y-1/2 rounded-full opacity-40 blur-3xl transition-[background] duration-1000" style={{ background: primary }} aria-hidden="true" />
-      <span className="pointer-events-none absolute -right-20 bottom-0 h-[380px] w-[380px] rounded-full opacity-25 blur-3xl transition-[background] duration-1000" style={{ background: aiEndFrom(primary) }} aria-hidden="true" />
+    <div className="relative text-white">
+      <span className="pointer-events-none absolute -left-24 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full opacity-20 blur-3xl transition-[background] duration-1000" style={{ background: primary }} aria-hidden="true" />
+      <span className="pointer-events-none absolute -right-20 bottom-0 h-[320px] w-[320px] rounded-full opacity-15 blur-3xl transition-[background] duration-1000" style={{ background: aiEndFrom(primary) }} aria-hidden="true" />
 
       <div className="relative grid items-center gap-10 md:grid-cols-[1fr_auto_minmax(0,300px)]">
         {/* El logo y sus colores */}
@@ -189,7 +189,7 @@ export function LogoToApp() {
         </div>
       </div>
 
-      <div className="relative mt-10 flex flex-wrap items-center gap-2 border-t border-white/10 pt-6">
+      <div className="relative mt-10 flex flex-wrap items-center justify-center gap-2">
         {SHOPS.map((s, i) => (
           <button
             key={s.id}
@@ -206,7 +206,7 @@ export function LogoToApp() {
             {s.name}
           </button>
         ))}
-        <label className="ml-auto flex cursor-pointer items-center gap-2 rounded-full border border-white/15 px-3.5 py-1.5 text-xs text-white/75 hover:border-white/40">
+        <label className="flex cursor-pointer items-center gap-2 rounded-full border border-white/15 px-3.5 py-1.5 text-xs text-white/75 hover:border-white/40">
           <input
             type="color"
             value={custom ?? shop.primary}
@@ -220,7 +220,7 @@ export function LogoToApp() {
           {t({ es: 'Prueba tu color', en: 'Try your color' })}
         </label>
       </div>
-      <p className="relative mt-4 text-xs text-white/40">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
+      <p className="relative mt-4 text-center text-xs text-white/40">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
     </div>
   )
 }
