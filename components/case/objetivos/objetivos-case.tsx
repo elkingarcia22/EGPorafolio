@@ -31,10 +31,13 @@ type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 
 /** Cuánto se calma la red de fondo: en la portada se ve; en los capítulos, deja leer */
 const QUIET = { hero: 1, chapters: 1 }
 
+/** Capítulos a los que llega una fibra que se tiende con el scroll desde la sección anterior */
+const FIBER_TO: Partial<Record<ChapterKey, string>> = { puntos: 'obj-puntos', patrones: 'obj-patrones' }
+
 /** Todos sobre la misma red de fondo; cada uno llega de una manera distinta */
 const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'puntos', entry: 'bloom' },
-  // De «Los puntos» baja el hilo de color hasta «Patrones» (sin las fibras laterales)
+  // A «Patrones» llega la fibra que sale del final de la montaña de «Los puntos» (sin hilo ni fibras laterales)
   { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'thread' },
   { id: 'bocetos', entry: 'warp' },
@@ -101,7 +104,7 @@ export function ObjetivosCase({ next }: { next: Project }) {
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
     }
-    return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: 'dark' as const, entry: ch.entry, fiberTo: i === 0 ? 'obj-puntos' : undefined }))
+    return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: 'dark' as const, entry: ch.entry, fiberTo: FIBER_TO[ch.id] }))
   }, [t, c])
 
   return (
@@ -114,6 +117,8 @@ export function ObjetivosCase({ next }: { next: Project }) {
       {/* Los capítulos a todo el ancho; el índice es una columna angosta fija a la izquierda (en pantallas chicas, una línea arriba) */}
       <div className="px-[var(--gutter)] lg:pl-[calc(var(--gutter)+88px)]">
         <ChapterRail chapters={chapters} label={t(OBJ_CASE.title)} />
+        {/* Del final de la montaña de «Los puntos» sale la fibra que baja hasta «Patrones» */}
+        <SectionFiber id="obj-patrones" side="right">
         <div className="mx-auto min-w-0 max-w-6xl">
           {chapters.map((meta) => {
             const Content = CONTENT[meta.id as ChapterKey]
@@ -124,6 +129,7 @@ export function ObjetivosCase({ next }: { next: Project }) {
             )
           })}
         </div>
+        </SectionFiber>
       </div>
       </SectionFiber>
       <NextProject project={next} />
