@@ -5,7 +5,8 @@
  *
  * Marcas que se leen en el DOM:
  * - `data-section-node`: el nodo de cada etiqueta de sección (<SectionLabel>)
- * - `data-transition-source`: nodo de salida explícito
+ * - `data-transition-source`: nodo de salida explícito (p. ej. el círculo de cada proyecto en la
+ *   órbita); si hay varios en la sección, sale del que está al frente (`aria-current`)
  * - `data-transition-target`: nodo de llegada de una página (también sirve de salida al dejarla)
  */
 
@@ -56,6 +57,7 @@ function nearestSectionNode(): Element | null {
 export function sourcePoint(trigger?: Element | null): Source {
   const candidates = [
     trigger?.closest('[data-transition-source]'),
+    trigger?.closest('section, [data-section-tone]')?.querySelector('[data-transition-source][aria-current="true"]'),
     trigger?.closest('section, [data-section-tone]')?.querySelector('[data-section-node]'),
     document.querySelector('[data-transition-source]'),
     document.querySelector('[data-transition-target]'),
@@ -66,6 +68,8 @@ export function sourcePoint(trigger?: Element | null): Source {
     if (!c) continue
     // Un anillo de proyecto: sale desde su letra, con su tamaño.
     if (el instanceof HTMLElement && el.hasAttribute('data-transition-target')) return landingOf(el) ?? c
+    // Un círculo de proyecto: el destello nace con su tamaño.
+    if (el?.hasAttribute('data-transition-source')) return { ...c, size: el.getBoundingClientRect().width }
     return c
   }
   return visibleCenter(trigger) ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }

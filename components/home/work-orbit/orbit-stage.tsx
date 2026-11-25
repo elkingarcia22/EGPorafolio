@@ -271,6 +271,7 @@ export function OrbitStage({ projects, target, onSelect, burst, reducedMotion }:
                 transitionLabel={`N° ${project.frequency} · ${title}`}
                 aria-label={`${title} — ${project.client}`}
                 aria-current={isActive ? 'true' : undefined}
+                data-transition-source
                 data-cursor={isActive ? t(COPY.work.open) : t(COPY.work.drag)}
                 draggable={false}
                 onFocus={() => !isActive && onSelect(nearestTurn(i, targetRef.current, count))}

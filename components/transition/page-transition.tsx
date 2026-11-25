@@ -167,7 +167,8 @@ export function TransitionOverlay() {
     }
     isCovering.current = false
     const root = rootRef.current
-    loadTween.current?.kill()
+    // La carga sigue avanzando mientras se cumple el tiempo mínimo: si la página llega enseguida
+    // (producción), la red no se queda quieta y apagada esperando.
     const wait = Math.max(0, MIN_SHOW_MS - (performance.now() - coveredAt.current)) / 1000
     const dissolve = { v: 1 }
     let exit: gsap.core.Timeline | null = null
@@ -182,6 +183,7 @@ export function TransitionOverlay() {
     }
     const tl = gsap
       .timeline({ delay: wait })
+      .call(() => { loadTween.current?.kill() })
       .to(counter.current, { v: 100, duration: FINISH_S, ease: 'power1.out', onUpdate: syncCounter })
       .to({}, { duration: SEED_MEASURE_S })
     tl.call(() => {
