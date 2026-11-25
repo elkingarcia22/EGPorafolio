@@ -137,8 +137,8 @@ export function ThemaCase() {
         <SectionFiber id="th-bocetos" side="right">
         {/* Del carrete de componentes a «IA en el proceso» */}
         <SectionFiber id="th-ia" side="down">
-        {/* De la estación «Código» a «Impacto» */}
-        <SectionFiber id="th-impacto" side="right">
+        {/* Del pie de «IA en el proceso» baja a «Impacto» */}
+        <SectionFiber id="th-impacto" side="down">
         {/* De la calidad a «Demo» */}
         <SectionFiber id="th-demo" side="down">
         <div className="mx-auto min-w-0 max-w-6xl">

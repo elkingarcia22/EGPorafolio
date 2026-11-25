@@ -62,7 +62,7 @@ const targetOf = (a: Attempt) => a.stop ?? LAST_STATION
  * riel: las piezas del sistema llegan al código (verde) y lo que se sale —un
  * HEX a mano, otra librería, un SVG pegado— se frena en el guardián o en la
  * validación (rojo), con la regla que la frenó. Tocar una estación dice qué hace.
- * Del nodo «Código» sale la fibra hacia «Impacto».
+ * Del nodo del pie sale la fibra hacia «Impacto».
  */
 export function AiGate() {
   const { t } = useLocale()
@@ -137,7 +137,6 @@ export function AiGate() {
                       className={`relative h-3.5 w-3.5 rounded-full border transition-all duration-300 ${isPicked ? 'scale-125 border-white bg-[#fffaf0]' : passing ? 'scale-110 border-white bg-signal' : 'border-white/45 bg-void group-hover:border-white'}`}
                       style={color ? { background: color, borderColor: color, boxShadow: `0 0 0 5px ${color}33` } : undefined}
                     />
-                    {i === LAST_STATION && <span data-fiber-from="th-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />}
                   </span>
                   <span className="flex flex-col">
                     <span className={`whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] transition-colors md:text-[11px] ${isPicked || passing || hit ? 'text-paper' : 'text-paper/50 group-hover:text-paper/85'}`}>{t(s.name)}</span>
@@ -211,6 +210,13 @@ export function AiGate() {
         ) : (
           <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-paper/35">{t({ es: 'Toca una estación', en: 'Tap a station' })}</p>
         )}
+      </div>
+
+      {/* Del pie del capítulo, por debajo de todo, sale la fibra hacia «Impacto» */}
+      <div className="mt-6 flex justify-center">
+        <span aria-hidden="true" className="relative h-2.5 w-2.5 rounded-full border border-white/60 bg-signal shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
+          <span data-fiber-from="th-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />
+        </span>
       </div>
     </div>
   )
