@@ -3,33 +3,42 @@
 import { useEffect, useRef, useState } from 'react'
 import { ScrollTrigger, scrollToTarget } from '@/lib/motion'
 import type { ChapterMeta } from './chapter'
+import { ChapterRailVertical, type RailBack } from './chapter-rail-vertical'
 
 /** Dónde se considera "en lectura" un capítulo (fracción del alto de pantalla) */
 const READ_LINE = '45%'
 /** Altura (desde arriba) a la que debe llegar la etiqueta del primer capítulo para mostrar la línea */
 const SHOW_AT = '22%'
 
+/** Por defecto el índice lleva de vuelta a la lista de proyectos de la portada. */
+const TO_PROJECTS: RailBack = { href: '/#work', label: { es: 'Proyectos', en: 'Projects' } }
+
 interface ChapterRailProps {
   chapters: readonly ChapterMeta[]
   label: string
+  back?: RailBack
 }
 
 /**
- * Índice de un caso como la fibra de Proceso del inicio: una línea horizontal
- * con un nodo por capítulo que se queda fija arriba al hacer scroll. La señal
+ * Índice de un caso como la fibra de Proceso del inicio: en escritorio, una columna
+ * angosta fija a la izquierda (ver <ChapterRailVertical>); en pantallas chicas, una
+ * línea horizontal con un nodo por capítulo que se queda fija arriba. La señal
  * avanza por la línea con la lectura; el capítulo en lectura se enciende y
  * muestra su nombre. Tocar un nodo lleva a ese capítulo.
  */
-export function ChapterRail({ chapters, label }: ChapterRailProps) {
+export function ChapterRail({ chapters, label, back = TO_PROJECTS }: ChapterRailProps) {
   const [active, setActive] = useState(0)
   // Solo aparece cuando la lectura ya entró al primer capítulo (y se va al terminar el último)
   const [shown, setShown] = useState(false)
   const fillRef = useRef<HTMLSpanElement>(null)
+  const columnFillRef = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     const last = Math.max(1, chapters.length - 1)
     const paint = (index: number, progress: number) => {
-      if (fillRef.current) fillRef.current.style.transform = `scaleX(${Math.min(1, (index + progress) / last)})`
+      const k = Math.min(1, (index + progress) / last)
+      if (fillRef.current) fillRef.current.style.transform = `scaleX(${k})`
+      if (columnFillRef.current) columnFillRef.current.style.transform = `scaleY(${k})`
     }
     const triggers = chapters.map((c, i) =>
       ScrollTrigger.create({
@@ -63,8 +72,10 @@ export function ChapterRail({ chapters, label }: ChapterRailProps) {
   }
 
   return (
-    // Alto cero: fija arriba sin ocupar lugar en la página, así no deja una franja antes del primer capítulo.
-    <nav aria-label={label} aria-hidden={!shown || undefined} className="sticky top-[72px] z-30 h-0">
+    <>
+    <ChapterRailVertical chapters={chapters} label={label} active={active} shown={shown} back={back} fillRef={columnFillRef} onGo={go} />
+    {/* Alto cero: fija arriba sin ocupar lugar en la página, así no deja una franja antes del primer capítulo. */}
+    <nav aria-label={label} aria-hidden={!shown || undefined} className="sticky top-[72px] z-30 h-0 lg:hidden">
       <div className={`relative -mx-[var(--gutter)] px-[var(--gutter)] pb-10 pt-4 transition-[opacity,transform] duration-500 ease-expo ${shown ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-3 opacity-0'}`}>
       {/* Velo que se desvanece hacia abajo, sin borde, para que la línea se lea sobre el contenido */}
       <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-[72px] bottom-0 bg-gradient-to-b from-[rgb(var(--void)/0.9)] from-50% to-transparent" />
@@ -109,5 +120,6 @@ export function ChapterRail({ chapters, label }: ChapterRailProps) {
       </div>
       </div>
     </nav>
+    </>
   )
 }

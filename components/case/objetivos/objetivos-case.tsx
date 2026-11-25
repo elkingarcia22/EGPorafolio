@@ -110,8 +110,8 @@ export function ObjetivosCase({ next }: { next: Project }) {
       {/* Como en el inicio: la rama de la portada sigue con el scroll y baja, como una fibra, hasta el nodo de «Los puntos» */}
       <SectionFiber id="obj-puntos" side="right">
       <ObjetivosHero />
-      {/* Los capítulos a todo el ancho; el índice es una línea horizontal que se queda fija arriba */}
-      <div className="px-[var(--gutter)]">
+      {/* Los capítulos a todo el ancho; el índice es una columna angosta fija a la izquierda (en pantallas chicas, una línea arriba) */}
+      <div className="px-[var(--gutter)] lg:pl-[calc(var(--gutter)+88px)]">
         <ChapterRail chapters={chapters} label={t(OBJ_CASE.title)} />
         <div className="mx-auto min-w-0 max-w-6xl">
           {chapters.map((meta) => {
