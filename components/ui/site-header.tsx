@@ -248,7 +248,7 @@ export function SiteHeader() {
               setMenuOpen(false)
               setQuickOpen((v) => !v)
             }}
-            className="flex h-8 items-center gap-1.5 rounded-full bg-signal px-3 text-paper transition-transform active:scale-95 lg:hidden"
+            className="flex h-8 items-center gap-1.5 rounded-full bg-signal px-3 text-on-signal transition-transform active:scale-95 lg:hidden"
           >
             {quickOpen ? (
               <span aria-hidden="true" className="text-sm leading-none">✕</span>

@@ -51,7 +51,7 @@ export function FormCompare({ project }: { project: Project }) {
             <MockScreen kind={project.mock} mode="wire" accent={project.accent} className="h-full" />
           </div>
           <div className="absolute inset-y-0 w-0.5 bg-signal" style={{ left: `${split}%` }} aria-hidden="true">
-            <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-signal text-xs text-paper">
+            <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-signal text-xs text-on-signal">
               ↔
             </span>
           </div>

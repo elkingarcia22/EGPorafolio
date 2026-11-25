@@ -103,7 +103,7 @@ export function BookingImpact() {
               <span className="text-xl font-light">{kpi.unit}</span>
             </dd>
             <dd className="mt-4 flex flex-wrap items-center gap-2 text-sm">
-              <span className="bg-signal px-2 py-0.5 text-xs font-medium text-paper">{t(kpi.delta)}</span>
+              <span className="bg-signal px-2 py-0.5 text-xs font-medium text-on-signal">{t(kpi.delta)}</span>
               <span className="opacity-55">
                 {t({ es: 'antes', en: 'before' })} {'beforeLabel' in kpi && kpi.beforeLabel ? t(kpi.beforeLabel) : `${kpi.before}${kpi.unit}`}
               </span>

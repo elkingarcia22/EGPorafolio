@@ -38,7 +38,7 @@ function WriterBoard() {
           ['rrhh', { es: 'Redacta RR. HH.', en: 'HR writes' }],
           ['otros', { es: 'Redactan líderes o colaboradores', en: 'Leads or employees write' }],
         ] as const).map(([id, label]) => (
-          <button key={id} type="button" role="radio" aria-checked={writer === id} onClick={() => setWriter(id)} className="mono-label border border-fg/25 px-3 py-2 transition-colors aria-checked:border-signal aria-checked:bg-signal aria-checked:text-paper">
+          <button key={id} type="button" role="radio" aria-checked={writer === id} onClick={() => setWriter(id)} className="mono-label border border-fg/25 px-3 py-2 transition-colors aria-checked:border-signal aria-checked:bg-signal aria-checked:text-on-signal">
             {t(label)}
           </button>
         ))}

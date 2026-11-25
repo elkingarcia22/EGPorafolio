@@ -356,7 +356,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
             </ToolButton>
             <span
               role="status"
-              className={`mono-label pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-full bg-signal px-3 py-1.5 text-paper transition-all duration-300 ${copied ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'}`}
+              className={`mono-label pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-full bg-signal px-3 py-1.5 text-on-signal transition-all duration-300 ${copied ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'}`}
             >
               {copied ? t(COPY.cv.copied) : ''}
             </span>
@@ -365,7 +365,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
           <a
             href={asset.pdf}
             download={asset.filename}
-            className="mono-label flex h-9 items-center gap-2 rounded-full bg-signal px-3.5 text-paper shadow-[0_0_24px_-4px_rgb(var(--signal)/0.7)] transition-[background-color,color,box-shadow] duration-300 hover:bg-paper hover:text-ink md:px-4"
+            className="mono-label flex h-9 items-center gap-2 rounded-full bg-signal px-3.5 text-on-signal shadow-[0_0_24px_-4px_rgb(var(--signal)/0.7)] transition-[background-color,color,box-shadow] duration-300 hover:bg-paper hover:text-ink md:px-4"
           >
             <svg viewBox="0 0 24 24" className={icon} {...stroke} aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
             <span className="hidden sm:inline">{t(COPY.cv.download)}</span>

@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <A11yProvider>
             <a
               href="#main"
-              className="sr-only-focusable fixed left-4 top-4 z-[90] bg-signal px-4 py-2 text-paper"
+              className="sr-only-focusable fixed left-4 top-4 z-[90] bg-signal px-4 py-2 text-on-signal"
             >
               Saltar al contenido / Skip to content
             </a>

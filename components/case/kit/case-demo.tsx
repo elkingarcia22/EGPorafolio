@@ -62,7 +62,7 @@ export function CaseDemo({ title, lead, url, image, preview, accent, tryIt, onOp
           data-reveal
           type="button"
           onClick={onOpen}
-          className="group mt-8 inline-flex items-center gap-4 bg-signal px-6 py-4 text-paper transition-[transform,box-shadow] duration-500 ease-expo hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-15px_rgb(var(--signal))]"
+          className="group mt-8 inline-flex items-center gap-4 bg-signal px-6 py-4 text-on-signal transition-[transform,box-shadow] duration-500 ease-expo hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-15px_rgb(var(--signal))]"
         >
           <span className="mono-label">{t({ es: 'Ver la demo', en: 'Open the demo' })}</span>
           <span className="transition-transform duration-500 ease-expo group-hover:translate-x-1" aria-hidden="true">⤢</span>

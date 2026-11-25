@@ -35,7 +35,7 @@ export function OrbStates() {
               role="radio"
               aria-checked={state === s.id}
               onClick={() => setState(s.id)}
-              className="mono-label border border-fg/25 px-4 py-2.5 transition-colors hover:border-fg/60 aria-checked:border-signal aria-checked:bg-signal aria-checked:text-paper"
+              className="mono-label border border-fg/25 px-4 py-2.5 transition-colors hover:border-fg/60 aria-checked:border-signal aria-checked:bg-signal aria-checked:text-on-signal"
             >
               {t(s.name)}
             </button>
@@ -74,7 +74,7 @@ export function LogoRounds() {
               type="button"
               aria-pressed={active === i}
               onClick={() => setActive(i)}
-              className="mono-label w-full border border-fg/20 px-2 py-2.5 text-left text-[10px] leading-tight transition-colors hover:border-fg/60 aria-pressed:border-signal aria-pressed:bg-signal aria-pressed:text-paper"
+              className="mono-label w-full border border-fg/20 px-2 py-2.5 text-left text-[10px] leading-tight transition-colors hover:border-fg/60 aria-pressed:border-signal aria-pressed:bg-signal aria-pressed:text-on-signal"
             >
               {r.caption ? t(r.caption) : i + 1}
             </button>

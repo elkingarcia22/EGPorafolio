@@ -89,7 +89,7 @@ export function RevealWords({ text, className = '', scrub = true }: RevealWordsP
               key={i}
               data-chip
               aria-hidden="true"
-              className="mx-[0.15em] inline-flex h-[0.85em] w-[1.4em] translate-y-[0.08em] items-center justify-center rounded-full bg-signal align-baseline text-paper"
+              className="mx-[0.15em] inline-flex h-[0.85em] w-[1.4em] translate-y-[0.08em] items-center justify-center rounded-full bg-signal align-baseline text-on-signal"
             >
               {CHIPS[chip[1] as ChipKind]}
             </span>

@@ -22,7 +22,7 @@ export function AuditPatterns() {
       <ul data-reveal className="mt-8 flex flex-wrap gap-2" aria-label={t({ es: 'Fuentes', en: 'Sources' })}>
         {SOURCES.map((s) => (
           <li key={s.label.es} className="flex items-center gap-3 rounded-full border border-fg/20 bg-fg/[0.04] py-1.5 pl-1.5 pr-4 text-sm">
-            <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-signal px-2 font-mono text-xs text-paper">{s.value}</span>
+            <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-signal px-2 font-mono text-xs text-on-signal">{s.value}</span>
             {t(s.label)}
           </li>
         ))}

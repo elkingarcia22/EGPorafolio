@@ -61,7 +61,7 @@ export function ModelStudy() {
             role="tab"
             aria-selected={i === active}
             onClick={() => pick(i)}
-            className="relative overflow-hidden py-2.5 font-mono text-[12px] tracking-wide transition-colors hover:bg-fg/[0.06] aria-selected:bg-signal aria-selected:text-paper sm:text-[13px]"
+            className="relative overflow-hidden py-2.5 font-mono text-[12px] tracking-wide transition-colors hover:bg-fg/[0.06] aria-selected:bg-signal aria-selected:text-on-signal sm:text-[13px]"
           >
             {m.label}
             {i === active && auto && !reducedMotion && (

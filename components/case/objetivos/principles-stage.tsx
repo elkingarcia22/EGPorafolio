@@ -284,7 +284,7 @@ export function PrinciplesStage() {
             aria-selected={i === active}
             aria-label={t(p.title)}
             onClick={() => choose(i)}
-            className="relative overflow-hidden py-2.5 font-mono text-[13px] tabular-nums transition-colors aria-selected:bg-signal aria-selected:text-paper"
+            className="relative overflow-hidden py-2.5 font-mono text-[13px] tabular-nums transition-colors aria-selected:bg-signal aria-selected:text-on-signal"
           >
             0{i + 1}
             {i === active && running && (

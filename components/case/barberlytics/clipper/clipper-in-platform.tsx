@@ -145,7 +145,7 @@ export function ClipperInPlatform() {
         <ol className="space-y-4">
           {LEGEND.map((l, i) => (
             <li key={l.title.es} className={`flex gap-4 border-l-2 pl-4 transition-colors duration-500 ${i === legendAt ? 'border-signal' : 'border-fg/15 opacity-55'}`}>
-              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] transition-colors duration-500 ${i === legendAt ? 'bg-signal text-paper' : 'bg-fg/10'}`}>{i + 1}</span>
+              <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] transition-colors duration-500 ${i === legendAt ? 'bg-signal text-on-signal' : 'bg-fg/10'}`}>{i + 1}</span>
               <span>
                 <span className="block font-medium">{t(l.title)}</span>
                 <span className="mt-1 block text-sm leading-relaxed opacity-70">{t(l.body)}</span>

@@ -13,6 +13,7 @@
   --spark: 0 214 255;     /* chispa: cian */
   --ice: 214 250 160;     /* lima claro */
   --cyan: 120 240 255;    /* apoyo: cian claro */
+  --on-signal: 10 11 13;  /* texto sobre relleno de señal (aqua claro → texto oscuro) */
   /* Proyectos en el inicio (cambian con la paleta) */
   --project-objetivos: 78 196 204;
   --project-barberlytics: 176 212 120;
@@ -47,8 +48,9 @@ html[data-contrast='high'] {
   --void: 0 0 0;
   --static: 200 200 200;
   --signal: 0 64 255;
+  --on-signal: 255 255 255;
 }
-html[data-contrast='high'][data-tone='dark'] { --signal: 140 170 255; }
+html[data-contrast='high'][data-tone='dark'] { --signal: 140 170 255; --on-signal: 10 11 13; }
 html[data-contrast='high'] .grain { display: none; }
 
 html[data-links='underline'] a { text-decoration: underline; text-underline-offset: 0.2em; }

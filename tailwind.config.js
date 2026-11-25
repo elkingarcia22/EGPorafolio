@@ -12,6 +12,7 @@ module.exports = {
         ink: 'rgb(var(--ink) / <alpha-value>)',
         void: 'rgb(var(--void) / <alpha-value>)',
         signal: 'rgb(var(--signal) / <alpha-value>)',
+        'on-signal': 'rgb(var(--on-signal) / <alpha-value>)',
       },
       fontFamily: {
         display: ['var(--font-display)', 'Futura', 'system-ui', 'sans-serif'],

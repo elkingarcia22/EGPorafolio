@@ -33,7 +33,7 @@ export function PiecesBoard() {
     <div>
       <div role="radiogroup" aria-label={t({ es: 'Modelo del boceto', en: 'Sketch model' })} className="mb-4 flex flex-wrap gap-2">
         {MODELS.map((m) => (
-          <button key={m.id} type="button" role="radio" aria-checked={model === m.id} onClick={() => setModel(m.id)} className="mono-label border border-fg/25 px-3 py-2 transition-colors aria-checked:border-signal aria-checked:bg-signal aria-checked:text-paper">
+          <button key={m.id} type="button" role="radio" aria-checked={model === m.id} onClick={() => setModel(m.id)} className="mono-label border border-fg/25 px-3 py-2 transition-colors aria-checked:border-signal aria-checked:bg-signal aria-checked:text-on-signal">
             {m.label}
           </button>
         ))}
