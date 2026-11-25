@@ -77,15 +77,20 @@ export function PaletteRoute() {
       const tick = (now: number) => {
         const t = Math.min(1, (now - start) / BLEND_MS)
         const step = Math.round(easeInOut(t) * STEPS)
+        if (t >= 1) {
+          // Fin: la página recibe la paleta destino (el último paso pudo pintarse solo en la cortina).
+          current.current = target
+          paint(target)
+          clearScopedTokens(Array.from(document.querySelectorAll<HTMLElement>('[data-palette-scope]')))
+          return
+        }
         if (step !== lastStep) {
           lastStep = step
           current.current = blendTokens(from, target, step / STEPS)
           // Con la cortina, los pasos intermedios se pintan solo en ella; la página cambia una vez, al final.
-          const scope = t < 1 ? coverScope() : undefined
-          paint(current.current, scope)
-          if (t >= 1) clearScopedTokens(Array.from(document.querySelectorAll<HTMLElement>('[data-palette-scope]')))
+          paint(current.current, coverScope())
         }
-        if (t < 1) frame.current = requestAnimationFrame(tick)
+        frame.current = requestAnimationFrame(tick)
       }
       frame.current = requestAnimationFrame(tick)
     }
