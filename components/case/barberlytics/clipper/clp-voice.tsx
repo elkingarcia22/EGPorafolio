@@ -22,6 +22,10 @@ const WORD_MS = 320
 /** Cuántas letras dice por segundo, para seguirla si la voz no avisa cada palabra */
 const CHARS_PER_S = 13
 
+/** Las grabaciones de Gemini (scripts/clipper-voice.mjs) */
+const AUDIO_DIR = '/cases/barberlytics'
+type VoiceLine = 'greeting' | 'reply'
+
 const WAVE_OF: Record<Phase, WaveState> = { greet: 'speaking', listen: 'listening', think: 'thinking', reply: 'speaking', rest: 'idle' }
 
 /** Cada palabra con la posición en que empieza (para iluminarla cuando se dice) */
@@ -64,16 +68,38 @@ export function ClipperVoice() {
   const [talking, setTalking] = useState(false)
   const [canSpeak, setCanSpeak] = useState(false)
   const [note, setNote] = useState<number | null>(null)
+  /** Si ya están las grabaciones de Gemini en este idioma */
+  const [recorded, setRecorded] = useState(false)
   const run = useRef(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  /** Calla lo que esté sonando: la grabación o la voz del navegador */
+  const silence = () => {
+    audioRef.current?.pause()
+    audioRef.current = null
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+  }
 
   const heard = t(VOICE.heard).split(' ')
 
   useEffect(() => {
-    setCanSpeak(typeof window !== 'undefined' && 'speechSynthesis' in window)
-    if (!('speechSynthesis' in window)) return
-    window.speechSynthesis.getVoices()
-    return () => window.speechSynthesis.cancel()
+    setCanSpeak(true)
+    if ('speechSynthesis' in window) window.speechSynthesis.getVoices()
+    return () => {
+      audioRef.current?.pause()
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+    }
   }, [])
+
+  useEffect(() => {
+    let alive = true
+    fetch(`${AUDIO_DIR}/clipper-voice-greeting-${locale === 'en' ? 'en' : 'es'}.wav`, { method: 'HEAD' })
+      .then((r) => alive && setRecorded(r.ok))
+      .catch(() => alive && setRecorded(false))
+    return () => {
+      alive = false
+    }
+  }, [locale])
 
   // Sin sonido: la llamada se repite sola mientras se ve
   useEffect(() => {
@@ -93,8 +119,10 @@ export function ClipperVoice() {
     return () => window.clearInterval(id)
   }, [phase, heard.length])
 
-  const say = useCallback(
+  /** Con la voz del navegador, si no hay grabación */
+  const sayWithBrowser = useCallback(
     (text: string, onEnd: () => void, token: number) => {
+      if (!('speechSynthesis' in window)) return onEnd()
       const u = new SpeechSynthesisUtterance(text)
       const lang = locale === 'en' ? 'en' : 'es'
       const voice = pickVoice(lang)
@@ -128,15 +156,47 @@ export function ClipperVoice() {
     [locale],
   )
 
+  /** Con la grabación de Gemini («Achird»); si no está, con la voz del navegador. */
+  const say = useCallback(
+    (line: VoiceLine, onEnd: () => void, token: number) => {
+      const text = t(VOICE[line])
+      const audio = new Audio(`${AUDIO_DIR}/clipper-voice-${line}-${locale === 'en' ? 'en' : 'es'}.wav`)
+      audioRef.current = audio
+      let clock = 0
+      const finish = () => {
+        window.clearInterval(clock)
+        if (run.current === token) {
+          setSpoken(text.length)
+          onEnd()
+        }
+      }
+      audio.onplaying = () => {
+        // Las palabras se encienden al ritmo de la grabación
+        clock = window.setInterval(() => {
+          if (run.current !== token || !audio.duration) return
+          setSpoken(Math.floor((audio.currentTime / audio.duration) * text.length))
+        }, 90)
+      }
+      audio.onended = finish
+      audio.onerror = () => {
+        if (run.current === token) sayWithBrowser(text, onEnd, token)
+      }
+      audio.play().catch(() => {
+        if (run.current === token) sayWithBrowser(text, onEnd, token)
+      })
+    },
+    [locale, t, sayWithBrowser],
+  )
+
   /** La llamada con sonido: saluda, escucha, piensa y responde en voz alta. */
   const listen = () => {
     if (!canSpeak) return
-    window.speechSynthesis.cancel()
+    silence()
     const token = ++run.current
     setTalking(true)
     setSpoken(-1)
     setPhase('greet')
-    say(t(VOICE.greeting), () => {
+    say('greeting', () => {
       setPhase('listen')
       window.setTimeout(() => {
         if (run.current !== token) return
@@ -145,7 +205,7 @@ export function ClipperVoice() {
           if (run.current !== token) return
           setSpoken(-1)
           setPhase('reply')
-          say(t(VOICE.reply), () => {
+          say('reply', () => {
             setPhase('rest')
             setTalking(false)
           }, token)
@@ -156,7 +216,7 @@ export function ClipperVoice() {
 
   const stop = () => {
     run.current += 1
-    window.speechSynthesis.cancel()
+    silence()
     setTalking(false)
     setPhase('rest')
   }
@@ -259,7 +319,9 @@ export function ClipperVoice() {
             ))}
           </div>
           <p className="mt-4 max-w-[46ch] text-[12px] leading-snug text-paper/40">
-            {t({ es: 'Aquí suena con la mejor voz de tu navegador; en la reserva, con la voz «Achird» de Gemini.', en: 'Here it uses your browser’s best voice; in booking, Gemini’s “Achird” voice.' })}
+            {recorded
+              ? t({ es: 'Suena con la voz «Achird» de Gemini, la misma de la reserva.', en: 'It speaks with Gemini’s “Achird” voice, the same as in booking.' })
+              : t({ es: 'Aquí suena con la mejor voz de tu navegador; en la reserva, con la voz «Achird» de Gemini.', en: 'Here it uses your browser’s best voice; in booking, Gemini’s “Achird” voice.' })}
           </p>
         </div>
       </div>
