@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
-import { TransitionLink } from '@/components/transition/page-transition'
+import { TransitionLink, onPageReveal, type PageRevealInfo } from '@/components/transition/page-transition'
 import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
@@ -47,25 +47,55 @@ export function ObjetivosHero() {
   useEffect(() => {
     const el = ref.current
     if (!el || reducedMotion) return
+    let tl: gsap.core.Timeline | null = null
     const ctx = gsap.context(() => {
-      gsap.from('[data-hero-word]', { yPercent: 110, duration: 1.2, ease: 'expo.out', stagger: 0.06, delay: 0.15 })
-      gsap.from('[data-hero-fade]', { autoAlpha: 0, y: 24, duration: 1, ease: 'expo.out', stagger: 0.08, delay: 0.4 })
-      gsap.from('[data-hero-stage]', { autoAlpha: 0, y: 60, duration: 1.4, ease: 'expo.out', delay: 0.5 })
+      // Todo empieza escondido: la portada se arma cuando la carga se va.
+      gsap.set('[data-obj-o]', { autoAlpha: 0, scale: 0.2, filter: 'blur(14px)' })
+      gsap.set('[data-obj-ring]', { autoAlpha: 0, scale: 0.3 })
+      gsap.set('[data-obj-letter]', { autoAlpha: 0, xPercent: -60, filter: 'blur(10px)' })
+      gsap.set('[data-hero-fade]', { autoAlpha: 0, y: 20 })
+      gsap.set('[data-hero-stage]', { autoAlpha: 0, scale: 0.95, y: 30, filter: 'blur(12px)' })
     }, el)
+    const build = ({ seeded }: PageRevealInfo) => {
+      ctx.add(() => {
+        tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
+        if (seeded) {
+          // 1 · La última neurona de la carga llegó como anillo: dentro se enciende la «O»…
+          tl.set('[data-obj-ring]', { autoAlpha: 0.9, scale: 1 }, 0)
+            .fromTo('[data-obj-o]', { scale: 0.7 }, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 0.8 }, 0)
+            .to('[data-obj-ring]', { autoAlpha: 0, scale: 2.6, duration: 1.1, ease: 'power2.out' }, 0.35)
+        } else {
+          // 1 · La «O» aparece como una neurona que se enciende y dispara un anillo…
+          tl.to('[data-obj-o]', { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1.1 }, 0)
+            .to('[data-obj-ring]', { autoAlpha: 0.9, scale: 1, duration: 0.5, ease: 'power2.out' }, 0.15)
+            .to('[data-obj-ring]', { autoAlpha: 0, scale: 2.6, duration: 1.1, ease: 'power2.out' }, 0.6)
+        }
+        tl
+          // 2 · …y de ella brotan las demás letras, una tras otra.
+          .to('[data-obj-letter]', { autoAlpha: 1, xPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: 0.05 }, 0.55)
+          // 3 · Después, lo que la rodea: la frase, los datos y la cascada en vivo.
+          .to('[data-hero-fade]', { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.06 }, 1.05)
+          .to('[data-hero-stage]', { autoAlpha: 1, scale: 1, y: 0, filter: 'blur(0px)', duration: 1.4, clearProps: 'filter' }, 1.2)
+      })
+    }
+    const cancel = onPageReveal(build)
     const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting))
     io.observe(el)
     return () => {
+      cancel()
+      tl?.kill()
       ctx.revert()
       io.disconnect()
     }
   }, [reducedMotion])
 
   const approved = objetivos.filter(cuenta).length
+  const title = t(OBJ_CASE.title)
 
   return (
-    <ToneSection tone="dark" className="relative overflow-hidden px-[var(--gutter)] pb-24 pt-32">
+    <ToneSection tone="dark" className="relative px-[var(--gutter)] pb-24 pt-32">
       <div ref={ref}>
-        <div className="pointer-events-none absolute left-1/2 top-[48%] h-[70vw] max-h-[1000px] w-[95vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(64,96,255,0.22),rgba(64,96,255,0.05)_60%,transparent)]" aria-hidden="true" />
+        <div className="pointer-events-none absolute left-1/2 top-[48%] h-[70vw] max-h-[1000px] w-[95vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(64,96,255,0.16),rgba(64,96,255,0.04)_60%,transparent)]" aria-hidden="true" />
 
         <div className="relative mb-14 flex flex-wrap items-center justify-between gap-x-6 gap-y-2" data-hero-fade>
           <TransitionLink href="/#work" transitionLabel={t({ es: 'Trabajo', en: 'Work' })} className="mono-label opacity-60 hover:opacity-100">
@@ -76,8 +106,16 @@ export function ObjetivosHero() {
 
         <div className="relative grid items-end gap-8 md:grid-cols-12">
           <h1 className="text-[clamp(3.4rem,1rem+9vw,11rem)] font-light leading-[0.88] tracking-tight md:col-span-7">
-            <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
-              <span data-hero-word className="inline-block">{t(OBJ_CASE.title)}</span>
+            {/* La portada se arma desde la «O»: primero ella, como una neurona; luego el resto */}
+            <span className="sr-only">{title}</span>
+            <span aria-hidden="true" className="inline-flex pb-[0.08em] align-bottom">
+              <span className="relative inline-block">
+                <span data-obj-ring data-transition-target className="pointer-events-none absolute left-1/2 top-[55%] aspect-square w-[1.15em] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/70 shadow-[0_0_30px_6px_rgb(var(--signal)/0.55),inset_0_0_20px_rgb(var(--signal)/0.4)]" />
+                <span data-obj-o className="relative inline-block [text-shadow:0_0_40px_rgb(var(--signal)/0.6)]">{title.slice(0, 1)}</span>
+              </span>
+              {Array.from(title.slice(1)).map((letter, i) => (
+                <span key={i} data-obj-letter className="inline-block">{letter}</span>
+              ))}
             </span>
           </h1>
           <p data-hero-fade className="text-lg leading-relaxed opacity-85 md:col-span-5">{t(OBJ_CASE.tagline)}</p>

@@ -1,9 +1,13 @@
 'use client'
 
-import { useState } from 'react'
-import { useLocale } from '@/lib/i18n'
+import { CaseLead } from '@/components/case/case-lead'
+import { useEffect, useRef, useState } from 'react'
+import { gsap } from '@/lib/motion'
+import { useA11y } from '@/lib/a11y'
+import { useLocale, type L } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { PiecesBoard, ReportBoard } from './objetivos-sketches-more'
+import { useAutoplay } from './use-autoplay'
 
 type Writer = 'rrhh' | 'otros'
 
@@ -140,21 +144,202 @@ function SummaryBoard() {
   )
 }
 
-/** 04 · Bocetos: antes de las pantallas, los dos recorridos que más se discutieron. */
+/** Los cuatro tableros, en el orden en que se discutieron */
+const BOARDS: readonly { title: L; Board: () => JSX.Element }[] = [
+  { title: { es: 'Un objetivo, desarmado', en: 'A goal, taken apart' }, Board: PiecesBoard },
+  { title: { es: '¿Quién redacta?', en: 'Who writes?' }, Board: WriterBoard },
+  { title: { es: 'Reportar en segundos', en: 'Reporting in seconds' }, Board: ReportBoard },
+  { title: { es: 'Resumen y alineación', en: 'Summary and alignment' }, Board: SummaryBoard },
+]
+/** Separación entre tableros en el muro (fracción del ancho) */
+const GAP = 0.12
+/** Inclinación de cada tablero sobre el muro (grados) */
+const TILT = [-1.2, 1, 0.8, -1]
+/** Tiempo en cada tablero mientras avanza solo (ms) */
+const BOARD_MS = 8000
+/** Viaje de la cámara: se aleja hasta ver el muro y entra al siguiente (s) */
+const TRAVEL = { out: 0.55, in: 0.85 }
+
+/**
+ * Los bocetos como un muro: los cuatro tableros clavados en una cuadrícula y
+ * unidos por fibras, en el orden en que se discutieron. La cámara está en uno;
+ * para pasar al siguiente se aleja hasta ver el muro entero y entra al otro.
+ * Avanza solo (se detiene con el cursor encima, para poder tocarlos).
+ */
+function SketchWall() {
+  const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const viewRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState({ w: 0, h: 0 })
+  const [hover, setHover] = useState(false)
+  const [overview, setOverview] = useState(false)
+  const { index: active, go } = useAutoplay(rootRef, { count: BOARDS.length, ms: BOARD_MS, loop: true, disabled: reducedMotion, hold: hover || overview })
+
+  // Mide el ancho de la vista y el tablero más alto: con eso se arma el muro.
+  useEffect(() => {
+    const view = viewRef.current
+    const canvas = canvasRef.current
+    if (!view || !canvas) return
+    const measure = () => {
+      const boards = Array.from(canvas.querySelectorAll<HTMLElement>('[data-wall-board]'))
+      setSize({ w: view.clientWidth, h: Math.max(0, ...boards.map((b) => b.offsetHeight)) })
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(view)
+    canvas.querySelectorAll('[data-wall-board]').forEach((b) => observer.observe(b))
+    return () => observer.disconnect()
+  }, [])
+
+  const gap = size.w * GAP
+  const at = (i: number) => ({ x: (i % 2) * (size.w + gap), y: Math.floor(i / 2) * (size.h + gap) })
+  const wall = { w: size.w * 2 + gap, h: size.h * 2 + gap }
+  const fit = Math.min(size.w / wall.w, size.h / Math.max(1, wall.h)) * 0.92
+  const wide = { x: (size.w - wall.w * fit) / 2, y: (size.h - wall.h * fit) / 2, scale: fit }
+
+  // La cámara: se aleja hasta el muro y entra al tablero elegido (o se queda viendo el muro).
+  const first = useRef(true)
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !size.w) return
+    const p = at(active)
+    const close = { x: -p.x, y: -p.y, scale: 1 }
+    if (first.current || reducedMotion) {
+      first.current = false
+      gsap.set(canvas, overview ? wide : close)
+      return
+    }
+    const tl = gsap.timeline({ defaults: { ease: 'power3.inOut' } })
+    if (overview) tl.to(canvas, { ...wide, duration: TRAVEL.in })
+    else tl.to(canvas, { ...wide, duration: TRAVEL.out }).to(canvas, { ...close, duration: TRAVEL.in, ease: 'expo.inOut' })
+    return () => {
+      tl.kill()
+    }
+    // `at` y `wide` dependen solo de `size`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, overview, size, reducedMotion])
+
+  // Al llegar a un tablero, sus notas se pegan y sus trazos se dibujan.
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const board = canvas?.querySelectorAll<HTMLElement>('[data-wall-board]')[active]
+    if (!board || reducedMotion || overview) return
+    const delay = first.current ? 0.2 : TRAVEL.out + TRAVEL.in * 0.6
+    const ctx = gsap.context(() => {
+      gsap.fromTo(board.querySelectorAll('[data-reveal="pop"]'), { scale: 0.6, autoAlpha: 0, rotate: () => gsap.utils.random(-7, 7) }, { scale: 1, autoAlpha: 1, rotate: 0, duration: 0.7, ease: 'back.out(1.8)', stagger: 0.06, delay })
+      gsap.fromTo(board.querySelectorAll('[data-draw]'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut', delay })
+    }, board)
+    return () => ctx.revert()
+  }, [active, overview, reducedMotion])
+
+  const choose = (i: number) => {
+    setOverview(false)
+    go(i)
+  }
+  /** Fibra de un tablero al siguiente, de borde a borde por el muro (en fila: costado a costado; al bajar: de abajo a arriba) */
+  const link = (i: number) => {
+    const a = at(i)
+    const b = at(i + 1)
+    if (a.y === b.y) {
+      const from = { x: a.x + size.w, y: a.y + size.h / 2 }
+      const to = { x: b.x, y: b.y + size.h / 2 }
+      return `M${from.x} ${from.y} C${from.x + gap / 2} ${from.y} ${to.x - gap / 2} ${to.y} ${to.x} ${to.y}`
+    }
+    const from = { x: a.x + size.w / 2, y: a.y + size.h }
+    const to = { x: b.x + size.w / 2, y: b.y }
+    return `M${from.x} ${from.y} C${from.x} ${from.y + gap * 0.8} ${to.x} ${to.y - gap * 0.8} ${to.x} ${to.y}`
+  }
+
+  return (
+    <div ref={rootRef} className="flex flex-col items-center">
+      <p key={`${active}-${overview}`} className="obj-fade mb-5 text-center">
+        <span className="mono-label text-signal">{overview ? t({ es: 'El muro', en: 'The wall' }) : `${t({ es: 'Tablero', en: 'Board' })} 0${active + 1}`}</span>
+        <span className="mt-2 block text-[clamp(1.4rem,1rem+1.4vw,2.2rem)] font-light leading-tight tracking-tight">{overview ? t({ es: 'Cuatro tableros, un recorrido', en: 'Four boards, one path' }) : t(BOARDS[active].title)}</span>
+      </p>
+
+      <div
+        ref={viewRef}
+        onPointerEnter={() => setHover(true)}
+        onPointerLeave={() => setHover(false)}
+        className="relative w-full overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(ellipse_at_50%_40%,rgb(var(--signal)/0.1),transparent_70%)]"
+        style={{ height: size.h ? size.h : undefined }}
+      >
+        <div ref={canvasRef} data-reveal-off className="absolute left-0 top-0 origin-top-left" style={{ width: wall.w || '100%', height: wall.h || undefined }}>
+          {/* Las fibras que recorren el muro de tablero en tablero */}
+          <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" viewBox={`0 0 ${wall.w || 1} ${wall.h || 1}`}>
+            {size.w > 0 && BOARDS.slice(0, -1).map((b, i) => (
+              <path key={b.title.es} d={link(i)} fill="none" stroke={i < active ? 'url(#wall-fiber)' : 'white'} strokeOpacity={i < active ? 0.95 : 0.4} strokeWidth={6} strokeDasharray={i < active ? undefined : '14 16'} style={{ filter: i < active ? 'drop-shadow(0 0 8px rgb(var(--signal) / 0.8))' : undefined }} />
+            ))}
+            <defs>
+              <linearGradient id="wall-fiber" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="rgb(var(--signal))" />
+                <stop offset="1" stopColor="#ff54aa" />
+              </linearGradient>
+            </defs>
+          </svg>
+          {BOARDS.map(({ title, Board }, i) => {
+            const p = size.w ? at(i) : { x: 0, y: i * 2000 }
+            const on = i === active && !overview
+            return (
+              <div
+                key={title.es}
+                data-wall-board
+                aria-hidden={!on}
+                inert={!on ? true : undefined}
+                className="absolute transition-[opacity,filter] duration-700"
+                style={{ left: p.x, top: p.y, width: size.w || '100%', opacity: on || overview ? 1 : 0.35, filter: on || overview ? 'none' : 'blur(2px)', transform: on ? 'none' : `rotate(${TILT[i]}deg)` }}
+              >
+                <Board />
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* El recorrido: un nodo por tablero, y el muro entero */}
+      <div className="mt-6 flex items-center gap-5">
+        <ol className="relative flex items-center gap-8">
+          <span className="absolute inset-x-1 top-1/2 h-px -translate-y-1/2 bg-white/12" aria-hidden="true" />
+          {BOARDS.map((b, i) => (
+            <li key={b.title.es} className="relative">
+              <button
+                type="button"
+                onClick={() => choose(i)}
+                aria-current={i === active && !overview ? 'step' : undefined}
+                aria-label={t(b.title)}
+                title={t(b.title)}
+                className={`block rounded-full transition-all duration-500 ease-expo ${i === active && !overview ? 'h-3 w-3 bg-signal shadow-[0_0_12px_2px_rgb(var(--signal)/0.7)]' : 'h-2 w-2 border border-white/40 bg-void hover:border-white'}`}
+              />
+            </li>
+          ))}
+        </ol>
+        <button
+          type="button"
+          onClick={() => setOverview((v) => !v)}
+          aria-pressed={overview}
+          className="mono-label rounded-full border border-white/12 px-3 py-1 text-paper/60 transition-colors hover:border-white/35 hover:text-paper aria-pressed:border-signal aria-pressed:text-paper"
+        >
+          {overview ? t({ es: 'Volver al tablero', en: 'Back to board' }) : t({ es: 'Ver el muro', en: 'See the wall' })}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/** 04 · Bocetos: antes de las pantallas, los cuatro tableros en un muro que se recorre con la cámara. */
 export function ObjetivosSketches() {
   const { t } = useLocale()
   return (
-    <div className="space-y-16">
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
+    <div>
+      <CaseLead className="mb-10">
         {t({
           es: 'Cuatro tableros, en el orden en que se discutieron: un objetivo desarmado en las piezas que combinan los modelos, la pregunta que cambia todo el constructor (¿quién redacta?), reportar y aprobar desde cada rol, y cómo leer un ciclo sin abrir siete reportes. Los dos primeros se pueden tocar.',
           en: 'Four boards, in the order they were discussed: a goal taken apart into the pieces models combine, the question that changes the whole builder (who writes?), reporting and approving from each role, and how to read a cycle without opening seven reports. The first two are interactive.',
         })}
-      </p>
-      <PiecesBoard />
-      <WriterBoard />
-      <ReportBoard />
-      <SummaryBoard />
+      </CaseLead>
+      <SketchWall />
     </div>
   )
 }

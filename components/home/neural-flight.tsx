@@ -23,6 +23,8 @@ const IDLE_STOP_MS = 6000
 interface NeuralFlightProps {
   /** Avance de la carga, 0–1. Después de llegar a 1 vuelve a 0: ese tramo es el salto final. */
   progress: React.MutableRefObject<number>
+  /** Dónde queda en pantalla (px) la última neurona mientras espera completa, antes del salto */
+  anchor?: React.MutableRefObject<{ x: number; y: number } | null>
   className?: string
 }
 
@@ -35,7 +37,7 @@ const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 
  * neurona en neurona. Al terminar, la última neurona dispara y la cámara
  * salta hacia adelante, hasta que aparece el titular.
  */
-export function NeuralFlight({ progress, className }: NeuralFlightProps) {
+export function NeuralFlight({ progress, anchor, className }: NeuralFlightProps) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -101,6 +103,19 @@ export function NeuralFlight({ progress, className }: NeuralFlightProps) {
       const exit = peaked ? 1 - p : 0
       const camera = cameraAt(peaked ? 1 : p, time)
       if (peaked) camera.z += (time - peakAt) * HOLD_DRIFT + exit * exit * WARP_DISTANCE
+      // Mientras espera completa, guarda dónde se ve la última neurona: de ahí parte la entrada de la página.
+      if (anchor && peaked && exit < 0.02) {
+        const node = world.nodes[world.route[world.route.length - 1]]
+        const d = node.z - camera.z
+        if (d > 0.35) {
+          const scale = (Math.min(width, height) * 0.85) / d
+          const px = (node.x - camera.x) * scale
+          const py = (node.y - camera.y) * scale
+          const cos = Math.cos(camera.roll)
+          const sin = Math.sin(camera.roll)
+          anchor.current = { x: width * 0.5 + px * cos - py * sin, y: height * 0.5 + px * sin + py * cos }
+        }
+      }
       const speed = Math.max(0, camera.z - lastZ)
       lastZ = camera.z
 
@@ -146,7 +161,7 @@ export function NeuralFlight({ progress, className }: NeuralFlightProps) {
       cancelAnimationFrame(frame)
       window.removeEventListener('resize', resize)
     }
-  }, [progress])
+  }, [progress, anchor])
 
   return <canvas ref={ref} aria-hidden="true" className={className} />
 }

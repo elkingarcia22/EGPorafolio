@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { CaseLead } from '@/components/case/case-lead'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 
 /**
@@ -293,54 +294,96 @@ export function ObjetivosAi() {
     }
   }, [i, pinned, reducedMotion, inView])
 
-  const closing = leaving && i === SCENES.length - 1
-
   const scene = SCENES[reducedMotion ? SCENES.length - 1 : i]
+  const step = 360 / SCENES.length
+  /** La órbita gira siempre hacia adelante: la neurona activa queda arriba, frente a la pieza */
+  const spin = -turn * step
+
+  const choose = (k: number) => {
+    setTurn((v) => v - (v % SCENES.length) + k)
+    setPinned(true)
+  }
 
   return (
     <div>
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t(OBJ_CASE.ai.lead)}</p>
+      <CaseLead>{t(OBJ_CASE.ai.lead)}</CaseLead>
 
-      <div ref={ref} data-reveal="device" className="relative mt-10 overflow-hidden rounded-3xl bg-[#0b0d16] text-white">
-        <span className="pointer-events-none absolute left-1/2 top-1/2 h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(from_200deg,#ff5ca8,#7b5cff,#0c5bef,#ff9a5c,#ff5ca8)] opacity-25 blur-3xl transition-transform duration-[1200ms] ease-expo" style={{ transform: `translate(-50%, -50%) rotate(${turn * 40}deg) scale(${1 + (i % 3) * 0.08})` }} aria-hidden="true" />
+      <div ref={ref} className="relative mx-auto mt-6 max-w-[900px] text-white">
+        {/* El paso en curso */}
+        <p key={`cap-${i}`} className="obj-fade text-center">
+          <span className="mono-label text-signal">0{i + 1} / 0{SCENES.length}</span>
+          <span className="mt-2 block text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-light tracking-tight">{t(scene.label)}</span>
+        </p>
 
-        {/* El escenario: una sola pieza en primer plano. */}
-        <div className="relative grid min-h-[420px] place-items-center px-4 py-12 md:min-h-[460px]">
-          <div key={scene.id} className="grid w-full place-items-center transition-[opacity,transform] ease-out" style={{ opacity: leaving ? 0 : 1, transform: leaving ? 'translateY(-8px) scale(0.98)' : 'none', transitionDuration: `${LEAVE_MS}ms` }}>
-            <scene.Scene />
+        <div className="relative mt-2 grid min-h-[480px] place-items-center md:min-h-[540px]">
+          {/* Halo de la IA detrás de la pieza */}
+          <span className="pointer-events-none absolute left-1/2 top-1/2 h-[480px] w-[480px] rounded-full bg-[conic-gradient(from_200deg,#ff5ca8,#7b5cff,#0c5bef,#ff9a5c,#ff5ca8)] opacity-20 blur-3xl transition-transform duration-[1200ms] ease-expo" style={{ transform: `translate(-50%, -50%) rotate(${turn * 40}deg) scale(${1 + (i % 3) * 0.08})` }} aria-hidden="true" />
+
+          {/* La órbita inclinada: nueve neuronas, una por paso; gira para traer la activa al frente */}
+          <svg viewBox="0 0 900 540" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+            <defs>
+              <linearGradient id="ai-orbit" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#7b5cff" />
+                <stop offset="1" stopColor="#ff5ca8" />
+              </linearGradient>
+            </defs>
+            <g transform="translate(450 270) scale(1 0.42)">
+              <circle r={400} fill="none" stroke="white" strokeOpacity={0.08} />
+              <g style={{ transform: `rotate(${spin}deg)`, transition: 'transform 1.2s cubic-bezier(.16,1,.3,1)' }}>
+                {/* Lo recorrido: la fibra se enciende desde el primer paso hasta el activo */}
+                <circle
+                  r={400}
+                  fill="none"
+                  stroke="url(#ai-orbit)"
+                  strokeWidth={3}
+                  pathLength={SCENES.length}
+                  strokeDasharray={`${i} ${SCENES.length}`}
+                  transform="rotate(90)"
+                  style={{ transition: 'stroke-dasharray .9s cubic-bezier(.16,1,.3,1)' }}
+                />
+                {SCENES.map((sc, k) => {
+                  const a = ((k * step + 90) * Math.PI) / 180
+                  const on = k === i
+                  return (
+                    <g key={sc.id} transform={`translate(${Math.cos(a) * 400} ${Math.sin(a) * 400})`}>
+                      <circle r={on ? 30 : 0} fill="#7b5cff" opacity={0.25} style={{ transition: 'r .6s' }} />
+                      <circle r={on ? 11 : 7} fill={k <= i ? (on ? '#ffffff' : '#7b5cff') : 'rgb(var(--void))'} stroke="white" strokeOpacity={on ? 1 : 0.4} strokeWidth={1.5} style={{ transition: 'r .6s, fill .6s' }} />
+                    </g>
+                  )
+                })}
+              </g>
+            </g>
+            {/* De la neurona del frente sube una fibra a la pieza */}
+            <path d="M450 438 L450 400" stroke="white" strokeOpacity={0.6} strokeWidth={1.2} style={{ filter: 'drop-shadow(0 0 4px #7b5cff)' }} />
+          </svg>
+
+          {/* La pieza en primer plano */}
+          <div className="relative z-10 grid w-full place-items-center px-4 py-10">
+            <div key={scene.id} className="grid w-full place-items-center transition-[opacity,transform] ease-out" style={{ opacity: leaving ? 0 : 1, transform: leaving ? 'translateY(-8px) scale(0.98)' : 'none', transitionDuration: `${LEAVE_MS}ms` }}>
+              <scene.Scene />
+            </div>
           </div>
         </div>
 
-        {/* La línea del flujo: marca dónde va y deja saltar a una pieza. */}
-        <ol className="relative flex gap-1 border-t border-white/10 px-4 py-4 md:px-8">
+        {/* Los pasos: tocar uno lleva a él */}
+        <ol className="relative mx-auto flex max-w-[460px] items-center justify-between">
+          <span className="absolute inset-x-1 top-1/2 h-px -translate-y-1/2 bg-white/12" aria-hidden="true" />
           {SCENES.map((s, k) => (
-            <li key={s.id} className="flex-1">
+            <li key={s.id} className="relative">
               <button
                 type="button"
-                onClick={() => {
-                  setTurn((v) => v - (v % SCENES.length) + k)
-                  setPinned(true)
-                }}
-                aria-current={k === i}
+                onClick={() => choose(k)}
+                aria-current={k === i ? 'step' : undefined}
                 aria-label={t(s.label)}
-                className="group block w-full py-1 text-left"
-              >
-                <span className="relative block h-1 overflow-hidden rounded-full bg-white/15">
-                  {k < i && <span className="absolute inset-0 bg-white/60 transition-opacity" style={{ opacity: closing ? 0 : 1, transitionDuration: `${LEAVE_MS}ms` }} />}
-                  {k === i && (
-                    <span className="absolute inset-0 transition-opacity" style={{ opacity: closing ? 0 : 1, transitionDuration: `${LEAVE_MS}ms` }}>
-                      <span key={`${i}-${pinned}`} className="absolute inset-0 origin-left bg-gradient-to-r from-[#7b5cff] to-[#0c5bef]" style={pinned || reducedMotion ? undefined : { animation: `view-progress ${s.ms}ms linear both` }} />
-                    </span>
-                  )}
-                </span>
-                <span className={`mt-2 hidden truncate text-[11px] transition-colors md:block ${k === i ? 'text-white' : 'text-white/40 group-hover:text-white/70'}`}>{t(s.label)}</span>
-              </button>
+                title={t(s.label)}
+                className={`block rounded-full transition-all duration-500 ease-expo ${k === i ? 'h-3 w-3 bg-[#7b5cff] shadow-[0_0_12px_2px_rgb(123_92_255/0.8)]' : k < i ? 'h-2 w-2 bg-white/60' : 'h-2 w-2 border border-white/40 bg-void hover:border-white'}`}
+              />
             </li>
           ))}
         </ol>
       </div>
 
-      <p className="mt-4 text-[12px] opacity-55">
+      <p className="mx-auto mt-6 max-w-[60ch] text-center text-[11px] leading-relaxed opacity-45">
         {t({ es: 'Recreado con los textos, las opciones y el resultado de «Crear la estrategia con IA» en el producto (KPIs corporativos 2026). El reto, el contexto y la apuesta son un ejemplo escrito para la prueba. En el prototipo la IA son reglas sobre el brief, sin modelo.', en: 'Recreated with the copy, options and result of “Create the strategy with AI” in the product (KPIs corporativos 2026). The challenge, context and bet are an example written for the test. In the prototype the AI is rules over the brief, no model.' })}
       </p>
     </div>

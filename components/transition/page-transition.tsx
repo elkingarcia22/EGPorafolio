@@ -19,31 +19,59 @@ const LOAD_S = 2.2
 /** Tiempo mínimo con la red a la vista: alcanza a tejer las conexiones en primer plano */
 const MIN_SHOW_MS = 1400
 /** El nombre del proyecto aparece palabra por palabra, como el titular del inicio */
-const LABEL_AT_S = 0.35
-const LABEL_STAGGER_S = 0.08
 /** Cierre: el porcentaje llega a 100 y las conexiones se sueltan */
 const FINISH_S = 0.35
 const DISSOLVE_S = 0.5
+/** Al salir, la carga se disuelve en este tiempo (s), sin cortinilla */
+const FADE_OUT_S = 0.7
+/** La página nueva empieza a armarse un poco antes de que termine el salto (s) */
+const REVEAL_LEAD_S = 0.2
+/** La última neurona viaja hasta el destino de la página nueva (s) y se vuelve su anillo */
+const SEED_S = 0.95
+/** Espera breve tras el 100 %: la red guarda dónde quedó la última neurona */
+const SEED_MEASURE_S = 0.06
+/** Aviso a la página nueva: la carga se está yendo y ya puede armarse (ver `onPageReveal`) */
+export const PAGE_REVEAL_EVENT = 'eg:page-reveal'
+
+export interface PageRevealInfo {
+  /** La última neurona de la carga llegó al `data-transition-target` de la página */
+  seeded: boolean
+}
+
+/**
+ * Llama a `start` cuando la página ya está a la vista: de inmediato si se llegó sin transición,
+ * o cuando la carga entre páginas empieza a disolverse. Devuelve cómo cancelarlo.
+ */
+export function onPageReveal(start: (info: PageRevealInfo) => void): () => void {
+  if (document.documentElement.dataset.transitioning !== 'true') {
+    start({ seeded: false })
+    return () => {}
+  }
+  const handler = (event: Event) => start({ seeded: (event as CustomEvent<PageRevealInfo>).detail?.seeded ?? false })
+  window.addEventListener(PAGE_REVEAL_EVENT, handler, { once: true })
+  return () => window.removeEventListener(PAGE_REVEAL_EVENT, handler)
+}
+
 /** Red de seguridad: si la navegación del cliente no llega, se carga la página completa. */
 const HARD_NAV_MS = 12000
 
 /**
  * Cortina de barras verticales (las barras de la hoja de vida) que cubre
  * la pantalla al salir de una página y se retira al entrar a la nueva.
- * Mientras cubre, se ve la misma carga del inicio: la cámara entra a la red
- * mientras los nodos en primer plano se conectan, y el nombre del destino
- * aparece palabra por palabra. Al llegar la página, la cámara salta hacia
- * adelante y la cortina se retira.
+ * Mientras cubre, se ve la misma carga del inicio, sin texto: la cámara entra
+ * a la red mientras los nodos en primer plano se conectan. Al llegar la
+ * página, la cámara salta hacia adelante y todo se disuelve.
  */
 export function TransitionOverlay() {
   const router = useRouter()
   const pathname = usePathname()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
-  const labelRef = useRef<HTMLParagraphElement>(null)
+  const seedRef = useRef<HTMLDivElement>(null)
+  /** Dónde se ve la última neurona de la carga (px), para que viaje al destino */
+  const anchorRef = useRef<{ x: number; y: number } | null>(null)
   const isCovering = useRef(false)
   const firstRoute = useRef(true)
-  const [label, setLabel] = useState('')
   /** La cortina ya tapa la pantalla: se muestra el centro (carga y página). */
   const [covered, setCovered] = useState(false)
   /** Cada navegación monta una red nueva (la anterior se detiene al soltarse) */
@@ -68,15 +96,15 @@ export function TransitionOverlay() {
   }
 
   const navigate = useCallback<Navigate>(
-    (href, nextLabel = '') => {
+    (href) => {
       if (reducedMotion || !rootRef.current) {
         router.push(href)
         return
       }
       // Pide la página mientras la cortina cubre: al terminar ya está lista.
       router.prefetch(href)
-      setLabel(nextLabel)
       counter.current.v = 0
+      anchorRef.current = null
       syncCounter()
       setNetKey((k) => k + 1)
       setShowNet(true)
@@ -105,18 +133,6 @@ export function TransitionOverlay() {
     [reducedMotion, router],
   )
 
-  // El nombre del destino entra palabra por palabra cuando la cortina ya cubre.
-  useEffect(() => {
-    const words = labelRef.current?.querySelectorAll('[data-label-word]')
-    if (!covered || !words?.length) return
-    const tween = gsap.fromTo(words, { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' }, {
-      autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: LABEL_STAGGER_S, ease: 'expo.out', delay: LABEL_AT_S,
-    })
-    return () => {
-      tween.kill()
-    }
-  }, [covered, label, netKey])
-
   useEffect(() => {
     navigateHandler = navigate
     return () => {
@@ -140,23 +156,57 @@ export function TransitionOverlay() {
     loadTween.current?.kill()
     const wait = Math.max(0, MIN_SHOW_MS - (performance.now() - coveredAt.current)) / 1000
     const dissolve = { v: 1 }
+    let exit: gsap.core.Timeline | null = null
+    const warp = () => gsap.to(dissolve, { v: 0, duration: DISSOLVE_S, ease: 'power2.in', onUpdate: () => { loadProgress.current = dissolve.v } })
+    const reveal = (seeded: boolean) => { window.dispatchEvent(new CustomEvent<PageRevealInfo>(PAGE_REVEAL_EVENT, { detail: { seeded } })) }
+    const finish = () => {
+      setCovered(false)
+      gsap.set(bars(), { scaleY: 0 })
+      gsap.set(root, { visibility: 'hidden', opacity: 1 })
+      if (seedRef.current) gsap.set(seedRef.current, { autoAlpha: 0 })
+      delete document.documentElement.dataset.transitioning
+      setShowNet(false)
+    }
     const tl = gsap
       .timeline({ delay: wait })
       .to(counter.current, { v: 100, duration: FINISH_S, ease: 'power1.out', onUpdate: syncCounter })
-      .call(() => setCovered(false))
-      .to(dissolve, { v: 0, duration: DISSOLVE_S, ease: 'power2.in', onUpdate: () => { loadProgress.current = dissolve.v } })
-      .to(bars(), { scaleY: 0, transformOrigin: '50% 0%', duration: 0.55, ease: 'expo.inOut', stagger: 0.03 }, '<0.1')
-      .call(() => {
-        gsap.set(root, { visibility: 'hidden' })
-        delete document.documentElement.dataset.transitioning
-        setShowNet(false)
-      })
+      .to({}, { duration: SEED_MEASURE_S })
+    tl.call(() => {
+      const seed = seedRef.current
+      const target = document.querySelector<HTMLElement>('[data-transition-target]')
+      const from = anchorRef.current
+      const box = target?.offsetParent?.getBoundingClientRect()
+      if (!seed || !target || !from || !box) {
+        // Sin destino: la cámara salta hacia adelante y todo se disuelve (sin cortinilla).
+        exit = gsap.timeline()
+          .add(warp())
+          .call(() => reveal(false), undefined, DISSOLVE_S - REVEAL_LEAD_S)
+          .to(root, { autoAlpha: 0, duration: FADE_OUT_S, ease: 'power2.out' }, DISSOLVE_S - REVEAL_LEAD_S)
+          .call(finish)
+        return
+      }
+      // Con destino: la última neurona queda encendida y viaja hasta él mientras la red se va;
+      // al llegar crece hasta el tamaño del anillo y la página se arma desde ahí.
+      const size = target.offsetWidth
+      gsap.set(seed, { x: from.x, y: from.y, width: size, height: size, xPercent: -50, yPercent: -50, scale: 14 / size, autoAlpha: 1 })
+      gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
+      exit = gsap.timeline()
+        .add(warp(), 0)
+        .to(root, { autoAlpha: 0, duration: FADE_OUT_S, ease: 'power2.out' }, 0.15)
+        .to(seed, { x: box.left + target.offsetLeft, y: box.top + target.offsetTop, scale: 1, duration: SEED_S, ease: 'expo.inOut' }, 0)
+        .to(seed.querySelector('[data-seed-core]'), { autoAlpha: 0, duration: SEED_S * 0.6, ease: 'power1.in' }, SEED_S * 0.4)
+        .call(() => reveal(true), undefined, SEED_S - 0.05)
+        .to(seed, { autoAlpha: 0, duration: 0.25 }, SEED_S + 0.1)
+        .call(finish)
+    })
     return () => {
+      exit?.kill()
       tl.kill()
     }
   }, [pathname])
 
   return (
+    <>
     <div
       ref={rootRef}
       aria-hidden="true"
@@ -166,23 +216,21 @@ export function TransitionOverlay() {
       {Array.from({ length: BAR_COUNT }, (_, i) => (
         <div key={i} data-bar className="h-full flex-1 bg-void" style={{ transform: 'scaleY(0)' }} />
       ))}
-      {/* La misma carga del inicio: la red armándose en primer plano y el nombre del destino */}
+      {/* La misma carga del inicio: solo la red armándose en primer plano */}
       <div className={`absolute inset-0 transition-opacity duration-300 ${covered ? 'opacity-100 delay-150' : 'opacity-0'}`}>
-        {showNet && <NeuralFlight key={netKey} progress={loadProgress} className="absolute inset-0 h-full w-full" />}
-        <div className="relative flex h-full items-end justify-center px-[var(--gutter)] pb-[18svh]">
-          {label && (
-            <p ref={labelRef} className="max-w-3xl text-center text-[clamp(1.6rem,1rem+2.4vw,3.2rem)] font-light leading-[1.05] tracking-tight text-paper [text-shadow:0_2px_18px_rgb(var(--void)/0.85)]">
-              {label.split(' ').map((word, i, all) => (
-                <span key={`${netKey}-${i}`} data-label-word className="inline-block opacity-0">
-                  {word}
-                  {i < all.length - 1 && '\u00a0'}
-                </span>
-              ))}
-            </p>
-          )}
-        </div>
+        {showNet && <NeuralFlight key={netKey} progress={loadProgress} anchor={anchorRef} className="absolute inset-0 h-full w-full" />}
       </div>
     </div>
+    {/* La última neurona de la carga: viaja al destino de la página nueva y se vuelve su anillo */}
+    <div
+      ref={seedRef}
+      aria-hidden="true"
+      className="pointer-events-none fixed left-0 top-0 z-[71] rounded-full border border-white/70 shadow-[0_0_30px_6px_rgb(var(--signal)/0.55),inset_0_0_20px_rgb(var(--signal)/0.4)]"
+      style={{ visibility: 'hidden' }}
+    >
+      <div data-seed-core className="absolute inset-0 rounded-full bg-[radial-gradient(circle,#fff_0%,rgb(var(--signal))_35%,rgb(var(--signal)/0)_70%)]" />
+    </div>
+    </>
   )
 }
 

@@ -42,11 +42,14 @@ export function useReveal(root: React.RefObject<HTMLElement | null>, reducedMoti
   useEffect(() => {
     const el = root.current
     if (!el || reducedMotion) return
+    /** Lo que está dentro de `[data-reveal-off]` anima su propia entrada (p. ej. el muro de bocetos) */
+    const pick = <T extends Element>(selector: string) => gsap.utils.toArray<T>(selector, el).filter((node) => !node.closest('[data-reveal-off]'))
     const ctx = gsap.context(() => {
       ;(Object.keys(SELECTOR) as RevealKind[]).forEach((kind) => {
-        if (!el.querySelector(SELECTOR[kind])) return
-        gsap.set(SELECTOR[kind], FROM[kind])
-        ScrollTrigger.batch(SELECTOR[kind], {
+        const nodes = pick<HTMLElement>(SELECTOR[kind])
+        if (nodes.length === 0) return
+        gsap.set(nodes, FROM[kind])
+        ScrollTrigger.batch(nodes, {
           start: 'top 92%',
           once: true,
           onEnter: (batch) => gsap.to(batch, { ...TO[kind], overwrite: true }),
@@ -54,7 +57,7 @@ export function useReveal(root: React.RefObject<HTMLElement | null>, reducedMoti
       })
 
       // Trazos que se dibujan (flechas de los bocetos)
-      gsap.utils.toArray<SVGPathElement>('[data-draw]').forEach((path) => {
+      pick<SVGPathElement>('[data-draw]').forEach((path) => {
         gsap.fromTo(
           path,
           { strokeDashoffset: 1 },

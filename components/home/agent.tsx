@@ -58,6 +58,8 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)
+  /** La conversación ya no cabe: solo entonces la rueda desplaza el chat; si no, sigue bajando la página */
+  const [logScrolls, setLogScrolls] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const nextId = useRef(0)
   const abortRef = useRef<AbortController | null>(null)
@@ -72,6 +74,16 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
     const log = logRef.current
     if (log) log.scrollTo({ top: log.scrollHeight, behavior: reducedMotion ? 'auto' : 'smooth' })
   }, [messages, reducedMotion])
+  useEffect(() => {
+    const log = logRef.current
+    if (!log) return
+    const update = () => setLogScrolls(log.scrollHeight > log.clientHeight + 1)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(log)
+    Array.from(log.children).forEach((child) => observer.observe(child))
+    return () => observer.disconnect()
+  }, [messages])
   useEffect(() => () => abortRef.current?.abort(), [])
 
   const patch = (id: number, content: string) => setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, content } : m)))
@@ -175,7 +187,7 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
               )}
             </div>
 
-            <div ref={logRef} role="log" aria-live="polite" aria-busy={busy} className="flex-1 space-y-6 overflow-y-auto p-5 text-[15px] leading-relaxed" data-lenis-prevent>
+            <div ref={logRef} role="log" aria-live="polite" aria-busy={busy} className="flex-1 space-y-6 overflow-y-auto p-5 text-[15px] leading-relaxed" data-lenis-prevent={logScrolls || undefined}>
               {messages.length === 0 && (
                 <div className="space-y-5">
                   <p className="opacity-60">

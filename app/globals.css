@@ -273,3 +273,9 @@ html[data-motion='reduced'] [style*='node-link'], html[data-motion='reduced'] [s
   85% { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(0); opacity: 0; }
 }
+
+/* Anillo que late alrededor del nodo en lectura del índice de un caso (<ChapterNav>) */
+@keyframes nav-node-ping {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  80%, 100% { transform: scale(1.6); opacity: 0; }
+}

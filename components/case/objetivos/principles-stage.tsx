@@ -227,10 +227,14 @@ const PRINCIPLES: readonly { title: L; body: L; Scene: () => JSX.Element }[] = [
   { title: { es: 'Contar, no exponer', en: 'Count, don’t expose' }, body: { es: 'En público solo se nombra para reconocer. Un cruce de menos de 3 personas sale reservado.', en: 'In public you only name people to praise. A cell under 3 people stays private.' }, Scene: CountScene },
 ]
 
+/** Acercamiento a la neurona activa */
+const ZOOM = 1.55
+
 /**
- * Los cuatro principios como un índice editorial: a la izquierda, los números
- * grandes; a la derecha, un escenario que cambia con cada uno. Avanza solo
- * mientras está en vista y nadie lo toca.
+ * Los cuatro principios como neuronas en una fibra: la cámara lleva la activa
+ * al centro y se acerca; encima, su nombre y una línea; debajo, colgando de la
+ * neurona, su demostración. El tramo hacia la siguiente se va llenando mientras
+ * se lee. Avanza solo mientras está en vista; tocar una neurona la elige.
  */
 export function PrinciplesStage() {
   const { t } = useLocale()
@@ -238,6 +242,7 @@ export function PrinciplesStage() {
   const [active, setActive] = useState(0)
   const [auto, setAuto] = useState(true)
   const [inView, setInView] = useState(false)
+  const [leaving, setLeaving] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -248,9 +253,7 @@ export function PrinciplesStage() {
     return () => io.disconnect()
   }, [])
 
-  const [leaving, setLeaving] = useState(false)
-
-  // Al pasar solo, el escenario se desvanece primero; el siguiente entra con su propio fundido.
+  // Al pasar solo, la demostración se desvanece primero; la siguiente entra con su propio fundido.
   useEffect(() => {
     if (!auto || reducedMotion || !inView) return
     const leave = window.setTimeout(() => setLeaving(true), AUTO_MS - LEAVE_MS)
@@ -271,60 +274,74 @@ export function PrinciplesStage() {
     setActive(i)
   }
   const running = auto && inView && !reducedMotion
+  const count = PRINCIPLES.length
+  /** Cámara: lleva la neurona activa al centro de la fila y se acerca */
+  const shift = 50 - ((active + 0.5) / count) * 100
 
   return (
-    <div ref={ref} data-reveal className="grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:gap-12">
-      {/* Teléfono y tableta: cuatro pestañas compactas; el título y la explicación van en el panel. */}
-      <div role="tablist" aria-label={t({ es: 'Principios', en: 'Principles' })} className="grid grid-cols-4 border border-fg/20 p-1 xl:hidden">
-        {PRINCIPLES.map((p, i) => (
-          <button
-            key={p.title.es}
-            type="button"
-            role="tab"
-            aria-selected={i === active}
-            aria-label={t(p.title)}
-            onClick={() => choose(i)}
-            className="relative overflow-hidden py-2.5 font-mono text-[13px] tabular-nums transition-colors aria-selected:bg-signal aria-selected:text-on-signal"
-          >
-            0{i + 1}
-            {i === active && running && (
-              <span key={active} className="obj-progress absolute inset-x-0 bottom-0 h-0.5 origin-left bg-paper/70" style={{ animationDuration: `${AUTO_MS}ms` }} aria-hidden="true" />
-            )}
-          </button>
-        ))}
+    <div ref={ref} className="mx-auto flex max-w-[820px] flex-col items-center text-center">
+      {/* Lo que dice el principio activo */}
+      <div key={`txt-${active}`} aria-live="polite" className="obj-fade flex min-h-[7rem] max-w-[40ch] flex-col items-center justify-end">
+        <span className="mono-label text-signal">{t({ es: 'Principio', en: 'Principle' })} 0{active + 1}</span>
+        <p className="mt-3 text-[clamp(1.5rem,1.1rem+1.4vw,2.4rem)] font-light leading-[1.1] tracking-tight">{t(title)}</p>
+        <p className="mt-2 text-sm leading-relaxed text-paper/55">{t(body)}</p>
       </div>
 
-      <ol role="tablist" aria-label={t({ es: 'Principios', en: 'Principles' })} className="hidden xl:block">
-        {PRINCIPLES.map((p, i) => (
-          <li key={p.title.es} className="border-t border-fg/15 last:border-b">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={i === active}
-              onClick={() => choose(i)}
-              className="group relative flex w-full items-baseline gap-5 py-5 text-left"
-            >
-              <span className={`font-light tabular-nums leading-none transition-[color,opacity] duration-500 text-[clamp(2.2rem,1.4rem+2vw,3.4rem)] ${i === active ? 'text-signal' : 'opacity-20 group-hover:opacity-50'}`}>0{i + 1}</span>
-              <span className={`text-[clamp(1.1rem,0.9rem+0.6vw,1.5rem)] leading-snug transition-opacity duration-500 ${i === active ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`}>{t(p.title)}</span>
-              {i === active && running && (
-                <span key={active} className="obj-progress absolute -top-px left-0 h-0.5 w-full origin-left bg-signal" style={{ animationDuration: `${AUTO_MS}ms` }} aria-hidden="true" />
-              )}
-            </button>
-          </li>
-        ))}
-      </ol>
+      {/* La fibra con las cuatro neuronas: la cámara se mueve sobre ella */}
+      <div className="relative mt-8 h-16 w-full overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_18%,#000_82%,transparent)]">
+        <div
+          role="tablist"
+          aria-label={t({ es: 'Principios', en: 'Principles' })}
+          className="absolute inset-0 transition-transform duration-[1100ms] ease-expo"
+          style={{ transform: reducedMotion ? undefined : `scale(${ZOOM}) translateX(${shift}%)` }}
+        >
+          <span className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-white/12" aria-hidden="true" />
+          {/* Tramos ya recorridos y el que se va llenando hacia la siguiente neurona */}
+          {PRINCIPLES.map((p, i) => {
+            if (i === count - 1) return null
+            const from = ((i + 0.5) / count) * 100
+            const fill = i < active ? 1 : i === active && running ? undefined : 0
+            return (
+              <span key={`seg-${p.title.es}`} className="absolute top-1/2 h-px -translate-y-1/2 overflow-hidden" style={{ left: `${from}%`, width: `${100 / count}%` }} aria-hidden="true">
+                <span
+                  key={`${active}-${running}`}
+                  className={`block h-full origin-left bg-gradient-to-r from-signal to-[#ff54aa] shadow-[0_0_8px_rgb(var(--signal)/0.7)] ${fill === undefined ? 'obj-progress' : ''}`}
+                  style={fill === undefined ? { animationDuration: `${AUTO_MS}ms` } : { transform: `scaleX(${fill})` }}
+                />
+              </span>
+            )
+          })}
+          {PRINCIPLES.map((p, i) => {
+            const on = i === active
+            return (
+              <button
+                key={p.title.es}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                aria-label={t(p.title)}
+                onClick={() => choose(i)}
+                className="group absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
+                style={{ left: `${((i + 0.5) / count) * 100}%` }}
+              >
+                <span className={`relative grid h-[22px] w-[22px] place-items-center rounded-full border font-mono text-[7px] tabular-nums transition-all duration-500 ease-expo ${on ? 'border-white bg-signal text-on-signal shadow-[0_0_0_6px_rgb(var(--signal)/0.18),0_0_22px_4px_rgb(var(--signal)/0.7)]' : i < active ? 'border-white/60 bg-white/20 text-white/80' : 'border-white/35 bg-void text-white/50 group-hover:border-white'}`}>
+                  0{i + 1}
+                  {on && <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.4s_cubic-bezier(0,0,.2,1)_infinite]" />}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
-      <div role="tabpanel" className="relative overflow-hidden rounded-3xl bg-fg/[0.04] ring-1 ring-fg/10 [--obj-card:rgb(var(--bg))]">
+      {/* De la neurona cuelga su demostración */}
+      <span className="h-10 w-px bg-gradient-to-b from-signal to-white/10 shadow-[0_0_8px_rgb(var(--signal)/0.6)]" aria-hidden="true" />
+      <div role="tabpanel" className="relative w-full max-w-[600px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] text-left shadow-[0_30px_80px_-40px_rgb(var(--signal)/0.5)] backdrop-blur-md [--obj-card:rgb(var(--void))]">
         <span className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-signal opacity-15 blur-3xl" aria-hidden="true" />
         <div className="relative transition-opacity ease-out" style={{ opacity: leaving ? 0 : 1, transitionDuration: `${LEAVE_MS}ms` }}>
-        <div key={active} className="obj-rise relative h-[250px] p-5 sm:h-[300px] md:p-8">
-          <Scene />
-        </div>
-        <div key={`txt-${active}`} className="obj-fade relative border-t border-fg/10 p-5 md:p-8">
-          <span className="mono-label text-signal">{t({ es: 'Principio', en: 'Principle' })} 0{active + 1}</span>
-          <p className="mt-2 text-xl leading-snug">{t(title)}</p>
-          <p className="mt-2 max-w-[52ch] text-sm leading-relaxed opacity-70">{t(body)}</p>
-        </div>
+          <div key={active} className="obj-rise relative h-[260px] p-5 sm:h-[300px] md:p-8">
+            <Scene />
+          </div>
         </div>
       </div>
     </div>
