@@ -1,9 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE, type Mark } from '@/lib/content/cases/barberlytics/platform-case'
-import { useInView } from './use-auto-steps'
+import { useAutoSteps, useInView } from './use-auto-steps'
 
 const GOLD = '#d9b36a'
 const PAIN = '#ff6b72'
@@ -11,6 +12,9 @@ const GAIN = '#4cc98d'
 /** Retraso entre columnas y entre filas al llenarse (ms) */
 const COL_MS = 90
 const ROW_MS = 35
+/** Voces: un punto cada tanto al entrar, y luego una frase tras otra sola */
+const VOICE_POP_MS = 120
+const VOICE_CYCLE_MS = 3400
 /** En teléfono, la función ocupa su propio renglón y los ocho puntos van debajo; desde sm, en una sola fila */
 const COLS = 'grid-cols-[repeat(8,minmax(0,1fr))] sm:grid-cols-[minmax(0,1fr)_repeat(8,1.75rem)]'
 
@@ -38,6 +42,26 @@ export function SectorMatrix() {
   const on = useInView(rootRef)
   const [row, setRow] = useState<number | null>(null)
   const [voice, setVoice] = useState<number | null>(null)
+  const { reducedMotion } = useA11y()
+  const voicesRef = useRef<HTMLDivElement>(null)
+  const voicesInView = useInView(voicesRef)
+  const shown = useAutoSteps(voicesRef, voices.items.length, VOICE_POP_MS, 300)
+  const allShown = shown >= voices.items.length
+  // Hasta que alguien toque un punto, las frases pasan solas una tras otra
+  const [auto, setAuto] = useState(true)
+  useEffect(() => {
+    if (!auto || !allShown || !voicesInView || reducedMotion) return
+    const id = window.setTimeout(
+      () => setVoice((v) => (v === null ? 0 : (v + 1) % voices.items.length)),
+      voice === null ? 500 : VOICE_CYCLE_MS,
+    )
+    return () => window.clearTimeout(id)
+  }, [auto, allShown, voicesInView, reducedMotion, voice, voices.items.length])
+  const pickVoice = (i: number) => {
+    setAuto(false)
+    setVoice(voice === i ? null : i)
+  }
+  const lastIdx = voices.items.length - 1
 
   const rowCaption = (() => {
     if (row === null) return null
@@ -88,7 +112,7 @@ export function SectorMatrix() {
       </p>
 
       {/* La voz de quien los usa: una fibra con un punto por frase */}
-      <div className="mt-20">
+      <div ref={voicesRef} className="mt-20">
         <div key={voice ?? 'title'} aria-live="polite" className="pl-fade mx-auto flex min-h-[6rem] max-w-[40ch] flex-col items-center justify-end text-center">
           {v ? (
             <>
@@ -98,21 +122,33 @@ export function SectorMatrix() {
           ) : (
             <>
               <span className="mono-label text-signal">{t(voices.title)}</span>
-              <span className="mt-2 text-sm text-paper/45">{t({ es: 'Toca un punto para leerlo.', en: 'Tap a dot to read it.' })}</span>
+              <span className="mt-2 text-sm text-paper/45">{t({ es: 'Pasan solas; toca un punto para quedarte en una.', en: 'They play on their own; tap a dot to stay on one.' })}</span>
             </>
           )}
         </div>
         <ol className="relative mx-auto mt-8 flex max-w-[640px] justify-between">
-          <span aria-hidden="true" className="absolute inset-x-[7px] top-[7px] h-px" style={{ background: `linear-gradient(90deg, ${PAIN}66, rgb(255 255 255 / 0.15) 70%, ${GAIN}88)` }} />
+          {/* La fibra se dibuja de izquierda a derecha mientras aparecen los puntos */}
+          <span aria-hidden="true" className="absolute inset-x-[7px] top-[7px] h-px origin-left transition-transform duration-[900ms] ease-out" style={{ transform: `scaleX(${lastIdx ? Math.min(1, Math.max(0, shown - 1) / lastIdx) : 1})`, background: `linear-gradient(90deg, ${PAIN}66, rgb(255 255 255 / 0.15) 70%, ${GAIN}88)` }} />
+          {/* La señal que viaja hasta la frase que se está leyendo */}
+          {voice !== null && (
+            <span aria-hidden="true" className="pointer-events-none absolute inset-x-[7px] top-[7px] h-0">
+              <span
+                className="absolute top-0 h-[3px] w-10 -translate-x-full -translate-y-1/2 rounded-full transition-[left] duration-700 ease-[cubic-bezier(.65,0,.35,1)]"
+                style={{ left: `${lastIdx ? (voice / lastIdx) * 100 : 0}%`, background: `linear-gradient(90deg, transparent, ${voices.items[voice].tone === 'pain' ? PAIN : GAIN})` }}
+              />
+            </span>
+          )}
           {voices.items.map((it, i) => {
             const hue = it.tone === 'pain' ? PAIN : GAIN
             const picked = voice === i
+            const visible = i < shown
             return (
               <li key={it.quote.es} className="relative">
-                <button type="button" aria-pressed={picked} aria-label={t(it.quote)} onClick={() => setVoice(picked ? null : i)} className="group relative grid h-3.5 w-3.5 place-items-center outline-none">
+                <button type="button" aria-pressed={picked} aria-label={t(it.quote)} onClick={() => pickVoice(i)} style={{ visibility: visible ? undefined : 'hidden' }} className={`group relative grid h-3.5 w-3.5 place-items-center outline-none ${visible ? "pl-pop" : ""}`}>
                   <span className="absolute -inset-3" />
                   <span className={`absolute inset-0 rounded-full border transition-all duration-500 ${picked ? 'scale-150' : 'group-hover:scale-125'}`} style={{ borderColor: hue, background: picked ? hue : 'rgb(var(--void))', boxShadow: picked ? `0 0 18px 4px ${hue}99` : undefined }} />
-                  {i === voices.items.length - 1 && <span data-fiber-from="pl-idea" className="absolute left-1/2 top-1/2 h-px w-px" />}
+                  {picked && <span className="pl-hot absolute inset-0 rounded-full border" style={{ borderColor: hue }} />}
+                  {i === lastIdx && <span data-fiber-from="pl-idea" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </button>
               </li>
             )

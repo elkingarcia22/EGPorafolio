@@ -1,39 +1,11 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
-import { useA11y } from '@/lib/a11y'
+import { useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { BrowserMockup, PanelMockup, type Callout } from '@/components/case/kit/device'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import type { CaseImage } from '@/lib/content/cases/barberlytics/types'
-import { HALF_HOURS } from './calendar-model'
-import { LiveCalendar } from './live-calendar'
-import { useInView } from './use-auto-steps'
-
-/** El reloj del día: corre rápido al entrar (la mañana pasa en un par de segundos) y luego a su paso */
-const CLOCK = { from: 0.2, to: HALF_HOURS - 0.6, fastUntil: 3.4, fastMs: 70, slowMs: 650, step: 1 / 6 }
-
-function useDayClock(running: boolean): number {
-  const { reducedMotion } = useA11y()
-  const [now, setNow] = useState(reducedMotion ? CLOCK.fastUntil : CLOCK.from)
-  const fast = useRef(true)
-  useEffect(() => {
-    if (!running || reducedMotion) return
-    const id = window.setTimeout(
-      () => {
-        setNow((n) => {
-          const next = n + CLOCK.step
-          if (next >= CLOCK.fastUntil) fast.current = false
-          return next > CLOCK.to ? CLOCK.from : next
-        })
-      },
-      fast.current ? CLOCK.fastMs : CLOCK.slowMs,
-    )
-    return () => window.clearTimeout(id)
-  }, [running, reducedMotion, now])
-  return now
-}
 
 interface Piece {
   id: string
@@ -50,29 +22,16 @@ const PIECES: readonly Piece[] = [
   { id: 'day', name: { es: 'El día de un vistazo', en: 'The day at a glance' }, image: dayPanel.image, callouts: dayPanel.callouts, tall: true },
 ]
 
-/**
- * 04 · Forma: el calendario real del día, vivo. Al entrar, la mañana corre
- * rápido y las tarjetas cambian de etapa solas. Debajo, las pantallas reales
- * sobre una fibra; tocar una la abre con lo que conviene mirar.
- */
-export function LivingDay() {
+/** 04 · Forma, al final: las pantallas reales sobre una fibra; tocar una la abre con lo que conviene mirar. */
+export function RealScreens() {
   const { t } = useLocale()
-  const rootRef = useRef<HTMLDivElement>(null)
-  const inView = useInView(rootRef, '0px 0px -10% 0px')
-  const now = useDayClock(inView)
   const [open, setOpen] = useState<number | null>(null)
   const piece = open === null ? null : PIECES[open]
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-[1000px]">
-      <div className="relative">
-        <span aria-hidden="true" className="pointer-events-none absolute -inset-x-10 -inset-y-8 rounded-[50%] bg-[radial-gradient(closest-side,rgba(217,179,106,0.14),transparent)]" />
-        <LiveCalendar now={now} density="compacta" className="relative shadow-[0_50px_100px_-40px_rgba(0,0,0,0.95)]" />
-      </div>
-      <p className="mt-4 text-center font-mono text-[11px] text-white/40">{t({ es: 'Réplica del calendario · la hora corre sola', en: 'Calendar replica · time runs on its own' })}</p>
-
+    <div className="mx-auto max-w-[1000px]">
       {/* Las pantallas reales, sobre una fibra: se abren al tocarlas */}
-      <div className="mt-16">
+      <div>
         <p className="mono-label mb-8 text-center opacity-50">{t({ es: 'Las pantallas reales', en: 'The real screens' })}</p>
         <ol className="relative grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4">
           <span aria-hidden="true" className="absolute inset-x-[12.5%] top-[7px] hidden h-px bg-gradient-to-r from-signal/60 via-white/20 to-[#d9b36a]/60 sm:block" />
@@ -105,9 +64,9 @@ export function LivingDay() {
           </div>
         )}
       </div>
-      {/* El cierre del capítulo: de aquí baja la fibra hasta «Por rol», sin cruzar la pantalla abierta */}
+      {/* El cierre del capítulo: de aquí baja la fibra hasta «IA», sin cruzar la pantalla abierta */}
       <span aria-hidden="true" className="relative mx-auto mt-14 block h-2 w-2 rounded-full bg-white/60 shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
-        <span data-fiber-from="pl-roles" className="absolute left-1/2 top-1/2 h-px w-px" />
+        <span data-fiber-from="pl-ia" className="absolute left-1/2 top-1/2 h-px w-px" />
       </span>
     </div>
   )
