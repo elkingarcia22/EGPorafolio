@@ -10,10 +10,10 @@ const DEMO_ID = 'calendario'
 const DEMO_URL = `${PLATFORM_CASE.demo.base}?rol=recepcion&ir=${encodeURIComponent('/calendario')}`
 /**
  * Lo que queda fuera del calendario en la app: la barra de arriba (buscar,
- * comentarios, entrada, avisos, cuenta) y, desde 768 px de ancho, el riel de
+ * comentarios, entrada, avisos, cuenta) y, desde 1024 px de ancho, el riel de
  * navegación de la izquierda. Medidas de la app (px).
  */
-const APP = { header: 56, rail: 64, railFrom: 768 }
+const APP = { header: 56, rail: 64, railFrom: 1024 }
 
 /** Tapa lo que no es el calendario: se ve, pero no se puede tocar. */
 function Blocker({ className, style, label }: { className: string; style?: React.CSSProperties; label?: string }) {
