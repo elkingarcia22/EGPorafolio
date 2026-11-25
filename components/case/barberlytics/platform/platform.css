@@ -1,0 +1,54 @@
+/* Movimientos propios del caso Plataforma. Todos respetan el movimiento reducido. */
+@keyframes pl-fade-in {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.pl-fade { animation: pl-fade-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Un punto que aparece con un rebote corto (matriz, pasos) */
+@keyframes pl-pop {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 1; transform: scale(1); }
+}
+.pl-pop { animation: pl-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* La señal que recorre una fibra ya completa */
+.pl-signal { animation: pl-signal 2.8s cubic-bezier(.65,0,.35,1) infinite; }
+@keyframes pl-signal { from { stroke-dashoffset: 0.05; } to { stroke-dashoffset: -0.95; } }
+
+/* El anillo que late alrededor del nodo encendido */
+.pl-hot { transform-box: fill-box; transform-origin: center; animation: pl-hot 1.6s cubic-bezier(0,0,.2,1) infinite; }
+@keyframes pl-hot { 0% { transform: scale(0.7); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+/* Una sugerencia que cae en la rejilla */
+@keyframes pl-drop {
+  from { opacity: 0; transform: translateY(-18px) scale(0.96); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.pl-drop { animation: pl-drop 700ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Impacto: la carrera de los segundos para agendar */
+@keyframes pl-race { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.pl-race { transform-origin: left; animation: pl-race linear both; }
+
+/* Textos de la línea de la portada: en teléfono el SVG se encoge, así que las letras crecen */
+.pl-hero-stage { font-size: 12px; }
+.pl-hero-next { font-size: 12px; }
+.pl-hub-name { font-size: 15px; }
+.pl-hub-sub { font-size: 11px; }
+@media (max-width: 640px) {
+  .pl-hero-stage { font-size: 27px; letter-spacing: 0.02em; }
+  .pl-hero-next { font-size: 20px; }
+  .pl-hub-name { font-size: 34px; }
+  .pl-hub-sub { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-fade, .pl-pop, .pl-signal, .pl-hot, .pl-drop, .pl-race { animation: none; }
+}
+html[data-motion='reduced'] .pl-fade,
+html[data-motion='reduced'] .pl-pop,
+html[data-motion='reduced'] .pl-signal,
+html[data-motion='reduced'] .pl-hot,
+html[data-motion='reduced'] .pl-drop,
+html[data-motion='reduced'] .pl-race { animation: none; }
