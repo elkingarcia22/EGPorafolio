@@ -187,7 +187,7 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
               )}
             </div>
 
-            <div ref={logRef} role="log" aria-live="polite" aria-busy={busy} className="flex-1 space-y-6 overflow-y-auto p-5 text-[15px] leading-relaxed" data-lenis-prevent={logScrolls || undefined}>
+            <div ref={logRef} role="log" aria-live="polite" aria-busy={busy} className="fiber-scroll flex-1 space-y-6 overflow-y-auto p-5 text-[15px] leading-relaxed" data-lenis-prevent={logScrolls || undefined}>
               {messages.length === 0 && (
                 <div className="space-y-5">
                   <p className="opacity-60">

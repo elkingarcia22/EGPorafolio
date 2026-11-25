@@ -8,6 +8,8 @@ import { useA11y } from '@/lib/a11y'
 
 /** Lo que tarda el cambio de color: cabe dentro de la cortina con la red a la vista. */
 const BLEND_MS = 1600
+/** Tras el clic, la transición arranca con los colores de siempre y luego cambia a los del destino */
+const BLEND_DELAY_MS = 700
 /** Pasos del cambio (no hace falta un tono nuevo en cada cuadro) */
 const STEPS = 40
 
@@ -39,13 +41,22 @@ export function PaletteRoute() {
   const current = useRef<PaletteTokens | null>(null)
   const targetId = useRef<string | null>(null)
   const frame = useRef(0)
+  const delay = useRef<number | undefined>(undefined)
 
   useEffect(() => {
-    const blendTo = (path: string) => {
+    const blendTo = (path: string, wait = 0) => {
       const palette = paletteForPath(path)
       if (palette.id === targetId.current) return
       targetId.current = palette.id
       cancelAnimationFrame(frame.current)
+      window.clearTimeout(delay.current)
+      if (wait > 0 && !reducedMotion && current.current) {
+        delay.current = window.setTimeout(() => {
+          targetId.current = null
+          blendTo(path)
+        }, wait)
+        return
+      }
       const target = tokensOf(palette)
       const from = current.current
       if (!from || reducedMotion) {
@@ -73,13 +84,16 @@ export function PaletteRoute() {
 
     const onClick = (event: MouseEvent) => {
       const path = internalPath(event)
-      if (path && path !== window.location.pathname) blendTo(path)
+      if (path && path !== window.location.pathname) blendTo(path, BLEND_DELAY_MS)
     }
     document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
   }, [pathname, reducedMotion])
 
-  useEffect(() => () => cancelAnimationFrame(frame.current), [])
+  useEffect(() => () => {
+    cancelAnimationFrame(frame.current)
+    window.clearTimeout(delay.current)
+  }, [])
 
   return null
 }

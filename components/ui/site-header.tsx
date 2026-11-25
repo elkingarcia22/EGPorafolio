@@ -10,6 +10,10 @@ import { ContactIcon } from './contact-channels'
 import { CvViewer, cvModeFromHash, type CvMode } from './cv-viewer'
 import { useLocale, type Locale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
+import { homePaletteVars } from '@/lib/palettes'
+
+/** El encabezado no cambia de color con la paleta de cada proyecto: siempre la del inicio */
+const HEADER_PALETTE = homePaletteVars() as React.CSSProperties
 import { ScrollTrigger, scrollToHeroSignature, scrollToTarget } from '@/lib/motion'
 
 const NAV = [
@@ -168,7 +172,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header data-site-header className="fixed inset-x-0 top-0 z-50 text-fg transition-colors duration-700">
+    <header data-site-header style={HEADER_PALETTE} className="fixed inset-x-0 top-0 z-50 text-fg transition-colors duration-700">
       {/* Fondo que toma el tono de la sección (oscuro/papel) y desenfoca lo de atrás */}
       <div
         aria-hidden="true"

@@ -139,13 +139,33 @@ function buildBlock(): string {
   ].join('\n'))
 }
 
+/**
+ * Herramientas y metodologías: dónde y cómo se usó cada una, solo con lo que muestran los casos.
+ * Sirve para responder «¿qué experiencia tienes en X?» con un proyecto concreto.
+ */
+function practiceBlock(): string {
+  return section('Herramientas y metodologías: dónde y cómo las usé (con evidencia de los casos)', [
+    '- Claude Code (construir con IA): con él construí este portafolio; en Barberlytics, el sistema de diseño Thema, la reserva, el calendario y Clipper («cada pieza nueva se creó documentada» dentro de las reglas de Thema, con «npm run check» que frena lo que se sale del sistema); en SellUp, «diseño por agente, construcción por partes, auditoría al cerrar» → 3 agentes en producción; en Encuestas documenté el recorrido y la anatomía de una encuesta → dos guías, una de experiencia y una técnica; en Objetivos y Encuestas el código lleva archivos de contexto para agentes (AGENTS.md, CLAUDE.md).',
+    '- Claude API (IA dentro del producto): Clipper, el asistente de Barberlytics, usa un modelo de Anthropic con herramientas (tool calling) y temperatura 0,2, 18 herramientas (13 consultan, 5 proponen), 60 preguntas de evaluación y cada 👍/👎 alimenta la evaluación; SellUp usa Claude para juzgar y redactar mientras reglas verifican; el agente de este portafolio también llama a Claude desde el servidor.',
+    '- Claude (conversación y análisis): en Objetivos cruzo cada cambio del producto con los casos de uso y salen propuestas con pantallazo para aprobación humana.',
+    '- Cursor: en Barberlytics, prototipo del flujo de reserva con datos de una barbería real, validado con 20 clientes.',
+    '- n8n / Make: en Barberlytics, recordatorios por WhatsApp 24 h y 2 h antes de la cita, sin código.',
+    '- Figma: diseño de Objetivos, Barberlytics y Encuestas. Figma Make, ChatGPT y Antigravity están entre mis herramientas de IA, sin un caso documentado en el portafolio.',
+    '- Jira: en Objetivos, 926 casos de uso, cada uno con su subtarea en Jira, y 80 funcionalidades repartidas por trimestre; mi rol ahí fue PM, diseño, front y QA del rediseño del admin.',
+    '- Playwright (pruebas automáticas en el navegador): QA de Objetivos y del calendario de Barberlytics; Vitest en Clipper.',
+    '- Metodologías en Siigo (2017–2021): Design Thinking, Lean UX, Agile UX, Scrum, Agile Inception y Shape Up, en productos de nómina, facturación electrónica, inventarios, POS y contabilidad, de la investigación a la implementación. El portafolio no detalla cómo se aplicó cada una ahí.',
+    '- Trabajo iterativo documentado: Encuestas se hizo en 7 meses y cuatro iteraciones, del chat al sistema de diseño; Objetivos se organizó como backlog de casos de uso en Jira y funcionalidades por trimestre; el proceso de cada caso sigue la lógica del Double Diamond (divergir para entender, converger para resolver).',
+    '- No documentado en el portafolio: Lean Canvas, Business Model Canvas, Kanban, OKR como método de trabajo propio, ni certificaciones ágiles.',
+  ].join('\n'))
+}
+
 const cache = new Map<Locale, string>()
 
 /** Todo lo que el agente sabe, en un solo texto (se arma una vez por idioma). */
 export function buildKnowledge(locale: Locale): string {
   const hit = cache.get(locale)
   if (hit) return hit
-  const text = [profileBlock(locale), processBlock(locale), projectsBlock(locale), casesBlock(locale), sellupImpactBlock(), buildBlock()].join('\n\n')
+  const text = [profileBlock(locale), processBlock(locale), projectsBlock(locale), casesBlock(locale), sellupImpactBlock(), buildBlock(), practiceBlock()].join('\n\n')
   cache.set(locale, text)
   return text
 }

@@ -45,6 +45,9 @@ export const PALETTES: readonly Palette[] = [
     projects: { objetivos: '24 196 128', barberlytics: '255 108 88', sellup: '110 220 190', encuestas: '255 170 120' } },
   { id: 'rojo', name: 'Rojo señal · Oro', signal: '240 56 64', spark: '255 196 56', ice: '255 170 166', cyan: '255 222 150',
     projects: { objetivos: '240 56 64', barberlytics: '255 196 56', sellup: '255 120 110', encuestas: '255 160 70' } },
+  // La de Objetivos: azul de UBITS con violeta y rosado, los tonos de sus gráficos
+  { id: 'objetivos', name: 'Azul · Violeta', signal: '123 92 255', ui: '79 134 255', spark: '255 84 170', ice: '169 190 255', cyan: '190 150 255',
+    projects: { objetivos: '79 134 255', barberlytics: '232 140 48', sellup: '91 126 255', encuestas: '12 91 239' } },
   { id: 'lima', name: 'Lima · Cian', signal: '150 220 30', ui: '78 196 204', spark: '0 214 255', ice: '214 250 160', cyan: '120 240 255',
     projects: { objetivos: '78 196 204', barberlytics: '176 212 120', sellup: '96 156 232', encuestas: '60 170 150' } },
 ] as const
@@ -56,7 +59,7 @@ export const HOME_PALETTE_ID = 'clipper'
 export const PROJECT_PALETTE: Readonly<Record<ProjectSlug, string>> = {
   sellup: 'original',
   barberlytics: 'clipper',
-  objetivos: 'lima',
+  objetivos: 'objetivos',
   encuestas: 'azul-amarillo',
 }
 
@@ -149,6 +152,24 @@ export function applyTokens(tokens: PaletteTokens): void {
   root.setProperty('--cyan', css(tokens.cyan))
   for (const slug of PROJECT_SLUGS) root.setProperty(`--project-${slug}`, css(tokens.projects[slug]))
   window.dispatchEvent(new CustomEvent<PaletteTokens>(PALETTE_EVENT, { detail: tokens }))
+}
+
+/**
+ * Los tokens de la paleta del inicio como variables CSS: el encabezado los fija en su raíz para
+ * verse siempre igual, aunque la página cambie de paleta al entrar a un proyecto.
+ */
+export function homePaletteVars(): Record<string, string> {
+  const tokens = tokensOf(findPalette(HOME_PALETTE_ID))
+  const vars: Record<string, string> = {
+    '--signal': css(tokens.signal),
+    '--on-signal': onSignal(tokens.signal),
+    '--glow': css(tokens.glow),
+    '--spark': css(tokens.spark),
+    '--ice': css(tokens.ice),
+    '--cyan': css(tokens.cyan),
+  }
+  for (const slug of PROJECT_SLUGS) vars[`--project-${slug}`] = css(tokens.projects[slug])
+  return vars
 }
 
 /** [64, 96, 255] → "64,96,255" (formato que usan los canvas) */

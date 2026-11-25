@@ -279,3 +279,32 @@ html[data-motion='reduced'] [style*='node-link'], html[data-motion='reduced'] [s
   0% { transform: scale(0.6); opacity: 0.9; }
   80%, 100% { transform: scale(1.6); opacity: 0; }
 }
+
+/*
+ * Scroll como una fibra de la red: un hilo fino sobre un riel apenas visible, que se
+ * enciende con la señal al pasar el cursor o al arrastrarlo. Sin flechas ni fondo del sistema.
+ */
+/* Chrome ignora los ::-webkit-scrollbar si hay scrollbar-color: el estándar solo donde no existen (Firefox) */
+@supports not selector(::-webkit-scrollbar) {
+  .fiber-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--signal) / 0.45) transparent;
+  }
+}
+.fiber-scroll::-webkit-scrollbar { width: 10px; }
+.fiber-scroll::-webkit-scrollbar-button { display: none; height: 0; }
+.fiber-scroll::-webkit-scrollbar-track {
+  margin: 14px 0;
+  background: linear-gradient(to right, transparent 4.5px, rgb(255 255 255 / 0.07) 4.5px, rgb(255 255 255 / 0.07) 5.5px, transparent 5.5px);
+}
+.fiber-scroll::-webkit-scrollbar-thumb {
+  border: 3.5px solid transparent;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, rgb(var(--signal) / 0.25), rgb(var(--signal) / 0.7), rgb(var(--signal) / 0.25)) padding-box;
+}
+.fiber-scroll::-webkit-scrollbar-thumb:hover,
+.fiber-scroll::-webkit-scrollbar-thumb:active {
+  border-width: 3px;
+  background: linear-gradient(to bottom, rgb(var(--signal) / 0.5), rgb(var(--signal)), rgb(var(--signal) / 0.5)) padding-box;
+}
+.fiber-scroll::-webkit-scrollbar-corner { background: transparent; }
