@@ -25,7 +25,7 @@ const PIECES: readonly Piece[] = [
 /** 04 · Forma, al final: las pantallas reales sobre una fibra; tocar una la abre con lo que conviene mirar. */
 export function RealScreens() {
   const { t } = useLocale()
-  const [open, setOpen] = useState<number | null>(null)
+  const [open, setOpen] = useState<number | null>(0)
   const piece = open === null ? null : PIECES[open]
 
   return (

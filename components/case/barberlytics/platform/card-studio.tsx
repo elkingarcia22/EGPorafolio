@@ -90,19 +90,18 @@ function BigCard({ now, look }: { now: number; look: Look }) {
   )
 }
 
+/** Un ajuste como una línea de texto: el nombre y las opciones; la elegida, en dorado y subrayada */
 function Choice<T extends string>({ options, value, onChange, label }: { options: readonly { id: T; label: L }[]; value: T; onChange: (v: T) => void; label: string }) {
   const { t } = useLocale()
   return (
-    <div role="radiogroup" aria-label={label}>
-      <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">{label}</p>
-      <div className="flex flex-wrap gap-1.5">
-        {options.map((o) => (
-          <button key={o.id} type="button" role="radio" aria-checked={o.id === value} onClick={() => onChange(o.id)} className="rounded-full border border-white/15 px-3 py-1 text-[12px] text-white/65 transition-colors duration-300 hover:border-white/40 hover:text-white aria-checked:border-[#d9b36a] aria-checked:bg-[#d9b36a] aria-checked:text-[#16130f]">
-            {t(o.label)}
-          </button>
-        ))}
-      </div>
-    </div>
+    <p role="radiogroup" aria-label={label} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[14px]">
+      <span className="w-[9.5rem] shrink-0 text-paper/40">{label}</span>
+      {options.map((o) => (
+        <button key={o.id} type="button" role="radio" aria-checked={o.id === value} onClick={() => onChange(o.id)} className="text-paper/45 underline-offset-[6px] transition-colors duration-300 hover:text-paper aria-checked:text-[#d9b36a] aria-checked:underline aria-checked:decoration-[#d9b36a]/60">
+          {t(o.label)}
+        </button>
+      ))}
+    </p>
   )
 }
 
@@ -140,23 +139,19 @@ export function CardStudio() {
 
       <div>
         <BigCard now={now} look={look} />
-        <div className="mt-8 space-y-5">
-          <Choice options={COLOR} value={look.colorBy} onChange={(v) => change({ colorBy: v })} label={t({ es: 'Colorear tarjetas por', en: 'Color cards by' })} />
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Choice options={STYLE} value={look.style} onChange={(v) => change({ style: v })} label={t({ es: 'Estilo', en: 'Style' })} />
-            <Choice options={DENSITY} value={look.density} onChange={(v) => change({ density: v })} label={t({ es: 'Densidad', en: 'Density' })} />
-          </div>
-          <div>
-            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">{t({ es: 'Qué muestra la tarjeta', en: 'What the card shows' })}</p>
-            <div className="flex flex-wrap gap-1.5">
-              {SHOWS.map((f) => (
-                <button key={f.id} type="button" aria-pressed={look.fields[f.id]} onClick={() => toggle(f.id)} className="rounded-full border border-white/15 px-3 py-1 text-[12px] text-white/45 line-through decoration-white/30 transition-colors duration-300 hover:border-white/40 aria-pressed:border-white/40 aria-pressed:text-white/85 aria-pressed:no-underline">
-                  {t(f.label)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <p className="font-mono text-[11px] text-white/40">
+        <div className="mt-8 space-y-3">
+          <Choice options={COLOR} value={look.colorBy} onChange={(v) => change({ colorBy: v })} label={t({ es: 'Colorear por', en: 'Color by' })} />
+          <Choice options={STYLE} value={look.style} onChange={(v) => change({ style: v })} label={t({ es: 'Estilo', en: 'Style' })} />
+          <Choice options={DENSITY} value={look.density} onChange={(v) => change({ density: v })} label={t({ es: 'Densidad', en: 'Density' })} />
+          <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[14px]">
+            <span className="w-[9.5rem] shrink-0 text-paper/40">{t({ es: 'Muestra', en: 'Shows' })}</span>
+            {SHOWS.map((f) => (
+              <button key={f.id} type="button" aria-pressed={look.fields[f.id]} onClick={() => toggle(f.id)} className="text-paper/30 line-through decoration-paper/30 transition-colors duration-300 hover:text-paper/70 aria-pressed:text-paper/85 aria-pressed:no-underline">
+                {t(f.label)}
+              </button>
+            ))}
+          </p>
+          <p className="pt-3 font-mono text-[11px] text-white/40">
             {manual
               ? <button type="button" onClick={() => setManual(null)} className="underline decoration-white/30 underline-offset-4 hover:text-white/70">{t({ es: 'Volver al recorrido', en: 'Back to the tour' })}</button>
               : t({ es: 'Los ajustes pasan solos; toca uno para probarlo.', en: 'Settings play on their own; tap one to try it.' })}
