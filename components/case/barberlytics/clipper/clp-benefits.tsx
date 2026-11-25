@@ -10,18 +10,18 @@ import { AI, AiGradient, Caption, Lead, onActivate, useAutoSteps, useInView } fr
 const W = 900
 const H = 420
 const ORB = { x: 450, y: 210, r: 70 }
-/** Las cuatro reglas, en las esquinas de un rombo alrededor del orbe */
+/** Los cuatro de la barbería, en las esquinas alrededor del orbe */
 const NODES = [
   { x: 170, y: 80 },
   { x: 730, y: 80 },
   { x: 730, y: 340 },
   { x: 170, y: 340 },
 ] as const
-const PRINCIPLES = CLIPPER_CASE.idea.principles
+const PRINCIPLES = CLIPPER_CASE.benefits
 const LAST = PRINCIPLES.length + 1
-const msFor = (s: number) => (s === 0 ? 500 : 1100)
-/** Cómo se mueve el orbe mientras prueba cada regla */
-const ORB_STATE: readonly ClipperOrbState[] = ['thinking', 'idle', 'listening', 'idle']
+const msFor = (s: number) => (s === 0 ? 500 : 1500)
+/** Cómo se mueve el orbe mientras atiende a cada uno */
+const ORB_STATE: readonly ClipperOrbState[] = ['thinking', 'thinking', 'listening', 'listening']
 
 const spoke = (n: { x: number; y: number }) => {
   const dx = n.x - ORB.x
@@ -33,15 +33,15 @@ const spoke = (n: { x: number; y: number }) => {
 }
 
 /**
- * 03 · La idea: el orbe al centro y sus cuatro reglas alrededor. Al entrar, de
- * él sale una fibra hacia cada regla, una tras otra. Tocar una regla la explica.
+ * 03 · La idea: un solo Clipper para todos en la barbería. De él sale una fibra
+ * hacia el dueño, recepción, el barbero y el cliente, y a cada uno le responde lo suyo.
  */
-export function ClipperPrinciples() {
+export function ClipperBenefits() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const inView = useInView(rootRef)
-  const [step] = useAutoSteps({ last: LAST, ms: msFor, run: inView, reducedMotion })
+  const [step] = useAutoSteps({ last: LAST, ms: msFor, run: inView, reducedMotion, loopAfter: 4500 })
   const [picked, setPicked] = useState<number | null>(null)
   const done = step === LAST
   const current = step >= 1 && step <= PRINCIPLES.length ? step - 1 : null
@@ -50,15 +50,15 @@ export function ClipperPrinciples() {
 
   const caption =
     focus !== null
-      ? { id: `p${focus}`, tag: `${t({ es: 'Regla', en: 'Rule' })} 0${focus + 1}`, title: t(PRINCIPLES[focus].title), sub: picked !== null ? t(PRINCIPLES[focus].body) : undefined }
+      ? { id: `p${focus}`, tag: `${t(PRINCIPLES[focus].role)} · ${t(PRINCIPLES[focus].gain)}`, title: `«${t(PRINCIPLES[focus].q)}»`, sub: t(PRINCIPLES[focus].tool) }
       : done
-        ? { id: 'done', tag: t({ es: 'La idea', en: 'The idea' }), title: t({ es: 'Responde con tus datos, nunca adivina y nada cambia sin una persona.', en: 'It answers with your data, never guesses, and nothing changes without a person.' }) }
-        : { id: 'intro', tag: t({ es: '¿Cómo podríamos…?', en: 'How might we…?' }), title: t({ es: 'Un asistente con los datos de la barbería, que no haga nada sin aprobación.', en: 'An assistant with the shop’s data that does nothing without approval.' }) }
+        ? { id: 'done', tag: t({ es: 'La idea', en: 'The idea' }), title: t({ es: 'Uno solo para todos: cada quien pregunta lo suyo y recibe sus datos.', en: 'One for everyone: each asks their own and gets their data.' }) }
+        : { id: 'intro', tag: t({ es: '¿Cómo podríamos…?', en: 'How might we…?' }), title: t({ es: 'Un asistente que le sirva a toda la barbería, no solo al dueño.', en: 'An assistant that serves the whole shop, not just the owner.' }) }
 
   return (
     <div ref={rootRef}>
       <Caption {...caption} />
-      <Lead>{t({ es: 'Cuatro reglas antes que cualquier pantalla. Cada una se probó en el agente y en sus evaluaciones.', en: 'Four rules before any screen. Each one was tested in the agent and its evaluations.' })}</Lead>
+      <Lead>{t({ es: 'Métricas para el dueño, clientes para recepción, su día para el barbero y reservar hablando para el cliente.', en: 'Metrics for the owner, clients for the front desk, their day for the barber and booking by talking for the client.' })}</Lead>
 
       <div className="relative mx-auto mt-8 w-full max-w-[860px]">
         <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
@@ -85,7 +85,7 @@ export function ClipperPrinciples() {
                 key={`n${i}`}
                 role="button"
                 tabIndex={0}
-                aria-label={t(PRINCIPLES[i].title)}
+                aria-label={`${t(PRINCIPLES[i].role)}: ${t(PRINCIPLES[i].gain)}`}
                 onClick={() => setPicked(picked === i ? null : i)}
                 onKeyDown={onActivate(() => setPicked(picked === i ? null : i))}
                 className="cursor-pointer outline-none"
@@ -114,7 +114,8 @@ export function ClipperPrinciples() {
                 [top ? 'bottom' : 'top']: `${((top ? H - n.y : n.y) / H) * 100 + 8}%`,
               }}
             >
-              {t(PRINCIPLES[i].title)}
+              <span className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#f0ce86] sm:text-[11px]">{t(PRINCIPLES[i].role)}</span>
+              <span className="mt-1 block">{t(PRINCIPLES[i].gain)}</span>
             </p>
           )
         })}
@@ -122,8 +123,8 @@ export function ClipperPrinciples() {
           <span className="block scale-[0.55] sm:scale-100">
             <ClipperOrb size={120} state={reducedMotion ? 'idle' : orbState} />
           </span>
-          {/* Del centro del orbe, por detrás, baja la fibra hacia «Herramientas» */}
-          <span data-fiber-from="clp-tools" className="absolute left-1/2 top-1/2 h-px w-px" />
+          {/* Del centro del orbe, por detrás, baja la fibra hacia «Bocetos» */}
+          <span data-fiber-from="clp-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />
         </span>
       </div>
     </div>
