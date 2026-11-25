@@ -70,8 +70,12 @@ function ConnectionsReadout() {
     return () => trigger.kill()
   }, [])
   return (
-    <span className="mono-label hidden items-center gap-2 tabular-nums opacity-60 lg:inline-flex" aria-hidden="true">
-      <span className="h-1.5 w-1.5 rounded-full bg-signal" />
+    <span className="mono-label hidden items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-3 py-1.5 tabular-nums text-paper/70 backdrop-blur-sm lg:inline-flex" aria-hidden="true">
+      {/* Neurona que late: el contador de conexiones de la red */}
+      <span className="relative flex h-1.5 w-1.5">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-60" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-signal shadow-[0_0_8px_rgb(var(--signal)/0.8)]" />
+      </span>
       <span ref={ref}>000</span> {t(COPY.connections)}
     </span>
   )

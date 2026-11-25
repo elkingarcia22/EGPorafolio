@@ -60,7 +60,7 @@ function ToolButton({ label, onClick, disabled, children }: { label: string; onC
       title={label}
       onClick={onClick}
       disabled={disabled}
-      className="flex h-9 w-9 items-center justify-center text-paper/80 transition-colors hover:bg-paper hover:text-ink focus-visible:bg-paper focus-visible:text-ink disabled:pointer-events-none disabled:opacity-30"
+      className="flex h-9 w-9 items-center justify-center rounded-full text-paper/80 transition-colors hover:bg-white/10 hover:text-paper focus-visible:bg-white/10 focus-visible:text-paper disabled:pointer-events-none disabled:opacity-30"
     >
       {children}
     </button>
@@ -277,18 +277,20 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
       role="dialog"
       aria-modal="true"
       aria-labelledby="cv-title"
-      className="fixed inset-0 z-[90] flex flex-col bg-void/95 text-paper backdrop-blur-md"
+      className="fixed inset-0 z-[90] flex flex-col bg-[rgb(var(--void)/0.94)] text-paper backdrop-blur-md"
     >
-      <div className="flex items-center justify-between gap-3 border-b border-paper/10 px-[var(--gutter)] py-3">
+      <div className="relative z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02] px-[var(--gutter)] py-3 backdrop-blur-xl">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="h-6 w-px shrink-0 bg-signal" aria-hidden="true" />
+          <span className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
+            <span className="absolute inset-0 bg-signal shadow-[0_0_0_5px_rgb(var(--signal)/0.18),0_0_18px_4px_rgb(var(--signal)/0.6)]" />
+          </span>
           <h2 id="cv-title" className="brand-title truncate text-[11px] md:text-xs">
             {t(COPY.cv.title)}
           </h2>
         </div>
 
         <div className="flex items-center gap-1 md:gap-2">
-          <div className="hidden items-center border border-paper/15 sm:flex" role="group" aria-label="Zoom">
+          <div className="hidden items-center gap-0.5 rounded-full border border-white/12 bg-white/[0.03] p-0.5 sm:flex" role="group" aria-label="Zoom">
             <ToolButton
               label={t(COPY.cv.zoomOut)}
               onClick={() => {
@@ -304,7 +306,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
               onClick={fit}
               title={t(COPY.cv.fit)}
               aria-label={`${t(COPY.cv.fit)} (${Math.round(zoom * 100)}%)`}
-              className="mono-label h-9 min-w-[4.5rem] border-x border-paper/15 tabular-nums text-paper/80 transition-colors hover:bg-paper hover:text-ink"
+              className="mono-label h-9 min-w-[4.5rem] rounded-full tabular-nums text-paper/80 transition-colors hover:bg-white/10 hover:text-paper"
             >
               {Math.round(zoom * 100)}%
             </button>
@@ -320,7 +322,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
             </ToolButton>
           </div>
 
-          <div className="flex items-center border border-paper/15" role="group" aria-label={t(COPY.cv.version)}>
+          <div className="flex items-center gap-0.5 rounded-full border border-white/12 bg-white/[0.03] p-0.5" role="group" aria-label={t(COPY.cv.version)}>
             {CV_MODES.map((m) => (
               <button
                 key={m}
@@ -332,7 +334,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
                   if (cvModeFromHash(window.location.hash)) history.replaceState(null, '', CV_ASSETS[m].hash)
                 }}
                 title={t(COPY.cv[m])}
-                className={`mono-label flex h-9 items-center gap-2 px-2.5 transition-colors md:px-3 ${mode === m ? 'bg-paper text-ink' : 'text-paper/70 hover:text-paper'}`}
+                className={`mono-label flex h-9 items-center gap-2 rounded-full px-2.5 transition-[background-color,color,box-shadow] duration-300 md:px-3.5 ${mode === m ? 'bg-paper text-ink shadow-[0_0_18px_rgb(255_255_255/0.25)]' : 'text-paper/70 hover:bg-white/10 hover:text-paper'}`}
               >
                 {m === 'light' ? (
                   <svg viewBox="0 0 24 24" className={icon} {...stroke} aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4" /></svg>
@@ -354,7 +356,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
             </ToolButton>
             <span
               role="status"
-              className={`mono-label pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap bg-signal px-3 py-1.5 text-paper transition-all duration-300 ${copied ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'}`}
+              className={`mono-label pointer-events-none absolute right-0 top-full mt-2 whitespace-nowrap rounded-full bg-signal px-3 py-1.5 text-paper transition-all duration-300 ${copied ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'}`}
             >
               {copied ? t(COPY.cv.copied) : ''}
             </span>
@@ -363,7 +365,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
           <a
             href={asset.pdf}
             download={asset.filename}
-            className="mono-label flex h-9 items-center gap-2 bg-signal px-3 text-paper transition-colors hover:bg-paper hover:text-ink md:px-4"
+            className="mono-label flex h-9 items-center gap-2 rounded-full bg-signal px-3.5 text-paper shadow-[0_0_24px_-4px_rgb(var(--signal)/0.7)] transition-[background-color,color,box-shadow] duration-300 hover:bg-paper hover:text-ink md:px-4"
           >
             <svg viewBox="0 0 24 24" className={icon} {...stroke} aria-hidden="true"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
             <span className="hidden sm:inline">{t(COPY.cv.download)}</span>
@@ -376,7 +378,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
             onClick={onClose}
             aria-label={t(COPY.cv.close)}
             title={`${t(COPY.cv.close)} (Esc)`}
-            className="ml-1 flex h-9 w-9 items-center justify-center border border-paper/20 transition-colors hover:bg-paper hover:text-ink"
+            className="ml-1 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] transition-colors hover:bg-paper hover:text-ink"
           >
             <svg viewBox="0 0 24 24" className={icon} {...stroke}><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
@@ -403,7 +405,17 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
           }}
         >
           {pageWidth > 0 && (
-            // eslint-disable-next-line @next/next/no-img-element -- imagen estática ya optimizada
+            <div className="relative">
+              {/* La conexión: una fibra baja desde la barra y toca la hoja, con un impulso que la recorre */}
+              {!zoomed && (
+                <span aria-hidden="true" className="pointer-events-none absolute bottom-full left-1/2 h-[var(--cv-pad)] w-px -translate-x-1/2 overflow-hidden bg-gradient-to-b from-white/0 via-white/40 to-white/80" style={{ ['--cv-pad' as string]: `${STAGE_PADDING_PX}px` }}>
+                  <span className="absolute inset-x-0 top-0 h-3 bg-white shadow-[0_0_8px_2px_rgb(255_255_255/0.8)] [animation:cv-impulse_2.4s_cubic-bezier(.65,0,.35,1)_infinite]" />
+                </span>
+              )}
+              {!zoomed && (
+                <span aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_16px_4px_rgb(var(--signal)/0.6)]" />
+              )}
+            {/* eslint-disable-next-line @next/next/no-img-element -- imagen estática ya optimizada */}
             <img
               data-cv-page
               key={mode}
@@ -415,12 +427,14 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
               className={`block max-w-none ${mode === 'dark' ? 'bg-[#16181b] ring-1 ring-paper/10' : 'bg-paper'} shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]`}
               style={{ width: pageWidth, height: Math.round(pageWidth / PAGE_ASPECT) }}
             />
+            </div>
           )}
         </div>
       </div>
 
+      <style>{'@keyframes cv-impulse { from { transform: translateY(-120%) } to { transform: translateY(400%) } }'}</style>
       {/* Zoom en móvil: abajo, al alcance del pulgar */}
-      <div className="flex items-center justify-center gap-1 border-t border-paper/10 py-2 sm:hidden" role="group" aria-label="Zoom">
+      <div className="flex items-center justify-center gap-1 border-t border-white/10 bg-white/[0.02] py-2 backdrop-blur-xl sm:hidden" role="group" aria-label="Zoom">
         <ToolButton label={t(COPY.cv.zoomOut)} onClick={() => { rememberCenter(); zoomBy(-1) }} disabled={zoomIndex === 0}>
           <svg viewBox="0 0 24 24" className={icon} {...stroke}><path d="M5 12h14" /></svg>
         </ToolButton>
