@@ -1,0 +1,41 @@
+/* Movimientos propios del caso Thema. Todos se apagan con prefers-reduced-motion. */
+@keyframes th-fade-in {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.th-fade { animation: th-fade-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Un trazo que se dibuja (con pathLength=1) */
+@keyframes th-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.th-draw { stroke-dasharray: 1; animation: th-draw 700ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+
+/* La señal que recorre una fibra (pathLength=1, dasharray corto) */
+.th-pulse { stroke-dasharray: 0.08 0.92; stroke-dashoffset: 0.08; opacity: 0; animation: th-pulse-run 1.2s cubic-bezier(.45,0,.55,1) both; }
+@keyframes th-pulse-run { 0% { stroke-dashoffset: 0.08; opacity: 1; } 92% { opacity: 1; } 100% { stroke-dashoffset: -0.92; opacity: 0; } }
+
+/* La raya que tacha lo prohibido */
+@keyframes th-strike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.th-strike { transform-origin: left; animation: th-strike 420ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+
+/* El carrete de componentes: se desliza en bucle */
+@keyframes th-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.th-marquee { animation: th-marquee 60s linear infinite; }
+.th-marquee:hover { animation-play-state: paused; }
+
+/* Textos de la cinta de la portada: en teléfono el SVG se encoge, así que las letras crecen */
+.ribbon-name { font-size: 17px; }
+.ribbon-role { font-size: 11px; }
+.ribbon-button { font-size: 14px; }
+@media (max-width: 640px) {
+  .ribbon-name { font-size: 28px; }
+  .ribbon-role { font-size: 19px; letter-spacing: 0.06em; }
+  .ribbon-button { font-size: 18px; }
+}
+
+html[data-motion='reduced'] .th-fade, html[data-motion='reduced'] .th-draw, html[data-motion='reduced'] .th-strike, html[data-motion='reduced'] .th-marquee { animation: none; }
+html[data-motion='reduced'] .th-pulse { animation: none; opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .th-fade, .th-draw, .th-pulse, .th-strike, .th-marquee { animation: none; }
+  .th-draw { stroke-dashoffset: 0; }
+}

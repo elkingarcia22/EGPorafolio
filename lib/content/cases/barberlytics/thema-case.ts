@@ -50,6 +50,44 @@ export const THEMA_CASE = {
   ] satisfies { label: L; value: L }[],
   tools: ['Claude Code', 'React', 'TypeScript', 'Tailwind', 'Radix'],
 
+  /**
+   * Lo que dice cada capítulo del caso rediseñado: una frase arriba y un apoyo
+   * de dos renglones como máximo. Todo sale del contenido de abajo.
+   */
+  chapters: {
+    puntos: {
+      phrase: { es: 'Una barbería no quiere usar un software: quiere sentir que es suyo.', en: 'A barbershop doesn’t want to use software: it wants to feel it’s theirs.' },
+      lead: { es: 'Barberías con identidades muy distintas usaban un producto que se sentía prestado. Toca una carta para ver el porqué.', en: 'Shops with very different identities used a product that felt borrowed. Tap a card to see why.' },
+    },
+    patrones: {
+      phrase: { es: 'Cuatro fuentes de tokens, una sola decisión por token.', en: 'Four token sources, one decision per token.' },
+      lead: { es: 'Antes de diseñar una pieza puse todo sobre la mesa: qué decía cada fuente y qué no queríamos nunca.', en: 'Before designing a piece I put everything on the table: what each source said and what we never wanted.' },
+    },
+    idea: {
+      lead: { es: 'Cuatro principios, cada uno probándose con el mismo color. Toca uno para leerlo.', en: 'Four principles, each one tested with the same color. Tap one to read it.' },
+    },
+    bocetos: {
+      phrase: { es: 'Barbería más métricas: un solo signo.', en: 'Barbershop plus metrics: a single sign.' },
+      lead: { es: 'Seis direcciones con el mismo ADN —carbón, oro y crecimiento— y lo que se queda: la flecha que sube.', en: 'Six directions with the same DNA —charcoal, gold and growth— and what stays: the rising arrow.' },
+    },
+    forma: {
+      phrase: { es: 'Un color, y la app cambia de identidad.', en: 'One color, and the app changes identity.' },
+      lead: { es: 'La barbería elige su tema o lo saca de su logo; el sistema calcula el resto. Prueba tu color.', en: 'The shop picks its theme or pulls it from its logo; the system computes the rest. Try your color.' },
+    },
+    ia: {
+      phrase: { es: 'La IA lee lo mismo que las personas, y el sistema la frena cuando se equivoca.', en: 'AI reads what people read, and the system stops it when it’s wrong.' },
+      lead: { es: 'Cada pedido pasa por el catálogo, un guardián y las validaciones antes de llegar al código. Toca una estación.', en: 'Every request goes through the catalog, a guard and the checks before reaching code. Tap a station.' },
+    },
+    impacto: {
+      phrase: { es: 'Una pantalla nueva se arma en lugar de dibujarse.', en: 'A new screen is assembled instead of drawn.' },
+      lead: { es: 'De 27 componentes aprobados a 218 documentados: las personas y la IA usan las mismas piezas.', en: 'From 27 approved components to 218 documented: people and AI use the same pieces.' },
+    },
+    demo: {
+      phrase: { es: 'Explora Thema, el sistema de diseño.', en: 'Explore Thema, the design system.' },
+      lead: { es: 'Es la documentación real, funcionando. Cambia el tema y mira cómo cambia todo.', en: 'It’s the real documentation, running. Switch the theme and watch everything change.' },
+    },
+  },
+
   themes: [
     theme('premium', 'Premium', '#D9B36A', '#3F72D8'),
     theme('thema', 'Azul', '#0C5BEF', '#E11D48'),
