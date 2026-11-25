@@ -7,7 +7,9 @@
  * - `data-section-node`: el nodo de cada etiqueta de sección (<SectionLabel>)
  * - `data-transition-source`: nodo de salida explícito (p. ej. el círculo de cada proyecto en la
  *   órbita); si hay varios en la sección, sale del que está al frente (`aria-current`)
+ * - `data-transition-source="page"`: nodo de salida de lo que está a la vista (p. ej. la hoja de vida)
  * - `data-transition-target`: nodo de llegada de una página (también sirve de salida al dejarla)
+ * - `data-transition-land`: punto de llegada sin anillo propio (p. ej. el nodo de la hoja de vida)
  */
 
 export interface Point {
@@ -59,7 +61,7 @@ export function sourcePoint(trigger?: Element | null): Source {
     trigger?.closest('[data-transition-source]'),
     trigger?.closest('section, [data-section-tone]')?.querySelector('[data-transition-source][aria-current="true"]'),
     trigger?.closest('section, [data-section-tone]')?.querySelector('[data-section-node]'),
-    document.querySelector('[data-transition-source]'),
+    document.querySelector('[data-transition-source="page"]'),
     document.querySelector('[data-transition-target]'),
     nearestSectionNode(),
   ]
@@ -69,7 +71,7 @@ export function sourcePoint(trigger?: Element | null): Source {
     // Un anillo de proyecto: sale desde su letra, con su tamaño.
     if (el instanceof HTMLElement && el.hasAttribute('data-transition-target')) return landingOf(el) ?? c
     // Un círculo de proyecto: el destello nace con su tamaño.
-    if (el?.hasAttribute('data-transition-source')) return { ...c, size: el.getBoundingClientRect().width }
+    if (el?.hasAttribute('data-transition-source') && el.getAttribute('data-transition-source') !== 'page') return { ...c, size: el.getBoundingClientRect().width }
     return c
   }
   return visibleCenter(trigger) ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }
@@ -86,9 +88,14 @@ function hashSectionNode(): Element | null {
   }
 }
 
+/** El elemento, si está a la vista (para aterrizar en él). */
+export function visibleElement(el: Element | null | undefined): HTMLElement | null {
+  return el instanceof HTMLElement && visibleCenter(el) ? el : null
+}
+
 /** Dónde aterriza el viaje en la página nueva (o null si no hay nodo a la vista). */
 export function landingNode(): HTMLElement | null {
-  const candidates = [hashSectionNode(), document.querySelector('[data-transition-target]'), nearestSectionNode()]
+  const candidates = [document.querySelector('[data-transition-land]'), hashSectionNode(), document.querySelector('[data-transition-target]'), nearestSectionNode()]
   for (const el of candidates) {
     if (el instanceof HTMLElement && visibleCenter(el)) return el
   }

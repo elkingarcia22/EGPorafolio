@@ -413,7 +413,7 @@ export function CvViewer({ open, onClose, initialMode = 'light' }: CvViewerProps
                 </span>
               )}
               {!zoomed && (
-                <span aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_16px_4px_rgb(var(--signal)/0.6)]" />
+                <span aria-hidden="true" data-transition-land data-transition-source="page" className="pointer-events-none absolute left-1/2 top-0 z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_16px_4px_rgb(var(--signal)/0.6)]" />
               )}
             {/* eslint-disable-next-line @next/next/no-img-element -- imagen estática ya optimizada */}
             <img

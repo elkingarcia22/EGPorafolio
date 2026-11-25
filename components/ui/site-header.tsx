@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { TransitionLink } from '@/components/transition/page-transition'
+import { TransitionLink, coverTransition } from '@/components/transition/page-transition'
 import { A11yPanel } from './a11y-panel'
 import { ProjectsMenu, ProjectsSubmenu } from './projects-menu'
 import { ContactMenu, ContactQuickActions } from './contact-menu'
@@ -132,27 +132,40 @@ export function SiteHeader() {
   const solid = scrolled || menuOpen || quickOpen
   const [cvOpen, setCvOpen] = useState(false)
   const [cvMode, setCvMode] = useState<CvMode>('light')
-  const openCv = () => {
+  /** La hoja de vida entra y sale con la misma transición de nodo a nodo que las páginas. */
+  /** El botón que abrió la hoja de vida: al cerrarla, si no hay un nodo a la vista, la neurona vuelve a él. */
+  const cvOpener = useRef<Element | null>(null)
+  const openCv = (event: React.MouseEvent) => {
     setMenuOpen(false)
-    setCvMode('light')
-    setCvOpen(true)
+    cvOpener.current = event.currentTarget
+    coverTransition(() => {
+      setCvMode('light')
+      setCvOpen(true)
+    }, event.currentTarget)
   }
   const closeCv = useCallback(() => {
-    setCvOpen(false)
-    if (cvModeFromHash(window.location.hash)) history.replaceState(null, '', window.location.pathname + window.location.search)
+    coverTransition(() => {
+      setCvOpen(false)
+      if (cvModeFromHash(window.location.hash)) history.replaceState(null, '', window.location.pathname + window.location.search)
+    }, null, cvOpener.current ?? document.querySelector('[data-cv-trigger]'))
   }, [])
 
   // El enlace compartido (…/#hoja-de-vida o …/#hoja-de-vida-oscura) abre el visor en esa versión.
   useEffect(() => {
     const check = () => {
       const mode = cvModeFromHash(window.location.hash)
-      if (!mode) return
+      if (!mode) return false
       setCvMode(mode)
       setCvOpen(true)
+      return true
     }
+    // Al llegar con el enlace se abre directo; un enlace dentro del sitio (p. ej. el agente) pasa por la transición.
     check()
-    window.addEventListener('hashchange', check)
-    return () => window.removeEventListener('hashchange', check)
+    const onHash = () => {
+      if (cvModeFromHash(window.location.hash)) coverTransition(check)
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
   /** Inicio (y el logo): en la portada sube hasta el EG; desde otra página, vuelve a la portada. */
@@ -206,6 +219,7 @@ export function SiteHeader() {
                   <button
                     type="button"
                     onClick={openCv}
+                    data-cv-trigger
                     aria-haspopup="dialog"
                     className="mono-label opacity-70 transition-opacity hover:opacity-100"
                   >

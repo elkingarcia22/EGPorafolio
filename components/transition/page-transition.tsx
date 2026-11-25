@@ -6,11 +6,25 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { NeuralFlight } from '@/components/home/neural-flight'
 import { gsap, jumpToHash, scrollToTop } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { landingNode, landingOf, lightNode, sourcePoint } from './transition-nodes'
+import { landingNode, landingOf, lightNode, sourcePoint, visibleElement } from './transition-nodes'
 
 type Navigate = (href: string, label?: string, trigger?: Element | null) => void
+type Cover = (action: () => void, trigger?: Element | null, fallback?: Element | null) => void
 
 let navigateHandler: Navigate | null = null
+let coverHandler: Cover | null = null
+
+/**
+ * La misma transición de nodo a nodo, sin cambiar de página: la red cubre la pantalla,
+ * `action` cambia lo que hay debajo (p. ej. abre o cierra la hoja de vida) y la última
+ * neurona aterriza en el nodo que quede a la vista (o en `fallback` si no hay ninguno, p. ej.
+ * el botón que abrió la hoja de vida). Sin transición (movimiento reducido o antes de
+ * montarse la cortina), `action` corre de inmediato.
+ */
+export function coverTransition(action: () => void, trigger?: Element | null, fallback?: Element | null): void {
+  if (coverHandler) coverHandler(action, trigger, fallback)
+  else action()
+}
 
 /** Salida: el nodo destella y la red se abre desde él (s) */
 const ZOOM_S = 0.85
@@ -97,76 +111,58 @@ export function TransitionOverlay() {
     loadProgress.current = counter.current.v / 100
   }
 
-  const navigate = useCallback<Navigate>(
-    (href, _label, trigger) => {
-      if (reducedMotion || !rootRef.current) {
-        router.push(href)
-        return
-      }
-      // Pide la página mientras la cortina cubre: al terminar ya está lista.
-      router.prefetch(href)
-      counter.current.v = 0
-      anchorRef.current = null
-      syncCounter()
-      setNetKey((k) => k + 1)
-      setShowNet(true)
-      setCovered(true)
-      isCovering.current = true
-      document.documentElement.dataset.transitioning = 'true'
-      const root = rootRef.current
-      const from = sourcePoint(trigger)
-      const lens = { r: 0 }
-      const reach = Math.hypot(Math.max(from.x, window.innerWidth - from.x), Math.max(from.y, window.innerHeight - from.y))
-      const openLens = () => { root.style.clipPath = `circle(${lens.r}px at ${from.x}px ${from.y}px)` }
-      openLens()
-      gsap.set(root, { visibility: 'visible' })
-      const seed = seedRef.current
-      const tl = gsap.timeline({
-        onComplete: () => {
-          if (seed) gsap.set(seed, { autoAlpha: 0 })
-          root.style.clipPath = ''
-          coveredAt.current = performance.now()
-          router.push(href)
-          loadTween.current = gsap.to(counter.current, { v: WAIT_CAP * 100, duration: LOAD_S, ease: 'power2.out', onUpdate: syncCounter })
-          clearTimers()
-          timers.current = [window.setTimeout(() => window.location.assign(href), HARD_NAV_MS)]
-        },
-      })
-      // El nodo se enciende y dispara la red, que se abre desde él hasta cubrir la pantalla.
-      // (No se escala la página: es muy alta y acercarla trababa cada cuadro.)
-      if (seed) {
-        // Desde un anillo (la O) sale con su tamaño y destella; desde un nodo de sección, crece desde el punto.
-        const ring = from.size ?? FLARE_PX
-        gsap.set(seed, { x: from.x, y: from.y, width: ring, height: ring, xPercent: -50, yPercent: -50, scale: from.size ? 1 : 0.3, autoAlpha: 1 })
-        gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
-        tl.to(seed, { scale: from.size ? 1.25 : 1.6, duration: ZOOM_S * 0.45, ease: 'power2.out' }, 0)
-          .to(seed, { scale: from.size ? 3 : 5, autoAlpha: 0, duration: ZOOM_S * 0.55, ease: 'power2.in' }, ZOOM_S * 0.45)
-      }
-      tl.to(lens, { r: reach, duration: ZOOM_S * 0.75, ease: 'expo.in', onUpdate: openLens }, ZOOM_S * 0.25)
-    },
-    [reducedMotion, router],
-  )
-
-  useEffect(() => {
-    navigateHandler = navigate
-    return () => {
-      navigateHandler = null
+  /** La red se abre desde el nodo de salida hasta cubrir la pantalla; luego corre `onCovered`. */
+  const startCover = useCallback((trigger: Element | null | undefined, onCovered: () => void) => {
+    const root = rootRef.current
+    if (!root) return
+    counter.current.v = 0
+    anchorRef.current = null
+    syncCounter()
+    setNetKey((k) => k + 1)
+    setShowNet(true)
+    setCovered(true)
+    isCovering.current = true
+    document.documentElement.dataset.transitioning = 'true'
+    const from = sourcePoint(trigger)
+    const lens = { r: 0 }
+    const reach = Math.hypot(Math.max(from.x, window.innerWidth - from.x), Math.max(from.y, window.innerHeight - from.y))
+    const openLens = () => { root.style.clipPath = `circle(${lens.r}px at ${from.x}px ${from.y}px)` }
+    openLens()
+    gsap.set(root, { visibility: 'visible' })
+    const seed = seedRef.current
+    const tl = gsap.timeline({
+      onComplete: () => {
+        if (seed) gsap.set(seed, { autoAlpha: 0 })
+        root.style.clipPath = ''
+        coveredAt.current = performance.now()
+        loadTween.current = gsap.to(counter.current, { v: WAIT_CAP * 100, duration: LOAD_S, ease: 'power2.out', onUpdate: syncCounter })
+        onCovered()
+      },
+    })
+    // El nodo se enciende y dispara la red, que se abre desde él hasta cubrir la pantalla.
+    // (No se escala la página: es muy alta y acercarla trababa cada cuadro.)
+    if (seed) {
+      // Desde un anillo (la O) sale con su tamaño y destella; desde un nodo de sección, crece desde el punto.
+      const ring = from.size ?? FLARE_PX
+      gsap.set(seed, { x: from.x, y: from.y, width: ring, height: ring, xPercent: -50, yPercent: -50, scale: from.size ? 1 : 0.3, autoAlpha: 1 })
+      gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
+      tl.to(seed, { scale: from.size ? 1.25 : 1.6, duration: ZOOM_S * 0.45, ease: 'power2.out' }, 0)
+        .to(seed, { scale: from.size ? 3 : 5, autoAlpha: 0, duration: ZOOM_S * 0.55, ease: 'power2.in' }, ZOOM_S * 0.45)
     }
-  }, [navigate])
+    tl.to(lens, { r: reach, duration: ZOOM_S * 0.75, ease: 'expo.in', onUpdate: openLens }, ZOOM_S * 0.25)
+  }, [])
 
-  // Al cambiar de ruta: a la sección del ancla (Proyectos → /#work) o arriba del todo; la carga
-  // llega a 100, las conexiones se sueltan y la cortina se retira.
-  useEffect(() => {
-    // En la primera carga el navegador ya resuelve el ancla; saltar aquí choca con las animaciones que se arman.
-    if (firstRoute.current) firstRoute.current = false
-    else if (!jumpToHash()) scrollToTop()
-    clearTimers()
-    if (!isCovering.current || !rootRef.current) {
+  /**
+   * Retira la cortina: la carga llega a 100, la última neurona aterriza en el nodo de destino
+   * (o la cámara salta y todo se disuelve). Devuelve cómo cancelarlo.
+   */
+  const uncover = useCallback((fallback?: Element | null): (() => void) => {
+    const root = rootRef.current
+    if (!isCovering.current || !root) {
       setCovered(false)
-      return
+      return () => {}
     }
     isCovering.current = false
-    const root = rootRef.current
     // La carga sigue avanzando mientras se cumple el tiempo mínimo: si la página llega enseguida
     // (producción), la red no se queda quieta y apagada esperando.
     const wait = Math.max(0, MIN_SHOW_MS - (performance.now() - coveredAt.current)) / 1000
@@ -188,7 +184,7 @@ export function TransitionOverlay() {
       .to({}, { duration: SEED_MEASURE_S })
     tl.call(() => {
       const seed = seedRef.current
-      const target = landingNode()
+      const target = landingNode() ?? visibleElement(fallback)
       const from = anchorRef.current
       const landing = target ? landingOf(target) : null
       if (!seed || !target || !from || !landing) {
@@ -218,7 +214,68 @@ export function TransitionOverlay() {
       exit?.kill()
       tl.kill()
     }
-  }, [pathname])
+  }, [])
+
+  const navigate = useCallback<Navigate>(
+    (href, _label, trigger) => {
+      if (reducedMotion || !rootRef.current) {
+        router.push(href)
+        return
+      }
+      // Pide la página mientras la cortina cubre: al terminar ya está lista.
+      router.prefetch(href)
+      startCover(trigger, () => {
+        router.push(href)
+        clearTimers()
+        timers.current = [window.setTimeout(() => window.location.assign(href), HARD_NAV_MS)]
+      })
+    },
+    [reducedMotion, router, startCover],
+  )
+
+  /** Sin cambiar de página: tras cubrir, `action` cambia lo de debajo y la cortina se retira. */
+  const inlineUncover = useRef<(() => void) | null>(null)
+  const cover = useCallback<Cover>(
+    (action, trigger, fallback) => {
+      if (reducedMotion || !rootRef.current || isCovering.current) {
+        action()
+        return
+      }
+      startCover(trigger, () => {
+        action()
+        // Dos cuadros: lo nuevo (p. ej. el visor) ya está montado y medido cuando aterriza la neurona.
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          inlineUncover.current = uncover(fallback)
+        }))
+      })
+    },
+    [reducedMotion, startCover, uncover],
+  )
+
+  useEffect(() => {
+    coverHandler = cover
+    return () => {
+      coverHandler = null
+      inlineUncover.current?.()
+    }
+  }, [cover])
+
+  useEffect(() => {
+    navigateHandler = navigate
+    return () => {
+      navigateHandler = null
+    }
+  }, [navigate])
+
+  // Al cambiar de ruta: a la sección del ancla (Proyectos → /#work) o arriba del todo; la carga
+  // llega a 100, las conexiones se sueltan y la cortina se retira.
+  useEffect(() => {
+    // En la primera carga el navegador ya resuelve el ancla; saltar aquí choca con las animaciones que se arman.
+    if (firstRoute.current) firstRoute.current = false
+    else if (!jumpToHash()) scrollToTop()
+    clearTimers()
+    return uncover()
+  }, [pathname, uncover])
 
   return (
     <>
@@ -226,7 +283,7 @@ export function TransitionOverlay() {
       ref={rootRef}
       data-palette-scope
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[70] flex"
+      className="pointer-events-none fixed inset-0 z-[95] flex"
       style={{ visibility: 'hidden' }}
     >
       {/* El fondo de la red: se abre en círculo desde el nodo de salida */}
@@ -241,7 +298,7 @@ export function TransitionOverlay() {
       ref={seedRef}
       data-palette-scope
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-[71] rounded-full border border-white/70 shadow-[0_0_30px_6px_rgb(var(--signal)/0.55),inset_0_0_20px_rgb(var(--signal)/0.4)]"
+      className="pointer-events-none fixed left-0 top-0 z-[96] rounded-full border border-white/70 shadow-[0_0_30px_6px_rgb(var(--signal)/0.55),inset_0_0_20px_rgb(var(--signal)/0.4)]"
       style={{ visibility: 'hidden' }}
     >
       <div data-seed-core className="absolute inset-0 rounded-full bg-[radial-gradient(circle,#fff_0%,rgb(var(--signal))_35%,rgb(var(--signal)/0)_70%)]" />
