@@ -6,12 +6,18 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { NeuralFlight } from '@/components/home/neural-flight'
 import { gsap, jumpToHash, scrollToTop } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
+import { landingNode, landingOf, lightNode, sourcePoint } from './transition-nodes'
 
-type Navigate = (href: string, label?: string) => void
+type Navigate = (href: string, label?: string, trigger?: Element | null) => void
 
 let navigateHandler: Navigate | null = null
 
-const BAR_COUNT = 6
+/** Zoom de salida: la cámara entra al nodo y la red se abre desde él (s) */
+const ZOOM_S = 0.85
+/** Cuánto se acerca la página al nodo mientras la red la cubre */
+const ZOOM_SCALE = 1.6
+/** Destello del nodo de salida: crece y se apaga cuando la red ya se abrió */
+const FLARE_PX = 46
 /** Mientras llega la página, el porcentaje sube hasta aquí (0–1) y espera */
 const WAIT_CAP = 0.9
 /** Lo que tarda en llegar a ese tope, como la carga del inicio */
@@ -56,8 +62,8 @@ export function onPageReveal(start: (info: PageRevealInfo) => void): () => void 
 const HARD_NAV_MS = 12000
 
 /**
- * Cortina de barras verticales (las barras de la hoja de vida) que cubre
- * la pantalla al salir de una página y se retira al entrar a la nueva.
+ * Transición entre páginas que viaja de nodo a nodo: la cámara entra al nodo
+ * de la sección donde se hizo clic (o al del proyecto) y la red se abre desde él.
  * Mientras cubre, se ve la misma carga del inicio, sin texto: la cámara entra
  * a la red mientras los nodos en primer plano se conectan. Al llegar la
  * página, la cámara salta hacia adelante y todo se disuelve.
@@ -88,15 +94,13 @@ export function TransitionOverlay() {
     timers.current = []
   }
 
-  const bars = () => rootRef.current?.querySelectorAll<HTMLElement>('[data-bar]') ?? []
-
   /** El avance que lee la red (0–1). */
   const syncCounter = () => {
     loadProgress.current = counter.current.v / 100
   }
 
   const navigate = useCallback<Navigate>(
-    (href) => {
+    (href, _label, trigger) => {
       if (reducedMotion || !rootRef.current) {
         router.push(href)
         return
@@ -111,24 +115,40 @@ export function TransitionOverlay() {
       setCovered(true)
       isCovering.current = true
       document.documentElement.dataset.transitioning = 'true'
-      gsap.set(rootRef.current, { visibility: 'visible' })
-      gsap.fromTo(
-        bars(),
-        { scaleY: 0, transformOrigin: '50% 100%' },
-        {
-          scaleY: 1,
-          duration: 0.42,
-          ease: 'expo.inOut',
-          stagger: 0.03,
-          onComplete: () => {
-            coveredAt.current = performance.now()
-            router.push(href)
-            loadTween.current = gsap.to(counter.current, { v: WAIT_CAP * 100, duration: LOAD_S, ease: 'power2.out', onUpdate: syncCounter })
-            clearTimers()
-            timers.current = [window.setTimeout(() => window.location.assign(href), HARD_NAV_MS)]
-          },
+      const root = rootRef.current
+      const from = sourcePoint(trigger)
+      const lens = { r: 0 }
+      const reach = Math.hypot(Math.max(from.x, window.innerWidth - from.x), Math.max(from.y, window.innerHeight - from.y))
+      const openLens = () => { root.style.clipPath = `circle(${lens.r}px at ${from.x}px ${from.y}px)` }
+      openLens()
+      gsap.set(root, { visibility: 'visible' })
+      const main = document.getElementById('main')
+      const seed = seedRef.current
+      const tl = gsap.timeline({
+        onComplete: () => {
+          if (main) gsap.set(main, { clearProps: 'transform,transformOrigin' })
+          if (seed) gsap.set(seed, { autoAlpha: 0 })
+          root.style.clipPath = ''
+          coveredAt.current = performance.now()
+          router.push(href)
+          loadTween.current = gsap.to(counter.current, { v: WAIT_CAP * 100, duration: LOAD_S, ease: 'power2.out', onUpdate: syncCounter })
+          clearTimers()
+          timers.current = [window.setTimeout(() => window.location.assign(href), HARD_NAV_MS)]
         },
-      )
+      })
+      // La cámara entra al nodo: la página se acerca a él…
+      if (main) {
+        const box = main.getBoundingClientRect()
+        tl.fromTo(main, { scale: 1 }, { scale: ZOOM_SCALE, transformOrigin: `${from.x - box.left}px ${from.y - box.top}px`, duration: ZOOM_S, ease: 'expo.in' }, 0)
+      }
+      // …el nodo se enciende y dispara la red, que se abre desde él hasta cubrir la pantalla.
+      if (seed) {
+        gsap.set(seed, { x: from.x, y: from.y, width: FLARE_PX, height: FLARE_PX, xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 1 })
+        gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
+        tl.to(seed, { scale: 1.6, duration: ZOOM_S * 0.45, ease: 'power2.out' }, 0)
+          .to(seed, { scale: 5, autoAlpha: 0, duration: ZOOM_S * 0.55, ease: 'power2.in' }, ZOOM_S * 0.45)
+      }
+      tl.to(lens, { r: reach, duration: ZOOM_S * 0.75, ease: 'expo.in', onUpdate: openLens }, ZOOM_S * 0.25)
     },
     [reducedMotion, router],
   )
@@ -161,7 +181,6 @@ export function TransitionOverlay() {
     const reveal = (seeded: boolean) => { window.dispatchEvent(new CustomEvent<PageRevealInfo>(PAGE_REVEAL_EVENT, { detail: { seeded } })) }
     const finish = () => {
       setCovered(false)
-      gsap.set(bars(), { scaleY: 0 })
       gsap.set(root, { visibility: 'hidden', opacity: 1 })
       if (seedRef.current) gsap.set(seedRef.current, { autoAlpha: 0 })
       delete document.documentElement.dataset.transitioning
@@ -173,10 +192,10 @@ export function TransitionOverlay() {
       .to({}, { duration: SEED_MEASURE_S })
     tl.call(() => {
       const seed = seedRef.current
-      const target = document.querySelector<HTMLElement>('[data-transition-target]')
+      const target = landingNode()
       const from = anchorRef.current
-      const box = target?.offsetParent?.getBoundingClientRect()
-      if (!seed || !target || !from || !box) {
+      const landing = target ? landingOf(target) : null
+      if (!seed || !target || !from || !landing) {
         // Sin destino: la cámara salta hacia adelante y todo se disuelve (sin cortinilla).
         exit = gsap.timeline()
           .add(warp())
@@ -187,15 +206,15 @@ export function TransitionOverlay() {
       }
       // Con destino: la última neurona queda encendida y viaja hasta él mientras la red se va;
       // al llegar crece hasta el tamaño del anillo y la página se arma desde ahí.
-      const size = target.offsetWidth
+      const size = landing.size
       gsap.set(seed, { x: from.x, y: from.y, width: size, height: size, xPercent: -50, yPercent: -50, scale: 14 / size, autoAlpha: 1 })
       gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
       exit = gsap.timeline()
         .add(warp(), 0)
         .to(root, { autoAlpha: 0, duration: FADE_OUT_S, ease: 'power2.out' }, 0.15)
-        .to(seed, { x: box.left + target.offsetLeft, y: box.top + target.offsetTop, scale: 1, duration: SEED_S, ease: 'expo.inOut' }, 0)
+        .to(seed, { x: landing.x, y: landing.y, scale: 1, duration: SEED_S, ease: 'expo.inOut' }, 0)
         .to(seed.querySelector('[data-seed-core]'), { autoAlpha: 0, duration: SEED_S * 0.6, ease: 'power1.in' }, SEED_S * 0.4)
-        .call(() => reveal(true), undefined, SEED_S - 0.05)
+        .call(() => { lightNode(target); reveal(true) }, undefined, SEED_S - 0.05)
         .to(seed, { autoAlpha: 0, duration: 0.25 }, SEED_S + 0.1)
         .call(finish)
     })
@@ -213,9 +232,8 @@ export function TransitionOverlay() {
       className="pointer-events-none fixed inset-0 z-[70] flex"
       style={{ visibility: 'hidden' }}
     >
-      {Array.from({ length: BAR_COUNT }, (_, i) => (
-        <div key={i} data-bar className="h-full flex-1 bg-void" style={{ transform: 'scaleY(0)' }} />
-      ))}
+      {/* El fondo de la red: se abre en círculo desde el nodo de salida */}
+      <div className="absolute inset-0 bg-void" />
       {/* La misma carga del inicio: solo la red armándose en primer plano */}
       <div className={`absolute inset-0 transition-opacity duration-300 ${covered ? 'opacity-100 delay-150' : 'opacity-0'}`}>
         {showNet && <NeuralFlight key={netKey} progress={loadProgress} anchor={anchorRef} className="absolute inset-0 h-full w-full" />}
@@ -257,7 +275,7 @@ export function TransitionLink({ href, transitionLabel, onClick, onMouseEnter, .
         const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0
         if (event.defaultPrevented || modified || href === pathname || !navigateHandler) return
         event.preventDefault()
-        navigateHandler(href, transitionLabel)
+        navigateHandler(href, transitionLabel, event.currentTarget)
       }}
       {...rest}
     />

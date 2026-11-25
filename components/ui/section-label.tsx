@@ -110,7 +110,7 @@ export function SectionLabel({ index, children, className = '', nodeRef, thread:
 
   return (
     <div ref={rootRef} data-lit="false" className={`group/label flex items-center gap-4 ${className}`}>
-      <span ref={nodeRef} data-fiber-from={fiberFrom} data-fiber-to={fiberTo} className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
+      <span ref={nodeRef} data-section-node data-fiber-from={fiberFrom} data-fiber-to={fiberTo} className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
           <span
           aria-hidden="true"
           className={`pointer-events-none absolute bottom-[calc(100%+3px)] left-1/2 h-[clamp(5rem,12svh,9rem)] w-px -translate-x-1/2 bg-gradient-to-t from-white/80 via-white/35 to-transparent shadow-[0_0_8px_rgb(255_255_255/0.35)] transition-opacity duration-700 ${riser ? 'opacity-100' : 'opacity-0'}`}

@@ -1,0 +1,101 @@
+/**
+ * Los nodos entre los que viaja la transición: sale del nodo de la sección
+ * donde se hizo clic (o del nodo del proyecto, p. ej. la O de Objetivos) y
+ * aterriza en el nodo de la sección o del proyecto de destino.
+ *
+ * Marcas que se leen en el DOM:
+ * - `data-section-node`: el nodo de cada etiqueta de sección (<SectionLabel>)
+ * - `data-transition-source`: nodo de salida explícito
+ * - `data-transition-target`: nodo de llegada de una página (también sirve de salida al dejarla)
+ */
+
+export interface Point {
+  x: number
+  y: number
+}
+
+export interface Landing extends Point {
+  /** Tamaño final del anillo que aterriza (px) */
+  size: number
+}
+
+/** Anillo de llegada sobre un nodo de sección: el mismo de su retícula */
+const SECTION_RING_PX = 46
+
+function visibleCenter(el: Element | null | undefined): Point | null {
+  if (!el) return null
+  const r = el.getBoundingClientRect()
+  const visible = r.width + r.height > 0 && r.bottom > 0 && r.right > 0 && r.top < window.innerHeight && r.left < window.innerWidth
+  return visible ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : null
+}
+
+/** El nodo de sección a la vista más cercano al centro de la pantalla. */
+function nearestSectionNode(): Element | null {
+  const cx = window.innerWidth / 2
+  const cy = window.innerHeight / 2
+  let best: Element | null = null
+  let bestDistance = Infinity
+  document.querySelectorAll('[data-section-node]').forEach((node) => {
+    const c = visibleCenter(node)
+    if (!c) return
+    const d = Math.hypot(c.x - cx, c.y - cy)
+    if (d < bestDistance) {
+      bestDistance = d
+      best = node
+    }
+  })
+  return best
+}
+
+/** De dónde sale el viaje: el nodo de la sección del enlace, el del proyecto o el más cercano. */
+export function sourcePoint(trigger?: Element | null): Point {
+  const candidates = [
+    trigger?.closest('[data-transition-source]'),
+    trigger?.closest('section, [data-section-tone]')?.querySelector('[data-section-node]'),
+    document.querySelector('[data-transition-source]'),
+    document.querySelector('[data-transition-target]'),
+    nearestSectionNode(),
+  ]
+  for (const el of candidates) {
+    const c = visibleCenter(el)
+    if (c) return c
+  }
+  return visibleCenter(trigger) ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+}
+
+function hashSectionNode(): Element | null {
+  const hash = window.location.hash
+  if (hash.length < 2) return null
+  try {
+    return document.querySelector(hash)?.querySelector('[data-section-node]') ?? null
+  } catch {
+    // Un ancla que no es un selector válido: no hay nodo al que llegar.
+    return null
+  }
+}
+
+/** Dónde aterriza el viaje en la página nueva (o null si no hay nodo a la vista). */
+export function landingNode(): HTMLElement | null {
+  const candidates = [hashSectionNode(), document.querySelector('[data-transition-target]'), nearestSectionNode()]
+  for (const el of candidates) {
+    if (el instanceof HTMLElement && visibleCenter(el)) return el
+  }
+  return null
+}
+
+export function landingOf(node: HTMLElement): Landing | null {
+  if (node.hasAttribute('data-transition-target')) {
+    // El anillo del proyecto puede estar animándose: se usa su posición de maqueta (centrada con translate).
+    const box = node.offsetParent?.getBoundingClientRect()
+    if (!box) return null
+    return { x: box.left + node.offsetLeft, y: box.top + node.offsetTop, size: node.offsetWidth }
+  }
+  const c = visibleCenter(node)
+  return c && { ...c, size: SECTION_RING_PX }
+}
+
+/** Al aterrizar, el nodo de sección se enciende con su retícula. */
+export function lightNode(node: HTMLElement): void {
+  const label = node.closest<HTMLElement>('[data-lit]')
+  if (label) label.dataset.lit = 'true'
+}
