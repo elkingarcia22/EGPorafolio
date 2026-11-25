@@ -9,6 +9,8 @@ interface SectionLabelProps {
   index: string
   children: string
   className?: string
+  /** el nodo de la etiqueta (p. ej. para que un viaje entre secciones aterrice en él) */
+  nodeRef?: React.Ref<HTMLSpanElement>
 }
 
 /** Margen para que el hilo no toque el borde exacto de la sección */
@@ -23,15 +25,15 @@ const THREAD_GAP_PX = 6
  * nítidos. Así cada sección queda conectada
  * con la anterior.
  */
-export function SectionLabel({ index, children, className = '' }: SectionLabelProps) {
+export function SectionLabel({ index, children, className = '', nodeRef }: SectionLabelProps) {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const threadRef = useRef<HTMLSpanElement>(null)
   const indexRef = useRef<HTMLSpanElement>(null)
   const titleRef = useRef<HTMLSpanElement>(null)
 
-  useRiseIn(indexRef, reducedMotion, { start: 'top 62%' })
-  useRiseIn(titleRef, reducedMotion, { start: 'top 62%', delay: 0.12 })
+  useRiseIn(indexRef, reducedMotion, { start: 'top 82%' })
+  useRiseIn(titleRef, reducedMotion, { start: 'top 82%', delay: 0.12 })
 
   useEffect(() => {
     const root = rootRef.current
@@ -77,7 +79,7 @@ export function SectionLabel({ index, children, className = '' }: SectionLabelPr
 
   return (
     <div ref={rootRef} data-lit="false" className={`group/label flex items-center gap-4 ${className}`}>
-      <span className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
+      <span ref={nodeRef} className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
         {/* Hilo que llega desde la sección anterior */}
         <span
           ref={threadRef}

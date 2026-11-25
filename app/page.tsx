@@ -1,4 +1,5 @@
 import { Hero } from '@/components/home/hero'
+import { NeuralBackdrop } from '@/components/home/neural-backdrop'
 import { Manifesto } from '@/components/home/manifesto'
 import { ProcessFlow } from '@/components/home/process-flow'
 import { WorkList } from '@/components/home/work-list'
@@ -14,6 +15,8 @@ export default async function HomePage() {
   const { projects } = await listProjects()
   return (
     <>
+      {/* Un solo fondo de red para todo el inicio: sin cortes entre secciones */}
+      <NeuralBackdrop />
       <Hero />
       <Manifesto />
       <WorkList projects={projects} />

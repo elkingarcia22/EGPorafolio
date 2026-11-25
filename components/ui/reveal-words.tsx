@@ -31,19 +31,24 @@ const CHIPS: Record<ChipKind, React.ReactNode> = {
 interface RevealWordsProps {
   text: string
   className?: string
+  /**
+   * true (por defecto): se ilumina con el scroll. false: no anima por su cuenta;
+   * quien lo usa anima [data-word] y [data-chip] (p. ej. lectura con tiempo propio).
+   */
+  scrub?: boolean
 }
 
 /**
  * Texto que se "ilumina" palabra por palabra con el scroll.
  * Los tokens [[research]], [[system]] y [[ai]] se convierten en chips con ícono.
  */
-export function RevealWords({ text, className = '' }: RevealWordsProps) {
+export function RevealWords({ text, className = '', scrub = true }: RevealWordsProps) {
   const ref = useRef<HTMLParagraphElement>(null)
   const { reducedMotion } = useA11y()
 
   useEffect(() => {
     const el = ref.current
-    if (!el || reducedMotion) return
+    if (!el || reducedMotion || !scrub) return
     const ctx = gsap.context(() => {
       gsap.fromTo(
         el.querySelectorAll('[data-word]'),
@@ -70,7 +75,7 @@ export function RevealWords({ text, className = '' }: RevealWordsProps) {
       )
     }, el)
     return () => ctx.revert()
-  }, [text, reducedMotion])
+  }, [text, reducedMotion, scrub])
 
   const tokens = text.split(/\s+/)
 

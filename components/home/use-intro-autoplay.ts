@@ -5,10 +5,13 @@ import { getLenis } from '@/lib/motion'
 import type { HeroSnap } from './use-hero-snap'
 
 /** Duración (s) de cada bajada automática */
-const TO_BRIDGE_S = 1.8
-const TO_SIGNATURE_S = 1.8
-/** Espera (ms) desde que empieza a bajar hasta seguir a la firma: el viaje que arma el EG */
-const BRIDGE_HOLD_MS = 5200
+const TO_BRIDGE_S = 1.4
+const TO_SIGNATURE_S = 1.6
+/**
+ * Espera (ms) desde que empieza a bajar hasta seguir a la firma. Arranca justo
+ * cuando el EG termina de armarse, para pasar del puente a la firma sin pausa.
+ */
+const BRIDGE_HOLD_MS = 3400
 /** Si la página ya está más abajo que esto, la persona ya tomó el control */
 const ALREADY_SCROLLED_PX = 10
 
@@ -22,16 +25,17 @@ const REST = { bridge: 1, signature: 2 } as const
  * la página baja sola hasta el puente (mientras se arma el EG) y luego hasta
  * la firma. Si la persona usa la rueda, el teclado o toca la pantalla, la
  * entrada se detiene y sigue ella; después todo funciona con scroll normal.
- * Devuelve la función que la inicia.
+ * Devuelve la función que la inicia (true si arrancó). `onDone` se llama una
+ * vez, cuando termina o cuando la persona toma el control.
  */
-export function useIntroAutoplay(snap: React.MutableRefObject<HeroSnap>, enabled: boolean): () => void {
+export function useIntroAutoplay(snap: React.MutableRefObject<HeroSnap>, enabled: boolean, onDone: () => void): () => boolean {
   const timers = useRef<number[]>([])
   const cancelRef = useRef<() => void>(() => {})
 
   useEffect(() => () => cancelRef.current(), [])
 
   return useCallback(() => {
-    if (!enabled || window.scrollY > ALREADY_SCROLLED_PX) return
+    if (!enabled || window.scrollY > ALREADY_SCROLLED_PX) return false
 
     const goTo = (rest: number, duration: number) => {
       const { trigger, rests } = snap.current
@@ -42,10 +46,14 @@ export function useIntroAutoplay(snap: React.MutableRefObject<HeroSnap>, enabled
     }
 
     const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
+    let finished = false
     const cancel = () => {
       timers.current.forEach((id) => window.clearTimeout(id))
       timers.current = []
       events.forEach((name) => window.removeEventListener(name, cancel))
+      if (finished) return
+      finished = true
+      onDone()
     }
     cancelRef.current = cancel
     events.forEach((name) => window.addEventListener(name, cancel, { passive: true }))
@@ -57,5 +65,6 @@ export function useIntroAutoplay(snap: React.MutableRefObject<HeroSnap>, enabled
         timers.current.push(window.setTimeout(cancel, TO_SIGNATURE_S * 1000))
       }, BRIDGE_HOLD_MS),
     )
-  }, [snap, enabled])
+    return true
+  }, [snap, enabled, onDone])
 }

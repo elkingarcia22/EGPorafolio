@@ -10,6 +10,8 @@ export interface FlightCamera {
 }
 
 export interface FlightFrame {
+  /** punto (fracciones del lienzo) hacia el que mira la cámara; por defecto, el de las opciones */
+  center?: { x: number; y: number }
   ctx: CanvasRenderingContext2D
   dpr: number
   width: number
@@ -23,6 +25,12 @@ export interface FlightFrame {
   /** brillo de cada neurona (impulsos y llegadas) */
   glow: Float32Array
   pulses: readonly { link: number; t: number; forward: boolean }[]
+  /**
+   * Avance propio de cada conexión (0 = sin tender, 1 = conectada). Si se da,
+   * reemplaza al tendido por cercanía: así una fibra puede salir a buscar, y
+   * quedarse o recogerse (la búsqueda de conexiones de la carga).
+   */
+  linkGrow?: Float32Array
 }
 
 const NEAR = 0.35
@@ -59,7 +67,10 @@ export interface FlightRenderOptions {
   dust?: number
 }
 
-export function createFlightRenderer(world: FlightWorld, { centerY = 0.5, dust: dustCount = 420 }: FlightRenderOptions = {}) {
+export function createFlightRenderer(
+  world: FlightWorld,
+  { centerY = 0.5, dust: dustCount = 420 }: FlightRenderOptions = {},
+) {
   const composer = createDepthComposer()
   const dust = Array.from({ length: dustCount }, () => ({ x: (Math.random() - 0.5) * 22, y: (Math.random() - 0.5) * 16, z: Math.random() * FAR }))
 
@@ -75,14 +86,15 @@ export function createFlightRenderer(world: FlightWorld, { centerY = 0.5, dust: 
       const s = focal / d
       const px = (x - camera.x) * s
       const py = (y - camera.y) * s
-      return { x: width / 2 + px * cos - py * sin, y: height * centerY + px * sin + py * cos, d, s }
+      return { x: width * (f.center?.x ?? 0.5) + px * cos - py * sin, y: height * (f.center?.y ?? centerY) + px * sin + py * cos, d, s }
     }
     const fog = (d: number) => Math.min(1, Math.max(0, 1 - (d - FOG_START) / (FAR - FOG_START))) * Math.min(1, (d - NEAR) / 0.9)
     const layerOf = (d: number): DepthLayer => (d < 2.4 ? 'near' : d > 10.5 ? 'far' : 'focus')
 
     const pts = world.nodes.map((n) => project(n.x, n.y, n.z))
     // Una conexión se tiende cuando la cámara se acerca: va encontrando la red.
-    const grow = (link: FlightLink) => {
+    const grow = (link: FlightLink, index: number) => {
+      if (f.linkGrow) return f.linkGrow[index]
       const z = Math.min(world.nodes[link.a].z, world.nodes[link.b].z)
       return Math.min(1, Math.max(0, (camera.z + REVEAL_AHEAD - z) / REVEAL_SPAN))
     }
@@ -114,13 +126,13 @@ export function createFlightRenderer(world: FlightWorld, { centerY = 0.5, dust: 
     const paint = (g: CanvasRenderingContext2D, layer: DepthLayer) => {
       g.globalCompositeOperation = 'lighter'
       // Fibras: dos hebras curvas por conexión.
-      world.links.forEach((link) => {
+      world.links.forEach((link, index) => {
         const a = pts[link.a]
         const b = pts[link.b]
         if (!a || !b) return
         const d = Math.min(a.d, b.d)
         if (layerOf(d) !== layer) return
-        const k = grow(link)
+        const k = grow(link, index)
         if (k <= 0) return
         const c = project(link.cx, link.cy, link.cz)
         if (!c) return
@@ -187,6 +199,8 @@ export function createFlightRenderer(world: FlightWorld, { centerY = 0.5, dust: 
 
       // Impulsos: cometas que corren por las fibras.
       for (const pulse of f.pulses) {
+        // Los impulsos solo corren por fibras ya conectadas.
+        if (f.linkGrow && f.linkGrow[pulse.link] < 1) continue
         const link = world.links[pulse.link]
         const a = pts[link.a]
         const b = pts[link.b]

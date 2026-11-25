@@ -4,8 +4,12 @@ import { useEffect, useRef } from 'react'
 import { buildFlightWorld } from '@/components/signal/flight-world'
 import { createFlightRenderer } from '@/components/signal/flight-render'
 import { createFlightPulses } from '@/components/signal/flight-pulses'
+import { createLinkSearch } from '@/components/signal/flight-probes'
 
-const WORLD = { waypoints: 5, spacing: 7, viewDistance: 3.2, radius: 7, count: 300, tail: 22 }
+/** Dos neuronas en el camino (dos llegadas); pocos nodos alrededor para que la red se lea limpia */
+const WORLD = { waypoints: 2, spacing: 10, viewDistance: 3.2, radius: 6, count: 160, tail: 22 }
+/** Brillo con el que se encienden las neuronas al quedar conectadas */
+const CONNECT_GLOW = 0.7
 const PULSE_CHANCE = 0.35
 /** Pulsos que salen de una neurona principal cuando la cámara llega a ella */
 const ARRIVAL_PULSES = 6
@@ -14,7 +18,7 @@ const WARP_DISTANCE = 34
 /** Avance lento mientras la carga espera completa, antes del salto */
 const HOLD_DRIFT = 0.0009
 /** Si la carga no avanza en este tiempo (se saltó o ya terminó), el lienzo deja de dibujar */
-const IDLE_STOP_MS = 2500
+const IDLE_STOP_MS = 6000
 
 interface NeuralFlightProps {
   /** Avance de la carga, 0–1. Después de llegar a 1 vuelve a 0: ese tramo es el salto final. */
@@ -25,10 +29,10 @@ interface NeuralFlightProps {
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
 
 /**
- * Carga del inicio: un viaje en el espacio por una red neuronal. La cámara
- * vuela de neurona en neurona al ritmo del porcentaje; las fibras se tienden
- * a medida que se acerca (va encontrando conexiones) y los impulsos corren
- * hacia la siguiente. Al terminar, la última neurona dispara y la cámara
+ * Carga del inicio, sin texto: la cámara entra a una red neuronal con nodos
+ * en primer plano que buscan conectarse (las fibras salen, unas fallan y se
+ * recogen, otras se quedan; cada vez más, al ritmo de la carga) y vuela de
+ * neurona en neurona. Al terminar, la última neurona dispara y la cámara
  * salta hacia adelante, hasta que aparece el titular.
  */
 export function NeuralFlight({ progress, className }: NeuralFlightProps) {
@@ -42,6 +46,8 @@ export function NeuralFlight({ progress, className }: NeuralFlightProps) {
     const world = buildFlightWorld(WORLD)
     const render = createFlightRenderer(world)
     const impulses = createFlightPulses(world)
+    const search = createLinkSearch(world)
+    let lastTime = 0
     const arrived = new Set<number>()
 
     let width = 0
@@ -72,6 +78,8 @@ export function NeuralFlight({ progress, className }: NeuralFlightProps) {
       const b = stops[seg + 1]
       if (k > 0.9 && !arrived.has(seg)) {
         arrived.add(seg)
+        // Al llegar, la neurona se conecta con todas sus vecinas y dispara.
+        search.connectNode(world.route[seg])
         impulses.fire(world.route[seg], ARRIVAL_PULSES)
       }
       return {
@@ -96,7 +104,13 @@ export function NeuralFlight({ progress, className }: NeuralFlightProps) {
       const speed = Math.max(0, camera.z - lastZ)
       lastZ = camera.z
 
-      // Impulsos al azar cerca de la cámara, cada vez más a medida que avanza la carga.
+      // Búsqueda de conexiones en primer plano: fibras que salen, se quedan o se recogen.
+      const dt = lastTime ? Math.min(64, time - lastTime) : 16
+      lastTime = time
+      for (const node of search.step(dt, camera.z, peaked ? 1 : p)) {
+        impulses.glow[node] = Math.max(impulses.glow[node], CONNECT_GLOW)
+      }
+      // Impulsos al azar cerca de la cámara (solo corren por fibras ya conectadas).
       impulses.spawnNear(camera.z, PULSE_CHANCE * (0.3 + p))
       impulses.step()
 
@@ -111,6 +125,7 @@ export function NeuralFlight({ progress, className }: NeuralFlightProps) {
         fade: peaked ? Math.min(1, p * 1.4) : Math.min(1, 0.35 + p * 2),
         glow: impulses.glow,
         pulses: impulses.pulses,
+        linkGrow: search.grow,
       })
     }
 

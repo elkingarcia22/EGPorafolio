@@ -1,6 +1,6 @@
 import type { Frame, NetworkStyle } from './types'
 import {
-  bucketAlpha, bucketLinks, createBokeh, createDepthComposer, curveControl, drawGlow,
+  bucketAlpha, bucketLinks, createDepthComposer, curveControl, drawGlow,
   glowSprite, linkLayer, layerOf, quadPoint, CYAN, ICE, SPARK, type DepthLayer,
 } from './paint'
 
@@ -18,13 +18,6 @@ const BEND = 0.26
 const SWAY = 0.07
 /** Hebras por conexión (un haz de fibras) */
 const STRANDS = [0, 0.13] as const
-/** Nubes de fondo: [x, y, radio relativo al alto, color] */
-const CLOUDS: readonly [number, number, number, string][] = [
-  [0.32, 0.42, 0.42, SPARK],
-  [0.68, 0.36, 0.5, '64,96,255'],
-  [0.52, 0.62, 0.36, SPARK],
-  [0.18, 0.7, 0.4, '64,96,255'],
-]
 
 /**
  * V2 · Sinapsis. Fibras finas y luminosas, curvas como neuronas reales,
@@ -33,23 +26,15 @@ const CLOUDS: readonly [number, number, number, string][] = [
  */
 export function createSynapseStyle(): NetworkStyle {
   const composer = createDepthComposer()
-  const bokeh = createBokeh(30, [ICE, SPARK, CYAN], [18, 110])
 
   return {
     depth3d: true,
     draw(frame: Frame) {
-      const { ctx, nodes, links, pulses, time, scale, width, height, camera } = frame
+      const { nodes, links, pulses, time, scale } = frame
       const k = Math.max(0.6, scale / 320)
 
-      // Nebulosa: nubes grandes y suaves que respiran y se mueven con la cámara.
-      ctx.globalCompositeOperation = 'lighter'
-      CLOUDS.forEach(([x, y, r, rgb], i) => {
-        const breathe = 0.8 + 0.2 * Math.sin(time * 0.0004 + i * 1.7)
-        drawGlow(ctx, glowSprite(rgb, 0.95), x * width - camera.x * 30, y * height - camera.y * 20, r * height * breathe, 0.16 * Math.min(1, frame.progress * 3))
-      })
-      // El bokeh acompaña a la figura: sin figura armada no hay "espacio" de fondo.
-      bokeh.draw(frame, (d) => d < 0.55, frame.progress)
-      ctx.globalCompositeOperation = 'source-over'
+      // La nebulosa y el bokeh los pinta el fondo único del inicio (ver <NeuralBackdrop>):
+      // aquí no, porque quedarían cortados en el borde de la sección.
 
       const paintLayer = (g: CanvasRenderingContext2D, layer: DepthLayer) => {
         g.globalCompositeOperation = 'lighter'
@@ -119,9 +104,6 @@ export function createSynapseStyle(): NetworkStyle {
       }
 
       composer.render(frame, DOF, paintLayer)
-      ctx.globalCompositeOperation = 'lighter'
-      bokeh.draw(frame, (d) => d > 0.88, 0.9 * frame.progress)
-      ctx.globalCompositeOperation = 'source-over'
     },
   }
 }

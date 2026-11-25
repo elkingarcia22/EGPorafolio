@@ -137,22 +137,6 @@ export function buildFlightWorld(o: FlightOptions): FlightWorld {
   return { nodes, links, route, stops }
 }
 
-/**
- * Sinapsis mínima para el paso del titular al EG: una neurona de partida, la
- * de destino (de donde nace el EG) y una rama corta. Dos conexiones en total.
- */
-export function buildSynapseWorld(): FlightWorld {
-  const nodes: FlightNode[] = [
-    { x: -1.6, y: 0.9, z: 3, size: 3.4, phase: 0, waypoint: true },
-    { x: 0, y: 0, z: 12, size: 4, phase: 1.3, waypoint: true },
-    { x: 2.6, y: -1.4, z: 15, size: 2.4, phase: 2.1, waypoint: false },
-  ]
-  const links: FlightLink[] = [
-    { a: 0, b: 1, cx: 1.4, cy: 1.6, cz: 7.5, seed: 0.3 },
-    { a: 1, b: 2, cx: 1.8, cy: 0.2, cz: 13.2, seed: 0.7 },
-  ]
-  return { nodes, links, route: [0, 1], stops: [] }
-}
 
 /** Grafo plano en caja 0–1 (como el del EG): nodos y conexiones */
 interface PlaneGraph {

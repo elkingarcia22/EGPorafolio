@@ -5,8 +5,8 @@ import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { ProjectPreview } from './project-preview'
-import { gsap, scrambleText } from '@/lib/motion'
-import { useRiseIn } from './use-rise-in'
+import { gsap, scrambleText, ScrollTrigger } from '@/lib/motion'
+import { backdropJourney } from './backdrop-journey'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -31,7 +31,7 @@ function WorkCard({ project }: { project: Project }) {
         data-cursor={t(COPY.work.open)}
         onMouseEnter={enter}
         onFocus={enter}
-        className="group relative flex w-full flex-col overflow-hidden rounded-xl border border-fg/10 bg-fg/[0.025] p-2.5 transition-[border-color,box-shadow,transform] duration-500 ease-expo hover:-translate-y-1 hover:border-fg/25 hover:shadow-[0_24px_48px_-28px_rgb(var(--fg)/0.45)]"
+        className="group relative flex w-full flex-col overflow-hidden rounded-xl border border-fg/10 bg-[rgb(var(--void)/0.6)] p-2.5 backdrop-blur-md transition-[border-color,box-shadow,transform] duration-500 ease-expo hover:-translate-y-1 hover:border-fg/25 hover:shadow-[0_24px_60px_-24px_rgb(var(--signal)/0.45)]"
       >
         <div className="relative overflow-hidden rounded-lg">
           <div className="transition-transform duration-700 ease-expo group-hover:scale-[1.035]">
@@ -80,60 +80,106 @@ function WorkCard({ project }: { project: Project }) {
   )
 }
 
-/** Separación (px) desde la que llegan las tarjetas, como puntos sueltos que se conectan */
-const SCATTER = { x: 70, y: [90, 160] as const, rotate: 4 }
+/** Movimiento de cámara del fondo al entrar (picada a un nodo y alejarse girando) */
+const JOURNEY_MS = 2400
+/** Momentos (s desde que empieza la cámara): título y primeras tarjetas */
+const TITLE_AT_S = 1.5
+const CARDS_AT_S = 1.8
+/** Paso entre tarjetas y entre palabras del título */
+const CARD_STAGGER_S = 0.16
+const WORD_STAGGER_S = 0.09
+/** De dónde llegan las tarjetas: desde el fondo, inclinadas y desenfocadas */
+const CARD_FROM = { z: -420, rotateX: 26, y: 90, blur: 12 }
 
 /**
- * Proyectos como tarjetas: la vista previa se ve de una vez, sin tener que pasar el cursor.
- * Al entrar, las tarjetas llegan dispersas y desenfocadas (ruido) y encajan en la retícula (señal).
+ * Proyectos: la cámara del fondo único entra en picada hasta una neurona (con
+ * sus conexiones en primer plano) y se aleja girando hacia una esquina. Al
+ * terminar, el título aparece palabra por palabra y las tarjetas llegan desde
+ * el fondo en 3D, una tras otra, y su punto de color late al conectarse.
  */
 export function WorkList({ projects }: { projects: readonly Project[] }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
+  const rootRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
-  const titleRef = useRef<HTMLHeadingElement>(null)
   const title = t(COPY.work.title)
-  useRiseIn(titleRef, reducedMotion)
 
   useEffect(() => {
+    const root = rootRef.current
     const list = listRef.current
-    if (!list || reducedMotion) return
+    if (!root || !list || reducedMotion) return
+    /** Turno del viaje de cámara que pidió esta sección (solo ella lo suelta) */
+    let turn = 0
     const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>('[data-work-card]').forEach((card, i) => {
-        const side = i % 2 === 0 ? -1 : 1
-        gsap.timeline({ scrollTrigger: { trigger: card, start: 'top 92%', toggleActions: 'play none none none' } })
-          .from(card, {
-            autoAlpha: 0,
-            x: side * gsap.utils.random(SCATTER.x * 0.4, SCATTER.x),
-            y: gsap.utils.random(SCATTER.y[0], SCATTER.y[1]),
-            rotate: side * gsap.utils.random(1, SCATTER.rotate),
-            filter: 'blur(10px)',
-            duration: 1.3,
-            ease: 'expo.out',
-            delay: (i % 2) * 0.12,
-            clearProps: 'transform,filter',
-          })
-          // Al encajar, el punto del cliente emite un pulso: conexión encontrada.
-          .fromTo(card.querySelector('[data-work-ping]'), { scale: 1, opacity: 0.8 }, { scale: 4, opacity: 0, duration: 0.9, ease: 'power2.out' }, '-=0.6')
+      const words = root.querySelectorAll('[data-work-word]')
+      const cards = gsap.utils.toArray<HTMLElement>('[data-work-card]', list)
+      /** Momento (performance.now) en que empezó la cámara; las tarjetas esperan a que termine */
+      let playedAt = 0
+
+      const hideTitle = () => gsap.set(words, { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' })
+      const hideCards = () => gsap.set(cards, { autoAlpha: 0, z: CARD_FROM.z, rotateX: CARD_FROM.rotateX, y: CARD_FROM.y, filter: `blur(${CARD_FROM.blur}px)` })
+      hideTitle()
+      hideCards()
+
+      const showCard = (card: HTMLElement, order: number) => {
+        const wait = playedAt ? Math.max(0, CARDS_AT_S - (performance.now() - playedAt) / 1000) : 0
+        gsap.timeline({ delay: wait + order * CARD_STAGGER_S })
+          .to(card, { autoAlpha: 1, z: 0, rotateX: 0, y: 0, filter: 'blur(0px)', duration: 1.3, ease: 'expo.out', clearProps: 'transform,filter' })
+          // Al llegar, el punto del cliente emite un pulso: conexión encontrada.
+          .fromTo(card.querySelector('[data-work-ping]'), { scale: 1, opacity: 0.85 }, { scale: 4, opacity: 0, duration: 0.9, ease: 'power2.out' }, '-=0.6')
+      }
+
+      ScrollTrigger.create({
+        trigger: root,
+        start: 'top 88%',
+        onEnter: () => {
+          playedAt = performance.now()
+          turn = backdropJourney.play({ kind: 'dive-out', durationMs: JOURNEY_MS })
+          gsap.to(words, { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: WORD_STAGGER_S, ease: 'expo.out', delay: TITLE_AT_S })
+        },
+        onLeaveBack: () => {
+          backdropJourney.release(turn)
+          playedAt = 0
+          hideTitle()
+        },
       })
-    }, list)
-    return () => ctx.revert()
+      // Cada tarjeta llega cuando entra en pantalla (las primeras, al terminar la cámara).
+      cards.forEach((card, i) => {
+        ScrollTrigger.create({ trigger: card, start: 'top 95%', once: true, onEnter: () => showCard(card, i % 2) })
+      })
+      // Al dejar la sección, la cámara vuelve a flotar.
+      ScrollTrigger.create({ trigger: list, start: 'bottom 40%', onEnter: () => backdropJourney.release(turn) })
+    }, root)
+    return () => {
+      backdropJourney.release(turn)
+      ctx.revert()
+    }
   }, [reducedMotion, projects.length])
 
   return (
-    <ToneSection tone="light" id="work" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
-      <div className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <SectionLabel index="01" className="mb-8">{t(COPY.work.label)}</SectionLabel>
-          <h2 ref={titleRef} className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight">{title}</h2>
+    <ToneSection tone="dark" id="work" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
+      <div ref={rootRef}>
+        <div className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <SectionLabel index="01" className="mb-8">{t(COPY.work.label)}</SectionLabel>
+            <h2 className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight [text-shadow:0_2px_18px_rgb(var(--void)/0.85)]">
+              {title.split(' ').map((word, i, all) => (
+                <span key={i} data-work-word className="inline-block">
+                  {word}
+                  {i < all.length - 1 && '\u00a0'}
+                </span>
+              ))}
+            </h2>
+          </div>
         </div>
-      </div>
 
-      <ul ref={listRef} className="grid gap-5 md:grid-cols-2 lg:gap-8">
-        {projects.map((project) => (
-          <WorkCard key={project.slug} project={project} />
-        ))}
-      </ul>
+        {/* Perspectiva: las tarjetas llegan desde la profundidad de la red */}
+        <ul ref={listRef} className="grid gap-5 [perspective:1400px] md:grid-cols-2 lg:gap-8">
+          {projects.map((project) => (
+            <WorkCard key={project.slug} project={project} />
+          ))}
+        </ul>
+      </div>
     </ToneSection>
   )
 }
