@@ -22,7 +22,7 @@ const WORD_MS = 320
 /** Cuántas letras dice por segundo, para seguirla si la voz no avisa cada palabra */
 const CHARS_PER_S = 13
 
-/** Las grabaciones de Gemini (scripts/clipper-voice.mjs) */
+/** La llamada grabada (simulación; scripts/clipper-voice.mjs la rehace con Gemini «Achird») */
 const AUDIO_DIR = '/cases/barberlytics'
 type VoiceLine = 'greeting' | 'reply'
 
@@ -68,8 +68,6 @@ export function ClipperVoice() {
   const [talking, setTalking] = useState(false)
   const [canSpeak, setCanSpeak] = useState(false)
   const [note, setNote] = useState<number | null>(null)
-  /** Si ya están las grabaciones de Gemini en este idioma */
-  const [recorded, setRecorded] = useState(false)
   const run = useRef(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -90,16 +88,6 @@ export function ClipperVoice() {
       if ('speechSynthesis' in window) window.speechSynthesis.cancel()
     }
   }, [])
-
-  useEffect(() => {
-    let alive = true
-    fetch(`${AUDIO_DIR}/clipper-voice-greeting-${locale === 'en' ? 'en' : 'es'}.wav`, { method: 'HEAD' })
-      .then((r) => alive && setRecorded(r.ok))
-      .catch(() => alive && setRecorded(false))
-    return () => {
-      alive = false
-    }
-  }, [locale])
 
   // Sin sonido: la llamada se repite sola mientras se ve
   useEffect(() => {
@@ -156,7 +144,7 @@ export function ClipperVoice() {
     [locale],
   )
 
-  /** Con la grabación de Gemini («Achird»); si no está, con la voz del navegador. */
+  /** Con la llamada grabada; si no carga, con la voz del navegador. */
   const say = useCallback(
     (line: VoiceLine, onEnd: () => void, token: number) => {
       const text = t(VOICE[line])
@@ -319,9 +307,7 @@ export function ClipperVoice() {
             ))}
           </div>
           <p className="mt-4 max-w-[46ch] text-[12px] leading-snug text-paper/40">
-            {recorded
-              ? t({ es: 'Suena con la voz «Achird» de Gemini, la misma de la reserva.', en: 'It speaks with Gemini’s “Achird” voice, the same as in booking.' })
-              : t({ es: 'Aquí suena con la mejor voz de tu navegador; en la reserva, con la voz «Achird» de Gemini.', en: 'Here it uses your browser’s best voice; in booking, Gemini’s “Achird” voice.' })}
+            {t({ es: 'Una simulación de la llamada. En la reserva real, Clipper habla con la voz «Achird» de Gemini.', en: 'A simulation of the call. In real booking, Clipper speaks with Gemini’s “Achird” voice.' })}
           </p>
         </div>
       </div>
