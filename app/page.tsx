@@ -19,12 +19,15 @@ export default async function HomePage() {
       {/* Un solo fondo de red para todo el inicio: sin cortes entre secciones */}
       <NeuralBackdrop />
       <Hero />
-      {/* Una fibra de la red une el «00» de Enfoque con el «01» de Proyectos */}
-      <SectionFiber>
+      {/* Fibras de la red entre secciones: del «00» de Enfoque al «01» de Proyectos (por la izquierda),
+          y del «01» al «02» de Proceso (por la derecha) */}
+      <SectionFiber id="enfoque">
         <Manifesto />
-        <WorkList projects={projects} />
+        <SectionFiber id="proyectos" side="right">
+          <WorkList projects={projects} />
+          <ProcessFlow />
+        </SectionFiber>
       </SectionFiber>
-      <ProcessFlow />
       <Trajectory />
       <Agent projects={projects} />
       <Contact />

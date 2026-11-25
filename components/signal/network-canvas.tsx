@@ -48,7 +48,7 @@ const MAX_PULSES = 18
 const PULSE_SPAWN_CHANCE = 0.08
 const HOVER_MIN_PROGRESS = 0.8
 /** Duración de la transformación entre dos figuras */
-const MORPH_MS = 950
+const MORPH_MS = 1300
 
 /** Volumen de la figura: grosor en fracción de su ancho */
 const THICKNESS = 0.24
@@ -61,6 +61,8 @@ const IDLE_TURN = { yaw: 0.2, pitch: 0.07 }
 const CAMERA_EASE = 0.045
 /** Profundidad (en anchos de figura) desde la que llegan los nodos mientras la red se arma */
 const FLY_IN_DEPTH = 3.2
+/** Al aparecer después del viaje (ver `reveal`), la figura llega plana y de frente —igual al EG del viaje— y toma su volumen y su giro en este tiempo (ms) */
+const SETTLE_MS = 1600
 
 interface Pulse {
   from: number
@@ -204,6 +206,21 @@ export function NetworkCanvas({
       return inside
     }
 
+    /** Volumen y giro de la figura (0 plana y de frente, 1 en 3D): sube al terminar de aparecer. */
+    let settle = reveal ? 0 : 1
+    let settleTime = 0
+    const updateSettle = (time: number) => {
+      const dt = settleTime ? Math.min(64, time - settleTime) : 16
+      settleTime = time
+      if (!reveal || reducedMotion) {
+        settle = 1
+        return
+      }
+      // Mientras el EG del viaje entrega la figura, esta queda plana: así coinciden sin salto.
+      settle = reveal.current < 1 ? 0 : Math.min(1, settle + dt / SETTLE_MS)
+    }
+    const settled = () => settle * settle * (3 - 2 * settle)
+
     /** La cámara gira despacio sola y sigue al cursor (paralaje). */
     const updateCamera = (time: number, enabled: boolean) => {
       const px = pointer.active ? pointer.x / window.innerWidth - 0.5 : 0
@@ -212,14 +229,19 @@ export function NetworkCanvas({
       const targetYaw = enabled ? px * 2 * CURSOR_TURN.yaw + Math.sin(time * 0.00022) * IDLE_TURN.yaw * idle : 0
       const targetPitch = enabled ? -py * 2 * CURSOR_TURN.pitch + Math.cos(time * 0.00017) * IDLE_TURN.pitch * idle : 0
       const ease = reducedMotion ? 1 : CAMERA_EASE
-      camera.yaw += (targetYaw - camera.yaw) * ease
-      camera.pitch += (targetPitch - camera.pitch) * ease
+      camera.yaw += (targetYaw * settled() - camera.yaw) * ease
+      camera.pitch += (targetPitch * settled() - camera.pitch) * ease
+      if (settle === 0) {
+        camera.yaw = 0
+        camera.pitch = 0
+      }
     }
 
     const draw = (time: number) => {
       const p = reducedMotion ? 1 : progress.current
       const style = styles[getNetworkStyle()]
       const pointerInside = updateMouse()
+      updateSettle(time)
       updateCamera(time, style.depth3d)
       ctx.clearRect(0, 0, width, height)
       const radius = box.h * cursorRadius
@@ -256,7 +278,7 @@ export function NetworkCanvas({
       const cosP = Math.cos(camera.pitch)
       const sinP = Math.sin(camera.pitch)
       const focal = box.w * CAMERA_DISTANCE
-      const thick = box.w * THICKNESS * 0.5
+      const thick = box.w * THICKNESS * 0.5 * settled()
 
       const figureAlpha = reveal ? Math.min(1, Math.max(0, reveal.current)) : 1
 

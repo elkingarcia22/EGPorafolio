@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { gsap, ScrollTrigger } from '@/lib/motion'
@@ -8,120 +8,155 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { PROCESS_STAGES } from '@/lib/content/process'
 import { COPY } from '@/lib/content/copy'
-import { AiMark, DemoMark, DotsMark, FormMark, IdeaMark, ImpactMark, PatternsMark, ProcessMarksStyle, SketchMark } from './process-flow-visuals'
+import { ProcessPath } from './process/process-path'
+import { backdropQuiet } from './backdrop-journey'
 
-const MARKS = [DotsMark, PatternsMark, IdeaMark, SketchMark, FormMark, AiMark, ImpactMark, DemoMark]
-const STAGES = PROCESS_STAGES.map((stage, i) => ({ ...stage, Mark: MARKS[i] }))
+/** Tiempo que se queda cada etapa en el avance automático (ms): ágil, se lee de un vistazo */
+const STAGE_MS = 2600
+/** Acercamiento a la neurona activa: la fibra se mueve y cada neurona pasa al centro (más en pantallas angostas) */
+const ZOOM = { wide: 1.8, narrow: 1.6 }
+/** Si la persona elige una etapa, el avance automático espera esto antes de seguir (ms) */
+const RESUME_AFTER_MS = 9000
+/** Mientras se ve el proceso, el fondo se calma para que la fibra se lea */
+const QUIET_LEVEL = 1
 
-/** El proceso en una sola vista: ocho etapas en dos filas que se encienden al bajar, sin recorrido horizontal. */
+/** Cifra de dos dígitos («03») */
+const pad = (n: number) => String(n).padStart(2, '0')
+
+/**
+ * Proceso: la luz azul baja hasta «02 · Proceso» (como en Enfoque), entra el
+ * título y bajo él se dibuja la fibra, neurona por neurona. Ya armada, la
+ * señal pasa de neurona en neurona: la activa crece y brilla, y arriba
+ * aparece solo el nombre de la etapa y su frase. Avanza sola y
+ * rápido; tocar una neurona lleva a esa etapa. Sin scroll fijo.
+ */
 export function ProcessFlow() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
-  const gridRef = useRef<HTMLOListElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
-  const [progress, setProgress] = useState(reducedMotion ? 1 : 0)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+  const [build, setBuild] = useState(false)
+  const [built, setBuilt] = useState(false)
+  const [inView, setInView] = useState(false)
+  const [pausedUntil, setPausedUntil] = useState(0)
+  const [narrow, setNarrow] = useState(false)
+  const stage = PROCESS_STAGES[active]
+  const autoplay = built && inView && !reducedMotion && pausedUntil === 0
 
-  // La línea que se llena al bajar y la entrada animada, creadas juntas un cuadro después del montaje:
-  // así no se cruzan con los demás ScrollTrigger que la página arma al cargar (p. ej. al abrir /#agent).
   useEffect(() => {
-    const grid = gridRef.current
+    const query = window.matchMedia('(max-width: 767px)')
+    const update = () => setNarrow(query.matches)
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  // Cuando la luz llega a la etiqueta, entra el título y la fibra se dibuja; mientras se ve, el fondo se calma.
+  useEffect(() => {
     const root = rootRef.current
-    if (!grid || !root || reducedMotion) {
-      setProgress(1)
-      return
-    }
-    let ctx: gsap.Context | null = null
-    const frame = requestAnimationFrame(() => {
-      ctx = gsap.context(() => {
-        ScrollTrigger.create({ trigger: grid, start: 'top 75%', end: 'bottom 70%', scrub: true, onUpdate: (self) => setProgress(self.progress) })
-        const tl = gsap.timeline({ defaults: { ease: 'expo.out' }, scrollTrigger: { trigger: root, start: 'top 70%', toggleActions: 'play none none none' } })
-        tl.from('[data-pf-word]', { yPercent: 115, duration: 1.1, stagger: 0.07 })
-          .from('[data-pf-intro]', { autoAlpha: 0, y: 24, duration: 0.9 }, 0.25)
-          .from('[data-pf-dot]', { scale: 0, duration: 0.7, ease: 'back.out(3)', stagger: 0.07 }, 0.35)
-          .from('[data-pf-card]', { autoAlpha: 0, y: 56, filter: 'blur(10px)', duration: 1, stagger: 0.07, clearProps: 'filter' }, 0.4)
-          .from('[data-pf-mark]', { scale: 0.3, rotate: -40, autoAlpha: 0, duration: 1.1, ease: 'back.out(1.8)', stagger: 0.07 }, 0.5)
-      }, root)
-    })
+    if (!root) return
+    const ctx = gsap.context(() => {
+      const words = root.querySelectorAll('[data-pf-word]')
+      if (!reducedMotion) gsap.set(words, { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' })
+      ScrollTrigger.create({
+        trigger: root,
+        start: 'top 60%',
+        once: true,
+        onEnter: () => {
+          if (!reducedMotion) gsap.to(words, { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.8, stagger: 0.07, ease: 'expo.out' })
+          window.setTimeout(() => setBuild(true), reducedMotion ? 0 : 450)
+        },
+      })
+      ScrollTrigger.create({
+        trigger: root,
+        start: 'top 65%',
+        end: 'bottom 35%',
+        onToggle: (self) => {
+          setInView(self.isActive)
+          backdropQuiet.set('process', self.isActive ? QUIET_LEVEL : 0)
+        },
+      })
+    }, root)
     return () => {
-      cancelAnimationFrame(frame)
-      ctx?.revert()
+      backdropQuiet.set('process', 0)
+      ctx.revert()
     }
   }, [reducedMotion])
 
-  const lit = Math.min(STAGES.length, Math.floor(progress * STAGES.length) + 1)
-  // Cuánto de cada fila lleva dibujada la línea (0–1).
-  const rowFill = (row: number) => Math.max(0, Math.min(1, progress * 2 - row))
+  // Avance automático: pasa a la siguiente etapa (y vuelve a empezar al final).
+  useEffect(() => {
+    if (!autoplay) return
+    const id = window.setTimeout(() => setActive((i) => (i + 1) % PROCESS_STAGES.length), STAGE_MS)
+    return () => window.clearTimeout(id)
+  }, [autoplay, active])
+
+  // Después de elegir una etapa, el avance automático vuelve a los pocos segundos.
+  useEffect(() => {
+    if (!pausedUntil) return
+    const id = window.setTimeout(() => setPausedUntil(0), Math.max(0, pausedUntil - Date.now()))
+    return () => window.clearTimeout(id)
+  }, [pausedUntil])
+
+  const select = useCallback((index: number) => {
+    setActive(index)
+    setPausedUntil(Date.now() + RESUME_AFTER_MS)
+  }, [])
+  const onBuilt = useCallback(() => setBuilt(true), [])
+
+  // El nombre de la etapa entra enfocándose, rápido.
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el || reducedMotion || !built) return
+    const tween = gsap.timeline({ defaults: { ease: 'expo.out' } })
+      .fromTo(el.querySelectorAll('[data-pf-line]'), { autoAlpha: 0, y: 12, filter: 'blur(8px)' }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.55, stagger: 0.06 }, 0)
+    return () => {
+      tween.progress(1).kill()
+    }
+  }, [active, built, reducedMotion])
 
   return (
-    <ToneSection tone="dark" id="process" className="px-[var(--gutter)] pb-[clamp(5rem,4rem+4vw,9rem)] pt-28">
-      <ProcessMarksStyle />
-      <div ref={rootRef}>
-      <div className="mb-14 grid gap-8 md:grid-cols-12 md:items-end">
-        <div className="md:col-span-7">
-          <SectionLabel index="02">{t(COPY.process.label)}</SectionLabel>
-          <h2 className="mt-6 text-[clamp(2.6rem,1rem+5vw,6rem)] font-light leading-[0.92] tracking-tight">
-            {t(COPY.process.title).split(' ').map((word, i) => (
-              <span key={i} className="mr-[0.25em] inline-block overflow-hidden pb-[0.08em] align-bottom">
-                <span data-pf-word className="inline-block">{word}</span>
-              </span>
-            ))}
-          </h2>
-        </div>
-        <p data-pf-intro className="leading-relaxed opacity-70 md:col-span-5">
-          {t({
-            es: 'Así se cuenta cada proyecto: de los puntos sueltos al producto funcionando, en ocho etapas. La IA acompaña cada una.',
-            en: 'This is how every project is told: from loose dots to a working product, in eight stages. AI goes along with each one.',
-          })}
-        </p>
-      </div>
-
-      <ol ref={gridRef} className="relative grid gap-x-0 gap-y-12 md:grid-cols-4 md:gap-y-16">
-        {/* La línea de cada fila: se dibuja al bajar y une los puntos de las etapas */}
-        {[0, 1].map((row) => (
-          <span key={row} className="pointer-events-none absolute inset-x-0 hidden h-px bg-fg/15 md:block" style={{ top: row === 0 ? '7px' : 'calc(50% + 2rem + 7px)' }} aria-hidden="true">
-            <span className="absolute inset-y-0 left-0 overflow-hidden bg-signal transition-[width] duration-300" style={{ width: `${rowFill(row) * 100}%` }}>
-              {/* Una luz que recorre lo ya dibujado */}
-              <span className="absolute inset-0 animate-[pf-comet_3.2s_cubic-bezier(.65,0,.35,1)_infinite]" style={{ animationDelay: `${row * 1.6}s` }}>
-                <span className="absolute right-0 top-1/2 h-[3px] w-24 -translate-y-1/2 rounded-full bg-gradient-to-r from-transparent via-white to-white shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
-              </span>
+    <ToneSection tone="dark" id="process" className="px-[var(--gutter)] pb-[clamp(5rem,4rem+4vw,9rem)] pt-[clamp(8rem,6rem+6vw,12rem)]">
+      <div ref={rootRef} className="mx-auto flex max-w-6xl flex-col items-center">
+        {/* La fibra que viene de Proyectos llega a esta etiqueta */}
+        <SectionLabel index="02" thread={false} fiberTo="proyectos" className="mb-6">{t(COPY.process.label)}</SectionLabel>
+        <h2 className="text-center text-[clamp(2rem,1rem+3.6vw,4.4rem)] font-light leading-[0.95] tracking-tight">
+          {t(COPY.process.title).split(' ').map((word, i, all) => (
+            <span key={i} data-pf-word className="inline-block">
+              {word}
+              {i < all.length - 1 && ' '}
             </span>
-          </span>
-        ))}
-        {/* En móvil, una sola línea vertical */}
-        <span className="pointer-events-none absolute bottom-0 left-[7px] top-0 w-px bg-fg/15 md:hidden" aria-hidden="true">
-          <span className="absolute inset-x-0 top-0 bg-signal" style={{ height: `${progress * 100}%` }} />
-        </span>
+          ))}
+        </h2>
 
-        {STAGES.map((stage, i) => {
-          const on = i < lit
-          const current = i === lit - 1 && progress < 1
-          return (
-            <li key={stage.title.es} className={`group relative pl-8 transition-opacity duration-500 md:pl-0 md:pr-8 ${on ? 'opacity-100' : 'opacity-35'}`}>
-              <span data-pf-dot className="absolute left-0 top-0 block">
-              <span
-                className={`block h-[15px] w-[15px] rounded-full border-2 transition-all duration-500 ${on ? 'border-signal bg-signal' : 'border-fg/30 bg-bg'}`}
-                style={current ? { boxShadow: '0 0 0 6px rgb(var(--signal) / 0.2)' } : undefined}
-                aria-hidden="true"
-              />
-              </span>
-              <div data-pf-card className="pt-8">
-                <div data-pf-mark className="h-14 w-14">
-                  <div className="h-full w-full opacity-90 transition-transform duration-500 ease-expo group-hover:-translate-y-1 group-hover:scale-110">
-                    <stage.Mark />
-                  </div>
-                </div>
-                <p className="mono-label mb-2 mt-5 opacity-50">{String(i + 1).padStart(2, '0')} / {String(STAGES.length).padStart(2, '0')}</p>
-                <h3 className="brand-title mb-3 text-xl">{t(stage.title)}</h3>
-                <p className="max-w-[30ch] text-sm leading-relaxed opacity-75">{t(stage.body)}</p>
-                <p className="mt-3 flex max-w-[30ch] items-start gap-2 text-[13px]">
-                  <span className="mono-label mt-0.5 shrink-0 text-signal">IA ▸</span>
-                  <span className="opacity-80">{t(stage.ai)}</span>
-                </p>
-              </div>
-            </li>
-          )
-        })}
-      </ol>
+        {/* La etapa en foco: solo su nombre y su frase, sobre la neurona */}
+        <div
+          ref={stageRef}
+          key={active}
+          aria-live="polite"
+          className="mt-[clamp(2.5rem,2rem+2vw,4rem)] flex min-h-[clamp(6rem,5rem+3vw,8rem)] flex-col items-center justify-end text-center"
+          style={built || reducedMotion ? undefined : { visibility: 'hidden' }}
+        >
+          <span data-pf-line className="mono-label tabular-nums text-paper/45">
+            {pad(active + 1)} / {pad(PROCESS_STAGES.length)}
+          </span>
+          <span data-pf-line className="mt-2 text-[clamp(1.8rem,1.1rem+2.4vw,3.4rem)] font-light leading-none tracking-tight">{t(stage.title)}</span>
+          <span data-pf-line className="mt-3 max-w-[42ch] text-sm leading-relaxed text-paper/60 md:text-base">{t(stage.body)}</span>
+        </div>
+
+        {/* La fibra: se dibuja bajo el título; luego se mueve para llevar cada neurona al centro */}
+        <div className="mt-6 w-full overflow-x-clip md:mt-4">
+          <ProcessPath
+            labels={PROCESS_STAGES.map((s) => t(s.title))}
+            active={active}
+            onSelect={select}
+            build={build}
+            onBuilt={onBuilt}
+            autoplayMs={autoplay ? STAGE_MS : null}
+            zoom={built && !reducedMotion ? (narrow ? ZOOM.narrow : ZOOM.wide) : 1}
+            reducedMotion={reducedMotion}
+          />
+        </div>
       </div>
     </ToneSection>
   )

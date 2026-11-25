@@ -80,8 +80,8 @@ export function Manifesto() {
     >
       {/* Composición centrada: el viaje llega por el centro, como en el inicio */}
       <div ref={sectionRef} className="relative mx-auto flex max-w-5xl flex-col items-center text-center">
-        <SectionLabel index="00" fiber="from">{t(COPY.manifesto.label)}</SectionLabel>
-        <div data-fiber-around className="relative mt-14">
+        <SectionLabel index="00" fiberFrom="enfoque">{t(COPY.manifesto.label)}</SectionLabel>
+        <div data-fiber-around="enfoque" className="relative mt-14">
           {/* Velo suave detrás del texto: la red sigue viva alrededor, pero no compite con la lectura */}
           <span
             aria-hidden="true"

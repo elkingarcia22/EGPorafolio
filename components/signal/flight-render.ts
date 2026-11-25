@@ -31,6 +31,13 @@ export interface FlightFrame {
    * quedarse o recogerse (la búsqueda de conexiones de la carga).
    */
   linkGrow?: Float32Array
+  /**
+   * Distancia hasta la que todo se ve nítido (por defecto, la del viaje). Al
+   * alejarse para mostrar una figura entera, se sube: la figura queda enfocada.
+   */
+  focusUntil?: number
+  /** brillo base de las fibras (por defecto 0.28): más alto, la red se lee aun de lejos */
+  linkAlpha?: number
 }
 
 const NEAR = 0.35
@@ -88,15 +95,21 @@ export function createFlightRenderer(
       const py = (y - camera.y) * s
       return { x: width * (f.center?.x ?? 0.5) + px * cos - py * sin, y: height * (f.center?.y ?? centerY) + px * sin + py * cos, d, s }
     }
-    const fog = (d: number) => Math.min(1, Math.max(0, 1 - (d - FOG_START) / (FAR - FOG_START))) * Math.min(1, (d - NEAR) / 0.9)
-    const layerOf = (d: number): DepthLayer => (d < 2.4 ? 'near' : d > 10.5 ? 'far' : 'focus')
+    // La niebla empieza después de la zona enfocada: una figura vista de lejos no se apaga.
+    const fogStart = Math.max(FOG_START, f.focusUntil ?? 0)
+    const fog = (d: number) => Math.min(1, Math.max(0, 1 - (d - fogStart) / (FAR - FOG_START))) * Math.min(1, (d - NEAR) / 0.9)
+    const farFrom = Math.max(10.5, f.focusUntil ?? 0)
+    const layerOf = (d: number): DepthLayer => (d < 2.4 ? 'near' : d > farFrom ? 'far' : 'focus')
+    const linkAlpha = f.linkAlpha ?? 0.28
 
     const pts = world.nodes.map((n) => project(n.x, n.y, n.z))
     // Una conexión se tiende cuando la cámara se acerca: va encontrando la red.
     const grow = (link: FlightLink, index: number) => {
       if (f.linkGrow) return f.linkGrow[index]
       const z = Math.min(world.nodes[link.a].z, world.nodes[link.b].z)
-      return Math.min(1, Math.max(0, (camera.z + REVEAL_AHEAD - z) / REVEAL_SPAN))
+      // Con una figura enfocada de lejos, sus conexiones siguen tendidas hasta donde llega el foco.
+      const ahead = Math.max(REVEAL_AHEAD, (f.focusUntil ?? 0) + REVEAL_SPAN)
+      return Math.min(1, Math.max(0, (camera.z + ahead - z) / REVEAL_SPAN))
     }
 
     ctx.clearRect(0, 0, width, height)
@@ -144,7 +157,7 @@ export function createFlightRenderer(
         const end = quadPoint(a.x, a.y, c.x, c.y, b.x, b.y, k)
         const width = Math.min(2.4, 0.25 + 9 / d)
         g.lineWidth = width
-        g.strokeStyle = `rgba(225,235,255,${(0.28 + lit * 0.5) * alpha})`
+        g.strokeStyle = `rgba(225,235,255,${(linkAlpha + lit * 0.5) * alpha})`
         g.beginPath()
         g.moveTo(a.x, a.y)
         g.quadraticCurveTo(cx, cy, end.x, end.y)

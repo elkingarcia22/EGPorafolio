@@ -55,6 +55,8 @@ const NAME_READ_AT = 0.6
 /** Tramo del hero en que el fondo se calma (del puente a la firma) */
 /** Si la página ya carga más abajo que esto (scroll restaurado), no se bloquea la entrada */
 const INTRO_LOCK_MAX_Y = 10
+/** Cuánto se calma el fondo en ese tramo: menos conexiones, pero sin perder el color de la red */
+const HERO_QUIET = 0.55
 const QUIET_FROM = 0.2
 const QUIET_UNTIL = 0.97
 /** Margen para volver a esconderlos al subir (evita parpadeos justo en el borde) */
@@ -323,7 +325,7 @@ export function Hero() {
         const at = tl.time()
         // Mientras se arma el EG y se lee la firma, el fondo se calma: solo la red del EG.
         const part = at / tl.duration()
-        backdropQuiet.set('hero', part >= QUIET_FROM && part < QUIET_UNTIL ? 1 : 0)
+        backdropQuiet.set('hero', part >= QUIET_FROM && part < QUIET_UNTIL ? HERO_QUIET : 0)
         if (!signalShown && at >= SIGNAL_READ_AT) {
           signalShown = true
           // El puente termina de aparecer justo cuando el EG termina de armarse.

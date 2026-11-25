@@ -20,6 +20,9 @@ interface Point {
   y: number
 }
 
+/** Hacia qué costado se abre la fibra */
+type FiberSide = 'left' | 'right'
+
 /** Zona del texto que la fibra rodea, en coordenadas del contenedor */
 interface TextBox {
   left: number
@@ -33,31 +36,46 @@ interface TextBox {
  * el costado del texto; la segunda baja recogiéndose hacia el centro y cae,
  * con un giro corto, sobre el nodo de destino: abierta arriba, cerrada abajo.
  */
-function fiberPath(a: Point, b: Point, text: TextBox, width: number): string {
-  // Punto más a la izquierda: bien abierto respecto del texto, sin salirse de la pantalla.
+function fiberPath(start: Point, end: Point, box: TextBox, width: number, toward: FiberSide): string {
+  // Hacia la derecha es el mismo trazo en espejo: se calcula como si fuera a la izquierda y se refleja.
+  const flip = toward === 'right'
+  const mx = (x: number) => (flip ? width - x : x)
+  const a = { x: mx(start.x), y: start.y }
+  const b = { x: mx(end.x), y: end.y }
+  const text = flip ? { left: width - box.right, right: width - box.left, bottom: box.bottom } : box
+  // Punto más al costado: bien abierto respecto del texto, sin salirse de la pantalla.
   const open = Math.max(TEXT_GAP, width * OPEN)
   const side = Math.max(EDGE + SWAY, Math.min(text.left - open, a.x - open))
   // Arriba abre amplio; el punto de giro queda a media altura del texto para cerrar antes al bajar.
   const turn = { x: side, y: a.y + (text.bottom - a.y) * 0.5 }
   // En el punto de giro la fibra va justo hacia abajo (tangente vertical en ambos tramos): sin quiebres.
   const down = b.y - turn.y
+  const p = (x: number, y: number) => `${mx(x)},${y}`
   return [
-    `M${a.x},${a.y}`,
+    `M${p(a.x, a.y)}`,
     // Sale casi en horizontal y se abre en un arco amplio hasta el costado.
-    `C${a.x - (a.x - side) * 0.9},${a.y} ${side},${a.y + (turn.y - a.y) * 0.3} ${turn.x},${turn.y}`,
+    `C${p(a.x - (a.x - side) * 0.9, a.y)} ${p(side, a.y + (turn.y - a.y) * 0.3)} ${p(turn.x, turn.y)}`,
     // Baja y se va recogiendo hacia el centro de a poco, hasta caer sobre el nodo desde arriba.
-    `C${side},${turn.y + down * 0.4} ${b.x - Math.min(40, (b.x - side) * 0.1)},${b.y - down * 0.45} ${b.x},${b.y}`,
+    `C${p(side, turn.y + down * 0.4)} ${p(b.x - Math.min(40, (b.x - side) * 0.1), b.y - down * 0.45)} ${p(b.x, b.y)}`,
   ].join(' ')
 }
 
 /**
- * Fibra entre secciones: une el nodo de una etiqueta (`data-fiber="from"`) con
- * el de la siguiente (`data-fiber="to"`). Se tiende con el scroll —su punta
+ * Fibra entre secciones: une el elemento `data-fiber-from="<id>"` (p. ej. el
+ * nodo de una etiqueta) con el `data-fiber-to="<id>"` de la siguiente. Se tiende con el scroll —su punta
  * brillante va un poco por debajo del centro de la pantalla— y, ya completa,
  * la recorren impulsos. Rodea el texto por un costado, como una conexión de la
  * red, en vez de un hilo recto.
  */
-export function SectionFiber({ children }: { children: React.ReactNode }) {
+interface SectionFiberProps {
+  /** Nombre de la conexión: une `data-fiber-from` con `data-fiber-to` del mismo nombre */
+  id: string
+  /** costado hacia el que se abre la curva (por defecto, la izquierda) */
+  side?: FiberSide
+  children: React.ReactNode
+}
+
+export function SectionFiber({ id, side = 'left', children }: SectionFiberProps) {
   const { reducedMotion } = useA11y()
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -98,20 +116,20 @@ export function SectionFiber({ children }: { children: React.ReactNode }) {
     }
 
     const measure = () => {
-      const a = centerOf('[data-fiber="from"]')
-      const b = centerOf('[data-fiber="to"]')
+      const a = centerOf(`[data-fiber-from="${id}"]`)
+      const b = centerOf(`[data-fiber-to="${id}"]`)
       if (!a || !b) return
       from = a
       to = b
       svg.setAttribute('viewBox', `0 0 ${wrap.clientWidth} ${wrap.clientHeight}`)
       // El texto que la fibra rodea; si no hay, se supone un bloque centrado.
-      const around = wrap.querySelector('[data-fiber-around]')
+      const around = wrap.querySelector(`[data-fiber-around="${id}"]`)
       const box = wrap.getBoundingClientRect()
       const r = around?.getBoundingClientRect()
       const text: TextBox = r
         ? { left: r.left - box.left, right: r.right - box.left, bottom: r.bottom - box.top }
         : { left: from.x - wrap.clientWidth / 3, right: from.x + wrap.clientWidth / 3, bottom: (from.y + to.y) / 2 }
-      const d = fiberPath(from, to, text, wrap.clientWidth)
+      const d = fiberPath(from, to, text, wrap.clientWidth, side)
       ;[base, drawn, pulse, glowRef.current].forEach((path) => path?.setAttribute('d', d))
       total = drawn.getTotalLength()
     }
@@ -134,14 +152,14 @@ export function SectionFiber({ children }: { children: React.ReactNode }) {
       })
     }, wrap)
     return () => ctx.revert()
-  }, [reducedMotion])
+  }, [reducedMotion, id, side])
 
   return (
     <div ref={wrapRef} className="relative">
       {children}
       <svg ref={svgRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible">
         <defs>
-          <linearGradient id="section-fiber" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`section-fiber-${id}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="white" stopOpacity="0.7" />
             <stop offset="0.5" stopColor="white" stopOpacity="0.35" />
             <stop offset="1" stopColor="white" stopOpacity="0.7" />
@@ -152,7 +170,7 @@ export function SectionFiber({ children }: { children: React.ReactNode }) {
         {/* Halo suave bajo lo ya conectado: la fibra brilla, no es solo una línea */}
         <path ref={glowRef} pathLength={1} strokeDasharray="1" strokeDashoffset={1} fill="none" stroke="white" strokeOpacity={0.12} strokeWidth={6} strokeLinecap="round" style={{ filter: 'blur(4px)' }} />
         {/* Lo ya conectado */}
-        <path ref={drawnRef} pathLength={1} strokeDasharray="1" strokeDashoffset={1} fill="none" stroke="url(#section-fiber)" strokeWidth={1.2} strokeLinecap="round" />
+        <path ref={drawnRef} pathLength={1} strokeDasharray="1" strokeDashoffset={1} fill="none" stroke={`url(#section-fiber-${id})`} strokeWidth={1.2} strokeLinecap="round" />
         {/* Impulsos que la recorren cuando está completa */}
         <path
           ref={pulseRef}

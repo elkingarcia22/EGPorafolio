@@ -117,6 +117,18 @@ function linkWord(word: WordSample, small: boolean, options: GlyphGraphOptions):
   }
 }
 
+/** Franjas verticales en que se ordenan los nodos para transformarse (más, más preciso el recorrido) */
+const MORPH_COLUMNS = 24
+
+/** Ordena los nodos por franjas de izquierda a derecha y, dentro de cada una, de arriba abajo. */
+function sortForMorph(pts: { x: number; y: number }[]): void {
+  const minX = Math.min(...pts.map((p) => p.x))
+  const maxX = Math.max(...pts.map((p) => p.x))
+  const span = Math.max(1e-6, maxX - minX)
+  const column = (x: number) => Math.min(MORPH_COLUMNS - 1, Math.floor(((x - minX) / span) * MORPH_COLUMNS))
+  pts.sort((a, b) => column(a.x) - column(b.x) || a.y - b.y)
+}
+
 /**
  * Grafos de varias palabras listos para transformarse entre sí: todos con
  * el mismo número de nodos (las palabras con menos nodos repiten algunos,
@@ -138,6 +150,10 @@ export async function buildWordGraphs(
       const at = Math.floor(Math.random() * sample.pts.length)
       sample.pts.splice(at + 1, 0, { ...sample.pts[at] })
     }
+    // Mismo orden en todas las figuras (de izquierda a derecha, y de arriba abajo en
+    // cada franja): al transformarse, cada nodo viaja a un lugar cercano en vez de
+    // cruzar la figura entera, y una palabra fluye hacia la otra.
+    sortForMorph(sample.pts)
     linkWord(sample, small, options)
   }
 

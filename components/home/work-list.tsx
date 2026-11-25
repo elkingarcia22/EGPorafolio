@@ -117,8 +117,8 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
 
   return (
     <ToneSection tone="dark" id="work" className="overflow-hidden px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
-      <div ref={rootRef} className="mx-auto flex max-w-6xl flex-col items-center text-center">
-        <SectionLabel index="01" thread={false} fiber="to" className="mb-8">{t(COPY.work.label)}</SectionLabel>
+      <div ref={rootRef} data-fiber-around="proyectos" className="mx-auto flex max-w-6xl flex-col items-center text-center">
+        <SectionLabel index="01" thread={false} fiberTo="enfoque" fiberFrom="proyectos" className="mb-8">{t(COPY.work.label)}</SectionLabel>
         <h2 className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight [text-shadow:0_2px_18px_rgb(var(--void)/0.85)]">
           {title.split(' ').map((word, i, all) => (
             <span key={i} data-work-word className="inline-block">

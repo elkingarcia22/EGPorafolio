@@ -13,7 +13,7 @@ const TERMS: Record<Locale, readonly string[]> = {
   en: ['UX', 'UI', 'CX', 'AI', 'BX', 'DX'],
 }
 /** Cada cuánto cambia sola la figura (con el EG ya formado): la transformación más una pausa corta */
-const AUTO_MS = 1900
+const AUTO_MS = 2600
 /** Pausa mínima entre dos cambios por hover (evita cambios en cadena) */
 const HOVER_COOLDOWN_MS = 1000
 /** Desde qué avance del scroll el EG cuenta como formado */

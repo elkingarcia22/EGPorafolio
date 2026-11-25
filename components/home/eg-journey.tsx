@@ -16,8 +16,10 @@ const VIEW_DISTANCE = 2.6
 /** Duraciones (ms): viaje entre neuronas, alejarse y entregar al EG interactivo */
 const FLY_MS = 2300
 const PULL_MS = 1700
-const HANDOFF_MS = 550
+const HANDOFF_MS = 1300
 const FADE_IN_MS = 450
+/** Parte del relevo en que el EG final aparece completo antes de que el del viaje empiece a irse */
+const HANDOFF_OVERLAP = 0.55
 /** Avance del hero que dispara el viaje, y bajo el que se reinicia (al volver al titular) */
 const TRIGGER_AT = 0.04
 const RESET_BELOW = 0.015
@@ -174,12 +176,17 @@ export function EgJourney({ graph, heroProgress, egProgress, egReveal, formedAt,
         time,
         camera,
         speed,
-        fade: clamp01(e / FADE_IN_MS) * (1 - h),
+        // El EG del viaje se va solo cuando el EG final ya está casi entero encima: sin hueco entre los dos.
+        fade: clamp01(e / FADE_IN_MS) * (1 - clamp01((h - HANDOFF_OVERLAP) / (1 - HANDOFF_OVERLAP))),
         glow: impulses.glow,
         pulses: impulses.pulses,
+        // Al alejarse, el EG entero queda enfocado y sus fibras se leen: llega igual al EG final.
+        focusUntil: g > 0 ? -camera.z + 2 : undefined,
+        linkAlpha: 0.28 + 0.32 * g,
       })
       cleared = false
-      setEg(h)
+      // El EG final (con todas sus conexiones) aparece en la primera parte del relevo.
+      setEg(clamp01(h / HANDOFF_OVERLAP))
       if (h >= 1) {
         state = 'done'
         formedAt.current = 0

@@ -13,8 +13,10 @@ interface SectionLabelProps {
   nodeRef?: React.Ref<HTMLSpanElement>
   /** hilo que baja desde la sección anterior hasta el nodo (por defecto sí) */
   thread?: boolean
-  /** extremo de una fibra entre secciones (ver <SectionFiber>) */
-  fiber?: 'from' | 'to'
+  /** nombre de la fibra que sale de este nodo (ver <SectionFiber>) */
+  fiberFrom?: string
+  /** nombre de la fibra que llega a este nodo */
+  fiberTo?: string
 }
 
 /** Margen para que el hilo no toque el borde exacto de la sección */
@@ -29,7 +31,7 @@ const THREAD_GAP_PX = 6
  * nítidos. Así cada sección queda conectada
  * con la anterior.
  */
-export function SectionLabel({ index, children, className = '', nodeRef, thread: withThread = true, fiber }: SectionLabelProps) {
+export function SectionLabel({ index, children, className = '', nodeRef, thread: withThread = true, fiberFrom, fiberTo }: SectionLabelProps) {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const threadRef = useRef<HTMLSpanElement>(null)
@@ -93,7 +95,7 @@ export function SectionLabel({ index, children, className = '', nodeRef, thread:
 
   return (
     <div ref={rootRef} data-lit="false" className={`group/label flex items-center gap-4 ${className}`}>
-      <span ref={nodeRef} data-fiber={fiber} className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
+      <span ref={nodeRef} data-fiber-from={fiberFrom} data-fiber-to={fiberTo} className="relative flex h-[10px] w-[10px] shrink-0" aria-hidden="true">
         {/* Hilo que llega desde la sección anterior */}
         {withThread && <span
           ref={threadRef}
