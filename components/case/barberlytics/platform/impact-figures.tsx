@@ -74,7 +74,7 @@ export function ImpactFigures() {
           <li key={f.id} className={`flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo ${step >= 1 ? 'opacity-100' : 'translate-y-3 opacity-0'}`} style={{ transitionDelay: `${i * 90}ms` }}>
             <svg viewBox="0 0 80 40" className="w-24" aria-hidden="true"><Mini id={f.id} now={step >= 2} /></svg>
             <span className="mt-4 text-[clamp(2.2rem,1.6rem+2vw,3.4rem)] font-light leading-none tabular-nums" style={{ color: step >= 2 ? undefined : 'rgba(255,255,255,0.3)', transition: 'color 700ms' }}>{f.value}</span>
-            <span className="mt-2 font-mono text-[10.5px] uppercase tracking-[0.12em] text-paper/50">{t(f.label)}</span>
+            <span className="mt-3 max-w-[16ch] text-balance text-[14px] leading-snug text-paper/75">{t(f.label)}</span>
           </li>
         ))}
       </ol>
@@ -135,14 +135,14 @@ export function CalendarMetrics() {
 
   return (
     <div ref={rootRef} className="mx-auto mt-[clamp(4rem,3rem+3vw,6rem)] max-w-[1040px]">
-      <p className="mono-label mb-8 text-center text-signal">{t({ es: 'Y todo lo que el calendario mide', en: 'And everything the calendar measures' })}</p>
-      <ol className="grid grid-cols-4 gap-x-3 gap-y-8 lg:grid-cols-8">
+      <p className="mono-label mb-10 text-center text-signal">{t({ es: 'Y todo lo que el calendario mide', en: 'And everything the calendar measures' })}</p>
+      <ol className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
         {METRICS.map((m, i) => {
           const on = i < shown
           return (
             <li key={m.name.es} className={`relative flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo ${on ? 'opacity-100' : 'translate-y-3 opacity-0'}`}>
-              <svg viewBox="0 0 60 44" className="w-14" aria-hidden="true"><Glyph kind={m.glyph} on={on} /></svg>
-              <span className="mt-2 max-w-[13ch] text-balance text-[11px] leading-snug text-paper/55">{t(m.name)}</span>
+              <svg viewBox="0 0 60 44" className="w-20" aria-hidden="true"><Glyph kind={m.glyph} on={on} /></svg>
+              <span className="mt-3 max-w-[16ch] text-balance text-[15px] leading-snug text-paper/85">{t(m.name)}</span>
               {i === METRICS.length - 1 && <span data-fiber-from="pl-demo" className="absolute -bottom-6 left-1/2 h-px w-px" />}
             </li>
           )
