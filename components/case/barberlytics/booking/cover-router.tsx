@@ -4,7 +4,6 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { PhoneBody } from '@/components/case/kit/device'
 import { useLocale, type L } from '@/lib/i18n'
-import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
 
@@ -32,18 +31,15 @@ const DECIDED_MS = 2200
 const FIELD = { left: 41.5, top: 34.3, width: 47.4, height: 4.4 }
 
 /**
- * 03 · La idea: «la portada decide». En el centro, la portada real; se escribe
- * un celular y la reserva manda a cada quien por su camino: el que vuelve a su
- * cita ya armada, el que llega a un perfil corto. Debajo, los cuatro
- * principios: su porqué sale solo al tocarlos.
+ * 04 · Bocetos y forma, debajo del cuaderno: del boceto a la app. En el centro,
+ * la portada real; se escribe un celular y la reserva manda a cada quien por su
+ * camino: el que vuelve a su cita ya armada, el que llega a un perfil corto.
  */
 export function CoverRouter() {
   const { t } = useLocale()
-  const { idea } = BOOKING_CASE
   const { ref, inView, reducedMotion } = useAutoSteps<HTMLDivElement>(1, { intro: 0, step: 0 })
   const [round, setRound] = useState(0)
   const [typed, setTyped] = useState(reducedMotion ? ROUTES[0].phone.length : 0)
-  const [picked, setPicked] = useState<number | null>(null)
   const route = ROUTES[round % ROUTES.length]
   const decided = typed >= route.phone.length
 
@@ -58,14 +54,9 @@ export function CoverRouter() {
     return () => window.clearTimeout(id)
   }, [inView, reducedMotion, decided, typed])
 
-  const caption =
-    picked !== null
-      ? { tag: `${t({ es: 'Principio', en: 'Principle' })} 0${picked + 1}`, title: t(idea.principles[picked].title), sub: t(idea.principles[picked].body) }
-      : { tag: t({ es: '¿Cómo podríamos…?', en: 'How might we…?' }), title: t(idea.hmw), sub: undefined }
-
   return (
     <div ref={ref} className="flex flex-col items-center">
-      <BookingLede tag={caption.tag} title={caption.title} sub={caption.sub} swapKey={picked ?? 'q'} />
+      <BookingLede tag={t({ es: 'Del boceto a la app', en: 'From sketch to app' })} title={t({ es: 'La portada decide: un número, dos caminos.', en: 'The cover decides: one number, two paths.' })} sub={t({ es: 'Se escribe un celular y cada quien va por el suyo. Capturas reales con datos de prueba.', en: 'A phone number is typed and each person takes their own path. Real screens with test data.' })} />
 
       <div className="relative mt-10 grid w-full max-w-[860px] grid-cols-[1fr_1.15fr_1fr] items-center gap-[clamp(0.75rem,4vw,3.5rem)]">
         {/* Las dos fibras: de la portada a cada camino; se enciende la que toma el número */}
@@ -90,8 +81,6 @@ export function CoverRouter() {
                 <Image src={`${IMG}/${s.src}.webp`} width={780} height={1688} alt={t(s.alt)} sizes="(min-width: 768px) 220px, 28vw" className="block h-auto w-full" />
               </PhoneBody>
               <figcaption className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">{t(s.name)}</figcaption>
-              {/* Del camino de quien llega sale la fibra hacia «Bocetos y forma» */}
-              {side === 1 && <span data-fiber-from="bk-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />}
             </figure>
           )
         })}
@@ -115,21 +104,6 @@ export function CoverRouter() {
         </figure>
       </div>
 
-      {/* Los principios: el nombre a la vista; el porqué, al tocarlo */}
-      <div className="mt-10 flex max-w-[860px] flex-wrap justify-center gap-2">
-        {idea.principles.map((p, i) => (
-          <button
-            key={p.title.es}
-            type="button"
-            aria-pressed={picked === i}
-            onClick={() => setPicked((x) => (x === i ? null : i))}
-            className={`rounded-full border px-3.5 py-1.5 text-[13px] transition-colors duration-300 ${picked === i ? 'border-[rgb(var(--bk))] bg-[rgb(var(--bk)/0.12)] text-paper' : 'border-white/15 text-paper/70 hover:border-white/35 hover:text-paper'}`}
-          >
-            <span className="mr-2 font-mono text-[10px] text-[rgb(var(--bk))]">0{i + 1}</span>
-            {t(p.title)}
-          </button>
-        ))}
-      </div>
     </div>
   )
 }
