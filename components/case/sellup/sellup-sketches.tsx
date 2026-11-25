@@ -2,8 +2,7 @@
 
 import { useLocale } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
-import { CascadeBoard } from './sketch-cascade-board'
-import { RumboSketchBoard } from './sketch-rumbo-board'
+import { CaseLead } from '@/components/case/case-lead'
 import { SwipeBoard } from './swipe-board'
 
 /** Una celda dibujada de la matriz decisor × canal. */
@@ -16,7 +15,7 @@ function Cell({ state }: { state: 'done' | 'empty' | 'review' }) {
   )
 }
 
-/** 04 · Bocetos: la cadena de agentes en cascada y las bandejas donde decide la persona. */
+/** 04 · Bocetos: las tres bandejas donde decide la persona, dibujadas antes de construir. */
 export function SellUpSketches() {
   const { t } = useLocale()
   const matrix: ('done' | 'empty' | 'review')[][] = [
@@ -25,27 +24,13 @@ export function SellUpSketches() {
     ['empty', 'empty', 'empty', 'empty'],
   ]
   return (
-    <div className="space-y-10">
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
+    <div>
+      <CaseLead className="mb-10">
         {t({
-          es: 'Antes de escribir un agente dibujé la cadena completa: tres agentes que se pasan el trabajo, cada uno con su escalera de fuentes de gratis a pago, y una persona entre uno y otro. Elige un agente y mira dónde se detiene.',
-          en: 'Before writing an agent I drew the whole chain: three agents handing work to each other, each with its staircase of sources from free to paid, and a person between them. Pick an agent and see where it stops.',
+          es: 'Antes de escribir un agente dibujé dónde se detiene la cadena: tres bandejas donde decide la persona.',
+          en: 'Before writing an agent I drew where the chain stops: three queues where the person decides.',
         })}
-      </p>
-      <CascadeBoard />
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80 max-md:hidden">
-        {t({
-          es: 'Los tres agentes necesitaban una sola voz. Así dibujé a Rumbo: su marca, una conversación en vez de un formulario y un solo asistente para toda la cadena, construido en cuatro días de octubre.',
-          en: 'The three agents needed a single voice. This is how I drew Rumbo: its mark, a conversation instead of a form, and one assistant for the whole chain, built in four days of October.',
-        })}
-      </p>
-      <RumboSketchBoard />
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">
-        {t({
-          es: 'Y en cada punto donde la cadena se detiene, dibujé la bandeja donde decide la persona.',
-          en: 'And at every point where the chain stops, I drew the queue where the person decides.',
-        })}
-      </p>
+      </CaseLead>
       <SwipeBoard designW={1400} stops={[20, 494, 968]}>
       <Board title={t({ es: 'SellUp · donde decide la persona', en: 'SellUp · where the person decides' })} w={1400} h={820} label={t({ es: 'Bocetos de las tres bandejas de revisión', en: 'Sketches of the three review queues' })}>
         <Pin x={36} y={26}><Hand size={2.4} className="font-bold">{t({ es: 'Tres bandejas, una regla: nada entra solo', en: 'Three queues, one rule: nothing gets in on its own' })}</Hand></Pin>

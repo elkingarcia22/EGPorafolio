@@ -26,6 +26,19 @@ export function useCompact(): boolean {
   return compact
 }
 
+/** Verdadero en teléfono (< 640 px, después de montar): para piezas que cambian de dibujo, no de encuadre */
+export function useNarrow(): boolean {
+  const [narrow, setNarrow] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    const update = () => setNarrow(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+  return narrow
+}
+
 /** Ancho del elemento, siempre al día. */
 export function useWidth<T extends HTMLElement>(): [React.RefObject<T>, number] {
   const ref = useRef<T>(null)

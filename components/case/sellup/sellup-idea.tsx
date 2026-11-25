@@ -1,98 +1,130 @@
 'use client'
 
-import { useLocale, type L } from '@/lib/i18n'
+import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
+import { useLocale, type L } from '@/lib/i18n'
 import { SELLUP_CASE } from '@/lib/content/cases/sellup/sellup-case'
-import { useTick } from '../barberlytics/thema/live-pieces'
-import { Building2, PhoneCall, Users } from 'lucide-react'
-import { useInView } from './ui'
 
-/** 03 · La idea: tres preguntas, tres agentes y una persona entre cada uno. */
+/** Lienzo del anillo (unidades del SVG) */
+const S = 520
+const C = S / 2
+const R = 190
+/** Cada cuánto se enciende el principio siguiente mientras pasan solos (ms) */
+const STEP_MS = 3400
+/** Si la persona elige uno, espera esto antes de seguir sola (ms) */
+const RESUME_MS = 9000
 
-interface Link {
-  q: L
-  agent: L
-  out: L
-}
-
-const CHAIN: readonly Link[] = [
-  { q: { es: '¿A qué empresa?', en: 'Which company?' }, agent: { es: 'Agente 1', en: 'Agent 1' }, out: { es: 'Empresa verificada y libre', en: 'Verified, unowned company' } },
-  { q: { es: '¿A quién?', en: 'Who?' }, agent: { es: 'Agente 2', en: 'Agent 2' }, out: { es: 'La persona que decide', en: 'The person who decides' } },
-  { q: { es: '¿Qué le digo?', en: 'What do I say?' }, agent: { es: 'Agente 3', en: 'Agent 3' }, out: { es: 'Primer contacto con contexto', en: 'First contact with context' } },
+/** Nombre corto de cada principio, para el nodo */
+const SHORT: readonly L[] = [
+  { es: 'La persona decide', en: 'The person decides' },
+  { es: 'Primero lo gratis', en: 'Free first' },
+  { es: 'HubSpot con permiso', en: 'HubSpot with permission' },
+  { es: 'Todo deja rastro', en: 'Everything leaves a trace' },
 ]
+/** Arriba, derecha, abajo, izquierda: de abajo sale la fibra a «Bocetos» */
+const ANGLES = [-90, 0, 90, 180] as const
+const pos = (deg: number) => ({ x: C + R * Math.cos((deg * Math.PI) / 180), y: C + R * Math.sin((deg * Math.PI) / 180) })
 
-/** Ticks del bucle de la cadena: 6 pasos, 2 de pausa y 1 de salida. */
-const CHAIN_LOOP = 9
-
-/** Cadena animada: un pulso recorre los agentes y se detiene en cada persona. */
-function Chain() {
-  const { t } = useLocale()
-  const { reducedMotion } = useA11y()
-  const [ref, seen] = useInView<HTMLDivElement>(0.3)
-  const tick = useTick(560)
-  // 0..5: agente, persona, agente, persona, agente, persona (llamada); 6–7 pausa con todo
-  // encendido; 8 salida: todo se apaga junto y la línea se desvanece en vez de encogerse.
-  const at = reducedMotion ? 5 : tick % CHAIN_LOOP
-  const exit = at === CHAIN_LOOP - 1
-  const restart = !reducedMotion && at === 0
-  return (
-    <div ref={ref} className="relative">
-      <div className="absolute left-[8%] right-[8%] top-[46px] hidden h-px bg-white/10 md:block" aria-hidden="true">
-        <span
-          className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#285ee6] via-[#d22d6a] to-[#eb6233]"
-          style={{
-            width: seen && !exit && !restart ? `${Math.min(at, 5) * 20}%` : exit ? '100%' : '0%',
-            opacity: exit ? 0 : 1,
-            // Al volver a empezar, la línea ya está oculta: se pone en cero sin animar el ancho.
-            transition: restart ? 'none' : 'width 1000ms linear, opacity 500ms ease-in',
-          }}
-        />
-      </div>
-      <ol className="relative grid gap-6 md:grid-cols-3">
-        {CHAIN.map((c, i) => {
-          const lit = seen && !exit && at >= i * 2
-          const approved = seen && !exit && at >= i * 2 + 1
-          return (
-            <li key={c.q.es} className="relative text-center">
-              <div className={`mx-auto grid h-[92px] w-[92px] place-items-center rounded-full ring-1 transition-all duration-700 ${lit ? 'ring-[#7e2be0]/70 shadow-[0_0_60px_rgba(126,43,224,0.45)]' : 'ring-white/10'}`} style={{ background: '#0d0e10' }}>
-                {(() => { const Icon = [Building2, Users, PhoneCall][i]; return <Icon className={`transition-all duration-700 ${lit ? 'h-9 w-9 text-white' : 'h-7 w-7 text-white/35'}`} strokeWidth={1.5} /> })()}
-              </div>
-              <p className="mono-label mt-4 text-white/50">{t(c.agent)}</p>
-              <p className={`mt-1 text-[clamp(1.6rem,1rem+1.6vw,2.6rem)] font-light leading-tight transition-colors duration-700 ${lit ? 'text-white' : 'text-white/35'}`}>{t(c.q)}</p>
-              <p className={`mx-auto mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs ring-1 transition-all duration-700 ${approved ? 'bg-emerald-400/10 text-emerald-300 ring-emerald-400/40' : 'text-white/40 ring-white/10'}`}>
-                <span aria-hidden="true">{approved ? '✓' : '◉'}</span>
-                {approved ? t(c.out) : t({ es: 'Una persona aprueba', en: 'A person approves' })}
-              </p>
-            </li>
-          )
-        })}
-      </ol>
-      <p className={`mt-10 text-center text-sm transition-all duration-700 ${seen && !exit && at >= 5 ? 'text-[#b7c6ff] opacity-100' : 'opacity-0'}`}>
-        {t({ es: '→ El vendedor llama sabiendo a quién, por qué y qué decir.', en: '→ The rep calls knowing who, why and what to say.' })}
-      </p>
-    </div>
-  )
-}
-
+/**
+ * 03 · La idea: la pregunta y, alrededor, los cuatro principios en un anillo
+ * que una señal recorre sin parar. Cada principio se enciende cuando la señal
+ * pasa; en el centro queda su frase. Tocar un nodo lo fija y da el detalle.
+ */
 export function SellUpIdea() {
   const { t } = useLocale()
-  const idea = SELLUP_CASE.idea
+  const { reducedMotion } = useA11y()
+  const { idea } = SELLUP_CASE
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  const [active, setActive] = useState(0)
+  const [picked, setPicked] = useState(false)
+  /** Cuartos de vuelta que lleva la señal: siempre avanza, nunca vuelve atrás */
+  const [quarters, setQuarters] = useState(0)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '0px 0px -30% 0px' })
+    io.observe(root)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!inView || reducedMotion) return
+    const id = window.setTimeout(() => {
+      setPicked(false)
+      setQuarters((q) => q + 1)
+      setActive((a) => (a + 1) % idea.principles.length)
+    }, picked ? RESUME_MS : STEP_MS)
+    return () => window.clearTimeout(id)
+  }, [inView, reducedMotion, active, picked, idea.principles.length])
+
+  const current = idea.principles[active]
+
   return (
-    <div>
-      <p data-reveal className="mono-label mb-5 opacity-60">{t({ es: '¿Cómo podríamos…?', en: 'How might we…?' })}</p>
-      <p data-reveal="mask" className="max-w-[30ch] text-[clamp(1.8rem,1rem+2.6vw,3.4rem)] font-light leading-[1.1] tracking-tight">
-        {t({ es: '…hacer que cada vendedor llegue a la primera llamada sabiendo a qué empresa, a quién y qué decirle?', en: '…get every rep to the first call knowing which company, who, and what to say?' })}
+    <div ref={rootRef} className="flex flex-col items-center">
+      <p data-reveal className="mono-label mb-4 text-signal">{t({ es: '¿Cómo podríamos…?', en: 'How might we…?' })}</p>
+      <p data-reveal className="max-w-[34ch] text-balance text-center text-[clamp(1.4rem,1rem+1.6vw,2.4rem)] font-light leading-[1.15] tracking-tight">
+        {t({ es: '…darle a cada vendedor la empresa, la persona y las palabras correctas, sin gastar de más ni escribir en HubSpot sin permiso?', en: '…give every rep the right company, person and words, without overspending or writing to HubSpot without permission?' })}
       </p>
-      <div className="mt-16"><Chain /></div>
-      <ul className="mt-20 grid gap-px overflow-hidden rounded-[18px] bg-white/10 sm:grid-cols-2">
-        {idea.principles.map((p, i) => (
-          <li key={p.title.es} data-reveal className="bg-[#0d0e10] p-6">
-            <span className="mono-label text-signal">0{i + 1}</span>
-            <p className="mt-3 text-lg leading-snug">{t(p.title)}</p>
-            <p className="mt-2 text-sm leading-relaxed text-white/60 max-md:hidden">{t(p.body)}</p>
-          </li>
-        ))}
-      </ul>
+
+      <div className="relative mt-10 w-full max-w-[520px]" style={{ aspectRatio: '1 / 1' }}>
+        <svg viewBox={`0 0 ${S} ${S}`} className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
+          <defs>
+            <linearGradient id="su-ring" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#285ee6" />
+              <stop offset="0.5" stopColor="#7e2be0" />
+              <stop offset="1" stopColor="#d22d6a" />
+            </linearGradient>
+          </defs>
+          <circle cx={C} cy={C} r={R} fill="none" stroke="white" strokeOpacity={0.08} strokeWidth={1.5} />
+          <circle cx={C} cy={C} r={R} fill="none" stroke="url(#su-ring)" strokeOpacity={0.55} strokeWidth={1.5} />
+          {/* La señal recorre el anillo de un principio al siguiente y se posa en el encendido */}
+          {!reducedMotion && (
+            <circle cx={C} cy={C} r={R} fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" pathLength={1} strokeDasharray="0.06 0.94" strokeDashoffset={0.03 - quarters / 4} transform={`rotate(-90 ${C} ${C})`} style={{ transition: 'stroke-dashoffset 1.1s cubic-bezier(.65,0,.35,1)', filter: 'drop-shadow(0 0 6px white)' }} />
+          )}
+          {/* El halo del principio activo, con un tirante al centro */}
+          {(() => {
+            const p = pos(ANGLES[active])
+            return <line key={active} x1={C} y1={C} x2={p.x} y2={p.y} stroke="rgb(var(--signal))" strokeOpacity={0.35} strokeDasharray="2 6" className="su-fade" />
+          })()}
+        </svg>
+
+        {/* En el centro, la frase del principio encendido */}
+        <div key={active} aria-live="polite" className="su-fade absolute inset-[24%] flex flex-col items-center justify-center text-center">
+          <span className="mono-label text-signal">0{active + 1}</span>
+          <p className="mt-3 text-balance text-[clamp(1rem,0.8rem+1vw,1.5rem)] font-light leading-[1.2]">{t(current.title)}</p>
+          {picked && <p className="mt-3 text-balance text-[12px] leading-snug text-paper/60 max-sm:hidden">{t(current.body)}</p>}
+        </div>
+
+        {idea.principles.map((p, i) => {
+          const at = pos(ANGLES[i])
+          const on = i === active
+          return (
+            <button
+              key={p.title.es}
+              type="button"
+              aria-pressed={on && picked}
+              onClick={() => {
+                setQuarters((q) => q + ((i - active + ANGLES.length) % ANGLES.length))
+                setActive(i)
+                setPicked(true)
+              }}
+              className="group absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center outline-none"
+              style={{ left: `${(at.x / S) * 100}%`, top: `${(at.y / S) * 100}%` }}
+            >
+              <span className="relative grid h-4 w-4 place-items-center" aria-hidden="true">
+                {on && <span className="absolute inset-[-8px] rounded-full border border-signal/60 animate-[nav-node-ping_2.2s_cubic-bezier(0,0,.2,1)_infinite]" />}
+                <span className={`h-full w-full rounded-full border transition-all duration-500 ${on ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_4px_rgb(var(--signal)/0.7)]' : 'border-white/50 bg-void group-hover:border-white'}`} />
+                {i === 2 && <span data-fiber-from="su-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />}
+              </span>
+              <span className={`absolute whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] transition-opacity duration-500 ${on ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'} ${i === 0 ? 'bottom-full mb-3' : i === 2 ? 'top-full mt-3' : `top-full mt-3 w-[6.5rem] whitespace-normal text-center sm:top-1/2 sm:mt-0 sm:w-auto sm:-translate-y-1/2 sm:whitespace-nowrap ${i === 1 ? 'right-0 sm:left-full sm:right-auto sm:ml-3 sm:text-left' : 'left-0 sm:left-auto sm:right-full sm:mr-3 sm:text-right'}`}`}>
+                {t(SHORT[i])}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
