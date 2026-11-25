@@ -6,7 +6,7 @@ export interface ProcessStage {
   ai: L
 }
 
-/** Las ocho etapas con las que se cuenta cada caso (portada y agente). */
+/** Las seis etapas con las que se cuenta cada caso (portada y agente). */
 export const PROCESS_STAGES: readonly ProcessStage[] = [
   {
     title: { es: 'Los puntos', en: 'The dots' },
@@ -24,11 +24,6 @@ export const PROCESS_STAGES: readonly ProcessStage[] = [
     ai: { es: 'Busca los casos que rompen cada principio.', en: 'Finds the cases that break each principle.' },
   },
   {
-    title: { es: 'Bocetos', en: 'Sketches' },
-    body: { es: 'Tableros a mano: el flujo, las variantes y lo que no puede pasar.', en: 'Hand-drawn boards: the flow, the variants and what must not happen.' },
-    ai: { es: 'Variaciones para comparar en minutos.', en: 'Variations to compare in minutes.' },
-  },
-  {
     title: { es: 'Forma', en: 'Form' },
     body: { es: 'Pantallas reales y sistema de diseño. Pruebo rápido y afino lo que funciona.', en: 'Real screens and a design system. I test fast and refine what works.' },
     ai: { es: 'Prototipos en código el mismo día.', en: 'Coded prototypes the same day.' },
@@ -42,10 +37,5 @@ export const PROCESS_STAGES: readonly ProcessStage[] = [
     title: { es: 'Impacto', en: 'Impact' },
     body: { es: 'Sale al mundo y se mide: adopción, uso y resultados.', en: 'It ships and gets measured: adoption, usage and outcomes.' },
     ai: { es: 'Herramientas que hoy usan miles de personas.', en: 'Tools used today by thousands of people.' },
-  },
-  {
-    title: { es: 'Demo', en: 'Demo' },
-    body: { es: 'Cada caso cierra con el producto funcionando, para probarlo uno mismo.', en: 'Every case ends with the product running, to try it yourself.' },
-    ai: { es: 'Demos en vivo con datos de prueba.', en: 'Live demos with test data.' },
   },
 ]

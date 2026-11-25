@@ -1,4 +1,4 @@
-/** Las ocho etapas en trazos finos: cada una se mueve sola, despacio, en la misma línea gráfica. */
+/** Las etapas en trazos finos: cada una se mueve sola, despacio, en la misma línea gráfica. */
 
 const VB = 'h-full w-full'
 const LINE = 'stroke-current'

@@ -92,7 +92,7 @@ function profileBlock(locale: Locale): string {
 }
 
 function processBlock(locale: Locale): string {
-  return section('Proceso (las ocho etapas con las que se cuenta cada caso)', PROCESS_STAGES.map((s, i) => `- ${i + 1}. ${pick(s.title, locale)}: ${pick(s.body, locale)} IA: ${pick(s.ai, locale)}`).join('\n'))
+  return section('Proceso (las seis etapas con las que se cuenta cada caso)', PROCESS_STAGES.map((s, i) => `- ${i + 1}. ${pick(s.title, locale)}: ${pick(s.body, locale)} IA: ${pick(s.ai, locale)}`).join('\n'))
 }
 
 function projectsBlock(locale: Locale): string {
