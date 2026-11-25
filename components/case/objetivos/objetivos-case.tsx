@@ -5,7 +5,8 @@ import { Chapter, type ChapterEntry, type ChapterMeta } from '@/components/case/
 import { NeuralBackdrop } from '@/components/home/neural-backdrop'
 import { backdropQuiet } from '@/components/home/backdrop-journey'
 import { ScrollTrigger } from '@/lib/motion'
-import { ChapterNav } from '@/components/case/chapter-nav'
+import { ChapterRail } from '@/components/case/chapter-rail'
+import { SectionFiber } from '@/components/home/section-fiber'
 import { CaseLead } from '@/components/case/case-lead'
 import { NextProject } from '@/components/case/next-project'
 import { useReveal } from '@/components/case/barberlytics/use-reveal'
@@ -28,7 +29,7 @@ import './objetivos.css'
 type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto' | 'demo'
 
 /** Cuánto se calma la red de fondo: en la portada se ve; en los capítulos, deja leer */
-const QUIET = { hero: 0.2, chapters: 0.75 }
+const QUIET = { hero: 1, chapters: 1 }
 
 /** Todos sobre la misma red de fondo; cada uno llega de una manera distinta */
 const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
@@ -99,19 +100,20 @@ export function ObjetivosCase({ next }: { next: Project }) {
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
     }
-    return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: 'dark' as const, entry: ch.entry }))
+    return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: 'dark' as const, entry: ch.entry, fiberTo: i === 0 ? 'obj-puntos' : undefined }))
   }, [t, c])
 
   return (
     <article ref={ref} className="overflow-x-clip">
       {/* La misma red de fondo del inicio, de punta a punta: sin cortes entre capítulos */}
       <NeuralBackdrop />
+      {/* Como en el inicio: la rama de la portada sigue con el scroll y baja, como una fibra, hasta el nodo de «Los puntos» */}
+      <SectionFiber id="obj-puntos" side="right">
       <ObjetivosHero />
-      <div className="grid gap-10 px-[var(--gutter)] md:grid-cols-12">
-        <aside className="md:col-span-3">
-          <ChapterNav chapters={chapters} label={t(OBJ_CASE.title)} />
-        </aside>
-        <div className="min-w-0 md:col-span-9">
+      {/* Los capítulos a todo el ancho; el índice es una línea horizontal que se queda fija arriba */}
+      <div className="px-[var(--gutter)]">
+        <ChapterRail chapters={chapters} label={t(OBJ_CASE.title)} />
+        <div className="mx-auto min-w-0 max-w-6xl">
           {chapters.map((meta) => {
             const Content = CONTENT[meta.id as ChapterKey]
             return (
@@ -122,6 +124,7 @@ export function ObjetivosCase({ next }: { next: Project }) {
           })}
         </div>
       </div>
+      </SectionFiber>
       <NextProject project={next} />
     </article>
   )

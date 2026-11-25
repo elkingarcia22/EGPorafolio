@@ -21,6 +21,8 @@ export interface ChapterMeta {
   title: string
   tone: Tone
   entry?: ChapterEntry
+  /** Nombre de la fibra que llega a su nodo desde la sección anterior (ver <SectionFiber>) */
+  fiberTo?: string
 }
 
 interface ChapterProps {
@@ -171,7 +173,7 @@ export function Chapter({ meta, children }: ChapterProps) {
       <header className="relative mb-[clamp(2rem,1.5rem+2vw,3.5rem)] flex justify-center">
         <h2 id={`${meta.id}-title`} className="sr-only">{meta.title}</h2>
         <span className="relative">
-          <SectionLabel index={meta.index} thread={entry === 'thread'} nodeRef={nodeRef}>{meta.title}</SectionLabel>
+          <SectionLabel index={meta.index} thread={entry === 'thread' && !meta.fiberTo} fiberTo={meta.fiberTo} nodeRef={nodeRef}>{meta.title}</SectionLabel>
           {entry === 'bloom' && (
             <span className="pointer-events-none absolute left-[5px] top-1/2 h-0 w-0">
               <BloomRing nodeRef={nodeRef} />

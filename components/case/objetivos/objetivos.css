@@ -67,3 +67,17 @@ html[data-motion='reduced'] .obj-pan-rect { animation: none; }
 .ms-pulse { stroke-dashoffset: 0.1; opacity: 0; animation: ms-pulse 0.9s cubic-bezier(.65,0,.35,1) both; }
 @keyframes ms-pulse { 0% { stroke-dashoffset: 0.1; opacity: 1; } 90% { opacity: 1; } 100% { stroke-dashoffset: -0.9; opacity: 0; } }
 .ms-value { animation: obj-fade-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* La señal que recorre la rama de la portada, de la persona a la empresa */
+.branch-pulse { stroke-dashoffset: 0.08; opacity: 0; animation: branch-pulse 1.6s cubic-bezier(.45,0,.55,1) both; }
+@keyframes branch-pulse { 0% { stroke-dashoffset: 0.08; opacity: 1; } 92% { opacity: 1; } 100% { stroke-dashoffset: -0.92; opacity: 0; } }
+html[data-motion='reduced'] .branch-pulse { animation: none; opacity: 0; }
+/* Textos de la rama: en teléfono el SVG se encoge, así que las letras crecen para seguir legibles */
+.branch-value { font-size: 20px; }
+.branch-name { font-size: 17px; }
+.branch-role { font-size: 11px; }
+@media (max-width: 640px) {
+  .branch-value { font-size: 30px; }
+  .branch-name { font-size: 30px; }
+  .branch-role { font-size: 20px; letter-spacing: 0.06em; }
+}

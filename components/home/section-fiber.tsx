@@ -16,6 +16,8 @@ const EDGE = 16
 const EXIT_DROP = 90
 /** Holgura extra con el borde de la pantalla (px) */
 const SWAY = 26
+/** Espera antes de volver a medir cuando el contenido cambia de alto (ms) */
+const REMEASURE_MS = 200
 
 interface Point {
   x: number
@@ -168,7 +170,22 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
         onRefresh: (self) => show(self.progress),
       })
     }, wrap)
-    return () => ctx.revert()
+    // Si el contenido cambia de alto después de medir (fuentes, imágenes, un «Leer más»), se vuelve a
+    // medir: si no, la fibra queda apuntando a donde estaban los nodos antes.
+    let lastHeight = wrap.clientHeight
+    let pending = 0
+    const ro = new ResizeObserver(() => {
+      if (Math.abs(wrap.clientHeight - lastHeight) < 2) return
+      lastHeight = wrap.clientHeight
+      window.clearTimeout(pending)
+      pending = window.setTimeout(() => ScrollTrigger.refresh(), REMEASURE_MS)
+    })
+    ro.observe(wrap)
+    return () => {
+      ro.disconnect()
+      window.clearTimeout(pending)
+      ctx.revert()
+    }
   }, [reducedMotion, id, side])
 
   return (
