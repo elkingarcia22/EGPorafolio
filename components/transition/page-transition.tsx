@@ -12,10 +12,8 @@ type Navigate = (href: string, label?: string, trigger?: Element | null) => void
 
 let navigateHandler: Navigate | null = null
 
-/** Zoom de salida: la cámara entra al nodo y la red se abre desde él (s) */
+/** Salida: el nodo destella y la red se abre desde él (s) */
 const ZOOM_S = 0.85
-/** Cuánto se acerca la página al nodo mientras la red la cubre */
-const ZOOM_SCALE = 1.6
 /** Destello del nodo de salida: crece y se apaga cuando la red ya se abrió */
 const FLARE_PX = 46
 /** Mientras llega la página, el porcentaje sube hasta aquí (0–1) y espera */
@@ -122,11 +120,9 @@ export function TransitionOverlay() {
       const openLens = () => { root.style.clipPath = `circle(${lens.r}px at ${from.x}px ${from.y}px)` }
       openLens()
       gsap.set(root, { visibility: 'visible' })
-      const main = document.getElementById('main')
       const seed = seedRef.current
       const tl = gsap.timeline({
         onComplete: () => {
-          if (main) gsap.set(main, { clearProps: 'transform,transformOrigin' })
           if (seed) gsap.set(seed, { autoAlpha: 0 })
           root.style.clipPath = ''
           coveredAt.current = performance.now()
@@ -136,12 +132,8 @@ export function TransitionOverlay() {
           timers.current = [window.setTimeout(() => window.location.assign(href), HARD_NAV_MS)]
         },
       })
-      // La cámara entra al nodo: la página se acerca a él…
-      if (main) {
-        const box = main.getBoundingClientRect()
-        tl.fromTo(main, { scale: 1 }, { scale: ZOOM_SCALE, transformOrigin: `${from.x - box.left}px ${from.y - box.top}px`, duration: ZOOM_S, ease: 'expo.in' }, 0)
-      }
-      // …el nodo se enciende y dispara la red, que se abre desde él hasta cubrir la pantalla.
+      // El nodo se enciende y dispara la red, que se abre desde él hasta cubrir la pantalla.
+      // (No se escala la página: es muy alta y acercarla trababa cada cuadro.)
       if (seed) {
         gsap.set(seed, { x: from.x, y: from.y, width: FLARE_PX, height: FLARE_PX, xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 1 })
         gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
@@ -228,6 +220,7 @@ export function TransitionOverlay() {
     <>
     <div
       ref={rootRef}
+      data-palette-scope
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-[70] flex"
       style={{ visibility: 'hidden' }}
@@ -242,6 +235,7 @@ export function TransitionOverlay() {
     {/* La última neurona de la carga: viaja al destino de la página nueva y se vuelve su anillo */}
     <div
       ref={seedRef}
+      data-palette-scope
       aria-hidden="true"
       className="pointer-events-none fixed left-0 top-0 z-[71] rounded-full border border-white/70 shadow-[0_0_30px_6px_rgb(var(--signal)/0.55),inset_0_0_20px_rgb(var(--signal)/0.4)]"
       style={{ visibility: 'hidden' }}

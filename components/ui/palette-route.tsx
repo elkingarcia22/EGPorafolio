@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { usePathname } from 'next/navigation'
-import { applyTokens, blendTokens, paletteForPath, tokensOf, type PaletteTokens } from '@/lib/palettes'
+import { applyTokens, blendTokens, clearScopedTokens, paletteForPath, tokensOf, type PaletteTokens } from '@/lib/palettes'
 import { setCanvasPalette } from '@/components/signal/styles/paint'
 import { useA11y } from '@/lib/a11y'
 
@@ -13,9 +13,16 @@ const BLEND_DELAY_MS = 700
 /** Pasos del cambio (no hace falta un tono nuevo en cada cuadro) */
 const STEPS = 40
 
-function paint(tokens: PaletteTokens): void {
-  applyTokens(tokens)
+function paint(tokens: PaletteTokens, scope?: readonly HTMLElement[]): void {
+  applyTokens(tokens, scope)
   setCanvasPalette(tokens)
+}
+
+/** Lo que se ve mientras la cortina tapa la página (ver `data-palette-scope`). */
+function coverScope(): HTMLElement[] | undefined {
+  if (document.documentElement.dataset.transitioning !== 'true') return undefined
+  const scope = Array.from(document.querySelectorAll<HTMLElement>('[data-palette-scope]'))
+  return scope.length ? scope : undefined
 }
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
@@ -72,7 +79,10 @@ export function PaletteRoute() {
         if (step !== lastStep) {
           lastStep = step
           current.current = blendTokens(from, target, step / STEPS)
-          paint(current.current)
+          // Con la cortina, los pasos intermedios se pintan solo en ella; la página cambia una vez, al final.
+          const scope = t < 1 ? coverScope() : undefined
+          paint(current.current, scope)
+          if (t >= 1) clearScopedTokens(Array.from(document.querySelectorAll<HTMLElement>('[data-palette-scope]')))
         }
         if (t < 1) frame.current = requestAnimationFrame(tick)
       }

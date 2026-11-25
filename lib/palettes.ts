@@ -141,17 +141,24 @@ function onSignal(signal: Rgb): string {
 
 const css = (c: Rgb) => c.join(' ')
 
-/** Pone los tokens en <html> y avisa a los canvas. */
-export function applyTokens(tokens: PaletteTokens): void {
-  const root = document.documentElement.style
-  root.setProperty('--signal', css(tokens.signal))
-  root.setProperty('--on-signal', onSignal(tokens.signal))
-  root.setProperty('--glow', css(tokens.glow))
-  root.setProperty('--spark', css(tokens.spark))
-  root.setProperty('--ice', css(tokens.ice))
-  root.setProperty('--cyan', css(tokens.cyan))
-  for (const slug of PROJECT_SLUGS) root.setProperty(`--project-${slug}`, css(tokens.projects[slug]))
+const TOKEN_VARS = ['--signal', '--on-signal', '--glow', '--spark', '--ice', '--cyan', ...PROJECT_SLUGS.map((slug) => `--project-${slug}`)]
+
+/**
+ * Pone los tokens en <html> (o solo en `scope`) y avisa a los canvas.
+ * Cambiar las variables en <html> recalcula los estilos de toda la página: mientras la
+ * cortina de transición la tapa, los pasos intermedios se pintan solo en la cortina.
+ */
+export function applyTokens(tokens: PaletteTokens, scope?: readonly HTMLElement[]): void {
+  const values = [css(tokens.signal), onSignal(tokens.signal), css(tokens.glow), css(tokens.spark), css(tokens.ice), css(tokens.cyan), ...PROJECT_SLUGS.map((slug) => css(tokens.projects[slug]))]
+  for (const el of scope ?? [document.documentElement]) {
+    TOKEN_VARS.forEach((name, i) => el.style.setProperty(name, values[i]))
+  }
   window.dispatchEvent(new CustomEvent<PaletteTokens>(PALETTE_EVENT, { detail: tokens }))
+}
+
+/** Quita los tokens puestos en `scope`: vuelven a heredar los de <html>. */
+export function clearScopedTokens(scope: readonly HTMLElement[]): void {
+  for (const el of scope) TOKEN_VARS.forEach((name) => el.style.removeProperty(name))
 }
 
 /**
