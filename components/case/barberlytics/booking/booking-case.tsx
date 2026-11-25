@@ -14,9 +14,9 @@ import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { useReveal } from '../use-reveal'
 import { BookingHero } from './booking-hero'
 import { RhythmScene } from './rhythm-scene'
-import { AffinitySort } from './affinity-sort'
+import { BehaviorFlow } from './behavior-flow'
 import { CoverRouter } from './cover-router'
-import { ScreenCarousel } from './screen-carousel'
+import { SketchBoard } from './sketch-board'
 import { SurfaceSwitch } from './surface-switch'
 import { PhraseParse } from './phrase-parse'
 import { ReturnCurve } from './return-curve'
@@ -44,11 +44,11 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'demo', entry: 'thread' },
 ]
 
-/** 04 · Bocetos y forma: el carrusel de pantallas y, debajo, el mismo flujo en cuatro superficies */
+/** 04 · Bocetos y forma: el tablero dibujado y, debajo, el mismo flujo en cuatro superficies */
 function BookingSketchesAndForm() {
   return (
     <div>
-      <ScreenCarousel />
+      <SketchBoard />
       <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
         <SurfaceSwitch />
       </div>
@@ -58,7 +58,7 @@ function BookingSketchesAndForm() {
 
 const CONTENT: Record<ChapterKey, React.ComponentType> = {
   puntos: RhythmScene,
-  patrones: AffinitySort,
+  patrones: BehaviorFlow,
   idea: CoverRouter,
   bocetos: BookingSketchesAndForm,
   ia: PhraseParse,
@@ -112,7 +112,7 @@ export function BookingCase() {
           <ChapterRail chapters={chapters} label={t(BOOKING_CASE.title)} back={{ href: '/proyectos/barberlytics', label: { es: 'Barberlytics', en: 'Barberlytics' } }} />
           {/* Del final del ritmo de «Los puntos» a «Patrones», por la derecha */}
           <SectionFiber id="bk-patrones" side="right">
-            {/* Del primer grupo (Fuertes) a «La idea», por la izquierda */}
+            {/* Del primer comportamiento a «La idea», por la izquierda */}
             <SectionFiber id="bk-idea" side="left">
               {/* Del camino de quien llega a «Bocetos y forma», por la derecha */}
               <SectionFiber id="bk-bocetos" side="right">
