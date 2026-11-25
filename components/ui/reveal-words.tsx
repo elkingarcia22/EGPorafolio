@@ -47,9 +47,11 @@ export function RevealWords({ text, className = '' }: RevealWordsProps) {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         el.querySelectorAll('[data-word]'),
-        { opacity: 0.12 },
+        // Cada palabra pasa de ruido (tenue y desenfocada) a señal.
+        { opacity: 0.12, filter: 'blur(5px)' },
         {
           opacity: 1,
+          filter: 'blur(0px)',
           stagger: 0.08,
           ease: 'none',
           scrollTrigger: { trigger: el, start: 'top 80%', end: 'bottom 45%', scrub: true },

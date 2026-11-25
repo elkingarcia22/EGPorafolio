@@ -1,11 +1,12 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { ProjectPreview } from './project-preview'
-import { scrambleText } from '@/lib/motion'
+import { gsap, scrambleText } from '@/lib/motion'
+import { useRiseIn } from './use-rise-in'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -23,7 +24,7 @@ function WorkCard({ project }: { project: Project }) {
   }
 
   return (
-    <li className="flex">
+    <li data-work-card className="flex">
       <TransitionLink
         href={`/proyectos/${project.slug}`}
         transitionLabel={`N° ${project.frequency} · ${title}`}
@@ -40,7 +41,10 @@ function WorkCard({ project }: { project: Project }) {
 
         <div className="flex flex-1 flex-col px-2 pb-1.5 pt-5">
           <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
+            <span aria-hidden="true" className="relative flex h-1.5 w-1.5">
+              <span data-work-ping className="absolute inset-0 rounded-full opacity-0" style={{ background: accent }} />
+              <span className="relative h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
+            </span>
             <span className="brand-title text-[0.68rem] opacity-70">{project.client}</span>
             <span className="mono-label ml-auto opacity-50">N° {project.frequency}</span>
           </div>
@@ -76,20 +80,56 @@ function WorkCard({ project }: { project: Project }) {
   )
 }
 
-/** Proyectos como tarjetas: la vista previa se ve de una vez, sin tener que pasar el cursor. */
+/** Separación (px) desde la que llegan las tarjetas, como puntos sueltos que se conectan */
+const SCATTER = { x: 70, y: [90, 160] as const, rotate: 4 }
+
+/**
+ * Proyectos como tarjetas: la vista previa se ve de una vez, sin tener que pasar el cursor.
+ * Al entrar, las tarjetas llegan dispersas y desenfocadas (ruido) y encajan en la retícula (señal).
+ */
 export function WorkList({ projects }: { projects: readonly Project[] }) {
   const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const listRef = useRef<HTMLUListElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const title = t(COPY.work.title)
+  useRiseIn(titleRef, reducedMotion)
+
+  useEffect(() => {
+    const list = listRef.current
+    if (!list || reducedMotion) return
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('[data-work-card]').forEach((card, i) => {
+        const side = i % 2 === 0 ? -1 : 1
+        gsap.timeline({ scrollTrigger: { trigger: card, start: 'top 92%', toggleActions: 'play none none none' } })
+          .from(card, {
+            autoAlpha: 0,
+            x: side * gsap.utils.random(SCATTER.x * 0.4, SCATTER.x),
+            y: gsap.utils.random(SCATTER.y[0], SCATTER.y[1]),
+            rotate: side * gsap.utils.random(1, SCATTER.rotate),
+            filter: 'blur(10px)',
+            duration: 1.3,
+            ease: 'expo.out',
+            delay: (i % 2) * 0.12,
+            clearProps: 'transform,filter',
+          })
+          // Al encajar, el punto del cliente emite un pulso: conexión encontrada.
+          .fromTo(card.querySelector('[data-work-ping]'), { scale: 1, opacity: 0.8 }, { scale: 4, opacity: 0, duration: 0.9, ease: 'power2.out' }, '-=0.6')
+      })
+    }, list)
+    return () => ctx.revert()
+  }, [reducedMotion, projects.length])
 
   return (
     <ToneSection tone="light" id="work" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
       <div className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <SectionLabel index="01" className="mb-8">{t(COPY.work.label)}</SectionLabel>
-          <h2 className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight">{t(COPY.work.title)}</h2>
+          <h2 ref={titleRef} className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight">{title}</h2>
         </div>
       </div>
 
-      <ul className="grid gap-5 md:grid-cols-2 lg:gap-8">
+      <ul ref={listRef} className="grid gap-5 md:grid-cols-2 lg:gap-8">
         {projects.map((project) => (
           <WorkCard key={project.slug} project={project} />
         ))}

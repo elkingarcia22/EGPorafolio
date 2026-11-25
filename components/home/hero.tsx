@@ -2,24 +2,31 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { NetworkCanvas } from '@/components/signal/network-canvas'
-import { ConnectionSearch } from './connection-search'
+import { NeuralFlight } from './neural-flight'
+import { EgJourney } from './eg-journey'
+import { NeuralBackdrop } from './neural-backdrop'
+import { useIntroAutoplay } from './use-intro-autoplay'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
 import { useMonogramCycle } from './use-monogram-cycle'
 import { useHeroSnap, type HeroSnap } from './use-hero-snap'
-import { gsap, scrambleText, scrollToHeroSignature, HERO_SIGNATURE_AT } from '@/lib/motion'
+import { gsap, scrollToHeroSignature, HERO_SIGNATURE_AT } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PROFILE } from '@/lib/content/profile'
 
-/** Duración mínima de la carga (la red central se arma en este tiempo) */
-const LOAD_S = 2.2
+/** Duración mínima de la carga: el viaje de neurona en neurona */
+const LOAD_S = 3.6
 /** Pausa con la red ya formada antes de deshacerse */
 const LOAD_HOLD_S = 0.9
 /** Momento en que empieza a escribirse el titular */
-const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.45
+const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.75
+/** Tiempo para leer el titular antes de que la entrada siga sola (desde que empieza a aparecer) */
+const INTRO_READ_S = 2.3
+/** Duración del salto final hacia el titular */
+const WARP_S = 0.9
 
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
@@ -29,6 +36,9 @@ const AUTO_SCROLL_DELAY_MS = 900
 const AUTO_SCROLL_S = 2.4
 /** Si al arrancar la página ya está deslizada más que esto, la carga se salta. */
 const SCROLLED_PX = 80
+
+/** Encuadre del EG en el lienzo */
+const EG_FIT = { width: 0.62, height: 0.42, centerY: 0.38 }
 
 /** Momento de la línea de tiempo en que el puente ("Mi trabajo es diseñar…") está completo */
 const SIGNAL_REST_AT = 0.52
@@ -55,7 +65,7 @@ function arrivedFromAnotherPage(): boolean {
 /**
  * Arranque: no hay pantalla de carga aparte. La estática aparece en
  * negro mientras carga, el titular "Todo producto nace de una conexión…"
- * se descifra desde caracteres de ruido y luego aparece la invitación
+ * aparece desde el desenfoque y luego aparece la invitación
  * a deslizar. Encabezado y contador se integran en la misma escena.
  */
 function useBoot(
@@ -64,6 +74,7 @@ function useBoot(
   loaderProgress: React.MutableRefObject<number>,
   reducedMotion: boolean,
   skipLoading: boolean,
+  onIntroRead: React.MutableRefObject<() => void>,
 ) {
   useEffect(() => {
     const el = root.current
@@ -81,18 +92,16 @@ function useBoot(
     }
     hasBooted = true
 
-    const textEl = q('[data-boot-text]')[0] as HTMLElement | undefined
     const counterEl = q('[data-boot-count]')[0] as HTMLElement | undefined
     const counter = { v: 0 }
     const dissolve = { v: 0 }
     loaderProgress.current = 0
-    let cancelScramble: (() => void) | null = null
     if (header) gsap.set(header, { opacity: 0 })
 
     const tl = gsap.timeline({ paused: true })
-    // 1 · Carga: sobre la estática, nodos que buscan conectarse; cada vez
-    //     más lo logran al ritmo del porcentaje.
-    tl.to(q('[data-boot="field"]'), { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0)
+    // 1 · Carga: un viaje por la red neuronal, de neurona en neurona, al
+    //     ritmo del porcentaje (ver <NeuralFlight>).
+    tl.set(q('[data-boot="field"]'), { opacity: 0 }, 0)
       .to(counter, {
         v: 100,
         duration: LOAD_S,
@@ -102,25 +111,32 @@ function useBoot(
           loaderProgress.current = counter.v / 100
         },
       }, 0)
-      // 2 · Las conexiones se sueltan y la carga desaparece.
+      // 2 · Salto: la cámara acelera hacia adelante y la carga desaparece.
       .to(dissolve, {
         v: 1,
-        duration: 0.5,
+        duration: WARP_S,
         ease: 'power2.in',
         onUpdate: () => {
           loaderProgress.current = 1 - dissolve.v
         },
       }, LOAD_S + LOAD_HOLD_S)
-      .to(q('[data-boot-counter]'), { autoAlpha: 0, filter: 'blur(8px)', scale: 0.96, duration: 0.4 }, LOAD_S + LOAD_HOLD_S + 0.15)
-      // 3 · Empieza a escribirse el titular.
-      .set(q('[data-boot="text"]'), { opacity: 1 }, HEADLINE_AT)
-      .call(() => {
-        if (textEl) cancelScramble = scrambleText(textEl, headline, 1100)
-      }, undefined, HEADLINE_AT)
+      .to(q('[data-boot-counter] [data-boot-label]'), { autoAlpha: 0, filter: 'blur(8px)', scale: 0.96, duration: 0.4 }, LOAD_S + LOAD_HOLD_S + 0.05)
+      .to(q('[data-boot-counter]'), { autoAlpha: 0, duration: 0.3 }, LOAD_S + LOAD_HOLD_S + WARP_S)
+      // La estática del hero aparece cuando el salto termina: del viaje al ruido.
+      .to(q('[data-boot="field"]'), { opacity: 1, duration: 0.9, ease: 'power2.out' }, LOAD_S + LOAD_HOLD_S + WARP_S * 0.6)
+      // 3 · El titular aparece limpio: sube y pasa de desenfocado a nítido.
+      .fromTo(
+        q('[data-boot="text"]'),
+        { opacity: 0, y: 36, filter: 'blur(14px)' },
+        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.4, ease: 'expo.out', clearProps: 'filter' },
+        HEADLINE_AT,
+      )
       .to(header ? [header] : [], { opacity: 1, duration: 0.8 }, HEADLINE_AT + 0.9)
       .fromTo(q('[data-boot="cue"]'), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out' }, HEADLINE_AT + 1.2)
+      // 4 · Leído el titular, la entrada sigue sola hasta el EG y la firma.
+      .call(() => onIntroRead.current(), undefined, HEADLINE_AT + INTRO_READ_S)
 
-    // Espera a las fuentes para que el titular se descifre ya con su tipografía.
+    // Espera a las fuentes para que el titular aparezca ya con su tipografía.
     let started = false
     const start = () => {
       if (started) return
@@ -144,11 +160,10 @@ function useBoot(
     return () => {
       window.removeEventListener('scroll', finishIfScrolled)
       window.clearTimeout(fallback)
-      cancelScramble?.()
       tl.kill()
       if (header) gsap.set(header, { opacity: 1 })
     }
-  }, [root, headline, loaderProgress, reducedMotion, skipLoading])
+  }, [root, headline, loaderProgress, reducedMotion, skipLoading, onIntroRead])
 }
 
 /**
@@ -167,13 +182,23 @@ export function Hero() {
   const snap = useRef<HeroSnap>({ trigger: null, rests: [] })
   useHeroSnap(snap, !reducedMotion)
   // El EG como red, que se transforma en UX, UI, CX… y vuelve al EG.
-  const monogram = useMonogramCycle(locale, progress, heroInView, reducedMotion)
+  // El EG lo arma el viaje (con tiempo propio); con movimiento reducido, el scroll.
+  const egProgress = useRef(0)
+  const egReveal = useRef(reducedMotion ? 1 : 0)
+  const figureProgress = reducedMotion ? progress : egProgress
+  const monogram = useMonogramCycle(locale, figureProgress, heroInView, reducedMotion)
   const headline = t(COPY.hero.noise)
 
   const loaderProgress = useRef(0)
   // Se decide al montar, antes de que useBoot marque la carga como vista.
   const [isReturn] = useState(arrivedFromAnotherPage)
-  useBoot(sectionRef, headline, loaderProgress, reducedMotion, isReturn)
+  // Primera visita: después del titular, la entrada baja sola hasta el EG y la firma.
+  const startIntro = useIntroAutoplay(snap, !reducedMotion && !isReturn)
+  const introRef = useRef(startIntro)
+  introRef.current = () => {
+    if (!window.location.hash) startIntro()
+  }
+  useBoot(sectionRef, headline, loaderProgress, reducedMotion, isReturn, introRef)
 
   // De vuelta desde otra página: arranca en el titular y, cuando la cortina se retira,
   // el scroll baja solo hasta el EG con la firma.
@@ -244,13 +269,28 @@ export function Hero() {
       <div ref={sectionRef} data-header-clear data-hero-root className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
+            {/* Fondo: una red neuronal lejana (no un espacio con ruido) */}
+            {!reducedMotion && <NeuralBackdrop heroProgress={progress} className="absolute inset-0 h-full w-full" />}
+            {/* Al deslizar: viaje por dentro del EG; al alejarse se ve el EG armado */}
+            {!reducedMotion && (
+              <EgJourney
+                graph={monogram.graph}
+                heroProgress={progress}
+                egProgress={egProgress}
+                egReveal={egReveal}
+                fit={EG_FIT}
+                skip={isReturn}
+                className="absolute inset-0 h-full w-full"
+              />
+            )}
             <NetworkCanvas
               graph={monogram.graph}
-              progress={progress}
+              progress={figureProgress}
+              reveal={reducedMotion ? undefined : egReveal}
               reducedMotion={reducedMotion}
-              fit={{ width: 0.62, height: 0.42, centerY: 0.38 }}
-              noiseDots={1600}
-              noiseFloor={0.75}
+              fit={EG_FIT}
+              noiseDots={500}
+              noiseFloor={0.35}
               sweep
               cursorRadius={0.32}
               onHoverChange={monogram.onHoverChange}
@@ -259,9 +299,9 @@ export function Hero() {
           </div>
 
           {/* Contador de arranque (se integra en la escena, sin pantalla aparte) */}
-          <div data-boot-counter aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-5 px-[var(--gutter)]">
-            <ConnectionSearch progress={loaderProgress} className="absolute inset-0 h-full w-full" />
-            <span className="mono-label relative flex items-center gap-3 tabular-nums text-paper/70">
+          <div data-boot-counter aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col items-center justify-end gap-5 bg-[rgb(var(--void))] px-[var(--gutter)] pb-[12vh]">
+            <NeuralFlight progress={loaderProgress} className="absolute inset-0 h-full w-full" />
+            <span data-boot-label className="mono-label relative flex items-center gap-3 tabular-nums text-paper/70">
               <span className="h-px w-8 bg-current" />
               <span>{t(COPY.hero.loading)} · <span data-boot-count>000</span>%</span>
               <span className="h-px w-8 bg-current" />

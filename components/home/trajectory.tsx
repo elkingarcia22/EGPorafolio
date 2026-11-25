@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
-import { gsap } from '@/lib/motion'
+import { gsap, ScrollTrigger } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -57,6 +57,8 @@ export function Trajectory() {
       // cascada, la barra crece y los temas aparecen uno a uno.
       gsap.utils.toArray<HTMLElement>('[data-job]').forEach((job) => {
         const q = gsap.utils.selector(job)
+        // El punto se enciende en azul cuando la señal de la línea llega a este empleo.
+        ScrollTrigger.create({ trigger: job, start: 'top 62%', toggleClass: { targets: q('[data-job-dot]'), className: 'is-lit' } })
         gsap.timeline({ scrollTrigger: onEnter(job, 'top 82%') })
           .from(q('[data-job-dot]'), { scale: 0, duration: 0.5, ease: 'back.out(3)' })
           .from(q('[data-job-head]'), { autoAlpha: 0, y: 24, duration: 0.8, ease: 'expo.out' }, '<0.05')
@@ -128,10 +130,15 @@ export function Trajectory() {
             <span data-reveal-title className="block">{t(COPY.about.experience)}</span>
           </h2>
           <ol data-timeline className="relative space-y-14 pl-8">
-            <span data-timeline-line className="absolute left-[3px] top-2 h-full w-px origin-top bg-fg/40" aria-hidden="true" />
+            <span data-timeline-line className="absolute left-[3px] top-2 h-full w-px origin-top bg-fg/40" aria-hidden="true">
+              {/* Impulso que recorre la línea de tiempo, como el hilo entre secciones */}
+              <span className="absolute inset-0 animate-[thread-pulse_4.5s_cubic-bezier(.65,0,.35,1)_infinite]">
+                <span className="absolute bottom-0 left-1/2 h-16 w-[3px] -translate-x-1/2 rounded-full bg-gradient-to-b from-transparent to-signal shadow-[0_0_10px_rgb(var(--signal)/0.7)]" />
+              </span>
+            </span>
             {JOBS.map((job) => (
               <li key={job.company} data-job className="relative">
-                <span data-job-dot className="absolute -left-8 top-2 h-[7px] w-[7px] rounded-full bg-fg" aria-hidden="true" />
+                <span data-job-dot className="absolute -left-8 top-2 h-[7px] w-[7px] rounded-full bg-fg transition-[background-color,box-shadow] duration-500 ease-expo [&.is-lit]:bg-signal [&.is-lit]:shadow-[0_0_0_4px_rgb(var(--signal)/0.18),0_0_14px_rgb(var(--signal)/0.55)]" aria-hidden="true" />
                 <div data-job-head>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
                     <h3 className="brand-title text-base">{job.company}</h3>

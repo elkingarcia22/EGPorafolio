@@ -1,9 +1,12 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { SignalNetwork } from './signal-network'
+import { useRiseIn } from './use-rise-in'
+import { useEnterSequence, type EnterStep } from './use-enter-sequence'
+import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { ContactIcon, useContactChannels, type ContactChannel } from '@/components/ui/contact-channels'
 import { COPY } from '@/lib/content/copy'
@@ -11,10 +14,17 @@ import { PROFILE } from '@/lib/content/profile'
 
 const COPIED_RESET_MS = 2000
 
+/** Entrada: los canales se conectan uno tras otro, después del titular. */
+const ENTER_STEPS: readonly EnterStep[] = [
+  { selector: '[data-ct-available]', from: { autoAlpha: 0, y: 12 } },
+  { selector: '[data-ct-body]', from: { autoAlpha: 0, y: 20 }, at: 0.25 },
+  { selector: '[data-ct-channel]', from: { autoAlpha: 0, x: 40, filter: 'blur(6px)' }, at: 0.35 },
+]
+
 function ChannelRow({ channel, index }: { channel: ContactChannel; index: number }) {
   const { t } = useLocale()
   return (
-    <li>
+    <li data-ct-channel>
       <a
         href={channel.href}
         target={channel.external ? '_blank' : undefined}
@@ -50,7 +60,13 @@ function ChannelRow({ channel, index }: { channel: ContactChannel; index: number
 /** Contacto: red de conexiones animada + canales directos (correo, llamada, WhatsApp, LinkedIn). */
 export function Contact() {
   const { t } = useLocale()
+  const { reducedMotion } = useA11y()
   const [copied, setCopied] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLSpanElement>(null)
+  const title = t(COPY.contact.title).toUpperCase()
+  useRiseIn(titleRef, reducedMotion)
+  useEnterSequence(rootRef, ENTER_STEPS, reducedMotion)
 
   const copy = async () => {
     try {
@@ -73,8 +89,8 @@ export function Contact() {
           <SignalNetwork label={t(COPY.contact.networkAlt)} />
         </div>
 
-        <div className="min-w-0 md:col-span-7">
-          <p className="mono-label mb-6 flex items-center gap-2 text-signal">
+        <div ref={rootRef} className="min-w-0 md:col-span-7">
+          <p data-ct-available className="mono-label mb-6 flex items-center gap-2 text-signal">
             <span className="relative flex h-2 w-2" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
@@ -82,10 +98,10 @@ export function Contact() {
             {t(COPY.contact.available)}
           </p>
           <h2 className="text-[clamp(2.6rem,0.5rem+6.2vw,7rem)] font-medium leading-[0.85] tracking-[0.06em]">
-            {t(COPY.contact.title).toUpperCase()}
+            <span ref={titleRef} className="inline-block">{title}</span>
             <span className="text-signal">.</span>
           </h2>
-          <p className="mt-6 max-w-md leading-relaxed opacity-70">{t(COPY.contact.body)}</p>
+          <p data-ct-body className="mt-6 max-w-md leading-relaxed opacity-70">{t(COPY.contact.body)}</p>
 
           <ul className="mt-10 border-t border-fg/15">
             {channels.map((channel, i) => (

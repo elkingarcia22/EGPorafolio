@@ -9,6 +9,16 @@ import { COPY } from '@/lib/content/copy'
 import { answerQuestion, newMemory } from '@/lib/agent/answer'
 import type { Project } from '@/lib/content/projects'
 import { CaseCard, ContactActions, parseReply, RichText } from './agent-message'
+import { useRiseIn } from './use-rise-in'
+import { useEnterSequence, type EnterStep } from './use-enter-sequence'
+
+/** Entrada: las preguntas llegan una a una y la ventana del chat se abre como una conexión. */
+const ENTER_STEPS: readonly EnterStep[] = [
+  { selector: '[data-ag-intro]', from: { autoAlpha: 0, y: 24 } },
+  { selector: '[data-ag-starter]', from: { autoAlpha: 0, x: -28 } },
+  { selector: '[data-ag-panel]', from: { clipPath: 'inset(0 100% 0 0)', duration: 1.3, ease: 'expo.inOut' }, at: 0.1 },
+  { selector: '[data-ag-panel] [data-ag-head]', from: { autoAlpha: 0, y: -12 }, at: 0.8 },
+]
 
 interface Message {
   id: number
@@ -51,6 +61,11 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
   const nextId = useRef(0)
   const abortRef = useRef<AbortController | null>(null)
   const memoryRef = useRef(newMemory())
+  const rootRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const title = t(COPY.agent.title)
+  useRiseIn(titleRef, reducedMotion)
+  useEnterSequence(rootRef, ENTER_STEPS, reducedMotion)
 
   useEffect(() => {
     const log = logRef.current
@@ -138,15 +153,15 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
 
   return (
     <ToneSection tone="dark" id="agent" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
-      <div className="grid gap-12 lg:grid-cols-12">
+      <div ref={rootRef} className="grid gap-12 lg:grid-cols-12">
         <div className="min-w-0 lg:col-span-5">
           <SectionLabel index="04" className="mb-8">{t(COPY.agent.label)}</SectionLabel>
-          <h2 className="text-[clamp(2.4rem,1rem+5vw,5.5rem)] font-light leading-[0.9] tracking-tight">{t(COPY.agent.title)}</h2>
-          <p className="mt-6 max-w-sm leading-relaxed opacity-70">{t(COPY.agent.intro)}</p>
+          <h2 ref={titleRef} className="text-[clamp(2.4rem,1rem+5vw,5.5rem)] font-light leading-[0.9] tracking-tight">{title}</h2>
+          <p data-ag-intro className="mt-6 max-w-sm leading-relaxed opacity-70">{t(COPY.agent.intro)}</p>
 
           <ul className="mt-10 border-t border-fg/15">
             {STARTERS.map((s) => (
-              <li key={s.q.es} className="border-b border-fg/15">
+              <li key={s.q.es} data-ag-starter className="border-b border-fg/15">
                 <button
                   type="button"
                   onClick={() => ask(t(s.q))}
@@ -162,8 +177,8 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
         </div>
 
         <div className="min-w-0 lg:col-span-7">
-          <div className="flex h-[min(30rem,72svh)] flex-col lg:h-[min(40rem,80svh)] border border-fg/20 bg-fg/[0.03]">
-            <div className="flex items-center justify-between gap-4 border-b border-fg/15 px-4 py-3">
+          <div data-ag-panel className="flex h-[min(30rem,72svh)] flex-col lg:h-[min(40rem,80svh)] border border-fg/20 bg-fg/[0.03]">
+            <div data-ag-head className="flex items-center justify-between gap-4 border-b border-fg/15 px-4 py-3">
               <span className="mono-label flex shrink-0 items-center gap-2 whitespace-nowrap">
                 <span className={`h-2 w-2 rounded-full bg-signal ${busy ? 'animate-pulse' : ''}`} aria-hidden="true" />
                 EG · agent
