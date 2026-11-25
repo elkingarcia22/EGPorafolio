@@ -22,16 +22,6 @@ const DENSITY: readonly { id: Density; label: L }[] = [
   { id: 'normal', label: { es: 'Normal', en: 'Normal' } },
   { id: 'amplia', label: { es: 'Amplia', en: 'Roomy' } },
 ]
-const SHOWS: readonly { id: keyof CardFields; label: L }[] = [
-  { id: 'type', label: { es: 'Tipo de cliente', en: 'Client type' } },
-  { id: 'service', label: { es: 'Servicio', en: 'Service' } },
-  { id: 'price', label: { es: 'Precio', en: 'Price' } },
-  { id: 'time', label: { es: 'Hora', en: 'Time' } },
-  { id: 'status', label: { es: 'Estado', en: 'Status' } },
-  { id: 'next', label: { es: 'Siguiente paso', en: 'Next step' } },
-  { id: 'hints', label: { es: 'Avisos con icono', en: 'Icon hints' } },
-]
-
 interface Look {
   colorBy: ColorBy
   style: CardStyle
@@ -52,6 +42,12 @@ const TOUR: readonly Look[] = [
   { ...START, colorBy: 'neutral', fields: { ...ALL_FIELDS, type: false, service: false } },
 ]
 const TOUR_MS = 1800
+
+/** La opción que sigue a la actual, dando la vuelta */
+function nextOf<T extends string>(options: readonly { id: T }[], value: T): T {
+  const i = options.findIndex((o) => o.id === value)
+  return options[(i + 1) % options.length].id
+}
 
 const FEATURED = APPTS.find((a) => a.client === 'Mariana Ramírez') ?? APPTS[0]
 const BIG_PAD: Record<Density, string> = { compacta: 'p-4 min-h-[150px]', normal: 'p-6 min-h-[196px]', amplia: 'p-7 min-h-[250px]' }
@@ -90,21 +86,6 @@ function BigCard({ now, look }: { now: number; look: Look }) {
   )
 }
 
-/** Un ajuste como una línea de texto: el nombre y las opciones; la elegida, en dorado y subrayada */
-function Choice<T extends string>({ options, value, onChange, label }: { options: readonly { id: T; label: L }[]; value: T; onChange: (v: T) => void; label: string }) {
-  const { t } = useLocale()
-  return (
-    <p role="radiogroup" aria-label={label} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[14px]">
-      <span className="w-[9.5rem] shrink-0 text-paper/40">{label}</span>
-      {options.map((o) => (
-        <button key={o.id} type="button" role="radio" aria-checked={o.id === value} onClick={() => onChange(o.id)} className="text-paper/45 underline-offset-[6px] transition-colors duration-300 hover:text-paper aria-checked:text-[#d9b36a] aria-checked:underline aria-checked:decoration-[#d9b36a]/60">
-          {t(o.label)}
-        </button>
-      ))}
-    </p>
-  )
-}
-
 /**
  * 04 · Forma: la tarjeta dinámica con todo lo que se puede personalizar.
  * Al entrar, recorre sola los ajustes (color, estilo, densidad, qué muestra);
@@ -128,7 +109,6 @@ export function CardStudio() {
 
   const look = manual ?? TOUR[step]
   const change = (patch: Partial<Look>) => setManual({ ...look, ...patch })
-  const toggle = (k: keyof CardFields) => change({ fields: { ...look.fields, [k]: !look.fields[k] } })
 
   return (
     <div ref={rootRef} className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
@@ -139,24 +119,21 @@ export function CardStudio() {
 
       <div>
         <BigCard now={now} look={look} />
-        <div className="mt-8 space-y-3">
-          <Choice options={COLOR} value={look.colorBy} onChange={(v) => change({ colorBy: v })} label={t({ es: 'Colorear por', en: 'Color by' })} />
-          <Choice options={STYLE} value={look.style} onChange={(v) => change({ style: v })} label={t({ es: 'Estilo', en: 'Style' })} />
-          <Choice options={DENSITY} value={look.density} onChange={(v) => change({ density: v })} label={t({ es: 'Densidad', en: 'Density' })} />
-          <p className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[14px]">
-            <span className="w-[9.5rem] shrink-0 text-paper/40">{t({ es: 'Muestra', en: 'Shows' })}</span>
-            {SHOWS.map((f) => (
-              <button key={f.id} type="button" aria-pressed={look.fields[f.id]} onClick={() => toggle(f.id)} className="text-paper/30 line-through decoration-paper/30 transition-colors duration-300 hover:text-paper/70 aria-pressed:text-paper/85 aria-pressed:no-underline">
-                {t(f.label)}
+        {/* Solo lo que está activo, en una línea; tocar una palabra pasa a la siguiente opción */}
+        <p className="mt-6 flex flex-wrap items-baseline justify-center gap-x-2 text-[15px] lg:justify-start">
+          {[
+            { key: 'c', label: COLOR.find((o) => o.id === look.colorBy)!.label, next: () => change({ colorBy: nextOf(COLOR, look.colorBy) }) },
+            { key: 's', label: STYLE.find((o) => o.id === look.style)!.label, next: () => change({ style: nextOf(STYLE, look.style) }) },
+            { key: 'd', label: DENSITY.find((o) => o.id === look.density)!.label, next: () => change({ density: nextOf(DENSITY, look.density) }) },
+          ].map((w, i) => (
+            <span key={w.key} className="flex items-baseline gap-x-2">
+              {i > 0 && <span aria-hidden="true" className="text-paper/25">·</span>}
+              <button type="button" onClick={w.next} className="text-[#d9b36a] underline decoration-[#d9b36a]/30 underline-offset-[6px] transition-colors hover:decoration-[#d9b36a]">
+                <span key={w.label.es} className="pl-fade inline-block">{t(w.label)}</span>
               </button>
-            ))}
-          </p>
-          <p className="pt-3 font-mono text-[11px] text-white/40">
-            {manual
-              ? <button type="button" onClick={() => setManual(null)} className="underline decoration-white/30 underline-offset-4 hover:text-white/70">{t({ es: 'Volver al recorrido', en: 'Back to the tour' })}</button>
-              : t({ es: 'Los ajustes pasan solos; toca uno para probarlo.', en: 'Settings play on their own; tap one to try it.' })}
-          </p>
-        </div>
+            </span>
+          ))}
+        </p>
       </div>
     </div>
   )
