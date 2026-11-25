@@ -8,7 +8,7 @@ import type { HeroSnap } from './use-hero-snap'
 const TO_BRIDGE_S = 1.8
 const TO_SIGNATURE_S = 1.8
 /** Espera (ms) desde que empieza a bajar hasta seguir a la firma: el viaje que arma el EG */
-const BRIDGE_HOLD_MS = 4500
+const BRIDGE_HOLD_MS = 5200
 /** Si la página ya está más abajo que esto, la persona ya tomó el control */
 const ALREADY_SCROLLED_PX = 10
 

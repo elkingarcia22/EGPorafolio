@@ -23,8 +23,12 @@ const LOAD_S = 3.6
 const LOAD_HOLD_S = 0.9
 /** Momento en que empieza a escribirse el titular */
 const HEADLINE_AT = LOAD_S + LOAD_HOLD_S + 0.75
+/** Paso entre palabras al aparecer un texto (titular y puente) */
+const WORD_STAGGER_S = 0.13
 /** Tiempo para leer el titular antes de que la entrada siga sola (desde que empieza a aparecer) */
-const INTRO_READ_S = 2.3
+const INTRO_READ_S = 2.9
+/** El puente nunca se lee más rápido que esto (s), aunque el EG ya esté casi armado */
+const MIN_BRIDGE_READ_S = 1.6
 /** Duración del salto final hacia el titular */
 const WARP_S = 0.9
 
@@ -130,11 +134,12 @@ function useBoot(
       .to(q('[data-boot-counter]'), { autoAlpha: 0, duration: 0.3 }, LOAD_S + LOAD_HOLD_S + WARP_S)
       // La estática del hero aparece cuando el salto termina: del viaje al ruido.
       .to(q('[data-boot="field"]'), { opacity: 1, duration: 0.9, ease: 'power2.out' }, LOAD_S + LOAD_HOLD_S + WARP_S * 0.6)
-      // 3 · El titular aparece limpio: sube y pasa de desenfocado a nítido.
+      // 3 · El titular aparece palabra por palabra, al ritmo de leer (como el puente).
+      .set(q('[data-boot="text"]'), { opacity: 1 }, HEADLINE_AT)
       .fromTo(
-        q('[data-boot="text"]'),
-        { opacity: 0, y: 36, filter: 'blur(14px)' },
-        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.4, ease: 'expo.out', clearProps: 'filter' },
+        q('[data-boot-word]'),
+        { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' },
+        { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: WORD_STAGGER_S, ease: 'expo.out', clearProps: 'filter' },
         HEADLINE_AT,
       )
       .to(header ? [header] : [], { opacity: 1, duration: 0.8 }, HEADLINE_AT + 0.9)
@@ -204,6 +209,7 @@ export function Hero() {
   // El EG lo arma el viaje (con tiempo propio); con movimiento reducido, el scroll.
   const egProgress = useRef(0)
   const egReveal = useRef(reducedMotion ? 1 : 0)
+  const egFormedAt = useRef(0)
   const figureProgress = reducedMotion ? progress : egProgress
   const monogram = useMonogramCycle(locale, figureProgress, heroInView, reducedMotion)
   const headline = t(COPY.hero.noise)
@@ -273,7 +279,7 @@ export function Hero() {
       const signalRead = gsap.timeline({ paused: true }).fromTo(
         q('[data-read-word]'),
         { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' },
-        { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: 0.11, ease: 'expo.out' },
+        { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: WORD_STAGGER_S, ease: 'expo.out' },
       )
       const nameRead = gsap.timeline({ paused: true })
         .fromTo(q('[data-read-char]'), { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.045, ease: 'expo.out' })
@@ -284,7 +290,10 @@ export function Hero() {
         const at = tl.time()
         if (!signalShown && at >= SIGNAL_READ_AT) {
           signalShown = true
-          signalRead.restart()
+          // El puente termina de aparecer justo cuando el EG termina de armarse.
+          const untilFormed = egFormedAt.current ? (egFormedAt.current - performance.now()) / 1000 : 0
+          const readFor = Math.max(MIN_BRIDGE_READ_S, untilFormed)
+          signalRead.timeScale(signalRead.duration() / readFor).restart()
         } else if (signalShown && at < SIGNAL_READ_AT - READ_HYSTERESIS) {
           signalShown = false
           signalRead.pause(0)
@@ -327,6 +336,7 @@ export function Hero() {
                 heroProgress={progress}
                 egProgress={egProgress}
                 egReveal={egReveal}
+                formedAt={egFormedAt}
                 fit={EG_FIT}
                 skip={isReturn}
                 className="absolute inset-0 h-full w-full"
@@ -363,7 +373,12 @@ export function Hero() {
               data-boot="text"
               className={`max-w-[22ch] text-[clamp(2rem,0.9rem+3.8vw,4.6rem)] font-light leading-[1] tracking-tight ${BOOT_HIDDEN}`}
             >
-              <span data-boot-text>{headline}</span>
+              {headline.split(' ').map((word, i, words) => (
+                <span key={i} data-boot-word className="inline-block">
+                  {word}
+                  {i < words.length - 1 && '\u00a0'}
+                </span>
+              ))}
             </p>
           </div>
 

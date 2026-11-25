@@ -38,6 +38,8 @@ interface EgJourneyProps {
   egProgress: React.MutableRefObject<number>
   /** salida: opacidad del EG interactivo (aparece al final del viaje) */
   egReveal: React.MutableRefObject<number>
+  /** salida: momento (performance.now) en que el EG queda armado; 0 si no hay viaje en curso */
+  formedAt: React.MutableRefObject<number>
   /** encuadre del EG (el mismo que usa el lienzo del EG) */
   fit: NetworkFit
   /** saltar el viaje (por ejemplo, al volver desde otra página) */
@@ -57,7 +59,7 @@ function egBoxWidth(width: number, height: number, fit: NetworkFit, aspect: numb
  * cámara viaja de neurona en neurona por dentro de las letras; luego se
  * aleja, la red se aplana y se ve el EG armado, que pasa al EG interactivo.
  */
-export function EgJourney({ graph, heroProgress, egProgress, egReveal, fit, skip, className }: EgJourneyProps) {
+export function EgJourney({ graph, heroProgress, egProgress, egReveal, formedAt, fit, skip, className }: EgJourneyProps) {
   const ref = useRef<HTMLCanvasElement>(null)
   const graphRef = useRef(graph)
   graphRef.current = graph
@@ -110,6 +112,7 @@ export function EgJourney({ graph, heroProgress, egProgress, egReveal, fit, skip
       impulses = createFlightPulses(world)
       arrived = new Set()
       startedAt = time
+      formedAt.current = time + FLY_MS + PULL_MS + HANDOFF_MS
       state = 'playing'
     }
 
@@ -179,6 +182,7 @@ export function EgJourney({ graph, heroProgress, egProgress, egReveal, fit, skip
       setEg(h)
       if (h >= 1) {
         state = 'done'
+        formedAt.current = 0
         clear()
       }
     }
@@ -188,6 +192,7 @@ export function EgJourney({ graph, heroProgress, egProgress, egReveal, fit, skip
       if (state !== 'idle' && p < RESET_BELOW) {
         // De vuelta al titular: todo listo para viajar otra vez.
         state = 'idle'
+        formedAt.current = 0
         setEg(0)
         clear()
       } else if (state === 'idle' && p > TRIGGER_AT) {
@@ -210,7 +215,7 @@ export function EgJourney({ graph, heroProgress, egProgress, egReveal, fit, skip
       cancelAnimationFrame(frame)
       window.removeEventListener('resize', resize)
     }
-  }, [ready, heroProgress, egProgress, egReveal, fit, skip])
+  }, [ready, heroProgress, egProgress, egReveal, formedAt, fit, skip])
 
   return <canvas ref={ref} aria-hidden="true" className={className} />
 }
