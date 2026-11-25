@@ -55,6 +55,15 @@ const NAME_READ_AT = 0.6
 /** Tramo del hero en que el fondo se calma (del puente a la firma) */
 /** Si la página ya carga más abajo que esto (scroll restaurado), no se bloquea la entrada */
 const INTRO_LOCK_MAX_Y = 10
+/** Nebulosa detrás del EG armado: rosa y azul, en los mismos lugares que la del viaje */
+const NEBULA = [
+  'radial-gradient(ellipse 55% 60% at 30% 40%, rgb(255 84 170 / 0.24), transparent 70%)',
+  'radial-gradient(ellipse 60% 65% at 72% 35%, rgb(64 96 255 / 0.26), transparent 70%)',
+  'radial-gradient(ellipse 45% 50% at 55% 68%, rgb(255 84 170 / 0.18), transparent 70%)',
+  'radial-gradient(ellipse 50% 55% at 15% 75%, rgb(64 96 255 / 0.2), transparent 70%)',
+].join(', ')
+/** Desvanecido de la nebulosa hacia los bordes de arriba y abajo del hero */
+const NEBULA_FADE = 'linear-gradient(to bottom, transparent 0%, black 18%, black 52%, transparent 92%)'
 /** Cuánto se calma el fondo en ese tramo: menos conexiones, pero sin perder el color de la red */
 const HERO_QUIET = 0.55
 const QUIET_FROM = 0.2
@@ -230,6 +239,25 @@ export function Hero() {
   // El EG lo arma el viaje (con tiempo propio); con movimiento reducido, el scroll.
   const egProgress = useRef(0)
   const egReveal = useRef(reducedMotion ? 1 : 0)
+  const nebulaRef = useRef<HTMLDivElement>(null)
+
+  // La nebulosa sigue a la aparición del EG final (egReveal es un valor que cambia cada cuadro).
+  useEffect(() => {
+    const el = nebulaRef.current
+    if (!el || reducedMotion) return
+    let frame = 0
+    let last = -1
+    const loop = () => {
+      const v = Math.round(egReveal.current * 100) / 100
+      if (v !== last) {
+        last = v
+        el.style.opacity = String(v)
+      }
+      frame = requestAnimationFrame(loop)
+    }
+    frame = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(frame)
+  }, [reducedMotion])
   const egFormedAt = useRef(0)
   const figureProgress = reducedMotion ? progress : egProgress
   const monogram = useMonogramCycle(locale, figureProgress, heroInView, reducedMotion)
@@ -366,6 +394,20 @@ export function Hero() {
       <div ref={sectionRef} data-header-clear data-hero-root className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
+            {/* Nebulosa del EG armado: los mismos colores que la del viaje, que se apaga en el relevo.
+                Así el EG final conserva el color (aparece a la par que el EG final) */}
+            <div
+              ref={nebulaRef}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 mix-blend-screen"
+              style={{
+                opacity: reducedMotion ? 1 : 0,
+                background: NEBULA,
+                // Se desvanece antes del borde de abajo: al pasar a Enfoque no se ve el corte entre secciones.
+                WebkitMaskImage: NEBULA_FADE,
+                maskImage: NEBULA_FADE,
+              }}
+            />
             {/* Al deslizar: viaje por dentro del EG; al alejarse se ve el EG armado */}
             {!reducedMotion && (
               <EgJourney

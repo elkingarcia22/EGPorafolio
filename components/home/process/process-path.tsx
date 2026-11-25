@@ -11,6 +11,8 @@ const SIDE = { ratio: 0.04, min: 28 }
 const WAVE = 0.24
 /** Armado: cada neurona con su tramo (s) */
 const BUILD = { node: 0.16, segment: 0.24 }
+/** Color de la señal: del azul eléctrico al rosa de los impulsos, a lo largo de la fibra */
+const SIGNAL = { from: '64 96 255', to: '255 84 170' }
 /** Cuánto tarda el impulso en recorrer un tramo al cambiar de etapa (s) */
 const TRAVEL_S = 0.75
 
@@ -47,6 +49,10 @@ interface ProcessPathProps {
   autoplayMs: number | null
   /** acercamiento a la neurona activa (1 = toda la fibra a la vista) */
   zoom: number
+  /** nombre de la fibra entre secciones que sale de la última neurona (ver <SectionFiber>) */
+  fiberFrom?: string
+  /** la última neurona termina acercada al centro (la fibra sale de ahí, no de su sitio en la línea) */
+  fiberFromCenter?: boolean
   reducedMotion: boolean
 }
 
@@ -58,7 +64,7 @@ interface ProcessPathProps {
  * anillo. En reproducción automática, un arco alrededor de la neurona activa
  * marca cuánto falta para la siguiente. Cada neurona es un botón.
  */
-export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplayMs, zoom, reducedMotion }: ProcessPathProps) {
+export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplayMs, zoom, fiberFrom, fiberFromCenter = false, reducedMotion }: ProcessPathProps) {
   const count = labels.length
   const rootRef = useRef<HTMLDivElement>(null)
   // El dibujo va a la medida real del espacio: sin estirarse, los trazos y su animación coinciden.
@@ -92,7 +98,8 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
       return
     }
     gsap.set(baseRefs.current, { strokeDashoffset: 1 })
-    gsap.set(nodeRefs.current, { autoAlpha: 0, scale: 0.3 })
+    // La primera neurona ya está desde el comienzo; las demás aparecen al armarse la fibra.
+    gsap.set(nodeRefs.current.slice(1), { autoAlpha: 0, scale: 0.3 })
   }, [reducedMotion])
 
   // Armado: la entrada baja desde Proyectos y la fibra se enciende neurona por neurona.
@@ -168,6 +175,18 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
         style={{ transform: focusTransform }}
       >
       <svg viewBox={`0 0 ${size.w} ${size.h}`} className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
+        <defs>
+          {/* Lo recorrido se tiñe de la señal: azul al empezar, rosa al llegar al final */}
+          <linearGradient id="pp-signal" gradientUnits="userSpaceOnUse" x1={0} y1={0} x2={size.w} y2={0}>
+            <stop offset="0" stopColor={`rgb(${SIGNAL.from})`} />
+            <stop offset="0.55" stopColor="rgb(190 200 255)" />
+            <stop offset="1" stopColor={`rgb(${SIGNAL.to})`} />
+          </linearGradient>
+          <linearGradient id="pp-ring" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor={`rgb(${SIGNAL.from})`} />
+            <stop offset="1" stopColor={`rgb(${SIGNAL.to})`} />
+          </linearGradient>
+        </defs>
         {points.slice(1).map((b, i) => {
           const d = segment(points[i], b)
           return (
@@ -189,10 +208,10 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
                 strokeDasharray="1"
                 strokeDashoffset={1}
                 fill="none"
-                stroke="white"
-                strokeOpacity={0.85}
+                stroke="url(#pp-signal)"
+                strokeOpacity={0.95}
                 strokeWidth={1.6 / Math.max(1, zoom)}
-                style={{ filter: 'drop-shadow(0 0 4px rgb(255 255 255 / 0.6))' }}
+                style={{ filter: `drop-shadow(0 0 5px rgb(${SIGNAL.from} / 0.55))` }}
               />
             </g>
           )
@@ -201,7 +220,7 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
       <span
         ref={pulseRef}
         aria-hidden="true"
-        className="pointer-events-none absolute z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-0 shadow-[0_0_14px_4px_rgb(255_255_255/0.8)]"
+        className="pointer-events-none absolute z-10 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-0 shadow-[0_0_0_3px_rgb(255_84_170/0.35),0_0_18px_6px_rgb(255_84_170/0.75)]"
       />
 
       <ol className="absolute inset-0">
@@ -222,7 +241,7 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
                 aria-label={`${String(i + 1).padStart(2, '0')} · ${labels[i]}`}
                 className="group relative grid h-14 w-14 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-signal"
               >
-                <span ref={(el) => { ringRefs.current[i] = el }} aria-hidden="true" className="absolute inset-4 rounded-full border border-white opacity-0" />
+                <span ref={(el) => { ringRefs.current[i] = el }} aria-hidden="true" className="absolute inset-4 rounded-full border border-[rgb(255_84_170)] opacity-0 shadow-[0_0_12px_rgb(255_84_170/0.6)]" />
                 {/* Reproducción automática: el arco marca cuánto falta para la siguiente etapa */}
                 {current && autoplayMs && (
                   <svg key={`${active}-${autoplayMs}`} viewBox="0 0 40 40" className="absolute inset-0 -rotate-90 animate-[pp-in_0.5s_ease-out]" aria-hidden="true">
@@ -232,8 +251,8 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
                       cy="20"
                       r="16"
                       fill="none"
-                      stroke="white"
-                      strokeOpacity={0.8}
+                      stroke="url(#pp-ring)"
+                      strokeOpacity={1}
                       strokeWidth={1.5}
                       pathLength={1}
                       strokeDasharray="1"
@@ -245,9 +264,9 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
                   aria-hidden="true"
                   className={`relative block h-3 w-3 rounded-full transition-[transform,background-color,box-shadow] duration-700 ease-expo ${
                     current
-                      ? `${zoom > 1 ? 'scale-150' : 'scale-[2.2]'} bg-white shadow-[0_0_0_4px_rgb(255_255_255/0.1),0_0_14px_3px_rgb(255_255_255/0.5)]`
+                      ? `${zoom > 1 ? 'scale-150' : 'scale-[2.2]'} bg-white shadow-[0_0_0_4px_rgb(64_96_255/0.25),0_0_16px_4px_rgb(64_96_255/0.65),0_0_30px_8px_rgb(255_84_170/0.25)]`
                       : on
-                        ? 'scale-100 bg-white/85 shadow-[0_0_10px_2px_rgb(255_255_255/0.35)]'
+                        ? 'scale-100 bg-white/90 shadow-[0_0_10px_2px_rgb(64_96_255/0.45)]'
                         : 'scale-75 bg-white/35 group-hover:scale-100 group-hover:bg-white/70'
                   }`}
                 />
@@ -258,6 +277,16 @@ export function ProcessPath({ labels, active, onSelect, build, onBuilt, autoplay
       </ol>
       </div>
       <style>{'@keyframes pp-timer { from { stroke-dashoffset: 1 } to { stroke-dashoffset: 0 } } @keyframes pp-in { from { opacity: 0; transform: rotate(-90deg) scale(0.6) } to { opacity: 1; transform: rotate(-90deg) scale(1) } }'}</style>
+      {/* De la última neurona sale la fibra hacia la siguiente sección. Con acercamiento, la
+          última neurona termina al centro, así que la fibra sale de ahí */}
+      {fiberFrom && points.length > 0 && (
+        <span
+          data-fiber-from={fiberFrom}
+          aria-hidden="true"
+          className="pointer-events-none absolute h-0 w-0"
+          style={fiberFromCenter ? { left: size.w / 2, top: size.h / 2 } : { left: points[points.length - 1].x, top: points[points.length - 1].y }}
+        />
+      )}
     </div>
   )
 }

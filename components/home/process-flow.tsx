@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
-import { gsap, ScrollTrigger } from '@/lib/motion'
+import { gsap, ScrollTrigger, getLenis } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { PROCESS_STAGES } from '@/lib/content/process'
@@ -19,21 +19,32 @@ const ZOOM = { wide: 1.8, narrow: 1.6 }
 const RESUME_AFTER_MS = 9000
 /** Mientras se ve el proceso, el fondo se calma para que la fibra se lea */
 const QUIET_LEVEL = 1
+/** Recorrido de scroll por etapa mientras la sección queda fija (alto de pantalla) */
+const STEP_VH = 45
+/** Tramo final del recorrido: se queda en la última neurona (sin avance automático) y de ella sale la fibra a Trayectoria */
+const END_AT = 0.94
+/** Al tocar una neurona, la página baja (o sube) hasta esa etapa en este tiempo (s) */
+const JUMP_S = 0.9
 
 /** Cifra de dos dígitos («03») */
 const pad = (n: number) => String(n).padStart(2, '0')
 
 /**
- * Proceso: la luz azul baja hasta «02 · Proceso» (como en Enfoque), entra el
- * título y bajo él se dibuja la fibra, neurona por neurona. Ya armada, la
- * señal pasa de neurona en neurona: la activa crece y brilla, y arriba
- * aparece solo el nombre de la etapa y su frase. Avanza sola y
- * rápido; tocar una neurona lleva a esa etapa. Sin scroll fijo.
+ * Proceso: la fibra que viene de Proyectos llega a «02 · Proceso» y debajo se
+ * dibuja la línea, neurona por neurona. La sección queda fija mientras se
+ * desliza: cada tramo del scroll es una etapa (la cámara lleva esa neurona al
+ * centro y arriba aparece su nombre y su frase). También avanza sola si se
+ * queda quieta, y tocar una neurona lleva a esa etapa. Al final la vista se
+ * queda en la última neurona y de ella sale la fibra hacia Trayectoria.
  */
 export function ProcessFlow() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [ending, setEnding] = useState(false)
+  /** La sección quedó fija: la etiqueta muestra su fibra hacia arriba (la que llegó ya pasó de largo) */
+  const [pinned, setPinned] = useState(false)
   const stageRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [build, setBuild] = useState(false)
@@ -42,7 +53,7 @@ export function ProcessFlow() {
   const [pausedUntil, setPausedUntil] = useState(0)
   const [narrow, setNarrow] = useState(false)
   const stage = PROCESS_STAGES[active]
-  const autoplay = built && inView && !reducedMotion && pausedUntil === 0
+  const autoplay = built && inView && !reducedMotion && pausedUntil === 0 && !ending
 
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)')
@@ -52,24 +63,41 @@ export function ProcessFlow() {
     return () => query.removeEventListener('change', update)
   }, [])
 
-  // Cuando la luz llega a la etiqueta, entra el título y la fibra se dibuja; mientras se ve, el fondo se calma.
+  // Cuando la fibra llega a la etiqueta, la línea de Proceso se dibuja; mientras se ve, el fondo se calma.
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
     const ctx = gsap.context(() => {
-      const words = root.querySelectorAll('[data-pf-word]')
-      if (!reducedMotion) gsap.set(words, { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' })
       ScrollTrigger.create({
         trigger: root,
         start: 'top 60%',
         once: true,
         onEnter: () => {
-          if (!reducedMotion) gsap.to(words, { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.8, stagger: 0.07, ease: 'expo.out' })
-          window.setTimeout(() => setBuild(true), reducedMotion ? 0 : 450)
+          window.setTimeout(() => setBuild(true), reducedMotion ? 0 : 200)
         },
       })
+      // Con el scroll: cada tramo del recorrido es una etapa (solo cambia al pasar a otro tramo,
+      // así el avance automático y el scroll conviven).
+      let fromScroll = -1
+      const track = trackRef.current
+      if (track && !reducedMotion) {
+        ScrollTrigger.create({
+          trigger: track,
+          start: 'top top',
+          end: 'bottom bottom',
+          onToggle: (self) => setPinned(self.isActive),
+          onUpdate: (self) => {
+            setEnding(self.progress >= END_AT)
+            const index = Math.min(PROCESS_STAGES.length - 1, Math.floor((self.progress / END_AT) * PROCESS_STAGES.length))
+            if (index !== fromScroll) {
+              fromScroll = index
+              setActive(index)
+            }
+          },
+        })
+      }
       ScrollTrigger.create({
-        trigger: root,
+        trigger: track ?? root,
         start: 'top 65%',
         end: 'bottom 35%',
         onToggle: (self) => {
@@ -84,10 +112,12 @@ export function ProcessFlow() {
     }
   }, [reducedMotion])
 
-  // Avance automático: pasa a la siguiente etapa (y vuelve a empezar al final).
+  // Avance automático: pasa a la siguiente etapa hasta la última.
   useEffect(() => {
     if (!autoplay) return
-    const id = window.setTimeout(() => setActive((i) => (i + 1) % PROCESS_STAGES.length), STAGE_MS)
+    // Se detiene en la última etapa: no vuelve a empezar.
+    if (active >= PROCESS_STAGES.length - 1) return
+    const id = window.setTimeout(() => setActive((i) => Math.min(PROCESS_STAGES.length - 1, i + 1)), STAGE_MS)
     return () => window.clearTimeout(id)
   }, [autoplay, active])
 
@@ -98,10 +128,19 @@ export function ProcessFlow() {
     return () => window.clearTimeout(id)
   }, [pausedUntil])
 
+  /** Tocar una neurona: la página va al tramo de esa etapa (y se queda ahí un momento). */
   const select = useCallback((index: number) => {
     setActive(index)
     setPausedUntil(Date.now() + RESUME_AFTER_MS)
-  }, [])
+    const track = trackRef.current
+    if (!track || reducedMotion) return
+    const top = track.getBoundingClientRect().top + window.scrollY
+    const span = track.offsetHeight - window.innerHeight
+    const y = top + span * END_AT * ((index + 0.5) / PROCESS_STAGES.length)
+    const lenis = getLenis()
+    if (lenis) lenis.scrollTo(y, { duration: JUMP_S })
+    else window.scrollTo({ top: y, behavior: 'smooth' })
+  }, [reducedMotion])
   const onBuilt = useCallback(() => setBuilt(true), [])
 
   // El nombre de la etapa entra enfocándose, rápido.
@@ -116,26 +155,27 @@ export function ProcessFlow() {
   }, [active, built, reducedMotion])
 
   return (
-    <ToneSection tone="dark" id="process" className="px-[var(--gutter)] pb-[clamp(5rem,4rem+4vw,9rem)] pt-[clamp(8rem,6rem+6vw,12rem)]">
-      <div ref={rootRef} className="mx-auto flex max-w-6xl flex-col items-center">
-        {/* La fibra que viene de Proyectos llega a esta etiqueta */}
-        <SectionLabel index="02" thread={false} fiberTo="proyectos" className="mb-6">{t(COPY.process.label)}</SectionLabel>
-        <h2 className="text-center text-[clamp(2rem,1rem+3.6vw,4.4rem)] font-light leading-[0.95] tracking-tight">
-          {t(COPY.process.title).split(' ').map((word, i, all) => (
-            <span key={i} data-pf-word className="inline-block">
-              {word}
-              {i < all.length - 1 && ' '}
-            </span>
-          ))}
-        </h2>
+    <ToneSection tone="dark" id="process" className="px-[var(--gutter)] pb-[clamp(3rem,2rem+3vw,6rem)] pt-[clamp(4rem,3rem+3vw,7rem)]">
+      {/* Sin título visible: la etiqueta y la fibra hablan solas (queda para lectores de pantalla) */}
+      <h2 className="sr-only">{t(COPY.process.title)}</h2>
+      {/* Recorrido de scroll: la parte de adentro queda fija mientras se pasa de etapa en etapa */}
+      <div ref={trackRef} className="relative" style={reducedMotion ? undefined : { height: `calc(100svh + ${PROCESS_STAGES.length * STEP_VH}vh)` }}>
+      <div
+        ref={rootRef}
+        data-sticky-end
+        className={`mx-auto flex max-w-6xl flex-col items-center ${reducedMotion ? '' : 'sticky top-0 h-[100svh] justify-center pb-[4svh]'}`}
+      >
+        {/* La fibra que viene de Proyectos llega a esta etiqueta; queda arriba mientras se recorre */}
+        <div className={`flex justify-center ${reducedMotion ? '' : 'absolute inset-x-0 top-[clamp(5.5rem,11svh,8rem)]'}`}>
+          <SectionLabel index="02" thread={false} fiberTo="proyectos" riser={pinned}>{t(COPY.process.label)}</SectionLabel>
+        </div>
 
-        {/* La etapa en foco: solo su nombre y su frase, sobre la neurona */}
+        {/* La etapa en foco: solo su nombre y su frase, sobre la neurona (visible desde el comienzo) */}
         <div
           ref={stageRef}
           key={active}
           aria-live="polite"
           className="mt-[clamp(2.5rem,2rem+2vw,4rem)] flex min-h-[clamp(6rem,5rem+3vw,8rem)] flex-col items-center justify-end text-center"
-          style={built || reducedMotion ? undefined : { visibility: 'hidden' }}
         >
           <span data-pf-line className="mono-label tabular-nums text-paper/45">
             {pad(active + 1)} / {pad(PROCESS_STAGES.length)}
@@ -152,11 +192,14 @@ export function ProcessFlow() {
             onSelect={select}
             build={build}
             onBuilt={onBuilt}
-            autoplayMs={autoplay ? STAGE_MS : null}
-            zoom={built && !reducedMotion ? (narrow ? ZOOM.narrow : ZOOM.wide) : 1}
+            autoplayMs={autoplay && active < PROCESS_STAGES.length - 1 ? STAGE_MS : null}
+            zoom={!reducedMotion ? (narrow ? ZOOM.narrow : ZOOM.wide) : 1}
+            fiberFrom="proceso"
+            fiberFromCenter={!reducedMotion}
             reducedMotion={reducedMotion}
           />
         </div>
+      </div>
       </div>
     </ToneSection>
   )

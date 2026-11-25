@@ -97,12 +97,23 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
     let to: Point = { x: 0, y: 0 }
     let total = 0
 
-    const centerOf = (selector: string): Point | null => {
+    const centerOf = (selector: string, atEnd = false): Point | null => {
       const el = wrap.querySelector(selector)
       if (!el) return null
       const box = wrap.getBoundingClientRect()
       const r = el.getBoundingClientRect()
-      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top }
+      // La fibra que SALE de una parte fija (sticky, `data-sticky-end`) parte de donde queda ese
+      // punto al final del recorrido, cuando la parte fija se suelta. La que LLEGA, de su inicio.
+      const sticky = el.closest('[data-sticky-end]')
+      const track = sticky?.parentElement
+      let settle = 0
+      if (sticky && track) {
+        const t = track.getBoundingClientRect()
+        const k = sticky.getBoundingClientRect()
+        // Se mide con la parte fija en cualquier punto del recorrido: se lleva al final o al inicio.
+        settle = atEnd ? t.bottom - k.bottom : t.top - k.top
+      }
+      return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top + settle }
     }
 
     const show = (p: number) => {
@@ -116,7 +127,7 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
     }
 
     const measure = () => {
-      const a = centerOf(`[data-fiber-from="${id}"]`)
+      const a = centerOf(`[data-fiber-from="${id}"]`, true)
       const b = centerOf(`[data-fiber-to="${id}"]`)
       if (!a || !b) return
       from = a

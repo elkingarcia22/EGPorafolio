@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { gsap, ScrollTrigger } from '@/lib/motion'
+import { backdropQuiet } from './backdrop-journey'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -28,7 +29,20 @@ function UxPmBadge({ level, year, color }: { level: number; year: string; color:
   )
 }
 
-/** La hoja de vida hecha sitio: misma retícula, barras y línea de tiempo con puntos. */
+/** Mientras se lee la trayectoria, el fondo de red se calma (sin apagarse del todo) */
+const QUIET_LEVEL = 0.75
+/** Panel de vidrio oscuro, como las tarjetas de proyecto */
+const GLASS = 'rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm'
+
+/**
+ * Trayectoria: la hoja de vida en la red. La fibra que viene de Proceso llega
+ * a «03 · Trayectoria»; la experiencia es una fibra vertical que se dibuja con
+ * el scroll —su punta brilla— y cada empleo es una neurona que se enciende al
+ * llegar la señal. Lo demás (educación, certificaciones, habilidades,
+ * herramientas) va en la misma columna, en paneles de vidrio que unen dos
+ * temas, y de cada panel sale una fibra por un costado hacia el agente (ver
+ * <ConvergeFibers>).
+ */
 export function Trajectory() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
@@ -46,11 +60,29 @@ export function Trajectory() {
         gsap.from(title, { yPercent: 110, duration: 1, ease: 'expo.out', scrollTrigger: onEnter(title, 'top 90%') })
       })
 
-      // Línea de tiempo: se dibuja con el scroll.
+      // Línea de tiempo: la fibra se dibuja con el scroll y su punta brilla donde va la señal.
+      const head = el.querySelector<HTMLElement>('[data-timeline-head]')
       gsap.fromTo('[data-timeline-line]', { scaleY: 0 }, {
         scaleY: 1,
         ease: 'none',
-        scrollTrigger: { trigger: '[data-timeline]', start: 'top 70%', end: 'bottom 60%', scrub: true },
+        scrollTrigger: {
+          trigger: '[data-timeline]',
+          start: 'top 70%',
+          end: 'bottom 60%',
+          scrub: true,
+          onUpdate: (self) => {
+            if (!head) return
+            head.style.top = `${self.progress * 100}%`
+            head.style.opacity = self.progress > 0.01 && self.progress < 0.99 ? '1' : '0'
+          },
+        },
+      })
+      // El fondo se calma mientras se lee.
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 70%',
+        end: 'bottom 30%',
+        onToggle: (self) => backdropQuiet.set('about', self.isActive ? QUIET_LEVEL : 0),
       })
 
       // Cada empleo: el punto late, el bloque sube, los cargos entran en
@@ -114,31 +146,38 @@ export function Trajectory() {
         })
       })
     }, el)
-    return () => ctx.revert()
+    return () => {
+      backdropQuiet.set('about', 0)
+      ctx.revert()
+    }
   }, [reducedMotion])
 
   return (
-    <ToneSection tone="light" id="about" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
-      <div ref={ref} className="grid gap-16 lg:grid-cols-12">
-        <div className="lg:col-span-12">
-          <SectionLabel index="03">{t(COPY.about.label)}</SectionLabel>
+    <ToneSection tone="dark" id="about" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
+      <div ref={ref} className="mx-auto flex max-w-6xl flex-col items-center gap-16">
+        <div className="flex justify-center">
+          {/* La fibra que sale del final de Proceso llega a esta etiqueta */}
+          <SectionLabel index="03" thread={false} fiberTo="proceso">{t(COPY.about.label)}</SectionLabel>
         </div>
 
         {/* Experiencia */}
-        <div className="lg:col-span-7">
-          <h2 className="brand-title mb-10 overflow-hidden text-3xl md:text-4xl">
+        <div className="w-full max-w-3xl">
+          <h2 className="brand-title mb-10 overflow-hidden text-center text-3xl md:text-4xl">
             <span data-reveal-title className="block">{t(COPY.about.experience)}</span>
           </h2>
-          <ol data-timeline className="relative space-y-14 pl-8">
-            <span data-timeline-line className="absolute left-[3px] top-2 h-full w-px origin-top bg-fg/40" aria-hidden="true">
-              {/* Impulso que recorre la línea de tiempo, como el hilo entre secciones */}
-              <span className="absolute inset-0 animate-[thread-pulse_4.5s_cubic-bezier(.65,0,.35,1)_infinite]">
-                <span className="absolute bottom-0 left-1/2 h-16 w-[3px] -translate-x-1/2 rounded-full bg-gradient-to-b from-transparent to-signal shadow-[0_0_10px_rgb(var(--signal)/0.7)]" />
-              </span>
-            </span>
+          <ol data-timeline data-converge-from="right" className="relative space-y-14 pl-8">
+            {/* La fibra: rastro tenue, lo ya recorrido en blanco y la punta que brilla */}
+            <span className="absolute left-[3px] top-2 h-full w-px bg-white/10" aria-hidden="true" />
+            <span data-timeline-line className="absolute left-[3px] top-2 h-full w-px origin-top bg-gradient-to-b from-white/30 via-white/70 to-white shadow-[0_0_8px_rgb(255_255_255/0.45)]" aria-hidden="true" />
+            <span
+              data-timeline-head
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[3.5px] top-2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white opacity-0 shadow-[0_0_0_5px_rgb(255_255_255/0.08),0_0_16px_4px_rgb(255_255_255/0.7)]"
+            />
             {JOBS.map((job) => (
               <li key={job.company} data-job className="relative">
-                <span data-job-dot className="absolute -left-8 top-2 h-[7px] w-[7px] rounded-full bg-fg transition-[background-color,box-shadow] duration-500 ease-expo [&.is-lit]:bg-signal [&.is-lit]:shadow-[0_0_0_4px_rgb(var(--signal)/0.18),0_0_14px_rgb(var(--signal)/0.55)]" aria-hidden="true" />
+                <span data-job-dot className="absolute -left-[33px] top-7 h-[9px] w-[9px] rounded-full border border-white/40 bg-[rgb(var(--void))] transition-[background-color,box-shadow,transform,border-color] duration-500 ease-expo [&.is-lit]:scale-125 [&.is-lit]:border-white [&.is-lit]:bg-white [&.is-lit]:shadow-[0_0_0_5px_rgb(255_255_255/0.1),0_0_18px_4px_rgb(255_255_255/0.5)]" aria-hidden="true" />
+                <div className={`${GLASS} p-6 transition-[border-color,background-color] duration-500 ease-expo hover:border-white/20 hover:bg-white/[0.05] md:p-7`}>
                 <div data-job-head>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
                     <h3 className="brand-title text-base">{job.company}</h3>
@@ -148,7 +187,7 @@ export function Trajectory() {
                 </div>
 
                 <ul className="relative mt-4 space-y-1.5 pl-4">
-                  <span data-job-bar className="absolute inset-y-0 left-0 w-[3px] bg-fg" aria-hidden="true" />
+                  <span data-job-bar className="absolute inset-y-0 left-0 w-[2px] rounded-full bg-white/50" aria-hidden="true" />
                   {job.roles.map((role) => (
                     <li key={role.period} data-job-role className="flex flex-wrap items-baseline justify-between gap-x-4 text-sm">
                       <span className="font-medium">{t(role.title)}</span>
@@ -157,29 +196,33 @@ export function Trajectory() {
                   ))}
                 </ul>
 
-                <p data-job-summary className="mt-4 max-w-xl leading-relaxed opacity-75">{t(job.summary)}</p>
+                <p data-job-summary className="mt-4 max-w-xl leading-relaxed text-paper/70">{t(job.summary)}</p>
                 {job.highlights && (
                   <ul className="mt-4 flex flex-wrap gap-1.5">
                     {job.highlights.map((h) => (
-                      <li key={h.es} data-job-chip className="border border-fg/20 px-2 py-0.5 text-xs opacity-80">
+                      <li key={h.es} data-job-chip className="rounded-full border border-white/15 bg-white/[0.04] px-3 py-1 text-xs text-paper/80">
                         {t(h)}
                       </li>
                     ))}
                   </ul>
                 )}
+                </div>
               </li>
             ))}
           </ol>
 
           {/* Trayectoria previa */}
           <div data-early className="mt-20">
-            <h3 className="brand-title mb-6 overflow-hidden text-sm opacity-70">
+            <h3 className="brand-title mb-6 overflow-hidden text-center text-sm opacity-70">
               <span data-reveal-title className="block">{t(COPY.about.earlier)}</span>
             </h3>
-            <ul className="divide-y divide-fg/15 border-y border-fg/15">
+            <ul data-converge-from="left" className={`${GLASS} divide-y divide-white/10 px-6`}>
               {EARLY_JOBS.map((job) => (
                 <li key={job.company} data-early-row className="grid gap-1 py-4 md:grid-cols-12 md:gap-4">
-                  <span className="mono-label opacity-50 md:col-span-2">{job.period}</span>
+                  <span className="mono-label flex items-center gap-2 opacity-50 md:col-span-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/60 shadow-[0_0_8px_rgb(255_255_255/0.5)]" aria-hidden="true" />
+                    {job.period}
+                  </span>
                   <span className="md:col-span-4">
                     <span className="block text-sm font-medium">{t(job.title)}</span>
                     <span className="block text-xs opacity-60">{job.company}</span>
@@ -191,13 +234,15 @@ export function Trajectory() {
           </div>
         </div>
 
-        {/* Columna lateral */}
-        <div data-side className="space-y-14 md:grid md:grid-cols-2 md:gap-x-12 md:gap-y-14 md:space-y-0 lg:block lg:col-span-4 lg:col-start-9 lg:space-y-14 lg:border-l lg:border-fg/20 lg:pl-10">
-          <section aria-labelledby="edu-title" data-reveal-group>
+        {/* Formación y herramientas: una sola columna, como la experiencia. Cada caja une dos temas
+            y de cada una sale una fibra hacia el agente (ver <ConvergeFibers>) */}
+        <div data-side className="flex w-full max-w-3xl flex-col gap-6">
+          {/* Educación y certificaciones */}
+          <section aria-labelledby="edu-title" data-reveal-group data-converge-from="right" className={`${GLASS} p-6 md:p-8`}>
             <h2 id="edu-title" className="brand-title mb-6 overflow-hidden text-2xl">
               <span data-reveal-title className="block">{t(COPY.about.education)}</span>
             </h2>
-            <ul className="space-y-5">
+            <ul className="grid gap-5 sm:grid-cols-2">
               {STUDIES.map((s) => (
                 <li key={`${s.school}-${s.title.es}`} data-reveal-item>
                   <p className="brand-title text-xs leading-relaxed">{t(s.title)}</p>
@@ -208,34 +253,18 @@ export function Trajectory() {
                 </li>
               ))}
             </ul>
+            <div className="mt-8 border-t border-white/10 pt-6">
+              <h3 id="cert-title" className="mono-label mb-4 opacity-60">{t(COPY.about.certifications)}</h3>
+              <ul data-badges className="flex flex-wrap gap-x-8 gap-y-4" aria-labelledby="cert-title">
+                {UX_PM_BADGES.map((b) => (
+                  <UxPmBadge key={b.level} {...b} />
+                ))}
+              </ul>
+            </div>
           </section>
 
-          <section aria-labelledby="cert-title">
-            <h2 id="cert-title" className="brand-title mb-6 overflow-hidden text-2xl">
-              <span data-reveal-title className="block">{t(COPY.about.certifications)}</span>
-            </h2>
-            <ul data-badges className="flex flex-col gap-4">
-              {UX_PM_BADGES.map((b) => (
-                <UxPmBadge key={b.level} {...b} />
-              ))}
-            </ul>
-          </section>
-
-          <section aria-labelledby="skills-title" data-reveal-group>
-            <h2 id="skills-title" className="brand-title mb-6 overflow-hidden text-2xl">
-              <span data-reveal-title className="block">{t(COPY.about.skills)}</span>
-            </h2>
-            <ul className="space-y-2">
-              {SKILLS.map((skill) => (
-                <li key={skill.es} data-reveal-item className="flex items-center gap-3 text-sm">
-                  <span className="h-1 w-1 rounded-full bg-fg/60" aria-hidden="true" />
-                  {t(skill)}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section aria-labelledby="tools-title" className="space-y-6">
+          {/* Tecnología y habilidades */}
+          <section aria-labelledby="tools-title" data-converge-from="left" className={`${GLASS} space-y-6 p-6 md:p-8`}>
             <h2 id="tools-title" className="brand-title overflow-hidden text-2xl">
               <span data-reveal-title className="block">{t(COPY.about.tools)}</span>
             </h2>
@@ -247,7 +276,7 @@ export function Trajectory() {
                     <li
                       key={tool}
                       data-tool
-                      className={`border px-3 py-1.5 text-sm transition-colors hover:border-signal hover:text-signal ${gi === 0 ? 'border-signal/60' : 'border-fg/25'}`}
+                      className={`rounded-full border px-3 py-1.5 text-sm transition-[border-color,background-color,color] duration-300 hover:border-white/50 hover:bg-white/10 hover:text-paper ${gi === 0 ? 'border-signal/60 bg-signal/10 text-paper' : 'border-white/15 bg-white/[0.03] text-paper/80'}`}
                     >
                       {tool}
                     </li>
@@ -255,6 +284,17 @@ export function Trajectory() {
                 </ul>
               </div>
             ))}
+            <div data-reveal-group className="border-t border-white/10 pt-6">
+              <h3 id="skills-title" className="mono-label mb-4 opacity-60">{t(COPY.about.skills)}</h3>
+              <ul className="grid gap-2 sm:grid-cols-2" aria-labelledby="skills-title">
+                {SKILLS.map((skill) => (
+                  <li key={skill.es} data-reveal-item className="flex items-center gap-3 text-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-white/70 shadow-[0_0_8px_rgb(255_255_255/0.45)]" aria-hidden="true" />
+                    {t(skill)}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
         </div>
       </div>

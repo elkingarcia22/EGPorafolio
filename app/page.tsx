@@ -4,6 +4,7 @@ import { Manifesto } from '@/components/home/manifesto'
 import { ProcessFlow } from '@/components/home/process-flow'
 import { WorkList } from '@/components/home/work-list'
 import { SectionFiber } from '@/components/home/section-fiber'
+import { ConvergeFibers } from '@/components/home/converge-fibers'
 import { Trajectory } from '@/components/home/trajectory'
 import { Agent } from '@/components/home/agent'
 import { Contact } from '@/components/home/contact'
@@ -20,16 +21,21 @@ export default async function HomePage() {
       <NeuralBackdrop />
       <Hero />
       {/* Fibras de la red entre secciones: del «00» de Enfoque al «01» de Proyectos (por la izquierda),
-          y del «01» al «02» de Proceso (por la derecha) */}
+          del «01» al «02» de Proceso (por la derecha), del final de Proceso al «03» de Trayectoria,
+          y de las cajas de Trayectoria al Agente. A Contacto baja la luz azul, como a Enfoque */}
       <SectionFiber id="enfoque">
         <Manifesto />
         <SectionFiber id="proyectos" side="right">
           <WorkList projects={projects} />
-          <ProcessFlow />
+          <SectionFiber id="proceso" side="right">
+            <ProcessFlow />
+            <ConvergeFibers>
+              <Trajectory />
+              <Agent projects={projects} />
+            </ConvergeFibers>
+          </SectionFiber>
         </SectionFiber>
       </SectionFiber>
-      <Trajectory />
-      <Agent projects={projects} />
       <Contact />
     </>
   )

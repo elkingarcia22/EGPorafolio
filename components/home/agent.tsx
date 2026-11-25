@@ -12,11 +12,10 @@ import { CaseCard, ContactActions, parseReply, RichText } from './agent-message'
 import { useRiseIn } from './use-rise-in'
 import { useEnterSequence, type EnterStep } from './use-enter-sequence'
 
-/** Entrada: las preguntas llegan una a una y la ventana del chat se abre como una conexión. */
+/** Entrada: la caja del chat sube a su sitio (donde llegan las fibras) y aparecen los atajos. */
 const ENTER_STEPS: readonly EnterStep[] = [
-  { selector: '[data-ag-intro]', from: { autoAlpha: 0, y: 24 } },
-  { selector: '[data-ag-starter]', from: { autoAlpha: 0, x: -28 } },
-  { selector: '[data-ag-panel]', from: { clipPath: 'inset(0 100% 0 0)', duration: 1.3, ease: 'expo.inOut' }, at: 0.1 },
+  { selector: '[data-ag-panel]', from: { autoAlpha: 0, y: 40, scale: 0.97, duration: 1.1, ease: 'expo.out' }, at: 0.1 },
+  { selector: '[data-ag-starter]', from: { autoAlpha: 0, y: 10, scale: 0.92, ease: 'back.out(1.8)' }, at: 0.6 },
   { selector: '[data-ag-panel] [data-ag-head]', from: { autoAlpha: 0, y: -12 }, at: 0.8 },
 ]
 
@@ -34,6 +33,8 @@ const PAUSE_MS: readonly [number, number] = [140, 340]
 const between = ([min, max]: readonly [number, number]) => min + Math.random() * (max - min)
 const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms))
 
+/** Cuántas preguntas para empezar se muestran como atajos dentro del chat */
+const STARTER_CHIPS = 4
 /** Preguntas para empezar: lo que más define el perfil. */
 const STARTERS: readonly { topic: L; q: L }[] = [
   { topic: { es: 'Producto', en: 'Product' }, q: { es: '¿Cómo conectas el diseño con las métricas del negocio?', en: 'How do you connect design with business metrics?' } },
@@ -153,31 +154,13 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
 
   return (
     <ToneSection tone="dark" id="agent" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
-      <div ref={rootRef} className="grid gap-12 lg:grid-cols-12">
-        <div className="min-w-0 lg:col-span-5">
-          <SectionLabel index="04" className="mb-8">{t(COPY.agent.label)}</SectionLabel>
-          <h2 ref={titleRef} className="text-[clamp(2.4rem,1rem+5vw,5.5rem)] font-light leading-[0.9] tracking-tight">{title}</h2>
-          <p data-ag-intro className="mt-6 max-w-sm leading-relaxed opacity-70">{t(COPY.agent.intro)}</p>
+      <div ref={rootRef} className="mx-auto flex max-w-3xl flex-col items-center text-center">
+        <SectionLabel index="04" thread={false} className="mb-8">{t(COPY.agent.label)}</SectionLabel>
+        <h2 ref={titleRef} className="text-[clamp(2.4rem,1rem+5vw,5.5rem)] font-light leading-[0.9] tracking-tight">{title}</h2>
 
-          <ul className="mt-10 border-t border-fg/15">
-            {STARTERS.map((s) => (
-              <li key={s.q.es} data-ag-starter className="border-b border-fg/15">
-                <button
-                  type="button"
-                  onClick={() => ask(t(s.q))}
-                  disabled={busy}
-                  className="group flex w-full items-baseline gap-4 py-3 text-left text-sm transition-colors disabled:opacity-40"
-                >
-                  <span className="mono-label w-24 shrink-0 opacity-50 transition-colors group-hover:text-signal group-hover:opacity-100">{t(s.topic)}</span>
-                  <span className="flex-1 opacity-75 transition-[opacity,transform] duration-500 ease-expo group-hover:translate-x-1 group-hover:opacity-100">{t(s.q)}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="min-w-0 lg:col-span-7">
-          <div data-ag-panel className="flex h-[min(30rem,72svh)] flex-col lg:h-[min(40rem,80svh)] border border-fg/20 bg-fg/[0.03]">
+        {/* La caja del chat: aquí llegan las fibras de Trayectoria */}
+        <div className="mt-12 w-full min-w-0 text-left">
+          <div data-ag-panel data-converge-to className="relative flex h-[min(32rem,72svh)] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[rgb(var(--void)/0.7)] shadow-[0_30px_90px_-30px_rgb(var(--signal)/0.45)] backdrop-blur-md lg:h-[min(36rem,74svh)]">
             <div data-ag-head className="flex items-center justify-between gap-4 border-b border-fg/15 px-4 py-3">
               <span className="mono-label flex shrink-0 items-center gap-2 whitespace-nowrap">
                 <span className={`h-2 w-2 rounded-full bg-signal ${busy ? 'animate-pulse' : ''}`} aria-hidden="true" />
@@ -194,10 +177,27 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
 
             <div ref={logRef} role="log" aria-live="polite" aria-busy={busy} className="flex-1 space-y-6 overflow-y-auto p-5 text-[15px] leading-relaxed" data-lenis-prevent>
               {messages.length === 0 && (
-                <p className="opacity-60">
-                  <span className="mono-label mr-2 text-signal">EG ▸</span>
-                  {t({ es: 'Hola, soy Elkin. Pregúntame cómo diseño, mido y construyo productos.', en: 'Hi, I’m Elkin. Ask me how I design, measure and build products.' })}
-                </p>
+                <div className="space-y-5">
+                  <p className="opacity-60">
+                    <span className="mono-label mr-2 text-signal">EG ▸</span>
+                    {t({ es: 'Hola, soy Elkin. Pregúntame cómo diseño, mido y construyo productos.', en: 'Hi, I’m Elkin. Ask me how I design, measure and build products.' })}
+                  </p>
+                  {/* Atajos: unas pocas preguntas para empezar */}
+                  <div className="flex flex-wrap gap-2">
+                    {STARTERS.slice(0, STARTER_CHIPS).map((s) => (
+                      <button
+                        key={s.q.es}
+                        type="button"
+                        data-ag-starter
+                        onClick={() => ask(t(s.q))}
+                        disabled={busy}
+                        className="rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-left text-xs text-paper/80 transition-[border-color,background-color,color] duration-300 hover:border-white/40 hover:bg-white/10 hover:text-paper disabled:opacity-40"
+                      >
+                        {t(s.q)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
 
               {messages.map((m) => {
