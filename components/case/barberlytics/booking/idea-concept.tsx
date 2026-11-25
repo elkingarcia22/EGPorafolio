@@ -31,12 +31,23 @@ const MARKS: readonly { x: number; y: number; at: number }[] = [
 
 const LABELS: Record<'phone' | 'ask' | 'engine' | 'code' | 'booked' | 'up' | 'down', L> = {
   phone: { es: 'tu celular', en: 'your phone' },
-  ask: { es: '¿vuelves o llegas?', en: 'back or new?' },
-  engine: { es: 'un motor · un cobro', en: 'one engine · one checkout' },
+  ask: { es: '¿vuelves|o llegas?', en: 'back|or new?' },
+  engine: { es: 'un motor|un cobro', en: 'one engine|one checkout' },
   code: { es: 'código', en: 'code' },
   booked: { es: 'Cita', en: 'Booked' },
   up: { es: 'Lo de siempre, en un toque', en: 'The usual, in one tap' },
   down: { es: 'Conocerte, sin formulario', en: 'Meeting you, no form' },
+}
+
+/** Una etiqueta corta en dos renglones (separados por «|»), bajo la línea central */
+function TwoLines({ x, anchor, text, style }: { x: number; anchor: 'start' | 'end'; text: string; style?: React.CSSProperties }) {
+  const [a, b] = text.split('|')
+  return (
+    <text x={x} y={MID + 44} textAnchor={anchor} className="bk-t-note fill-current font-mono uppercase opacity-60" style={style}>
+      <tspan x={x}>{a}</tspan>
+      <tspan x={x} dy="1.25em">{b}</tspan>
+    </text>
+  )
 }
 
 /**
@@ -94,13 +105,14 @@ export function IdeaConcept() {
           <circle cx={NODE.phone} cy={MID} r={9} fill="rgb(var(--void))" stroke="white" strokeWidth={1.6} />
           <text x={NODE.phone} y={MID - 28} textAnchor="middle" className="bk-t-note fill-current font-mono uppercase opacity-60">{t(LABELS.phone)}</text>
         </g>
-        <text x={NODE.ask} y={MID + 44} textAnchor="middle" className="bk-t-note fill-current font-mono uppercase opacity-60" {...show(step >= 1)}>{t(LABELS.ask)}</text>
-        <text x={NODE.engine} y={MID + 44} textAnchor="middle" className="bk-t-note fill-current font-mono uppercase opacity-60" {...show(step >= 4)}>{t(LABELS.engine)}</text>
-        <text x={NODE.code} y={MID - 28} textAnchor="middle" className="bk-t-note fill-current font-mono uppercase opacity-60" {...show(step >= 5)}>{t(LABELS.code)}</text>
+        {/* Fuera del óvalo, en dos renglones, para que ninguna curva pase por encima */}
+        <TwoLines x={NODE.ask - 26} anchor="end" text={t(LABELS.ask)} {...show(step >= 1)} />
+        <TwoLines x={NODE.engine + 26} anchor="start" text={t(LABELS.engine)} {...show(step >= 4)} />
+        <text x={NODE.code - 10} y={MID - 34} textAnchor="middle" className="bk-t-note fill-current font-mono uppercase opacity-60" {...show(step >= 5)}>{t(LABELS.code)}</text>
         <g {...show(step >= 5)}>
           <circle cx={NODE.booked} cy={MID} r={22} fill="rgb(var(--bk))" opacity={0.18} />
           <circle cx={NODE.booked} cy={MID} r={10} fill="rgb(var(--bk))" stroke="white" strokeWidth={1.6} />
-          <text x={NODE.booked} y={MID + 48} textAnchor="middle" className="bk-t-row fill-current">{t(LABELS.booked)}</text>
+          <text x={NODE.booked + 8} y={MID - 34} textAnchor="middle" className="bk-t-row fill-current">{t(LABELS.booked)}</text>
           {/* De la cita sale la fibra hacia «Bocetos y forma» */}
           <circle cx={NODE.booked} cy={MID} r={1} fill="none" data-fiber-from="bk-bocetos" />
         </g>
