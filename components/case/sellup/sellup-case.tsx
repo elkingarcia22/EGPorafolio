@@ -120,8 +120,8 @@ export function SellUpCase({ next }: { next: NextLink }) {
         <ChapterRail chapters={chapters} label={t(SELLUP_CASE.title)} />
         {/* De la empresa elegida entre las 206.000 sale la fibra hasta «Patrones» */}
         <SectionFiber id="su-patrones" side="right">
-        {/* Del último escalón (la persona) sale hacia la izquierda, hasta «La idea» */}
-        <SectionFiber id="su-idea" side="left">
+        {/* Del nodo bajo la conclusión de la escalera baja, sin cruzar nada, hasta «La idea» */}
+        <SectionFiber id="su-idea" side="down">
         {/* Del nodo de abajo del anillo de principios, hacia la derecha, hasta «Bocetos» */}
         <SectionFiber id="su-bocetos" side="right">
         {/* Desde detrás de los agentes construidos baja hasta «IA en el proceso» */}

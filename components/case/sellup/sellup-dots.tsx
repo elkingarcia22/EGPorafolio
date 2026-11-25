@@ -58,10 +58,11 @@ function buildField({ w, h, cols, rows }: Grid): readonly Dot[] {
   return dots
 }
 
-/** La empresa que sí: una libre, cerca del centro. De ella sale la fibra a «Patrones». */
+/** La empresa que sí: el último punto del campo. De ella sale la fibra a «Patrones». */
 function pickOf(dots: readonly Dot[], { w, h }: Grid): number {
-  const dist = (d: Dot) => Math.abs(d.x - w * 0.62) + Math.abs(d.y - h / 2)
-  return dots.reduce((best, d, i) => (d.kind === 'free' && dist(d) < dist(dots[best]) ? i : best), dots.findIndex((d) => d.kind === 'free'))
+  // El último punto del campo (abajo a la derecha): de ahí la fibra sale hacia afuera sin cruzar los demás
+  const dist = (d: Dot) => Math.abs(d.x - w) + Math.abs(d.y - h)
+  return dots.reduce((best, d, i) => (dist(d) < dist(dots[best]) ? i : best), 0)
 }
 
 const KIND_STEP: Record<Exclude<Kind, 'none'>, number> = { paid: 1, noise: 2, free: 3 }
@@ -136,12 +137,13 @@ export function SellUpDots() {
         <svg viewBox={`0 0 ${grid.w} ${grid.h}`} className="block h-auto w-full overflow-visible" role="img" aria-label={t(dots.kicker)}>
           {field.map((d, i) => {
             const isPick = i === pick
-            const shownKind = d.kind !== 'none' && view >= KIND_STEP[d.kind] && view < LAST
+            const shownKind = d.kind !== 'none' && view >= KIND_STEP[d.kind]
             const focusKind = d.kind !== 'none' && view === KIND_STEP[d.kind]
             const color = shownKind && d.kind !== 'none' ? KIND_COLOR[d.kind] : 'white'
-            const dimEnd = view === LAST && !isPick
-            const opacity = dimEnd ? 0.06 : shownKind ? (focusKind ? 1 : 0.35) : 0.18
-            const r = shownKind && focusKind ? 3.6 : 2.2
+            // Al final se ve todo junto, a media luz, y resalta solo la empresa elegida
+            const end = view === LAST
+            const opacity = isPick && end ? 0 : shownKind ? (focusKind ? 1 : end ? 0.55 : 0.35) : 0.16
+            const r = shownKind && (focusKind || end) ? 3.2 : 2.2
             return (
               <g key={i}>
                 {d.kind === 'noise' && focusKind && <circle cx={d.x + 4} cy={d.y - 4} r={2.4} fill="none" stroke="#f87171" strokeOpacity={0.8} style={{ transition: `opacity .5s ${d.delay * 0.8}s` }} />}
@@ -186,18 +188,6 @@ export function SellUpDots() {
         })}
       </ol>
 
-      {/* Al final, las cifras del punto de partida */}
-      <dl className={`mx-auto mt-12 grid w-full max-w-[760px] grid-cols-2 gap-6 transition-all duration-700 ease-expo sm:grid-cols-4 ${step === LAST || reducedMotion ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>
-        {dots.stats.map((f) => (
-          <div key={f.label.es} className="text-center">
-            <dt className="sr-only">{t(f.label)}</dt>
-            <dd>
-              <span className="block text-[clamp(1.6rem,1.2rem+1.4vw,2.6rem)] font-light leading-none text-signal tabular-nums">{f.value}</span>
-              <span className="mt-2 block text-balance text-[11px] leading-snug text-paper/50">{t(f.label)}</span>
-            </dd>
-          </div>
-        ))}
-      </dl>
     </div>
   )
 }

@@ -167,7 +167,6 @@ export function SellUpPatterns() {
                   className="h-full w-full rounded-full border transition-all duration-500"
                   style={{ background: on ? color : 'rgb(var(--void))', borderColor: on ? 'white' : 'rgb(255 255 255 / 0.35)', boxShadow: on ? `0 0 16px ${color}` : 'none', opacity: off ? 0.5 : 1, transform: isHere ? 'scale(1.15)' : 'scale(1)' }}
                 />
-                {i === last && <span data-fiber-from="su-idea" className="absolute left-1/2 top-1/2 h-px w-px" />}
               </span>
               <span className={compact ? '' : 'mt-3'}>
                 <span className={`block text-balance text-[13px] leading-snug transition-opacity duration-500 ${off ? 'line-through decoration-white/40 opacity-45' : on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(s.name)}</span>
@@ -182,6 +181,10 @@ export function SellUpPatterns() {
       <p key={`${agentIndex}-${note ?? (done ? 'stop' : 'run')}`} aria-live="polite" className={`su-fade mx-auto mt-10 min-h-[3.2em] max-w-[60ch] text-balance text-center leading-relaxed text-paper/75 transition-opacity ${shown || done ? 'opacity-100' : 'opacity-0'}`}>
         {shown ? `${t(shown.name)} · ${t(shown.note)}` : t(cascade.stop)}
       </p>
+      {/* Bajo la conclusión, centrado y libre de la escalera, el nodo del que sale la fibra a «La idea» */}
+      <span aria-hidden="true" className="relative mx-auto mt-8 block h-2.5 w-2.5 rounded-full border border-white/70 bg-signal shadow-[0_0_14px_rgb(var(--signal))]">
+        <span data-fiber-from="su-idea" className="absolute left-1/2 top-1/2 h-px w-px" />
+      </span>
     </div>
   )
 }

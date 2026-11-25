@@ -1,42 +1,27 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
 import { useCompact } from './camera'
-import { Scaled, DetailScene } from './forma-stage'
-import { A1_LOOP, MAP_H, MAP_W, SearchMap } from './forma-a1-map'
-import { SearchRadarMobile } from './forma-a1-radar-mobile'
+import { DetailScene, Scaled } from './forma-stage'
 import { A2_LOOP, PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
 import { PeopleRadarMobile } from './forma-a2-radar-mobile'
 import { FAN_H, FAN_W, FanScene, fanView } from './forma-a3-fan'
 import type { Channel } from './forma-a3-devices'
+import { Agent1Radar } from './agent1-radar'
+import { AppGallery } from './app-gallery'
 
 /** Los ticks de las réplicas: 0,56 s, como en el resto del caso */
 const TICK_MS = 560
 /** Vueltas de la escena del agente 3 (el mensaje que se abre en abanico) */
 const A3_LOOP = 24
-/** Si la persona elige un agente, se queda en él al menos esto (ms) */
-const RESUME_MS = 12000
 
-interface Station {
-  id: string
-  name: L
-  line: L
-  loop: number
-  /** Momento quieto con movimiento reducido: uno que cuenta la escena completa */
-  still: number
-}
-
-const STATIONS: readonly Station[] = [
-  { id: 'a1', name: { es: 'Agente 1 · Empresas', en: 'Agent 1 · Companies' }, line: { es: 'Recorre los países, primero lo gratis, y marca las empresas que encajan.', en: 'Sweeps the countries, free first, and marks the companies that fit.' }, loop: A1_LOOP, still: 9 },
-  { id: 'a2', name: { es: 'Agente 2 · Contactos', en: 'Agent 2 · Contacts' }, line: { es: 'Barre las fuentes en cascada hasta dar con quien decide.', en: 'Sweeps the sources in a cascade until it finds who decides.' }, loop: A2_LOOP, still: 11 },
-  { id: 'a3', name: { es: 'Agente 3 · Primer contacto', en: 'Agent 3 · First contact' }, line: { es: 'Cita cada dato y escribe un mensaje por canal.', en: 'Cites every fact and writes one message per channel.' }, loop: A3_LOOP, still: 12 },
-]
-
-/** Un reloj (en ticks) que solo corre mientras la pieza está a la vista */
-function useStationClock(ref: React.RefObject<HTMLElement | null>, reducedMotion: boolean): number {
+/** Un reloj en ticks que solo corre mientras la pieza está a la vista, en bucle de `loop` */
+function useSceneClock(ref: React.RefObject<HTMLElement | null>, loop: number, still: number): number {
+  const { reducedMotion } = useA11y()
   const [inView, setInView] = useState(false)
   const [time, setTime] = useState(0)
   useEffect(() => {
@@ -48,96 +33,106 @@ function useStationClock(ref: React.RefObject<HTMLElement | null>, reducedMotion
   }, [ref])
   useEffect(() => {
     if (!inView || reducedMotion) return
-    const id = window.setInterval(() => setTime((n) => n + 1), TICK_MS)
+    const id = window.setInterval(() => setTime((n) => (n + 1) % loop), TICK_MS)
     return () => window.clearInterval(id)
-  }, [inView, reducedMotion])
-  return time
+  }, [inView, reducedMotion, loop])
+  return reducedMotion ? still : time
 }
 
-/** La escena real de cada agente, a su tamaño en escritorio y encuadrada en teléfono */
-function Scene({ index, time }: { index: number; time: number }) {
+/** Agente 2 · Contactos: el radar que barre las fuentes hasta dar con quien decide */
+function Agent2() {
+  const ref = useRef<HTMLDivElement>(null)
+  const time = useSceneClock(ref, A2_LOOP, 11)
+  const compact = useCompact()
+  return <div ref={ref}>{compact ? <PeopleRadarMobile t={time} /> : <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={time} /></Scaled>}</div>
+}
+
+/** Agente 3 · Primer contacto: el mensaje con citas que se abre en abanico por canal */
+function Agent3() {
+  const ref = useRef<HTMLDivElement>(null)
+  const time = useSceneClock(ref, A3_LOOP, 12)
   const compact = useCompact()
   const [channel, setChannel] = useState<Channel>('email')
-  if (index === 0) return compact ? <SearchRadarMobile t={time} /> : <Scaled width={MAP_W} height={MAP_H}><SearchMap t={time} /></Scaled>
-  if (index === 1) return compact ? <PeopleRadarMobile t={time} /> : <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={time} /></Scaled>
-  return <DetailScene width={FAN_W} height={FAN_H} view={compact ? fanView(time, channel) : undefined}><FanScene u={time} onChannel={setChannel} /></DetailScene>
+  return (
+    <div ref={ref}>
+      <DetailScene width={FAN_W} height={FAN_H} view={compact ? fanView(time, channel) : undefined}><FanScene u={time} onChannel={setChannel} /></DetailScene>
+    </div>
+  )
+}
+
+interface StationProps {
+  index: string
+  title: L
+  lead: L
+  fiberFrom?: string
+  children: React.ReactNode
 }
 
 /**
- * La forma (dentro de «04 · Bocetos y forma»): los tres agentes construidos,
- * en una sola pieza. Arriba, la fibra con un nodo por agente; abajo, la
- * pantalla real de ese agente trabajando. Cuando su escena da la vuelta, pasa
- * sola al siguiente; tocar un nodo lo elige.
+ * Una estación de la fibra que recorre la forma: el hilo baja hasta su nodo,
+ * debajo el nombre y una línea, y colgando del nodo la pieza, sin marco.
+ */
+function Station({ index, title, lead, fiberFrom, children }: StationProps) {
+  const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const rootRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || reducedMotion) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo('[data-station-thread]', { scaleY: 0 }, { scaleY: 1, ease: 'none', scrollTrigger: { trigger: root, start: 'top 90%', end: 'top 45%', scrub: 0.4 } })
+      gsap.from('[data-station-node]', { scale: 0, autoAlpha: 0, duration: 0.7, ease: 'back.out(2)', scrollTrigger: { trigger: root, start: 'top 50%', once: true } })
+      gsap.from('[data-station-piece]', { y: 60, autoAlpha: 0, scale: 0.96, filter: 'blur(8px)', duration: 1.2, ease: 'expo.out', clearProps: 'transform,filter,opacity,visibility', scrollTrigger: { trigger: '[data-station-piece]', start: 'top 85%', once: true } })
+    }, root)
+    return () => ctx.revert()
+  }, [reducedMotion])
+
+  return (
+    <section ref={rootRef} className="relative flex flex-col items-center pt-[clamp(5rem,4rem+4vw,8rem)]">
+      <span data-station-thread aria-hidden="true" className="absolute left-1/2 top-0 h-[clamp(5rem,4rem+4vw,8rem)] w-px origin-top -translate-x-1/2 bg-gradient-to-b from-white/5 via-signal/70 to-signal shadow-[0_0_10px_rgb(var(--signal)/0.6)]" />
+      <span data-station-node aria-hidden="true" className="relative block h-3.5 w-3.5 rounded-full border border-white bg-signal shadow-[0_0_0_6px_rgb(var(--signal)/0.18),0_0_20px_4px_rgb(var(--signal)/0.7)]">
+        <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.6s_cubic-bezier(0,0,.2,1)_infinite]" />
+      </span>
+      <h3 data-reveal className="mt-5 text-center">
+        <span className="mono-label text-signal">{index}</span>
+        <span className="mt-2 block text-[clamp(1.4rem,1rem+1.4vw,2.2rem)] font-light leading-tight tracking-tight">{t(title)}</span>
+      </h3>
+      <CaseLead className="mt-4">{t(lead)}</CaseLead>
+      <span aria-hidden="true" className="mt-6 h-10 w-px bg-gradient-to-b from-signal to-white/10" />
+      <div data-station-piece className="relative mt-2 w-full">
+        {fiberFrom && <span data-fiber-from={fiberFrom} aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/2 h-px w-px" />}
+        {children}
+      </div>
+    </section>
+  )
+}
+
+/**
+ * La forma (dentro de «04 · Bocetos y forma»): cada agente en su estación,
+ * con su propia animación, y al final la app real en un carrusel 3D.
  */
 export function SellUpForm() {
   const { t } = useLocale()
-  const { reducedMotion } = useA11y()
-  const rootRef = useRef<HTMLDivElement>(null)
-  const raw = useStationClock(rootRef, reducedMotion)
-  /** El agente a la vista y el tick en que empezó su escena */
-  const [at, setAt] = useState({ index: 0, start: 0 })
-  const [held, setHeld] = useState(false)
-  const { index } = at
-  const station = STATIONS[index]
-  const elapsed = raw - at.start
-  const time = reducedMotion ? station.still : elapsed % station.loop
-
-  // Al terminar su vuelta, el agente le pasa el turno al siguiente (salvo que se haya elegido uno).
-  useEffect(() => {
-    if (reducedMotion || held || elapsed < station.loop) return
-    setAt({ index: (index + 1) % STATIONS.length, start: raw })
-  }, [elapsed, raw, index, station.loop, held, reducedMotion])
-
-  // Lo elegido se queda una vuelta más y luego vuelve a pasar solo.
-  useEffect(() => {
-    if (!held) return
-    const id = window.setTimeout(() => setHeld(false), RESUME_MS)
-    return () => window.clearTimeout(id)
-  }, [held, index])
-
-  const fill = index / (STATIONS.length - 1)
-
   return (
-    <div ref={rootRef}>
-      <CaseLead className="mb-10">{t({ es: 'Lo construido: los tres agentes en sus pantallas reales, uno tras otro.', en: 'What got built: the three agents on their real screens, one after another.' })}</CaseLead>
+    <div>
+      <CaseLead>{t({ es: 'Lo construido: tres agentes, cada uno con su trabajo, y la plataforma donde viven.', en: 'What got built: three agents, each with its job, and the platform they live in.' })}</CaseLead>
 
-      {/* La fibra de los tres agentes: el nodo del que está trabajando, encendido */}
-      <ol className="relative mx-auto grid max-w-[820px] grid-cols-3">
-        <span aria-hidden="true" className="absolute inset-x-[16.6%] top-[7px] h-px bg-white/12" />
-        <span aria-hidden="true" className="absolute left-[16.6%] top-[7px] h-px w-[66.8%] origin-left bg-gradient-to-r from-[#285ee6] via-[#7e2be0] to-[#d22d6a] shadow-[0_0_10px_rgb(var(--signal)/0.7)] transition-transform duration-700 ease-out" style={{ transform: `scaleX(${fill})` }} />
-        {STATIONS.map((s, i) => {
-          const on = i === index
-          return (
-            <li key={s.id} className="relative flex flex-col items-center">
-              <button
-                type="button"
-                aria-pressed={on}
-                onClick={() => {
-                  setAt({ index: i, start: raw })
-                  setHeld(true)
-                }}
-                className="group flex flex-col items-center outline-none"
-              >
-                <span className="relative grid h-3.5 w-3.5 place-items-center" aria-hidden="true">
-                  <span className={`absolute inset-0 rounded-full border transition-all duration-500 ${on ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_4px_rgb(var(--signal)/0.7)]' : i < index ? 'border-white/60 bg-signal' : 'border-white/35 bg-void'}`} />
-                  {on && <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.2s_cubic-bezier(0,0,.2,1)_infinite]" />}
-                </span>
-                <span className={`mt-3 text-balance text-center text-[13px] leading-tight transition-opacity duration-500 ${on ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`}>{t(s.name)}</span>
-              </button>
-            </li>
-          )
-        })}
-      </ol>
-      <p key={station.id} className="su-fade mx-auto mt-5 max-w-[52ch] text-balance text-center text-sm text-paper/60">{t(station.line)}</p>
+      <Station index="4.1" title={{ es: 'Agente 1 · Empresas', en: 'Agent 1 · Companies' }} lead={{ es: 'Barre de lo gratis a lo de bajo costo y deja listas las empresas libres.', en: 'Sweeps from free to low-cost sources and readies the unowned companies.' }}>
+        <Agent1Radar />
+      </Station>
 
-      {/* La pantalla real del agente; de detrás de ella sale la fibra hacia «IA en el proceso» */}
-      <div className="relative mt-8">
-        <span data-fiber-from="su-ia" aria-hidden="true" className="pointer-events-none absolute bottom-0 left-1/2 h-px w-px" />
-        <div key={station.id} className="su-fade relative">
-          <Scene index={index} time={time} />
-        </div>
-        <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">{t({ es: 'Réplica de la pantalla real · datos de ejemplo', en: 'Replica of the real screen · sample data' })}</p>
-      </div>
+      <Station index="4.2" title={{ es: 'Agente 2 · Contactos', en: 'Agent 2 · Contacts' }} lead={{ es: 'Recorre las fuentes en cascada hasta dar con quien decide.', en: 'Goes through the sources in a cascade until it finds who decides.' }}>
+        <Agent2 />
+      </Station>
+
+      <Station index="4.3" title={{ es: 'Agente 3 · Primer contacto', en: 'Agent 3 · First contact' }} lead={{ es: 'Cita cada dato y escribe un mensaje por canal.', en: 'Cites every fact and writes one message per channel.' }}>
+        <Agent3 />
+      </Station>
+
+      <Station index="4.4" title={{ es: 'La plataforma', en: 'The platform' }} lead={{ es: 'Las pantallas reales de SellUp en Producción.', en: 'SellUp’s real screens in Production.' }} fiberFrom="su-ia">
+        <AppGallery />
+      </Station>
     </div>
   )
 }
