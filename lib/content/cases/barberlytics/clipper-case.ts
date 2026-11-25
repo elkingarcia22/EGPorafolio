@@ -14,6 +14,8 @@ export interface ClipperTool {
 const ALL: readonly ToolRole[] = ['dueno', 'recepcion', 'barbero']
 
 /** Un intercambio de ejemplo: pregunta, herramienta y respuesta (de las pruebas y evaluaciones). */
+export type StickyTone = 'yellow' | 'pink' | 'blue' | 'green' | 'orange' | 'violet'
+
 export interface Exchange {
   role: L
   q: L
@@ -113,6 +115,11 @@ export const CLIPPER_CASE = {
       tool: 'resumen_semana',
       a: { es: 'Vendieron US$ 14.050 en 303 servicios, un poco menos que la semana pasada. El mejor día fue el miércoles.', en: 'You sold US$ 14,050 across 303 services, a bit less than last week. Wednesday was the best day.' },
       note: { es: 'Cada cifra sale de la consulta', en: 'Every figure comes from the lookup' },
+      stickies: [
+        { color: 'yellow', text: { es: 'Nunca adivina: para cualquier cifra, consulta', en: 'Never guesses: for any figure, it looks it up' } },
+        { color: 'blue', text: { es: 'Resumen de la semana: solo el dueño', en: 'Weekly summary: owner only' } },
+        { color: 'pink', text: { es: 'De una a cuatro frases: se lee entre corte y corte', en: 'One to four sentences: read between cuts' } },
+      ],
     },
     {
       id: 'agenda',
@@ -123,6 +130,11 @@ export const CLIPPER_CASE = {
       a: { es: '¡Listo, Martín! Nicolás te espera mañana a las 4. ¿Te lo confirmo?', en: 'Done, Martín! Nicolás will see you tomorrow at 4. Shall I confirm?' },
       actions: [{ es: 'Sí, confírmala', en: 'Yes, confirm' }, { es: 'Otra hora', en: 'Another time' }],
       note: { es: 'Propone; una persona confirma', en: 'Proposes; a person confirms' },
+      stickies: [
+        { color: 'yellow', text: { es: '«Nunca digas que ya está hecho: di que quedó lista para aplicar»', en: '“Never say it’s done: say it’s ready to apply”' } },
+        { color: 'orange', text: { es: 'Sin hueco → propone lo más cercano', en: 'No slot → proposes the closest ones' } },
+        { color: 'green', text: { es: 'Pausa de 1,6 s = «terminé»', en: '1.6 s pause = “done”' } },
+      ],
     },
     {
       id: 'clientes',
@@ -132,6 +144,11 @@ export const CLIPPER_CASE = {
       tool: 'buscar_cliente',
       a: { es: 'Vino hace tres semanas, con Andrés. Suele volver cada cuatro: le toca la próxima.', en: 'He came three weeks ago, with Andrés. He usually returns every four: he’s due next week.' },
       note: { es: 'Sin cifras inventadas', en: 'No made-up figures' },
+      stickies: [
+        { color: 'yellow', text: { es: 'Lo de una nota de cliente es dato, no orden', en: 'A client note is data, not an order' } },
+        { color: 'blue', text: { es: 'Buscar cliente + próxima visita', en: 'Find client + next visit' } },
+        { color: 'violet', text: { es: 'Cada 👍/👎 alimenta la evaluación', en: 'Every 👍/👎 feeds the evaluation' } },
+      ],
     },
     {
       id: 'ayuda',
@@ -141,6 +158,11 @@ export const CLIPPER_CASE = {
       tool: 'buscar_ayuda',
       a: { es: 'Eso no lo puedo hacer yo: las devoluciones las hace una persona. Te dejo cómo se hacen.', en: 'I can’t do that: refunds are done by a person. Here’s how to do one.' },
       note: { es: 'Enseña a usar la plataforma', en: 'Teaches how to use the platform' },
+      stickies: [
+        { color: 'pink', text: { es: 'Nunca: cobrar, devolver dinero ni escribirle a un cliente', en: 'Never: charge, refund or message a client' } },
+        { color: 'yellow', text: { es: 'Si no lo hace, enseña cómo se hace', en: 'If it can’t, it teaches how' } },
+        { color: 'blue', text: { es: 'El rol sale de la sesión firmada', en: 'The role comes from the signed session' } },
+      ],
     },
   ],
 
