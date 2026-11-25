@@ -14,8 +14,9 @@ const BLEND_DELAY_MS = 700
 const STEPS = 40
 
 function paint(tokens: PaletteTokens, scope?: readonly HTMLElement[]): void {
-  applyTokens(tokens, scope)
+  // Primero los lienzos: el aviso de applyTokens ya los encuentra con el color nuevo.
   setCanvasPalette(tokens)
+  applyTokens(tokens, scope)
 }
 
 /** Lo que se ve mientras la cortina tapa la página (ver `data-palette-scope`). */

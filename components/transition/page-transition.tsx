@@ -135,10 +135,12 @@ export function TransitionOverlay() {
       // El nodo se enciende y dispara la red, que se abre desde él hasta cubrir la pantalla.
       // (No se escala la página: es muy alta y acercarla trababa cada cuadro.)
       if (seed) {
-        gsap.set(seed, { x: from.x, y: from.y, width: FLARE_PX, height: FLARE_PX, xPercent: -50, yPercent: -50, scale: 0.3, autoAlpha: 1 })
+        // Desde un anillo (la O) sale con su tamaño y destella; desde un nodo de sección, crece desde el punto.
+        const ring = from.size ?? FLARE_PX
+        gsap.set(seed, { x: from.x, y: from.y, width: ring, height: ring, xPercent: -50, yPercent: -50, scale: from.size ? 1 : 0.3, autoAlpha: 1 })
         gsap.set(seed.querySelector('[data-seed-core]'), { autoAlpha: 1 })
-        tl.to(seed, { scale: 1.6, duration: ZOOM_S * 0.45, ease: 'power2.out' }, 0)
-          .to(seed, { scale: 5, autoAlpha: 0, duration: ZOOM_S * 0.55, ease: 'power2.in' }, ZOOM_S * 0.45)
+        tl.to(seed, { scale: from.size ? 1.25 : 1.6, duration: ZOOM_S * 0.45, ease: 'power2.out' }, 0)
+          .to(seed, { scale: from.size ? 3 : 5, autoAlpha: 0, duration: ZOOM_S * 0.55, ease: 'power2.in' }, ZOOM_S * 0.45)
       }
       tl.to(lens, { r: reach, duration: ZOOM_S * 0.75, ease: 'expo.in', onUpdate: openLens }, ZOOM_S * 0.25)
     },

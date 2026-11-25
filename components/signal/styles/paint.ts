@@ -22,6 +22,34 @@ export function setCanvasPalette(tokens: PaletteTokens): void {
   SPARK = toCanvasRgb(tokens.spark)
 }
 
+/** Los cuatro tonos de los lienzos, para pasarlos a otro hilo (ver flight.worker.ts) */
+export interface CanvasColors {
+  blue: string
+  ice: string
+  cyan: string
+  spark: string
+}
+
+export function canvasColors(): CanvasColors {
+  return { blue: BLUE, ice: ICE, cyan: CYAN, spark: SPARK }
+}
+
+export function setCanvasColors(colors: CanvasColors): void {
+  BLUE = colors.blue
+  ICE = colors.ice
+  CYAN = colors.cyan
+  SPARK = colors.spark
+}
+
+/**
+ * Lienzo auxiliar: uno normal en la página o un OffscreenCanvas dentro de un worker
+ * (allí no hay `document`). Se tipa como HTMLCanvasElement: ambos sirven igual para drawImage.
+ */
+function makeCanvas(): HTMLCanvasElement {
+  if (typeof document !== 'undefined') return document.createElement('canvas')
+  return new OffscreenCanvas(1, 1) as unknown as HTMLCanvasElement
+}
+
 const spriteCache = new Map<string, HTMLCanvasElement>()
 /** Tope de halos en caché: el cambio de paleta crea muchos tonos intermedios. */
 const MAX_SPRITES = 96
@@ -35,7 +63,7 @@ export function glowSprite(rgb: string, soft = 0.55): HTMLCanvasElement {
   const cached = spriteCache.get(key)
   if (cached) return cached
   const size = 128
-  const c = document.createElement('canvas')
+  const c = makeCanvas()
   c.width = size
   c.height = size
   const g = c.getContext('2d')
@@ -147,7 +175,7 @@ export function createDepthComposer() {
   const buffer = (layer: 'far' | 'near', main: HTMLCanvasElement, dpr: number) => {
     let c = buffers[layer]
     if (!c) {
-      c = document.createElement('canvas')
+      c = makeCanvas()
       buffers[layer] = c
     }
     if (c.width !== main.width || c.height !== main.height) {

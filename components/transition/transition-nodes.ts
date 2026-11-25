@@ -19,6 +19,11 @@ export interface Landing extends Point {
   size: number
 }
 
+/** De dónde sale el viaje; `size` cuando sale de un anillo (p. ej. el de la O) */
+export interface Source extends Point {
+  size?: number
+}
+
 /** Anillo de llegada sobre un nodo de sección: el mismo de su retícula */
 const SECTION_RING_PX = 46
 
@@ -48,7 +53,7 @@ function nearestSectionNode(): Element | null {
 }
 
 /** De dónde sale el viaje: el nodo de la sección del enlace, el del proyecto o el más cercano. */
-export function sourcePoint(trigger?: Element | null): Point {
+export function sourcePoint(trigger?: Element | null): Source {
   const candidates = [
     trigger?.closest('[data-transition-source]'),
     trigger?.closest('section, [data-section-tone]')?.querySelector('[data-section-node]'),
@@ -58,7 +63,10 @@ export function sourcePoint(trigger?: Element | null): Point {
   ]
   for (const el of candidates) {
     const c = visibleCenter(el)
-    if (c) return c
+    if (!c) continue
+    // Un anillo de proyecto: sale desde su letra, con su tamaño.
+    if (el instanceof HTMLElement && el.hasAttribute('data-transition-target')) return landingOf(el) ?? c
+    return c
   }
   return visibleCenter(trigger) ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }
 }
@@ -85,13 +93,34 @@ export function landingNode(): HTMLElement | null {
 
 export function landingOf(node: HTMLElement): Landing | null {
   if (node.hasAttribute('data-transition-target')) {
-    // El anillo del proyecto puede estar animándose: se usa su posición de maqueta (centrada con translate).
+    // El anillo rodea una letra (la O): se centra en ella. Si no hay texto, su posición de maqueta
+    // (puede estar animándose; está centrado con translate).
+    const letter = textCenter(node.parentElement)
+    if (letter) return { ...letter, size: node.offsetWidth }
     const box = node.offsetParent?.getBoundingClientRect()
     if (!box) return null
     return { x: box.left + node.offsetLeft, y: box.top + node.offsetTop, size: node.offsetWidth }
   }
   const c = visibleCenter(node)
   return c && { ...c, size: SECTION_RING_PX }
+}
+
+/** Centro del texto que hay dentro de `el` (sin contar elementos posicionados como el anillo). */
+function textCenter(el: Element | null): Point | null {
+  if (!el) return null
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+  const range = document.createRange()
+  let found: DOMRect | null = null
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    if (!n.textContent?.trim()) continue
+    range.selectNodeContents(n)
+    const r = range.getBoundingClientRect()
+    if (!r.width || !r.height) continue
+    found = found
+      ? new DOMRect(Math.min(found.left, r.left), Math.min(found.top, r.top), Math.max(found.right, r.right) - Math.min(found.left, r.left), Math.max(found.bottom, r.bottom) - Math.min(found.top, r.top))
+      : r
+  }
+  return found && { x: found.left + found.width / 2, y: found.top + found.height / 2 }
 }
 
 /** Al aterrizar, el nodo de sección se enciende con su retícula. */

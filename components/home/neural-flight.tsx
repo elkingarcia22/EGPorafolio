@@ -1,24 +1,10 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { buildFlightWorld } from '@/components/signal/flight-world'
-import { createFlightRenderer } from '@/components/signal/flight-render'
-import { createFlightPulses } from '@/components/signal/flight-pulses'
-import { createLinkSearch } from '@/components/signal/flight-probes'
-
-/** Dos neuronas en el camino (dos llegadas); pocos nodos alrededor para que la red se lea limpia */
-const WORLD = { waypoints: 2, spacing: 10, viewDistance: 3.2, radius: 6, count: 160, tail: 22 }
-/** Brillo con el que se encienden las neuronas al quedar conectadas */
-const CONNECT_GLOW = 0.7
-const PULSE_CHANCE = 0.35
-/** Pulsos que salen de una neurona principal cuando la cámara llega a ella */
-const ARRIVAL_PULSES = 6
-/** Salto final: cuánto avanza la cámara mientras la carga se disuelve */
-const WARP_DISTANCE = 34
-/** Avance lento mientras la carga espera completa, antes del salto */
-const HOLD_DRIFT = 0.0009
-/** Si la carga no avanza en este tiempo (se saltó o ya terminó), el lienzo deja de dibujar */
-const IDLE_STOP_MS = 6000
+import { createFlightLoop } from '@/components/signal/flight-loop'
+import { canvasColors } from '@/components/signal/styles/paint'
+import { PALETTE_EVENT } from '@/lib/palettes'
+import type { FlightWorkerMessage, FlightWorkerReply } from '@/components/signal/flight.worker'
 
 interface NeuralFlightProps {
   /** Avance de la carga, 0–1. Después de llegar a 1 vuelve a 0: ese tramo es el salto final. */
@@ -28,7 +14,49 @@ interface NeuralFlightProps {
   className?: string
 }
 
-const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2)
+/**
+ * Un lienzo cuyo control ya pasó a un worker no se puede volver a pasar. En desarrollo React
+ * monta los efectos dos veces: el worker se conserva un instante para que el segundo montaje
+ * lo retome en vez de quedarse sin lienzo.
+ */
+const workers = new WeakMap<HTMLCanvasElement, { worker: Worker; release: number }>()
+/** Lo que espera el worker de un lienzo desmontado antes de cerrarse (ms) */
+const RELEASE_MS = 100
+
+function workerFor(canvas: HTMLCanvasElement, init: () => FlightWorkerMessage): Worker | null {
+  const kept = workers.get(canvas)
+  if (kept) {
+    window.clearTimeout(kept.release)
+    return kept.worker
+  }
+  if (typeof Worker === 'undefined' || !('transferControlToOffscreen' in canvas)) return null
+  try {
+    const worker = new Worker(new URL('../signal/flight.worker.ts', import.meta.url))
+    const message = init()
+    const offscreen = canvas.transferControlToOffscreen()
+    worker.postMessage({ ...message, canvas: offscreen }, [offscreen])
+    workers.set(canvas, { worker, release: 0 })
+    return worker
+  } catch {
+    // Sin OffscreenCanvas o sin workers de módulo: se dibuja en el hilo principal.
+    return null
+  }
+}
+
+function releaseWorker(canvas: HTMLCanvasElement): void {
+  const kept = workers.get(canvas)
+  if (!kept) return
+  kept.release = window.setTimeout(() => {
+    kept.worker.terminate()
+    workers.delete(canvas)
+  }, RELEASE_MS)
+}
+
+const sizeOf = (canvas: HTMLCanvasElement) => ({
+  width: canvas.clientWidth,
+  height: canvas.clientHeight,
+  dpr: Math.min(window.devicePixelRatio || 1, 2),
+})
 
 /**
  * Carga del inicio, sin texto: la cámara entra a una red neuronal con nodos
@@ -36,132 +64,81 @@ const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 
  * recogen, otras se quedan; cada vez más, al ritmo de la carga) y vuela de
  * neurona en neurona. Al terminar, la última neurona dispara y la cámara
  * salta hacia adelante, hasta que aparece el titular.
+ *
+ * Se dibuja en un worker cuando el navegador lo permite: así la red no se
+ * traba mientras la página nueva se arma detrás de la cortina.
  */
 export function NeuralFlight({ progress, anchor, className }: NeuralFlightProps) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const canvas = ref.current
-    const ctx = canvas?.getContext('2d')
-    if (!canvas || !ctx) return
-
-    const world = buildFlightWorld(WORLD)
-    const render = createFlightRenderer(world)
-    const impulses = createFlightPulses(world)
-    const search = createLinkSearch(world)
-    let lastTime = 0
-    const arrived = new Set<number>()
-
-    let width = 0
-    let height = 0
-    let dpr = 1
-    let frame = 0
-    let peaked = false
-    let peakAt = 0
-    let lastZ = 0
-    let idleSince = performance.now()
-
-    const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
-      width = canvas.clientWidth
-      height = canvas.clientHeight
-      canvas.width = width * dpr
-      canvas.height = height * dpr
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
-
-    /** Posición de la cámara según el avance: tramos que frenan al llegar a cada neurona. */
-    const cameraAt = (p: number, time: number) => {
-      const { stops } = world
-      const u = Math.min(0.9999, Math.max(0, p)) * (stops.length - 1)
-      const seg = Math.floor(u)
-      const k = easeInOut(u - seg)
-      const a = stops[seg]
-      const b = stops[seg + 1]
-      if (k > 0.9 && !arrived.has(seg)) {
-        arrived.add(seg)
-        // Al llegar, la neurona se conecta con todas sus vecinas y dispara.
-        search.connectNode(world.route[seg])
-        impulses.fire(world.route[seg], ARRIVAL_PULSES)
-      }
-      return {
-        x: a.x + (b.x - a.x) * k + Math.sin(time * 0.0007) * 0.15,
-        y: a.y + (b.y - a.y) * k + Math.cos(time * 0.0006) * 0.12,
-        z: a.z + (b.z - a.z) * k,
-        roll: Math.sin(time * 0.0004) * 0.05 + (b.x - a.x) * 0.012 * Math.sin(Math.PI * k),
-      }
-    }
-
-    const draw = (time: number) => {
-      const p = Math.max(0, Math.min(1, progress.current))
-      if (p >= 0.999 && !peaked) {
-        peaked = true
-        peakAt = time
-        impulses.glow[world.route[world.route.length - 1]] = 1
-      }
-      // Después del 100 %: espera con un avance lento y luego el salto.
-      const exit = peaked ? 1 - p : 0
-      const camera = cameraAt(peaked ? 1 : p, time)
-      if (peaked) camera.z += (time - peakAt) * HOLD_DRIFT + exit * exit * WARP_DISTANCE
-      // Mientras espera completa, guarda dónde se ve la última neurona: de ahí parte la entrada de la página.
-      if (anchor && peaked && exit < 0.02) {
-        const node = world.nodes[world.route[world.route.length - 1]]
-        const d = node.z - camera.z
-        if (d > 0.35) {
-          const scale = (Math.min(width, height) * 0.85) / d
-          const px = (node.x - camera.x) * scale
-          const py = (node.y - camera.y) * scale
-          const cos = Math.cos(camera.roll)
-          const sin = Math.sin(camera.roll)
-          anchor.current = { x: width * 0.5 + px * cos - py * sin, y: height * 0.5 + px * sin + py * cos }
-        }
-      }
-      const speed = Math.max(0, camera.z - lastZ)
-      lastZ = camera.z
-
-      // Búsqueda de conexiones en primer plano: fibras que salen, se quedan o se recogen.
-      const dt = lastTime ? Math.min(64, time - lastTime) : 16
-      lastTime = time
-      for (const node of search.step(dt, camera.z, peaked ? 1 : p)) {
-        impulses.glow[node] = Math.max(impulses.glow[node], CONNECT_GLOW)
-      }
-      // Impulsos al azar cerca de la cámara (solo corren por fibras ya conectadas).
-      impulses.spawnNear(camera.z, PULSE_CHANCE * (0.3 + p))
-      impulses.step()
-
-      render({
-        ctx,
-        dpr,
-        width,
-        height,
-        time,
-        camera,
-        speed,
-        fade: peaked ? Math.min(1, p * 1.4) : Math.min(1, 0.35 + p * 2),
-        glow: impulses.glow,
-        pulses: impulses.pulses,
-        linkGrow: search.grow,
-      })
-    }
-
-    const loop = (time: number) => {
-      draw(time)
-      // Cuando la carga terminó y se disolvió (o nunca arrancó), el lienzo deja de dibujar.
-      if (progress.current > 0.001) idleSince = time
-      if ((peaked && progress.current <= 0.01) || time - idleSince > IDLE_STOP_MS) {
-        ctx.clearRect(0, 0, width, height)
-        return
-      }
-      frame = requestAnimationFrame(loop)
-    }
-    resize()
-    window.addEventListener('resize', resize)
-    frame = requestAnimationFrame(loop)
-    return () => {
-      cancelAnimationFrame(frame)
-      window.removeEventListener('resize', resize)
-    }
+    if (!canvas) return
+    const worker = workerFor(canvas, () => ({ type: 'init', ...sizeOf(canvas), colors: canvasColors(), progress: progress.current }) as FlightWorkerMessage)
+    return worker ? runInWorker(canvas, worker, progress, anchor) : runHere(canvas, progress, anchor)
   }, [progress, anchor])
 
   return <canvas ref={ref} aria-hidden="true" className={className} />
+}
+
+type Anchor = NeuralFlightProps['anchor']
+
+/** El worker dibuja; aquí solo se le pasan el avance, el tamaño y los colores. */
+function runInWorker(canvas: HTMLCanvasElement, worker: Worker, progress: React.MutableRefObject<number>, anchor: Anchor): () => void {
+  const send = (message: FlightWorkerMessage) => worker.postMessage(message)
+  let frame = 0
+  let sent = -1
+  let done = false
+  const sync = () => {
+    if (progress.current !== sent) {
+      sent = progress.current
+      send({ type: 'progress', value: sent })
+    }
+    if (!done) frame = requestAnimationFrame(sync)
+  }
+  const onReply = (event: MessageEvent<FlightWorkerReply>) => {
+    if (event.data.type === 'anchor' && anchor) anchor.current = { x: event.data.x, y: event.data.y }
+    if (event.data.type === 'done') {
+      done = true
+      cancelAnimationFrame(frame)
+    }
+  }
+  const onResize = () => send({ type: 'resize', ...sizeOf(canvas) })
+  const onPalette = () => send({ type: 'colors', colors: canvasColors() })
+  worker.addEventListener('message', onReply)
+  window.addEventListener('resize', onResize)
+  window.addEventListener(PALETTE_EVENT, onPalette)
+  frame = requestAnimationFrame(sync)
+  return () => {
+    cancelAnimationFrame(frame)
+    worker.removeEventListener('message', onReply)
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener(PALETTE_EVENT, onPalette)
+    releaseWorker(canvas)
+  }
+}
+
+/** Sin worker: el mismo vuelo en el hilo principal. */
+function runHere(canvas: HTMLCanvasElement, progress: React.MutableRefObject<number>, anchor: Anchor): () => void {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return () => {}
+  const loop = createFlightLoop(ctx, {
+    progress: () => progress.current,
+    onAnchor: anchor ? (point) => (anchor.current = point) : undefined,
+  })
+  const resize = () => {
+    const { width, height, dpr } = sizeOf(canvas)
+    loop.resize(width, height, dpr)
+  }
+  let frame = 0
+  const tick = (time: number) => {
+    if (loop.frame(time)) frame = requestAnimationFrame(tick)
+  }
+  resize()
+  window.addEventListener('resize', resize)
+  frame = requestAnimationFrame(tick)
+  return () => {
+    cancelAnimationFrame(frame)
+    window.removeEventListener('resize', resize)
+  }
 }
