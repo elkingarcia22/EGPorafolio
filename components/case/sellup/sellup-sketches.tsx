@@ -1,9 +1,13 @@
 'use client'
 
-import { useLocale } from '@/lib/i18n'
+import { useEffect, useRef, useState } from 'react'
+import { useA11y } from '@/lib/a11y'
+import { useLocale, type L } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { CaseLead } from '@/components/case/case-lead'
 import { SwipeBoard } from './swipe-board'
+import { CascadeBoard } from './sketch-cascade-board'
+import { RumboSketchBoard } from './sketch-rumbo-board'
 
 /** Una celda dibujada de la matriz decisor × canal. */
 function Cell({ state }: { state: 'done' | 'empty' | 'review' }) {
@@ -15,8 +19,8 @@ function Cell({ state }: { state: 'done' | 'empty' | 'review' }) {
   )
 }
 
-/** 04 · Bocetos: las tres bandejas donde decide la persona, dibujadas antes de construir. */
-export function SellUpSketches() {
+/** Tablero de las tres bandejas donde decide la persona. */
+function QueuesBoard() {
   const { t } = useLocale()
   const matrix: ('done' | 'empty' | 'review')[][] = [
     ['done', 'done', 'review', 'empty'],
@@ -24,13 +28,7 @@ export function SellUpSketches() {
     ['empty', 'empty', 'empty', 'empty'],
   ]
   return (
-    <div>
-      <CaseLead className="mb-10">
-        {t({
-          es: 'Antes de escribir un agente dibujé dónde se detiene la cadena: tres bandejas donde decide la persona.',
-          en: 'Before writing an agent I drew where the chain stops: three queues where the person decides.',
-        })}
-      </CaseLead>
+    <>
       <SwipeBoard designW={1400} stops={[20, 494, 968]}>
       <Board title={t({ es: 'SellUp · donde decide la persona', en: 'SellUp · where the person decides' })} w={1400} h={820} label={t({ es: 'Bocetos de las tres bandejas de revisión', en: 'Sketches of the three review queues' })}>
         <Pin x={36} y={26}><Hand size={2.4} className="font-bold">{t({ es: 'Tres bandejas, una regla: nada entra solo', en: 'Three queues, one rule: nothing gets in on its own' })}</Hand></Pin>
@@ -93,6 +91,103 @@ export function SellUpSketches() {
         <Pin x={906} y={250}><Hand size={1.2} className="text-[#e8743b]">{t({ es: 'aprobar', en: 'approve' })}</Hand></Pin>
       </Board>
       </SwipeBoard>
+    </>
+  )
+}
+
+/** Cuánto se queda cada hoja al frente mientras pasan solas (ms) */
+const SHEET_MS = 9000
+/** Cuántas hojas se asoman detrás de la del frente */
+const BEHIND = 2
+
+interface Sheet {
+  id: string
+  label: L
+  caption: L
+  Board: () => React.ReactNode
+}
+
+const SHEETS: readonly Sheet[] = [
+  { id: 'cadena', label: { es: 'La cadena', en: 'The chain' }, caption: { es: 'Tres agentes, cada uno con su escalera de fuentes.', en: 'Three agents, each with its staircase of sources.' }, Board: CascadeBoard },
+  { id: 'rumbo', label: { es: 'Rumbo', en: 'Rumbo' }, caption: { es: 'Una sola voz para los tres: la marca y la conversación.', en: 'One voice for all three: the mark and the conversation.' }, Board: RumboSketchBoard },
+  { id: 'bandejas', label: { es: 'Las bandejas', en: 'The queues' }, caption: { es: 'Donde la cadena se detiene, decide la persona.', en: 'Where the chain stops, the person decides.' }, Board: QueuesBoard },
+]
+
+/**
+ * 04 · Bocetos: los tableros dibujados antes de construir, como una carpeta.
+ * Al frente, el tablero entero (vivo); detrás se asoman las otras hojas y
+ * arriba quedan los separadores. Pasan solas; con el cursor encima se quedan.
+ */
+export function SellUpSketches() {
+  const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+  const [hover, setHover] = useState(false)
+  const [inView, setInView] = useState(false)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '0px 0px -25% 0px' })
+    io.observe(root)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!inView || hover || reducedMotion) return
+    const id = window.setTimeout(() => setActive((a) => (a + 1) % SHEETS.length), SHEET_MS)
+    return () => window.clearTimeout(id)
+  }, [inView, hover, reducedMotion, active])
+
+  const current = SHEETS[active]
+  const Front = current.Board
+
+  return (
+    <div ref={rootRef}>
+      <CaseLead className="mb-10">
+        {t({ es: 'Antes de escribir un agente, lo dibujé.', en: 'Before writing an agent, I drew it.' })}
+      </CaseLead>
+      <div className="mx-auto w-full" onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}>
+        {/* Los separadores de la carpeta */}
+        <div role="tablist" aria-label={t({ es: 'Tableros de bocetos', en: 'Sketch boards' })} className="relative z-20 flex gap-1 px-3">
+          {SHEETS.map((sheet, i) => {
+            const on = i === active
+            return (
+              <button
+                key={sheet.id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => setActive(i)}
+                className={`rounded-t-xl border border-b-0 px-4 pb-2.5 pt-2 font-mono text-[10px] uppercase tracking-[0.1em] transition-all duration-500 ease-expo md:px-6 md:text-[11px] ${on ? 'translate-y-0 border-[#e9e2d0] bg-[#f6f1e6] text-[#2a2d33]' : 'translate-y-1.5 border-white/10 bg-white/[0.06] text-paper/60 hover:translate-y-0.5 hover:text-paper'}`}
+              >
+                <span className="mr-1.5 opacity-50">0{i + 1}</span>
+                {t(sheet.label)}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Las hojas: al frente el tablero entero; detrás se asoman las que siguen */}
+        <div className="relative">
+          {Array.from({ length: BEHIND }, (_, k) => BEHIND - k).map((d) => (
+            <span
+              key={d}
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-0 top-0 rounded-2xl border border-black/10 bg-[#ebe4d4] shadow-[0_30px_80px_-30px_rgb(0_0_0/0.9)] transition-transform duration-700 ease-expo"
+              style={{ transform: `translateY(${d * 14}px) scale(${1 - d * 0.03})`, transformOrigin: '50% 100%', opacity: 1 - d * 0.3, zIndex: 1 }}
+            />
+          ))}
+          <div key={current.id} className="su-fade relative z-10">
+            <Front />
+          </div>
+        </div>
+      </div>
+      <p key={`cap-${current.id}`} aria-live="polite" className="su-fade mt-12 text-center">
+        <span className="mono-label text-signal">0{active + 1} · {t(current.label)}</span>
+        <span className="mt-2 block text-balance text-sm text-paper/65 md:text-base">{t(current.caption)}</span>
+      </p>
     </div>
   )
 }
