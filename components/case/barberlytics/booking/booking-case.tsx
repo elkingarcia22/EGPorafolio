@@ -15,8 +15,9 @@ import { useReveal } from '../use-reveal'
 import { BookingHero } from './booking-hero'
 import { RhythmScene } from './rhythm-scene'
 import { BehaviorFlow } from './behavior-flow'
+import { IdeaConcept } from './idea-concept'
 import { CoverRouter } from './cover-router'
-import { SketchBoard } from './sketch-board'
+import { SketchNotebook } from './sketch-notebook'
 import { SurfaceSwitch } from './surface-switch'
 import { PhraseParse } from './phrase-parse'
 import { ReturnCurve } from './return-curve'
@@ -44,11 +45,14 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'demo', entry: 'thread' },
 ]
 
-/** 04 · Bocetos y forma: el tablero dibujado y, debajo, el mismo flujo en cuatro superficies */
+/** 04 · Bocetos y forma: el cuaderno de bocetos, del boceto a la app y el mismo flujo en cuatro superficies */
 function BookingSketchesAndForm() {
   return (
     <div>
-      <SketchBoard />
+      <SketchNotebook />
+      <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
+        <CoverRouter />
+      </div>
       <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
         <SurfaceSwitch />
       </div>
@@ -59,7 +63,7 @@ function BookingSketchesAndForm() {
 const CONTENT: Record<ChapterKey, React.ComponentType> = {
   puntos: RhythmScene,
   patrones: BehaviorFlow,
-  idea: CoverRouter,
+  idea: IdeaConcept,
   bocetos: BookingSketchesAndForm,
   ia: PhraseParse,
   impacto: ReturnCurve,
@@ -114,7 +118,7 @@ export function BookingCase() {
           <SectionFiber id="bk-patrones" side="right">
             {/* Del primer comportamiento a «La idea», por la izquierda */}
             <SectionFiber id="bk-idea" side="left">
-              {/* Del camino de quien llega a «Bocetos y forma», por la derecha */}
+              {/* De la cita del concepto a «Bocetos y forma», por la derecha */}
               <SectionFiber id="bk-bocetos" side="right">
                 {/* Desde detrás de las superficies baja hasta «IA en el proceso» */}
                 <SectionFiber id="bk-ia" side="down">
