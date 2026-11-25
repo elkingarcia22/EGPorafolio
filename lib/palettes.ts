@@ -32,6 +32,9 @@ export function projectTone(slug: string): string {
 
 export const PALETTES: readonly Palette[] = [
   { id: 'original', name: 'Azul · Magenta', signal: '64 96 255', spark: '255 84 170', ice: '150 190 255', cyan: '110 220 255' },
+  // Colores de IA de Clipper (tema Premium dorado de Barberlytics): cobre y petróleo
+  { id: 'clipper', name: 'Clipper · Dorado', signal: '222 140 58', ui: '217 179 106', spark: '46 156 176', ice: '240 206 134', cyan: '127 211 227',
+    projects: { objetivos: '217 179 106', barberlytics: '222 140 58', sellup: '63 114 216', encuestas: '46 156 176' } },
   { id: 'azul-amarillo', name: 'Azul · Amarillo', signal: '36 104 255', spark: '255 210 40', ice: '150 196 255', cyan: '255 232 130',
     projects: { objetivos: '36 104 255', barberlytics: '255 196 56', sellup: '120 160 255', encuestas: '80 190 255' } },
   { id: 'ambar', name: 'Ámbar · Turquesa', signal: '255 138 36', spark: '32 214 190', ice: '255 204 150', cyan: '255 226 120',
@@ -44,7 +47,7 @@ export const PALETTES: readonly Palette[] = [
     projects: { objetivos: '78 196 204', barberlytics: '176 212 120', sellup: '96 156 232', encuestas: '60 170 150' } },
 ] as const
 
-export const DEFAULT_PALETTE_ID = 'lima'
+export const DEFAULT_PALETTE_ID = 'clipper'
 const STORAGE_KEY = 'eg-palette'
 export const PALETTE_EVENT = 'eg:palettechange'
 

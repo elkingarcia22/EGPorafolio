@@ -6,14 +6,14 @@ import { toCanvasRgb, type Palette } from '@/lib/palettes'
  * Tonos de la señal para los canvas. Son `let` exportados: los imports son
  * enlaces vivos, así que al cambiar de paleta todos los dibujos los ven.
  */
-/** Principal de la atmósfera: lima */
-export let BLUE = '150,220,30'
+/** Principal de la atmósfera: cobre de Clipper */
+export let BLUE = '222,140,58'
 /** Versión clara del principal */
-export let ICE = '214,250,160'
+export let ICE = '240,206,134'
 /** Tono de apoyo para fibras y estelas */
-export let CYAN = '120,240,255'
+export let CYAN = '127,211,227'
 /** Chispa: solo para neuronas que "disparan", muy poco */
-export let SPARK = '0,214,255'
+export let SPARK = '46,156,176'
 
 export function setCanvasPalette(palette: Palette): void {
   BLUE = toCanvasRgb(palette.signal)
