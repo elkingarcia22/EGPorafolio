@@ -1,0 +1,46 @@
+/* Movimientos propios del caso Clipper. Todos respetan «reducir movimiento». */
+@keyframes clp-fade-in {
+  from { opacity: 0; translate: 0 6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.clp-fade { animation: clp-fade-in 600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Un impulso que recorre una fibra una vez (pathLength=1) */
+.clp-pulse { stroke-dashoffset: 0.08; opacity: 0; animation: clp-pulse 1.1s cubic-bezier(.45,0,.55,1) both; }
+@keyframes clp-pulse { 0% { stroke-dashoffset: 0.08; opacity: 1; } 90% { opacity: 1; } 100% { stroke-dashoffset: -0.92; opacity: 0; } }
+
+/* Un impulso que la recorre sin parar */
+.clp-flow { animation: clp-flow 3.2s cubic-bezier(.65,0,.35,1) infinite; }
+@keyframes clp-flow { from { stroke-dashoffset: 0.05; } to { stroke-dashoffset: -0.95; } }
+
+/* Un anillo que late sobre lo que está activo */
+.clp-ping { transform-box: fill-box; transform-origin: center; animation: clp-ping 1.6s cubic-bezier(0,0,.2,1) infinite; }
+@keyframes clp-ping { 0% { transform: scale(0.7); opacity: 1; } 100% { transform: scale(2.1); opacity: 0; } }
+
+/* Una fibra rota: parpadea como un cable que no llega */
+.clp-flicker { animation: clp-flicker 1.8s steps(1) infinite; }
+@keyframes clp-flicker { 0%, 62%, 70%, 100% { opacity: 1; } 64%, 74% { opacity: 0.25; } }
+
+/* La cifra que entra */
+.clp-value { animation: clp-fade-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Textos dentro de SVG: en teléfono el SVG se encoge, así que las letras crecen */
+.clp-svg-name { font-size: 17px; }
+.clp-svg-role { font-size: 11px; }
+.clp-svg-glyph { font-size: 22px; }
+@media (max-width: 640px) {
+  .clp-grow { transform: scale(1.7); }
+  .clp-svg-name { font-size: 30px; }
+  .clp-svg-role { font-size: 20px; letter-spacing: 0.06em; }
+  .clp-svg-glyph { font-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clp-fade, .clp-pulse, .clp-flow, .clp-ping, .clp-flicker, .clp-value { animation: none; }
+}
+html[data-motion='reduced'] .clp-fade,
+html[data-motion='reduced'] .clp-pulse,
+html[data-motion='reduced'] .clp-flow,
+html[data-motion='reduced'] .clp-ping,
+html[data-motion='reduced'] .clp-flicker,
+html[data-motion='reduced'] .clp-value { animation: none; }

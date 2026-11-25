@@ -1,83 +1,146 @@
 'use client'
 
+import { useEffect, useMemo, useRef } from 'react'
+import { Chapter, type ChapterEntry, type ChapterMeta } from '@/components/case/chapter'
+import { NeuralBackdrop } from '@/components/home/neural-backdrop'
+import { backdropQuiet } from '@/components/home/backdrop-journey'
+import { ChapterRail } from '@/components/case/chapter-rail'
+import { SectionFiber } from '@/components/home/section-fiber'
+import { ToneSection } from '@/components/ui/tone-section'
+import { TransitionLink } from '@/components/transition/page-transition'
+import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { COPY } from '@/lib/content/copy'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
-import { CaseShell } from '../shared/case-shell'
-import { ClipperDots } from './clipper-dots'
-import { ClipperIdea } from './clipper-idea'
-import { ClipperInPlatform } from './clipper-in-platform'
-import { OrbConstructionBoard, OrbLayersBoard } from './clipper-orb-sketches'
-import { ClipperHero } from './clipper-hero'
-import { AgentLoop } from './clipper-pieces'
-import { ClipperVoice } from './clipper-voice'
-import { AnswerBoard, AutonomySpectrum, ClipperDemo, ClipperImpact, OrbSection } from './clipper-sections'
-import { ClipperAiProcess } from './clipper-ai-process'
+import { useReveal } from '../use-reveal'
+import { ClipperCover } from './clp-hero'
+import { ClipperDotsScene } from './clp-dots'
+import { ClipperSpectrum } from './clp-spectrum'
+import { ClipperPrinciples } from './clp-principles'
+import { ClipperTools } from './clp-tools'
+import { ClipperExchange } from './clp-exchange'
+import { ClipperEvals } from './clp-evals'
+import { ClipperImpact } from './clp-impact'
+import { ClipperLiveDemo } from './clp-demo'
+import './clipper-case.css'
 
-const H3 = 'mb-4 flex items-baseline gap-4 text-[clamp(1.35rem,1rem+1vw,1.9rem)]'
+type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'herramientas' | 'forma' | 'ia' | 'impacto' | 'demo'
 
-function Section({ n, title, body, children }: { n: string; title: L; body: L; children: React.ReactNode }) {
-  const { t } = useLocale()
-  return (
-    <section className="mt-[clamp(4rem,3rem+4vw,7rem)] first:mt-0">
-      <h3 data-reveal="mask" className={H3}>
-        <span className="mono-label text-signal">{n}</span>
-        {t(title)}
-      </h3>
-      <p data-reveal className="mb-8 max-w-[62ch] leading-relaxed opacity-80">{t(body)}</p>
-      {children}
-    </section>
-  )
+/** La red de fondo, lo más quieta posible: en la portada y en los capítulos */
+const QUIET = 1
+
+/** Cada capítulo recibe la fibra que sale de la pieza final del anterior */
+const FIBER_TO: Record<ChapterKey, string> = {
+  puntos: 'clp-puntos',
+  patrones: 'clp-patrones',
+  idea: 'clp-idea',
+  herramientas: 'clp-tools',
+  forma: 'clp-forma',
+  ia: 'clp-ia',
+  impacto: 'clp-impacto',
+  demo: 'clp-demo',
 }
 
-function ClipperForm() {
-  return (
-    <div>
-      <Section n="5.1" title={{ es: 'Una pregunta, por dentro', en: 'One question, inside' }} body={{ es: 'Ejemplos de las pruebas y evaluaciones del agente. A la izquierda, lo que ve la persona; a la derecha, lo que pasa por dentro: entiende quién pregunta, elige una herramienta de su rol, revisa las cifras y responde diciendo qué consultó.', en: 'Examples from the agent’s tests and evaluations. On the left, what the person sees; on the right, what happens inside: it understands who’s asking, picks a tool from their role, checks the figures and answers saying what it looked up.' }}>
-        <AgentLoop />
-      </Section>
-      <Section n="5.2" title={{ es: 'La voz', en: 'The voice' }} body={{ es: 'Escucha con paciencia —si la frase queda abierta, espera— y en la reserva contesta como una llamada. En la app del equipo, por ahora, la voz es dictado.', en: 'It listens patiently —if the phrase is left open, it waits— and in booking it answers like a phone call. In the team app, for now, voice is dictation.' }}>
-        <ClipperVoice />
-      </Section>
-      <Section n="5.3" title={{ es: 'El orbe', en: 'The orb' }} body={{ es: 'El poste de barbería hecho esfera: tres estados y una sola regla, ser el único símbolo de IA del producto.', en: 'The barber pole turned sphere: three states and one rule, being the product’s only AI symbol.' }}>
-        <OrbSection />
-      </Section>
-      <Section n="5.4" title={{ es: 'En la plataforma y en la reserva', en: 'In the platform and in booking' }} body={{ es: 'Así se ve hoy: el panel lateral dentro de la plataforma, las tarjetas de propuesta y el Clipper que atiende al cliente en la reserva.', en: 'How it looks today: the side panel inside the platform, the proposal cards and the Clipper that serves clients in booking.' }}>
-        <ClipperInPlatform />
-      </Section>
-    </div>
-  )
+const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
+  { id: 'puntos', entry: 'bloom' },
+  { id: 'patrones', entry: 'thread' },
+  { id: 'idea', entry: 'warp' },
+  { id: 'herramientas', entry: 'bloom' },
+  { id: 'forma', entry: 'thread' },
+  { id: 'ia', entry: 'warp' },
+  { id: 'impacto', entry: 'bloom' },
+  { id: 'demo', entry: 'thread' },
+]
+
+const CONTENT: Record<ChapterKey, React.ComponentType> = {
+  puntos: ClipperDotsScene,
+  patrones: ClipperSpectrum,
+  idea: ClipperPrinciples,
+  herramientas: ClipperTools,
+  forma: ClipperExchange,
+  ia: ClipperEvals,
+  impacto: ClipperImpact,
+  demo: ClipperLiveDemo,
 }
 
-function ClipperSketches() {
-  const { t } = useLocale()
-  return (
-    <div className="space-y-12">
-      <p data-reveal className="max-w-[62ch] text-lg leading-relaxed opacity-80">{t({ es: 'Antes del modelo, la forma de una buena respuesta: corta, con su fuente a la vista y con los cambios como propuestas, nunca como hechos. Y la presencia de Clipper: cómo un poste de barbería se vuelve una esfera, capa por capa.', en: 'Before the model, the shape of a good answer: short, with its source in view, and changes as proposals, never as facts. And Clipper’s presence: how a barber pole becomes a sphere, layer by layer.' })}</p>
-      <AnswerBoard />
-      <OrbConstructionBoard />
-      <OrbLayersBoard />
-    </div>
-  )
-}
+const BACK = { href: '/proyectos/barberlytics', label: { es: 'Proyectos de Barberlytics', en: 'Barberlytics projects' } satisfies L }
 
-
-/** Caso Clipper: de los puntos al impacto, más la demo. */
+/** Caso Clipper: portada, índice fijo, ocho capítulos unidos por fibras y la vuelta a Barberlytics. */
 export function ClipperCase() {
   const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const ref = useRef<HTMLDivElement>(null)
+  useReveal(ref, reducedMotion)
+
+  useEffect(() => {
+    backdropQuiet.set('case', QUIET)
+    return () => backdropQuiet.set('case', 0)
+  }, [])
+
+  const c = COPY.case.chapters
+  const chapters: readonly ChapterMeta[] = useMemo(() => {
+    const titles: Record<ChapterKey, string> = {
+      puntos: t(c.problem),
+      patrones: t(c.research),
+      idea: t(c.idea),
+      herramientas: t({ es: 'Herramientas', en: 'Tools' }),
+      forma: t({ es: 'Conversación', en: 'Conversation' }),
+      ia: t(c.ai),
+      impacto: t(c.results),
+      demo: t({ es: 'Demo', en: 'Demo' }),
+    }
+    return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: 'dark' as const, entry: ch.entry, fiberTo: FIBER_TO[ch.id] }))
+  }, [t, c])
+
   return (
-    <CaseShell
-      title={t(CLIPPER_CASE.title)}
-      hero={<ClipperHero />}
-      content={{
-        puntos: ClipperDots,
-        patrones: AutonomySpectrum,
-        idea: ClipperIdea,
-        bocetos: ClipperSketches,
-        forma: ClipperForm,
-        ia: ClipperAiProcess,
-        impacto: ClipperImpact,
-        demo: ClipperDemo,
-      }}
-    />
+    <article ref={ref} className="overflow-x-clip">
+      <NeuralBackdrop />
+      {/* De la herramienta de la portada baja una fibra hasta «Los puntos» */}
+      <SectionFiber id="clp-puntos" side="right">
+        <ClipperCover />
+        <div className="px-[var(--gutter)] lg:pl-[calc(var(--gutter)+88px)]">
+          <ChapterRail chapters={chapters} label={t(CLIPPER_CASE.title)} back={BACK} />
+          {/* Del orbe apagado de «Los puntos» a «Patrones» */}
+          <SectionFiber id="clp-patrones" side="left">
+            {/* Del orbe ya ubicado en el medio del espectro a «La idea» */}
+            <SectionFiber id="clp-idea" side="right">
+              {/* Del centro del orbe de las reglas baja a «Herramientas» */}
+              <SectionFiber id="clp-tools" side="down">
+                {/* De la última herramienta (la que propone una nota) a «Conversación» */}
+                <SectionFiber id="clp-forma" side="left">
+                  {/* De la parada «Revisa» a «IA en el proceso» */}
+                  <SectionFiber id="clp-ia" side="right">
+                    {/* Del filtro del servidor baja a «Impacto» */}
+                    <SectionFiber id="clp-impacto" side="down">
+                      {/* De la última cresta de la onda baja a «Demo» */}
+                      <SectionFiber id="clp-demo" side="down">
+                        <div className="mx-auto min-w-0 max-w-6xl">
+                          {chapters.map((meta) => {
+                            const Content = CONTENT[meta.id as ChapterKey]
+                            return (
+                              <Chapter key={meta.id} meta={meta}>
+                                <Content />
+                              </Chapter>
+                            )
+                          })}
+                        </div>
+                      </SectionFiber>
+                    </SectionFiber>
+                  </SectionFiber>
+                </SectionFiber>
+              </SectionFiber>
+            </SectionFiber>
+          </SectionFiber>
+        </div>
+      </SectionFiber>
+      <ToneSection tone="dark" className="border-t border-fg/15 px-[var(--gutter)] py-[clamp(4rem,3rem+5vw,8rem)]">
+        <TransitionLink href="/proyectos/barberlytics" transitionLabel="Barberlytics" className="group block">
+          <p className="mono-label mb-4 opacity-60">{t({ es: 'Volver a Barberlytics', en: 'Back to Barberlytics' })}</p>
+          <p className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.95] tracking-tight transition-transform duration-700 ease-expo group-hover:translate-x-3">
+            {t({ es: 'Ver los otros proyectos', en: 'See the other projects' })} <span className="text-[#f0ce86]">↗</span>
+          </p>
+        </TransitionLink>
+      </ToneSection>
+    </article>
   )
 }
