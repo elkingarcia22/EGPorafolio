@@ -1,10 +1,12 @@
 'use client'
 
 import Image from 'next/image'
-import { useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { NextProject } from '@/components/case/next-project'
+import { NeuralBackdrop } from '@/components/home/neural-backdrop'
+import { backdropQuiet } from '@/components/home/backdrop-journey'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
@@ -105,90 +107,185 @@ const PROJECTS: readonly HubProject[] = [
   },
 ]
 
-function ProjectCard({ project }: { project: HubProject }) {
+/** Cada cuánto la señal salta del centro al siguiente proyecto mientras pasan solos (ms) */
+const PULSE_MS = 2600
+
+type Pt = { x: number; y: number }
+/** Fibra del centro a un proyecto: sale horizontal y entra recogiéndose */
+const fiber = (a: Pt, b: Pt) => `M${a.x} ${a.y} C${(a.x + b.x) / 2} ${a.y} ${(a.x + b.x) / 2} ${b.y} ${b.x} ${b.y}`
+
+function ProjectNode({ project, lit, nodeRef }: { project: HubProject; lit: boolean; nodeRef: (el: HTMLDivElement | null) => void }) {
   const { t } = useLocale()
-  const inner = (
-    <>
-      <div className="relative aspect-[16/10] overflow-hidden bg-[#0b0c0e]">
-        <div className="h-full w-full transition-transform duration-700 ease-expo group-hover:scale-[1.04]">{project.visual}</div>
-        {!project.ready && (
-          <span className="mono-label absolute right-3 top-3 bg-void/80 px-2.5 py-1.5 text-paper/80 backdrop-blur">
-            {t({ es: 'En construcción', en: 'In progress' })}
-          </span>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col p-6">
-        <p className="mono-label opacity-60">{project.index} · {t(project.what)}</p>
-        <p className="mt-3 text-[clamp(1.8rem,1.2rem+1.6vw,2.6rem)] font-light leading-tight">{t(project.title)}</p>
-        <p className="mt-3 text-sm leading-relaxed opacity-75">{t(project.body)}</p>
-        <p className="mt-6 flex items-center justify-between border-t border-fg/15 pt-4 text-sm">
-          <span className="opacity-70">{t(project.stat)}</span>
-          {project.ready && <span className="text-signal transition-transform duration-500 ease-expo group-hover:translate-x-1">{t({ es: 'Ver caso', en: 'View case' })} ↗</span>}
-        </p>
-      </div>
-    </>
-  )
-  const base = 'group flex h-full flex-col overflow-hidden border border-fg/15 bg-bg transition-colors duration-500'
-  if (!project.ready) {
-    return <div data-reveal aria-disabled="true" className={`${base} opacity-80`}>{inner}</div>
-  }
   return (
+    <div ref={nodeRef}>
     <TransitionLink
-      data-reveal
       href={`/proyectos/barberlytics/${project.slug}`}
       transitionLabel={t(project.title)}
       data-cursor={t(COPY.work.open)}
-      className={`${base} hover:border-signal`}
+      className="group block outline-none"
     >
-      {inner}
+      {/* La vista del proyecto, sin marco: crece y se enciende cuando la señal llega */}
+      <div data-hub-visual className={`relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#0b0c0e] transition-[transform,box-shadow] duration-700 ease-expo ${lit ? 'scale-[1.02] shadow-[0_0_0_1px_rgb(var(--signal)/0.5),0_30px_80px_-30px_rgb(var(--signal)/0.6)]' : 'shadow-[0_30px_70px_-35px_rgba(0,0,0,0.9)] group-hover:scale-[1.02]'}`}>
+        <div className="h-full w-full">{project.visual}</div>
+      </div>
+      <div className="mt-4 flex items-end justify-between gap-4">
+        <div>
+          <p className={`font-mono text-[10px] uppercase tracking-[0.16em] transition-colors duration-500 ${lit ? 'text-signal' : 'text-paper/45'}`}>{project.index} · {t(project.what)}</p>
+          <p className="mt-1.5 text-[clamp(1.5rem,1.1rem+1.2vw,2.2rem)] font-light leading-tight tracking-tight">{t(project.title)}</p>
+          <p className="mt-1 text-[12px] text-paper/55">{t(project.stat)}</p>
+        </div>
+        <span aria-hidden="true" className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border transition-[transform,border-color,background-color] duration-500 ease-expo group-hover:rotate-45 ${lit ? 'border-signal/60 bg-signal/10' : 'border-white/15'}`}>↗</span>
+      </div>
     </TransitionLink>
+    </div>
   )
 }
 
-/** Portada de Barberlytics: el producto y sus cuatro proyectos para elegir. */
+/**
+ * Portada de Barberlytics como una red: el producto en el centro y sus cuatro
+ * proyectos alrededor, unidos por fibras. La señal salta del centro a cada
+ * uno, por turnos; cada proyecto lleva a su caso.
+ */
 export function BarberlyticsHub({ next }: { next: Project }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const ref = useRef<HTMLDivElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const hubRef = useRef<HTMLDivElement>(null)
+  const nodeRefs = useRef<(HTMLDivElement | null)[]>([])
+  const [paths, setPaths] = useState<{ d: string[]; w: number; h: number }>({ d: [], w: 1, h: 1 })
+  const [lit, setLit] = useState(0)
+  const [inView, setInView] = useState(false)
   useReveal(ref, reducedMotion)
+
+  // El fondo de red, muy calmado (como en los casos)
+  useEffect(() => {
+    backdropQuiet.set('case', 1)
+    return () => backdropQuiet.set('case', 0)
+  }, [])
+
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '0px 0px -25% 0px' })
+    io.observe(stage)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!inView || reducedMotion) return
+    const id = window.setTimeout(() => setLit((i) => (i + 1) % PROJECTS.length), PULSE_MS)
+    return () => window.clearTimeout(id)
+  }, [inView, reducedMotion, lit])
+
+  // Las fibras se miden sobre las piezas reales (en teléfono van apiladas y no se dibujan)
+  useLayoutEffect(() => {
+    const stage = stageRef.current
+    const hub = hubRef.current
+    if (!stage || !hub) return
+    const measure = () => {
+      const box = stage.getBoundingClientRect()
+      const h = hub.getBoundingClientRect()
+      const c = { x: h.left + h.width / 2 - box.left, y: h.top + h.height / 2 - box.top }
+      const d = nodeRefs.current.map((el) => {
+        const r = el?.querySelector('[data-hub-visual]')?.getBoundingClientRect()
+        if (!r) return ''
+        const leftSide = r.left + r.width / 2 < h.left
+        const end = { x: (leftSide ? r.right : r.left) - box.left, y: r.top + r.height / 2 - box.top }
+        const start = { x: c.x + (leftSide ? -h.width / 2 : h.width / 2), y: c.y }
+        return fiber(start, end)
+      })
+      setPaths({ d, w: box.width, h: box.height })
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(stage)
+    return () => ro.disconnect()
+  }, [])
+
+  const node = (i: number) => (
+    <ProjectNode
+      project={PROJECTS[i]}
+      lit={i === lit}
+      nodeRef={(el) => {
+        nodeRefs.current[i] = el
+      }}
+    />
+  )
 
   return (
     <article ref={ref} className="overflow-x-clip">
-      <ToneSection tone="dark" className="px-[var(--gutter)] pb-[clamp(4rem,3rem+5vw,8rem)] pt-32">
+      <NeuralBackdrop />
+      <ToneSection tone="dark" className="relative px-[var(--gutter)] pb-[clamp(4rem,3rem+5vw,8rem)] pt-32">
         <div className="mb-14 flex items-center justify-between">
           <TransitionLink href="/#work" transitionLabel="EG" className="mono-label opacity-60 hover:opacity-100">
             ← {t(COPY.case.back)}
           </TransitionLink>
           <span className="mono-label opacity-60">{t(OVERVIEW.eyebrow)}</span>
         </div>
-        <h1 className="text-[clamp(3rem,1rem+8vw,9.5rem)] font-light leading-[0.92] tracking-tight">{t(OVERVIEW.title)}</h1>
-        <div className="mt-10 grid gap-10 md:grid-cols-12">
-          <p className="text-xl leading-relaxed opacity-85 md:col-span-6">{t(OVERVIEW.tagline)}</p>
-          <dl className="grid grid-cols-2 gap-6 md:col-span-5 md:col-start-8">
+
+        {/* Centro: el título y la frase; a un lado, los datos del producto en columna */}
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,13rem)] lg:items-center">
+          <dl className="order-last grid grid-cols-2 gap-x-6 gap-y-5 border-t border-fg/15 pt-8 lg:order-first lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             {OVERVIEW.meta.map((m) => (
               <div key={m.label.es}>
                 <dt className="mono-label mb-1 opacity-50">{t(m.label)}</dt>
-                <dd className="text-sm leading-relaxed">{t(m.value)}</dd>
+                <dd className="text-[13px] leading-snug">{t(m.value)}</dd>
               </div>
             ))}
           </dl>
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-[clamp(3.2rem,1rem+8vw,10rem)] font-light leading-[0.9] tracking-tight">{t(OVERVIEW.title)}</h1>
+            <p className="mt-6 max-w-[56ch] text-balance text-lg leading-relaxed opacity-80">{t(OVERVIEW.tagline)}</p>
+          </div>
+          <span aria-hidden="true" className="hidden lg:block" />
         </div>
 
-        <p data-reveal className="mono-label mb-6 mt-20 opacity-60">{t({ es: 'Cuatro proyectos de un mismo producto · elige uno', en: 'Four projects, one product · pick one' })}</p>
-        <ul className="grid gap-6 md:grid-cols-2">
-          {PROJECTS.map((p) => (
-            <li key={p.slug}>
-              <ProjectCard project={p} />
-            </li>
-          ))}
-        </ul>
+        {/* La red: el producto en el centro y sus cuatro proyectos alrededor */}
+        <p data-reveal className="mono-label mt-24 text-center opacity-60">{t({ es: 'Cuatro proyectos de un mismo producto · elige uno', en: 'Four projects, one product · pick one' })}</p>
+        <div ref={stageRef} className="relative mx-auto mt-10 max-w-[1240px]">
+          <svg aria-hidden="true" className="pointer-events-none absolute inset-0 hidden h-full w-full overflow-visible lg:block" viewBox={`0 0 ${paths.w} ${paths.h}`} preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="hub-fiber" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stopColor="rgb(var(--signal))" />
+                <stop offset="1" stopColor="rgb(var(--spark))" />
+              </linearGradient>
+            </defs>
+            {paths.d.map((d, i) => (
+              <g key={i}>
+                <path d={d} fill="none" stroke="white" strokeOpacity={0.1} />
+                <path d={d} fill="none" stroke="url(#hub-fiber)" strokeWidth={1.6} strokeOpacity={i === lit ? 1 : 0.25} style={{ transition: 'stroke-opacity .6s', filter: i === lit ? 'drop-shadow(0 0 5px rgb(var(--signal) / 0.7))' : 'none' }} />
+                {i === lit && !reducedMotion && (
+                  <path key={`p-${lit}`} d={d} fill="none" stroke="white" strokeWidth={2.4} strokeLinecap="round" pathLength={1} strokeDasharray="0.06 0.94" className="hub-pulse" style={{ filter: 'drop-shadow(0 0 5px white)' }} />
+                )}
+              </g>
+            ))}
+          </svg>
 
-        <div className="mt-20 grid gap-10 md:grid-cols-12">
-          <p data-reveal className="text-[clamp(1.1rem,0.95rem+0.6vw,1.45rem)] font-light leading-relaxed md:col-span-7">{t(OVERVIEW.context)}</p>
-          <aside data-reveal className="border-l-2 border-signal pl-5 text-sm leading-relaxed opacity-80 md:col-span-4 md:col-start-9">{t(OVERVIEW.honesty)}</aside>
+          <div className="relative grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-16">
+            <div className="flex flex-col gap-14">
+              {node(0)}
+              {node(2)}
+            </div>
+            {/* El producto: la neurona del centro, con su marca y su halo */}
+            <div ref={hubRef} className="relative mx-auto grid h-28 w-28 place-items-center">
+              <span aria-hidden="true" className="absolute inset-[-35%] rounded-full bg-[radial-gradient(circle,rgb(var(--signal)/0.4),transparent_70%)] blur-xl" />
+              <span aria-hidden="true" className="absolute inset-0 rounded-full border border-signal/50 animate-[nav-node-ping_2.6s_cubic-bezier(0,0,.2,1)_infinite]" />
+              <span className="relative grid h-24 w-24 place-items-center rounded-full border border-white/15 bg-[rgb(var(--void))] shadow-[0_0_0_6px_rgb(var(--signal)/0.12),0_0_40px_6px_rgb(var(--signal)/0.35)]">
+                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/80">{t({ es: 'Producto', en: 'Product' })}</span>
+              </span>
+            </div>
+            <div className="flex flex-col gap-14">
+              {node(1)}
+              {node(3)}
+            </div>
+          </div>
         </div>
+
+        <p data-reveal className="mx-auto mt-20 max-w-[60ch] text-balance text-center text-sm leading-relaxed text-paper/55">{t(OVERVIEW.honesty)}</p>
       </ToneSection>
       <NextProject project={next} />
+      <style>{'.hub-pulse { stroke-dashoffset: 0.06; animation: hub-pulse 1.1s cubic-bezier(.45,0,.25,1) both; } @keyframes hub-pulse { from { stroke-dashoffset: 0.06; opacity: 1; } 92% { opacity: 1; } to { stroke-dashoffset: -0.94; opacity: 0; } }'}</style>
     </article>
   )
 }
