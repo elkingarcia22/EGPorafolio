@@ -6,8 +6,10 @@ import { useA11y } from '@/lib/a11y'
 
 /** Dónde va la punta de la fibra mientras se desliza (fracción de la pantalla): más arriba = empieza más tarde */
 const HEAD_AT = 0.45
-/** Separación entre la fibra y el texto que rodea (px) */
-const TEXT_GAP = 56
+/** Separación mínima entre la fibra y el texto que rodea (px) */
+const TEXT_GAP = 90
+/** Cuánto se abre la fibra hacia el costado (fracción del ancho): más, más amplia la curva */
+const OPEN = 0.1
 /** Margen mínimo con el borde (px) */
 const EDGE = 16
 /** Holgura extra con el borde de la pantalla (px) */
@@ -27,23 +29,24 @@ interface TextBox {
 
 /**
  * Recorrido de la fibra: dos curvas largas y continuas, sin quiebres. La
- * primera sale del nodo de origen casi en horizontal y se abre hacia el
- * costado del texto; la segunda baja, cruza por debajo del texto en un
- * barrido amplio hacia la derecha y vuelve a caer, en curva, sobre el nodo
- * de destino. Una S elegante, como una fibra que se tiende sola.
+ * primera sale del nodo de origen casi en horizontal y se abre amplia hacia
+ * el costado del texto; la segunda baja recogiéndose hacia el centro y cae,
+ * con un giro corto, sobre el nodo de destino: abierta arriba, cerrada abajo.
  */
 function fiberPath(a: Point, b: Point, text: TextBox, width: number): string {
-  // Punto más a la izquierda: junto al texto, sin pegarse al borde de la pantalla.
-  const side = Math.max(EDGE + SWAY, Math.min(text.left - TEXT_GAP, a.x - TEXT_GAP))
-  const turn = { x: side, y: a.y + (text.bottom - a.y) * 0.62 }
-  // Hasta dónde barre por debajo del texto antes de volver al nodo.
-  const reach = Math.min(width - EDGE, b.x + width * 0.3)
-  const gap = b.y - text.bottom
+  // Punto más a la izquierda: bien abierto respecto del texto, sin salirse de la pantalla.
+  const open = Math.max(TEXT_GAP, width * OPEN)
+  const side = Math.max(EDGE + SWAY, Math.min(text.left - open, a.x - open))
+  // Arriba abre amplio; el punto de giro queda a media altura del texto para cerrar antes al bajar.
+  const turn = { x: side, y: a.y + (text.bottom - a.y) * 0.5 }
+  // En el punto de giro la fibra va justo hacia abajo (tangente vertical en ambos tramos): sin quiebres.
+  const down = b.y - turn.y
   return [
     `M${a.x},${a.y}`,
-    `C${a.x - (a.x - side) * 0.75},${a.y} ${side},${a.y + (turn.y - a.y) * 0.3} ${turn.x},${turn.y}`,
-    // Baja por el costado, barre por debajo del texto y cae desde arriba a la derecha sobre el nodo.
-    `C${side},${text.bottom + gap * 0.95} ${reach},${text.bottom + gap * 0.05} ${b.x},${b.y}`,
+    // Sale casi en horizontal y se abre en un arco amplio hasta el costado.
+    `C${a.x - (a.x - side) * 0.9},${a.y} ${side},${a.y + (turn.y - a.y) * 0.3} ${turn.x},${turn.y}`,
+    // Baja y se va recogiendo hacia el centro de a poco, hasta caer sobre el nodo desde arriba.
+    `C${side},${turn.y + down * 0.4} ${b.x - Math.min(40, (b.x - side) * 0.1)},${b.y - down * 0.45} ${b.x},${b.y}`,
   ].join(' ')
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { TransitionLink } from '@/components/transition/page-transition'
-import { ProjectPreview } from '../project-preview'
+import { OrbitNode } from './orbit-node'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import type { Project } from '@/lib/content/projects'
@@ -282,14 +282,10 @@ export function OrbitStage({ projects, target, onSelect, burst, reducedMotion }:
                     onSelect(nearestTurn(i, targetRef.current, count))
                   }
                 }}
-                className="group relative block aspect-square w-[clamp(9.5rem,5rem+11vw,16rem)] overflow-hidden rounded-full border border-fg/15 bg-[rgb(var(--void))] outline-none transition-[border-color,box-shadow] duration-500 ease-expo focus-visible:ring-2 focus-visible:ring-signal aria-[current=true]:border-fg/30 aria-[current=true]:hover:shadow-[0_0_0_10px_rgb(var(--fg)/0.05),0_30px_80px_-20px_rgb(var(--fg)/0.35)]"
-                style={{ boxShadow: isActive ? `0 0 0 1px rgb(${project.accent} / 0.5), 0 0 60px -10px rgb(${project.accent} / 0.55)` : undefined }}
+                className="group relative block aspect-square w-[clamp(9.5rem,5rem+11vw,16rem)] overflow-hidden rounded-full outline-none backdrop-blur-sm transition-[box-shadow,transform] duration-500 ease-expo focus-visible:ring-2 focus-visible:ring-signal aria-[current=true]:hover:scale-[1.03]"
+                style={{ boxShadow: isActive ? `0 0 80px -16px rgb(${project.accent} / 0.6)` : undefined }}
               >
-                {/* La vista previa llena el círculo (se recorta en los bordes) */}
-                <span className="pointer-events-none absolute left-1/2 top-1/2 block w-[170%] -translate-x-1/2 -translate-y-1/2 transition-transform duration-700 ease-expo group-hover:scale-[1.06]">
-                  <ProjectPreview project={project} compact />
-                </span>
-                <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,transparent_45%,rgb(var(--void)/0.55)_100%)]" />
+                <OrbitNode project={project} active={isActive} />
               </TransitionLink>
             </li>
           )
