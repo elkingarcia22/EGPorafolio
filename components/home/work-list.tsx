@@ -1,185 +1,169 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { TransitionLink } from '@/components/transition/page-transition'
-import { ProjectPreview } from './project-preview'
-import { gsap, scrambleText, ScrollTrigger } from '@/lib/motion'
-import { backdropJourney } from './backdrop-journey'
+import { gsap, ScrollTrigger } from '@/lib/motion'
+import { backdropQuiet } from './backdrop-journey'
+import { OrbitStage } from './work-orbit/orbit-stage'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import type { Project } from '@/lib/content/projects'
 
-function WorkCard({ project }: { project: Project }) {
-  const { t } = useLocale()
-  const { reducedMotion } = useA11y()
-  const titleRef = useRef<HTMLSpanElement>(null)
-  const title = t(project.title)
-  const accent = `rgb(${project.accent})`
-
-  const enter = () => {
-    if (titleRef.current && !reducedMotion) scrambleText(titleRef.current, title, 450)
-  }
-
-  return (
-    <li data-work-card className="flex">
-      <TransitionLink
-        href={`/proyectos/${project.slug}`}
-        transitionLabel={`N° ${project.frequency} · ${title}`}
-        data-cursor={t(COPY.work.open)}
-        onMouseEnter={enter}
-        onFocus={enter}
-        className="group relative flex w-full flex-col overflow-hidden rounded-xl border border-fg/10 bg-[rgb(var(--void)/0.6)] p-2.5 backdrop-blur-md transition-[border-color,box-shadow,transform] duration-500 ease-expo hover:-translate-y-1 hover:border-fg/25 hover:shadow-[0_24px_60px_-24px_rgb(var(--signal)/0.45)]"
-      >
-        <div className="relative overflow-hidden rounded-lg">
-          <div className="transition-transform duration-700 ease-expo group-hover:scale-[1.035]">
-            <ProjectPreview project={project} compact />
-          </div>
-        </div>
-
-        <div className="flex flex-1 flex-col px-2 pb-1.5 pt-5">
-          <div className="flex items-center gap-2">
-            <span aria-hidden="true" className="relative flex h-1.5 w-1.5">
-              <span data-work-ping className="absolute inset-0 rounded-full opacity-0" style={{ background: accent }} />
-              <span className="relative h-1.5 w-1.5 rounded-full" style={{ background: accent }} />
-            </span>
-            <span className="brand-title text-[0.68rem] opacity-70">{project.client}</span>
-            <span className="mono-label ml-auto opacity-50">N° {project.frequency}</span>
-          </div>
-
-          <span
-            ref={titleRef}
-            className="mt-3 block text-[clamp(1.6rem,0.9rem+1.6vw,2.6rem)] font-light leading-[1.05] tracking-tight"
-          >
-            {title}
-          </span>
-
-          <p className="mb-6 mt-3 line-clamp-3 text-sm leading-relaxed opacity-65">{t(project.tagline)}</p>
-
-          <div className="mt-auto flex items-center justify-between border-t border-fg/10 pt-4">
-            <span className="mono-label opacity-70 transition-opacity group-hover:opacity-100">{t(COPY.work.open)}</span>
-            <span
-              aria-hidden="true"
-              className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-full border border-fg/15 text-base transition-[transform,background-color,border-color,color] duration-500 ease-expo group-hover:rotate-45 group-hover:border-transparent group-hover:text-paper"
-            >
-              <span className="absolute inset-0 scale-0 rounded-full transition-transform duration-500 ease-expo group-hover:scale-100" style={{ background: accent }} />
-              <span className="relative">↗</span>
-            </span>
-          </div>
-        </div>
-
-        <span
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-[3px] origin-left scale-x-0 transition-transform duration-700 ease-expo group-hover:scale-x-100"
-          style={{ background: accent }}
-        />
-      </TransitionLink>
-    </li>
-  )
-}
-
-/** Movimiento de cámara del fondo al entrar (picada a un nodo y alejarse girando) */
-const JOURNEY_MS = 2400
-/** Momentos (s desde que empieza la cámara): título y primeras tarjetas */
-const TITLE_AT_S = 1.5
-const CARDS_AT_S = 1.8
-/** Paso entre tarjetas y entre palabras del título */
-const CARD_STAGGER_S = 0.16
+/** Momentos (s desde que la sección entra): título, nacimiento de la órbita y ficha */
+const TITLE_AT_S = 0.15
+const BURST_AT_S = 0.45
+const BURST_S = 1.8
+const INFO_AT_S = 1.6
 const WORD_STAGGER_S = 0.09
-/** De dónde llegan las tarjetas: desde el fondo, inclinadas y desenfocadas */
-const CARD_FROM = { z: -420, rotateX: 26, y: 90, blur: 12 }
+/** Mientras se ve la órbita, el fondo se calma para que sus fibras se lean */
+const QUIET_LEVEL = 0.85
 
 /**
- * Proyectos: la cámara del fondo único entra en picada hasta una neurona (con
- * sus conexiones en primer plano) y se aleja girando hacia una esquina. Al
- * terminar, el título aparece palabra por palabra y las tarjetas llegan desde
- * el fondo en 3D, una tras otra, y su punto de color late al conectarse.
+ * Proyectos: una órbita de nodos. Al entrar, los proyectos salen disparados
+ * desde un punto central —las fibras se tienden hacia cada uno— y se acomodan
+ * en un anillo en profundidad que gira como carrusel. Debajo, la ficha del
+ * proyecto del frente cambia con cada giro.
  */
 export function WorkList({ projects }: { projects: readonly Project[] }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
-  const listRef = useRef<HTMLUListElement>(null)
+  const infoRef = useRef<HTMLDivElement>(null)
+  const burst = useRef(0)
+  const [target, setTarget] = useState(0)
+  const count = projects.length
+  const active = count ? ((target % count) + count) % count : 0
+  const project = projects[active]
   const title = t(COPY.work.title)
 
+  // Entrada: título palabra por palabra, la órbita nace del centro y llega la ficha.
   useEffect(() => {
     const root = rootRef.current
-    const list = listRef.current
-    if (!root || !list || reducedMotion) return
-    /** Turno del viaje de cámara que pidió esta sección (solo ella lo suelta) */
-    let turn = 0
+    if (!root) return
+    if (reducedMotion) {
+      burst.current = 1
+      return
+    }
     const ctx = gsap.context(() => {
       const words = root.querySelectorAll('[data-work-word]')
-      const cards = gsap.utils.toArray<HTMLElement>('[data-work-card]', list)
-      /** Momento (performance.now) en que empezó la cámara; las tarjetas esperan a que termine */
-      let playedAt = 0
-
-      const hideTitle = () => gsap.set(words, { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' })
-      const hideCards = () => gsap.set(cards, { autoAlpha: 0, z: CARD_FROM.z, rotateX: CARD_FROM.rotateX, y: CARD_FROM.y, filter: `blur(${CARD_FROM.blur}px)` })
-      hideTitle()
-      hideCards()
-
-      const showCard = (card: HTMLElement, order: number) => {
-        const wait = playedAt ? Math.max(0, CARDS_AT_S - (performance.now() - playedAt) / 1000) : 0
-        gsap.timeline({ delay: wait + order * CARD_STAGGER_S })
-          .to(card, { autoAlpha: 1, z: 0, rotateX: 0, y: 0, filter: 'blur(0px)', duration: 1.3, ease: 'expo.out', clearProps: 'transform,filter' })
-          // Al llegar, el punto del cliente emite un pulso: conexión encontrada.
-          .fromTo(card.querySelector('[data-work-ping]'), { scale: 1, opacity: 0.85 }, { scale: 4, opacity: 0, duration: 0.9, ease: 'power2.out' }, '-=0.6')
+      const info = root.querySelector('[data-work-info]')
+      const hide = () => {
+        gsap.set(words, { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' })
+        gsap.set(info, { autoAlpha: 0, y: 24 })
+        burst.current = 0
       }
-
+      hide()
+      let intro: gsap.core.Timeline | null = null
       ScrollTrigger.create({
         trigger: root,
-        start: 'top 88%',
+        start: 'top 70%',
         onEnter: () => {
-          playedAt = performance.now()
-          turn = backdropJourney.play({ kind: 'dive-out', durationMs: JOURNEY_MS })
-          gsap.to(words, { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: WORD_STAGGER_S, ease: 'expo.out', delay: TITLE_AT_S })
+          intro?.kill()
+          intro = gsap.timeline()
+            .to(words, { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: WORD_STAGGER_S, ease: 'expo.out' }, TITLE_AT_S)
+            .to(burst, { current: 1, duration: BURST_S, ease: 'power2.out' }, BURST_AT_S)
+            .to(info, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'expo.out' }, INFO_AT_S)
         },
         onLeaveBack: () => {
-          backdropJourney.release(turn)
-          playedAt = 0
-          hideTitle()
+          intro?.kill()
+          hide()
         },
       })
-      // Cada tarjeta llega cuando entra en pantalla (las primeras, al terminar la cámara).
-      cards.forEach((card, i) => {
-        ScrollTrigger.create({ trigger: card, start: 'top 95%', once: true, onEnter: () => showCard(card, i % 2) })
+      // El fondo se calma mientras la órbita está en pantalla.
+      ScrollTrigger.create({
+        trigger: root,
+        start: 'top 60%',
+        end: 'bottom 30%',
+        onToggle: (self) => backdropQuiet.set('work', self.isActive ? QUIET_LEVEL : 0),
       })
-      // Al dejar la sección, la cámara vuelve a flotar.
-      ScrollTrigger.create({ trigger: list, start: 'bottom 40%', onEnter: () => backdropJourney.release(turn) })
     }, root)
     return () => {
-      backdropJourney.release(turn)
+      backdropQuiet.set('work', 0)
       ctx.revert()
     }
-  }, [reducedMotion, projects.length])
+  }, [reducedMotion])
+
+  // Cada giro: la ficha cambia con un fundido corto.
+  useEffect(() => {
+    const info = infoRef.current
+    if (!info || reducedMotion || burst.current < 1) return
+    gsap.fromTo(info.querySelectorAll('[data-info-line]'), { autoAlpha: 0, y: 14, filter: 'blur(6px)' }, {
+      autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.7, stagger: 0.06, ease: 'expo.out',
+    })
+  }, [active, reducedMotion])
+
+  if (!project) return null
+  const projectTitle = t(project.title)
 
   return (
-    <ToneSection tone="dark" id="work" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
-      <div ref={rootRef}>
-        <div className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <SectionLabel index="01" className="mb-8">{t(COPY.work.label)}</SectionLabel>
-            <h2 className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight [text-shadow:0_2px_18px_rgb(var(--void)/0.85)]">
-              {title.split(' ').map((word, i, all) => (
-                <span key={i} data-work-word className="inline-block">
-                  {word}
-                  {i < all.length - 1 && '\u00a0'}
-                </span>
-              ))}
-            </h2>
-          </div>
+    <ToneSection tone="dark" id="work" className="overflow-hidden px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
+      <div ref={rootRef} className="mx-auto flex max-w-6xl flex-col items-center text-center">
+        <SectionLabel index="01" thread={false} fiber="to" className="mb-8">{t(COPY.work.label)}</SectionLabel>
+        <h2 className="text-[clamp(2.4rem,1rem+5vw,6rem)] font-light leading-[0.9] tracking-tight [text-shadow:0_2px_18px_rgb(var(--void)/0.85)]">
+          {title.split(' ').map((word, i, all) => (
+            <span key={i} data-work-word className="inline-block">
+              {word}
+              {i < all.length - 1 && ' '}
+            </span>
+          ))}
+        </h2>
+
+        <div className="relative mt-6 w-full">
+          <OrbitStage projects={projects} target={target} onSelect={setTarget} burst={burst} reducedMotion={reducedMotion} />
         </div>
 
-        {/* Perspectiva: las tarjetas llegan desde la profundidad de la red */}
-        <ul ref={listRef} className="grid gap-5 [perspective:1400px] md:grid-cols-2 lg:gap-8">
-          {projects.map((project) => (
-            <WorkCard key={project.slug} project={project} />
-          ))}
-        </ul>
+        {/* Ficha del proyecto del frente */}
+        <div ref={infoRef} data-work-info aria-live="polite" className="mt-2 flex w-full max-w-2xl flex-col items-center">
+          <div data-info-line className="flex items-center gap-3">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ background: `rgb(${project.accent})` }} />
+            <span className="brand-title text-[0.68rem] opacity-70">{project.client}</span>
+            <span className="mono-label opacity-50">N° {project.frequency}</span>
+          </div>
+          <h3 data-info-line className="mt-4 text-[clamp(1.8rem,1rem+2vw,3rem)] font-light leading-[1.05] tracking-tight">
+            {projectTitle}
+          </h3>
+          <p data-info-line className="mt-3 max-w-xl text-sm leading-relaxed opacity-65 md:text-base">{t(project.tagline)}</p>
+
+          <div data-info-line className="mt-8 flex items-center gap-4">
+            <OrbitArrow label={t(COPY.work.prev)} onClick={() => setTarget((v) => v - 1)} direction={-1} />
+            <TransitionLink
+              href={`/proyectos/${project.slug}`}
+              transitionLabel={`N° ${project.frequency} · ${projectTitle}`}
+              className="group inline-flex items-center gap-3 rounded-full border border-fg/20 px-6 py-3 transition-[border-color,background-color,color] duration-500 ease-expo hover:border-transparent hover:bg-fg hover:text-[rgb(var(--void))]"
+            >
+              <span className="mono-label">{t(COPY.work.open)}</span>
+              <span aria-hidden="true" className="transition-transform duration-500 ease-expo group-hover:rotate-45">↗</span>
+            </TransitionLink>
+            <OrbitArrow label={t(COPY.work.next)} onClick={() => setTarget((v) => v + 1)} direction={1} />
+          </div>
+
+          {/* Posición en la órbita */}
+          <div data-info-line className="mt-6 flex gap-2" aria-hidden="true">
+            {projects.map((p, i) => (
+              <span
+                key={p.slug}
+                className={`h-1 rounded-full transition-[width,background-color] duration-500 ease-expo ${i === active ? 'w-6 bg-fg' : 'w-1.5 bg-fg/25'}`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </ToneSection>
+  )
+}
+
+function OrbitArrow({ label, onClick, direction }: { label: string; onClick: () => void; direction: 1 | -1 }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="grid h-11 w-11 place-items-center rounded-full border border-fg/15 transition-[border-color,transform] duration-500 ease-expo hover:border-fg/40 active:scale-90"
+    >
+      <span aria-hidden="true">{direction < 0 ? '←' : '→'}</span>
+    </button>
   )
 }

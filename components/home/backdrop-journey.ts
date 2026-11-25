@@ -51,14 +51,17 @@ export const backdropJourney = {
   },
 }
 
-/** Calma del fondo (0–1): una sección lo atenúa mientras su propia red ocupa la pantalla. */
-let quietLevel = 0
+/** Calma del fondo (0–1) que pide cada sección; manda la mayor, para que dos secciones no se pisen. */
+const quietLevels = new Map<string, number>()
 
 export const backdropQuiet = {
-  set(level: number): void {
-    quietLevel = Math.min(1, Math.max(0, level))
+  /** `owner` identifica a la sección que lo pide (hero, enfoque, proyectos…). */
+  set(owner: string, level: number): void {
+    quietLevels.set(owner, Math.min(1, Math.max(0, level)))
   },
   get(): number {
-    return quietLevel
+    let max = 0
+    quietLevels.forEach((level) => (max = Math.max(max, level)))
+    return max
   },
 }

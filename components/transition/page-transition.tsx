@@ -3,11 +3,9 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ConnectionSearch } from '@/components/home/connection-search'
+import { NeuralFlight } from '@/components/home/neural-flight'
 import { gsap, jumpToHash, scrollToTop } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
-import { useLocale } from '@/lib/i18n'
-import { COPY } from '@/lib/content/copy'
 
 type Navigate = (href: string, label?: string) => void
 
@@ -18,8 +16,11 @@ const BAR_COUNT = 6
 const WAIT_CAP = 0.9
 /** Lo que tarda en llegar a ese tope, como la carga del inicio */
 const LOAD_S = 2.2
-/** Tiempo mínimo con la red a la vista: alcanza a buscar y tejer algunas conexiones */
-const MIN_SHOW_MS = 900
+/** Tiempo mínimo con la red a la vista: alcanza a tejer las conexiones en primer plano */
+const MIN_SHOW_MS = 1400
+/** El nombre del proyecto aparece palabra por palabra, como el titular del inicio */
+const LABEL_AT_S = 0.35
+const LABEL_STAGGER_S = 0.08
 /** Cierre: el porcentaje llega a 100 y las conexiones se sueltan */
 const FINISH_S = 0.35
 const DISSOLVE_S = 0.5
@@ -29,16 +30,17 @@ const HARD_NAV_MS = 12000
 /**
  * Cortina de barras verticales (las barras de la hoja de vida) que cubre
  * la pantalla al salir de una página y se retira al entrar a la nueva.
- * Mientras cubre, se ve la misma carga del inicio: nodos que buscan
- * conectarse y el porcentaje de la conexión.
+ * Mientras cubre, se ve la misma carga del inicio: la cámara entra a la red
+ * mientras los nodos en primer plano se conectan, y el nombre del destino
+ * aparece palabra por palabra. Al llegar la página, la cámara salta hacia
+ * adelante y la cortina se retira.
  */
 export function TransitionOverlay() {
   const router = useRouter()
   const pathname = usePathname()
   const { reducedMotion } = useA11y()
-  const { t } = useLocale()
   const rootRef = useRef<HTMLDivElement>(null)
-  const countRef = useRef<HTMLSpanElement>(null)
+  const labelRef = useRef<HTMLParagraphElement>(null)
   const isCovering = useRef(false)
   const firstRoute = useRef(true)
   const [label, setLabel] = useState('')
@@ -60,10 +62,9 @@ export function TransitionOverlay() {
 
   const bars = () => rootRef.current?.querySelectorAll<HTMLElement>('[data-bar]') ?? []
 
-  /** El porcentaje en pantalla y el avance que lee la red, siempre juntos. */
+  /** El avance que lee la red (0–1). */
   const syncCounter = () => {
     loadProgress.current = counter.current.v / 100
-    if (countRef.current) countRef.current.textContent = String(Math.round(counter.current.v)).padStart(3, '0')
   }
 
   const navigate = useCallback<Navigate>(
@@ -103,6 +104,18 @@ export function TransitionOverlay() {
     },
     [reducedMotion, router],
   )
+
+  // El nombre del destino entra palabra por palabra cuando la cortina ya cubre.
+  useEffect(() => {
+    const words = labelRef.current?.querySelectorAll('[data-label-word]')
+    if (!covered || !words?.length) return
+    const tween = gsap.fromTo(words, { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' }, {
+      autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: LABEL_STAGGER_S, ease: 'expo.out', delay: LABEL_AT_S,
+    })
+    return () => {
+      tween.kill()
+    }
+  }, [covered, label, netKey])
 
   useEffect(() => {
     navigateHandler = navigate
@@ -153,16 +166,20 @@ export function TransitionOverlay() {
       {Array.from({ length: BAR_COUNT }, (_, i) => (
         <div key={i} data-bar className="h-full flex-1 bg-void" style={{ transform: 'scaleY(0)' }} />
       ))}
-      {/* La misma carga del inicio: nodos que buscan conectarse y el porcentaje */}
+      {/* La misma carga del inicio: la red armándose en primer plano y el nombre del destino */}
       <div className={`absolute inset-0 transition-opacity duration-300 ${covered ? 'opacity-100 delay-150' : 'opacity-0'}`}>
-        {showNet && <ConnectionSearch key={netKey} progress={loadProgress} className="absolute inset-0 h-full w-full" />}
-        <div className="relative flex h-full flex-col items-center justify-center gap-5 px-[var(--gutter)]">
-          <span className="mono-label flex items-center gap-3 tabular-nums text-paper/70">
-            <span className="h-px w-8 bg-current" />
-            <span>{t(COPY.hero.loading)} · <span ref={countRef}>000</span>%</span>
-            <span className="h-px w-8 bg-current" />
-          </span>
-          {label && <p className="mono-label caret text-paper/80">{label}</p>}
+        {showNet && <NeuralFlight key={netKey} progress={loadProgress} className="absolute inset-0 h-full w-full" />}
+        <div className="relative flex h-full items-end justify-center px-[var(--gutter)] pb-[18svh]">
+          {label && (
+            <p ref={labelRef} className="max-w-3xl text-center text-[clamp(1.6rem,1rem+2.4vw,3.2rem)] font-light leading-[1.05] tracking-tight text-paper [text-shadow:0_2px_18px_rgb(var(--void)/0.85)]">
+              {label.split(' ').map((word, i, all) => (
+                <span key={`${netKey}-${i}`} data-label-word className="inline-block opacity-0">
+                  {word}
+                  {i < all.length - 1 && '\u00a0'}
+                </span>
+              ))}
+            </p>
+          )}
         </div>
       </div>
     </div>

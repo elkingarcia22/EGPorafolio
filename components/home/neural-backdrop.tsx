@@ -19,7 +19,7 @@ const FADE = { drift: 0.55, travel: 0.95, read: 0.26 }
 const READ_DIM_AFTER_MS = 250
 const FADE_EASE = 0.05
 /** Cuánto se apaga el fondo cuando una sección pide calma (p. ej. mientras se arma el EG) */
-const QUIET_DIM = 0.8
+const QUIET_DIM = 0.92
 /** Distancia a la que la cámara se detiene frente a cada neurona del viaje */
 const ARRIVE_DISTANCE = 3.4
 /** Dónde busca la neurona de destino: cuánto más adelante de la cámara */

@@ -9,7 +9,7 @@ const NUDGE_VIEWPORTS = 1.1
 const FIBER_PATH = 'M12 2 C 20 22, 4 40, 12 62'
 
 /** Neurona-estrella: núcleo blanco, halo frío y destello en cruz (como la red Sinapsis). */
-function Neuron({ size, live = false }: { size: 'lg' | 'sm'; live?: boolean }) {
+export function Neuron({ size, live = false }: { size: 'lg' | 'sm'; live?: boolean }) {
   const box = size === 'lg' ? 'h-10 w-10' : 'h-6 w-6'
   return (
     <span className={`relative grid place-items-center ${box}`} aria-hidden="true">

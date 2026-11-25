@@ -45,6 +45,9 @@ export const COPY = {
     label: { es: 'Nodos', en: 'Nodes' },
     title: { es: 'Proyectos seleccionados', en: 'Selected work' },
     open: { es: 'Ver caso', en: 'View case' },
+    prev: { es: 'Proyecto anterior', en: 'Previous project' },
+    next: { es: 'Proyecto siguiente', en: 'Next project' },
+    drag: { es: 'Arrastra para girar', en: 'Drag to turn' },
   },
   about: {
     label: { es: 'Trayectoria', en: 'Journey' },

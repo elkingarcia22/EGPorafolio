@@ -6,6 +6,7 @@ import { NeuralFlight } from './neural-flight'
 import { EgJourney } from './eg-journey'
 import { useIntroAutoplay } from './use-intro-autoplay'
 import { backdropQuiet } from './backdrop-journey'
+import { introLock } from './intro-lock'
 import { ToneSection } from '@/components/ui/tone-section'
 import { ScrollCue } from './scroll-cue'
 import { HoverTuneLabel } from './hover-tune-label'
@@ -52,6 +53,8 @@ const EG_FIT = { width: 0.62, height: 0.42, centerY: 0.38 }
 const SIGNAL_READ_AT = 0.3
 const NAME_READ_AT = 0.6
 /** Tramo del hero en que el fondo se calma (del puente a la firma) */
+/** Si la página ya carga más abajo que esto (scroll restaurado), no se bloquea la entrada */
+const INTRO_LOCK_MAX_Y = 10
 const QUIET_FROM = 0.2
 const QUIET_UNTIL = 0.97
 /** Margen para volver a esconderlos al subir (evita parpadeos justo en el borde) */
@@ -175,7 +178,8 @@ function useBoot(
     // Al recargar con el scroll ya abajo (el navegador lo restaura), la carga no se queda
     // encima del EG: se completa al instante. Igual si se desliza mientras carga.
     const finishIfScrolled = () => {
-      if (window.scrollY < SCROLLED_PX) return
+      // Con la entrada bloqueada, un scroll que se cuele no la da por terminada (vuelve a su lugar).
+      if (window.scrollY < SCROLLED_PX || introLock.isLocked()) return
       started = true
       tl.progress(1)
       window.removeEventListener('scroll', finishIfScrolled)
@@ -235,6 +239,8 @@ export function Hero() {
   // Primera visita: después del titular, la entrada baja sola hasta el EG y la firma.
   const autoplay = !reducedMotion && !isReturn
   const showCue = useCallback(() => {
+    // Terminó la entrada: la página vuelve a deslizarse.
+    introLock.unlock()
     const cue = sectionRef.current?.querySelector('[data-boot="cue"]')
     if (cue) gsap.fromTo(cue, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1, ease: 'expo.out' })
   }, [])
@@ -244,6 +250,13 @@ export function Hero() {
     if (window.location.hash || !startIntro()) showCue()
   }
   useBoot(sectionRef, headline, loaderProgress, reducedMotion, isReturn, introRef, autoplay)
+
+  // Primera visita: sin scroll desde la carga hasta la firma (la entrada no se corta).
+  useEffect(() => {
+    if (!autoplay || window.location.hash || window.scrollY > INTRO_LOCK_MAX_Y) return
+    introLock.lock()
+    return () => introLock.unlock()
+  }, [autoplay])
 
   // De vuelta desde otra página: arranca en el titular y, cuando la cortina se retira,
   // el scroll baja solo hasta el EG con la firma.
@@ -310,7 +323,7 @@ export function Hero() {
         const at = tl.time()
         // Mientras se arma el EG y se lee la firma, el fondo se calma: solo la red del EG.
         const part = at / tl.duration()
-        backdropQuiet.set(part >= QUIET_FROM && part < QUIET_UNTIL ? 1 : 0)
+        backdropQuiet.set('hero', part >= QUIET_FROM && part < QUIET_UNTIL ? 1 : 0)
         if (!signalShown && at >= SIGNAL_READ_AT) {
           signalShown = true
           // El puente termina de aparecer justo cuando el EG termina de armarse.
@@ -338,7 +351,7 @@ export function Hero() {
 
     return () => {
       snap.current = { trigger: null, rests: [] }
-      backdropQuiet.set(0)
+      backdropQuiet.set('hero', 0)
       ctx.revert()
     }
   }, [reducedMotion])
