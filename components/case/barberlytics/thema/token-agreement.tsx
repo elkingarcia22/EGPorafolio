@@ -56,7 +56,7 @@ function Swatch({ value, kind, state }: { value: string | null; kind?: Row['kind
  * se resuelve solo al entrar. Cada fila muestra lo que decía cada una de las
  * cuatro fuentes; al resolverse, las que coinciden se marcan, las demás se
  * apagan y llega la decisión. Tocar un token muestra el motivo y cómo queda en
- * el tema Premium. De la última decisión sale la fibra hacia «La idea».
+ * el tema Premium. Debajo de la matriz sale la fibra hacia «La idea».
  */
 export function TokenAgreement() {
   const { t } = useLocale()
@@ -110,9 +110,8 @@ export function TokenAgreement() {
                   </span>
                 ))}
                 <span aria-hidden="true" className={`text-center text-paper/40 transition-opacity duration-300 ${isResolved ? 'opacity-100' : 'opacity-0'}`}>→</span>
-                <span role="cell" className={`relative transition-all duration-500 ${isResolved ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'}`}>
+                <span role="cell" className={`transition-all duration-500 ${isResolved ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'}`}>
                   <Swatch value={r.decision} kind={r.kind} state="decision" />
-                  {i === ROWS.length - 1 && <span data-fiber-from="th-idea" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
               </button>
             )
@@ -137,8 +136,14 @@ export function TokenAgreement() {
             </p>
           )}
         </div>
-      </div>
 
+        {/* De aquí, por debajo de la matriz, sale la fibra hacia «La idea» */}
+        <div className="mt-6 flex justify-center">
+          <span aria-hidden="true" className="relative h-2.5 w-2.5 rounded-full border border-white/60 bg-signal shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
+            <span data-fiber-from="th-idea" className="absolute left-1/2 top-1/2 h-px w-px" />
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
