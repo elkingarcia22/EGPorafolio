@@ -34,7 +34,8 @@ const QUIET = { hero: 1, chapters: 1 }
 /** Todos sobre la misma red de fondo; cada uno llega de una manera distinta */
 const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'puntos', entry: 'bloom' },
-  { id: 'patrones', entry: 'converge' },
+  // De «Los puntos» baja el hilo de color hasta «Patrones» (sin las fibras laterales)
+  { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'thread' },
   { id: 'bocetos', entry: 'warp' },
   { id: 'forma', entry: 'converge' },

@@ -38,8 +38,8 @@ export const OBJ_CASE = {
   dots: {
     kicker: { es: 'Los objetivos se configuraban. Después, silencio.', en: 'Goals got configured. Then, silence.' } as L,
     lead: {
-      es: 'En la plataforma, Objetivos era una pantalla: «Configuración de ciclos de objetivos». El admin armaba el ciclo, cargaba un Excel y ahí terminaba el producto. No había cómo ver si la empresa avanzaba, ni a quién ayudar, ni qué hacer con el resultado al cierre. El primer prototipo resolvió la carga; el rediseño tenía que cubrir el ciclo entero.',
-      en: 'On the platform, Goals was one screen: “Goal cycle setup”. The admin built the cycle, uploaded an Excel file and that was the end of the product. There was no way to see whether the company was moving, whom to help, or what to do with the result at close. The first prototype solved the upload; the redesign had to cover the whole cycle.',
+      es: 'Objetivos era una sola pantalla: armar el ciclo y cargar un Excel. Ahí terminaba; nadie veía si la empresa avanzaba.',
+      en: 'Goals was a single screen: set up the cycle and upload an Excel. It ended there; no one could see if the company moved.',
     } as L,
     seen: [
       {
@@ -65,8 +65,8 @@ export const OBJ_CASE = {
 
   patterns: {
     lead: {
-      es: 'Sin entrevistas ni métricas de uso, la investigación fue de producto: comparé cómo escriben objetivos cinco tipos de empresa y de ahí salieron las reglas que quedaron en el código.',
-      en: 'With no interviews or usage metrics, research was product research: I compared how five kinds of companies write goals, and that produced the rules that ended up in the code.',
+      es: 'Sin entrevistas ni métricas de uso, comparé cómo escriben objetivos cinco tipos de empresa.',
+      en: 'With no interviews or usage data, I compared how five kinds of companies write goals.',
     } as L,
     insights: [
       { es: 'Premiar la constancia de reportar, no el % crudo: el % castiga a quien se pone metas ambiciosas.', en: 'Reward the habit of reporting, not the raw %: raw % punishes ambitious goals.' },
@@ -85,8 +85,8 @@ export const OBJ_CASE = {
 
   form: {
     lead: {
-      es: 'El rediseño se construyó como producto, en React, sobre el sistema de diseño de UBITS. Aquí, los bloques reales de Resultados y el mapa de alineación con las cifras de un ciclo de prueba; al final, las páginas reales completas.',
-      en: 'The redesign was built as a product, in React, on UBITS’ design system. Here, the real Results blocks and the alignment map with the figures of a test cycle; at the end, the real full pages.',
+      es: 'El rediseño se construyó en React, sobre el sistema de diseño de UBITS: estos son sus bloques reales, con datos de prueba.',
+      en: 'The redesign was built in React on the UBITS design system: these are its real blocks, with test data.',
     } as L,
     steps: [
       { id: 'general', label: { es: 'Parametrización', en: 'Setup' }, shot: { src: img('crear'), alt: { es: 'Paso 1 del constructor: nombre, duración y fechas', en: 'Builder step 1: name, duration and dates' }, caption: { es: 'Nombre, duración y quién redacta. «Así va el ciclo» dice qué falta.', en: 'Name, duration and who writes. “How the cycle is going” says what’s missing.' } } },
@@ -110,8 +110,8 @@ export const OBJ_CASE = {
 
   ai: {
     lead: {
-      es: 'Escribir un buen objetivo es lo más difícil de lanzar un ciclo. «Crear con IA» lo cambia por dos preguntas que cualquiera responde —cuál es el reto y qué tiene que ser verdad al cierre— y devuelve objetivos medibles, con su medida, su punto de partida y su meta.',
-      en: 'Writing a good goal is the hardest part of launching a cycle. “Create with AI” swaps it for two questions anyone can answer —what’s the challenge and what must be true at close— and returns measurable goals, with their measure, starting point and target.',
+      es: 'Escribir un buen objetivo es lo más difícil. «Crear con IA» lo resuelve con dos preguntas que cualquiera responde.',
+      en: 'Writing a good goal is the hardest part. “Create with AI” solves it with two questions anyone can answer.',
     } as L,
   },
 
@@ -141,8 +141,8 @@ export const OBJ_CASE = {
 
   demo: {
     lead: {
-      es: 'El módulo real, construido y en vivo: la vista del administrador de Objetivos con el alcance completo activado, sin el resto de la plataforma. Crea un ciclo o abre los resultados de uno.',
-      en: 'The real module, built and live: the Goals admin view with the full scope switched on, without the rest of the platform. Create a cycle or open a cycle’s results.',
+      es: 'El módulo real y en vivo, solo Objetivos: crea un ciclo o abre los resultados de uno.',
+      en: 'The real, live module, Goals only: create a cycle or open one’s results.',
     } as L,
   },
 } as const

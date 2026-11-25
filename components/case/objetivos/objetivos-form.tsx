@@ -85,7 +85,7 @@ export function ObjetivosForm() {
       <Station
         index="5.1"
         title={{ es: 'Leer un ciclo en cinco preguntas', en: 'Reading a cycle in five questions' }}
-        lead={{ es: 'Resultados no es un tablero de cifras sueltas: está ordenado por las preguntas que se hace quien administra. Cada pregunta enciende su bloque real, con su gráfico y las cifras de un ciclo de prueba. Avanza solo o toca un número.', en: 'Results isn’t a board of loose figures: it’s ordered by the questions an admin asks. Each question lights up its real block, with its chart and the figures of a test cycle. It advances on its own, or tap a number.' }}
+        lead={{ es: 'Resultados se ordena por las preguntas de quien administra: cada una enciende su bloque real. Avanza solo o toca un número.', en: 'Results is ordered by the questions an admin asks: each one lights up its real block. It advances alone, or tap a number.' }}
       >
         <CycleReading />
       </Station>
@@ -93,7 +93,7 @@ export function ObjetivosForm() {
       <Station
         index="5.2"
         title={{ es: 'Alinear: el último paso de crear un ciclo', en: 'Align: the last step of creating a cycle' }}
-        lead={{ es: 'Antes de publicar, el último paso conecta lo asignado con la estrategia. La vista «Colaboradores» lo muestra en cascada: cada persona aporta a su grupo y cada grupo a los objetivos de empresa. La cámara arranca en una tarjeta y se aleja hasta ver todo el ciclo, con las personas, áreas y aportes de un ciclo de prueba.', en: 'Before publishing, the last step connects what was assigned with strategy. The “Collaborators” view shows it as a cascade: each person feeds their group and each group the company goals. The camera starts on one card and pulls back to the whole cycle, with the real people, areas and contributions from a test cycle.' }}
+        lead={{ es: 'El último paso antes de publicar conecta lo asignado con la estrategia, en cascada: persona, grupo y empresa.', en: 'The last step before publishing connects what was assigned with strategy, as a cascade: person, group and company.' }}
       >
         <AlignmentBuilder />
       </Station>
@@ -101,7 +101,7 @@ export function ObjetivosForm() {
       <Station
         index="5.3"
         title={{ es: 'Y así se ve el producto construido', en: 'And this is the built product' }}
-        lead={{ es: 'Las páginas reales, enteras y a su resolución. Bajan solas, pero puedes recorrerlas a mano o ampliarlas para mirar el detalle.', en: 'The real pages, whole and at their own resolution. They scroll on their own, but you can move through them or enlarge them to see the detail.' }}
+        lead={{ es: 'Las páginas reales, enteras: bajan solas, pero puedes recorrerlas o ampliarlas para ver el detalle.', en: 'The real pages, whole: they scroll alone, but you can move through them or enlarge them for detail.' }}
       >
         <PlaygroundReel />
       </Station>

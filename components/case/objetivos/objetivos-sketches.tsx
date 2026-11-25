@@ -335,8 +335,8 @@ export function ObjetivosSketches() {
     <div>
       <CaseLead className="mb-10">
         {t({
-          es: 'Cuatro tableros, en el orden en que se discutieron: un objetivo desarmado en las piezas que combinan los modelos, la pregunta que cambia todo el constructor (¿quién redacta?), reportar y aprobar desde cada rol, y cómo leer un ciclo sin abrir siete reportes. Los dos primeros se pueden tocar.',
-          en: 'Four boards, in the order they were discussed: a goal taken apart into the pieces models combine, the question that changes the whole builder (who writes?), reporting and approving from each role, and how to read a cycle without opening seven reports. The first two are interactive.',
+          es: 'Cuatro tableros, en el orden en que se discutieron: del objetivo desarmado en piezas a cómo leer un ciclo sin abrir siete reportes.',
+          en: 'Four boards, in the order they were discussed: from a goal taken apart to reading a cycle without opening seven reports.',
         })}
       </CaseLead>
       <SketchWall />

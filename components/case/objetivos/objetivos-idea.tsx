@@ -14,8 +14,8 @@ export function ObjetivosIdea() {
       <p data-reveal="mask" className="mx-auto max-w-[24ch] text-center text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.1] tracking-tight">{t(OBJ_CASE.idea.hmw)}</p>
       <CaseLead className="mt-8">
         {t({
-          es: 'Lo central de la idea: no obligar a ninguna empresa a cambiar su método. El modelo, quién redacta, la medida y la duración se eligen; todo lo que viene después lee esas reglas.',
-          en: 'The core of the idea: never force a company to change its method. Model, who writes, measure and length are chosen; everything after that reads those rules.',
+          es: 'Ninguna empresa cambia su método: el modelo, quién redacta, la medida y la duración se eligen, y todo lo demás lee esas reglas.',
+          en: 'No company changes its method: model, who writes, measure and length are chosen, and everything else reads those rules.',
         })}
       </CaseLead>
 
