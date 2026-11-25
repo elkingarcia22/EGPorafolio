@@ -1,114 +1,165 @@
 'use client'
 
-import { useLocale, type L } from '@/lib/i18n'
-import { LEARNINGS } from '@/lib/content/cases/sellup/sellup-agents'
-import { BLUE, useInView } from './ui'
-import { useCountUp, usd } from './ai-hooks'
-import { project } from './impact-model'
-import { ImpactSimulator } from './impact-sim'
+import { useEffect, useRef, useState } from 'react'
+import { useA11y } from '@/lib/a11y'
+import { useLocale } from '@/lib/i18n'
+import { CaseLead } from '@/components/case/case-lead'
+import { RECEIPTS, type Receipt } from '@/lib/content/cases/sellup/sellup-agents'
 
+/** Cada cuánto se imprime una línea (ms) */
+const LINE_MS = 260
+/** Pausa entre un recibo y el siguiente (ms) */
+const BETWEEN_MS = 700
+/** Ya impresos, cada cuánto se enciende el siguiente para leer su nota (ms) */
+const READ_MS = 4600
 
-const DEFAULT = project(6, 25)
+/** Líneas que imprime cada recibo: las suyas y el total */
+const linesOf = (r: Receipt) => r.lines.length + 1
 
-interface Row {
-  label: L
-  before: number
-  after: number
-  fmt: (n: number) => string
-}
-
-/** Antes y después, por vendedor. Cifras de referencia. */
-const BEFORE_AFTER: readonly Row[] = [
-  { label: { es: 'Horas de prospección a la semana', en: 'Prospecting hours a week' }, before: 6, after: 1.5, fmt: (n) => `${String(n).replace('.', ',')} h` },
-  { label: { es: 'Empresas trabajadas a la semana', en: 'Companies worked a week' }, before: 10, after: 25, fmt: (n) => `${n}` },
-  { label: { es: 'Primeras llamadas que conectan', en: 'First calls that connect' }, before: 18, after: 30, fmt: (n) => `${n}%` },
-  { label: { es: 'Costo de preparar una empresa', en: 'Cost to prepare a company' }, before: 9, after: 0.7, fmt: (n) => `US$${String(n).replace('.', ',')}` },
-]
-
-/** Barras de antes y después que crecen al entrar en pantalla. */
-function BeforeAfter() {
-  const { t } = useLocale()
-  const [ref, seen] = useInView<HTMLDivElement>(0.3)
+/** El borde de abajo, cortado en dientes como un ticket */
+function Teeth() {
   return (
-    <div ref={ref} className="grid gap-x-10 gap-y-7 md:grid-cols-2">
-      {BEFORE_AFTER.map((r, i) => {
-        const max = Math.max(r.before, r.after)
-        const bars = [
-          { k: 'before', v: r.before, c: 'rgba(232,233,236,0.25)', lbl: { es: 'Antes', en: 'Before' } },
-          { k: 'after', v: r.after, c: BLUE, lbl: { es: 'Con SellUp', en: 'With SellUp' } },
-        ] as const
-        return (
-          <div key={r.label.es}>
-            <p className="mb-2.5 text-sm opacity-75">{t(r.label)}</p>
-            {bars.map((b, j) => (
-              <div key={b.k} className="mt-1.5 flex items-center gap-3">
-                <span className="w-[74px] shrink-0 text-[11px] opacity-55">{t(b.lbl)}</span>
-                <span className="relative h-2.5 flex-1 overflow-hidden rounded-full bg-fg/[0.06]">
-                  <span className="absolute inset-y-0 left-0 origin-left rounded-full transition-transform duration-[1400ms] ease-expo" style={{ width: `${Math.max(4, (b.v / max) * 100)}%`, background: b.c, transform: seen ? 'scaleX(1)' : 'scaleX(0)', transitionDelay: `${i * 140 + j * 220}ms` }} />
-                </span>
-                <span className={`w-[64px] shrink-0 text-right text-sm tabular-nums ${b.k === 'after' ? 'text-signal' : 'opacity-60'}`}>{r.fmt(b.v)}</span>
-              </div>
-            ))}
-          </div>
-        )
-      })}
-    </div>
+    <svg viewBox="0 0 100 6" preserveAspectRatio="none" className="block h-2 w-full" aria-hidden="true">
+      <path d="M0 0 H100 V0 L95 6 L90 0 L85 6 L80 0 L75 6 L70 0 L65 6 L60 0 L55 6 L50 0 L45 6 L40 0 L35 6 L30 0 L25 6 L20 0 L15 6 L10 0 L5 6 L0 0 Z" fill="#f1ede4" />
+    </svg>
   )
 }
 
-/** Cifra grande que cuenta desde cero. */
-function BigCount({ to, format, label, seen }: { to: number; format: (n: number) => string; label: L; seen: boolean }) {
+interface TicketProps {
+  receipt: Receipt
+  printed: number
+  active: boolean
+  onPick: () => void
+}
+
+/** Un recibo de una corrida real: se imprime línea por línea y cierra con su total */
+function Ticket({ receipt, printed, active, onPick }: TicketProps) {
   const { t } = useLocale()
-  const v = useCountUp(to, seen, 1800)
+  const total = printed > receipt.lines.length
   return (
-    <div>
-      <dt className="sr-only">{t(label)}</dt>
-      <dd>
-        <span className="block whitespace-nowrap text-[clamp(2rem,1rem+2.4vw,3.4rem)] font-light leading-none tabular-nums text-signal">{format(v)}</span>
-        <span className="mt-3 block max-w-[24ch] text-sm leading-snug opacity-70">{t(label)}</span>
-      </dd>
-    </div>
+    <button
+      type="button"
+      onClick={onPick}
+      aria-pressed={active}
+      className={`group relative block w-full shrink-0 snap-center text-left outline-none transition-all duration-700 ease-expo max-md:w-[78%] ${active ? 'md:-translate-y-3' : 'md:translate-y-0'}`}
+      style={{ filter: active ? 'drop-shadow(0 24px 50px rgb(var(--signal) / 0.35))' : 'drop-shadow(0 18px 30px rgb(0 0 0 / 0.5))', opacity: printed === 0 ? 0.25 : active ? 1 : 0.7 }}
+    >
+      <div className="rounded-t-[6px] bg-[#f1ede4] px-5 pb-4 pt-5 font-mono text-[#1c1b19]">
+        <p className="flex items-baseline justify-between text-[10px] uppercase tracking-[0.14em] text-[#1c1b19]/55">
+          <span>{t(receipt.agent)}</span>
+          <span>{receipt.date}</span>
+        </p>
+        <p className="mt-2 font-sans text-[17px] font-medium leading-tight">{t(receipt.title)}</p>
+        <p className="mt-3 border-t border-dashed border-[#1c1b19]/25" aria-hidden="true" />
+        <ul className="mt-3 min-h-[9.5rem] space-y-1.5 text-[12px]">
+          {receipt.lines.map((l, i) => (
+            <li key={l.label.es} className={`flex justify-between gap-3 ${i < printed ? 'su-print' : 'invisible'}`}>
+              <span className="text-[#1c1b19]/70">{t(l.label)}</span>
+              <span className="tabular-nums">{l.value}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 border-t border-dashed border-[#1c1b19]/25" aria-hidden="true" />
+        <p className={`relative mt-3 flex items-baseline justify-between gap-3 ${total ? 'su-print' : 'invisible'}`}>
+          <span className="text-[10px] uppercase tracking-[0.12em] text-[#1c1b19]/60">{t(receipt.total.label)}</span>
+          <span className="text-[22px] font-medium tabular-nums">{receipt.total.value}</span>
+        </p>
+      </div>
+      <Teeth />
+    </button>
   )
 }
 
-/** 07 · Impacto: proyección de ARR y retorno (cifras de referencia), con el costo real como ancla. */
+/**
+ * 06 · Impacto: tres recibos de corridas reales en Producción, uno por
+ * agente. Al entrar se imprimen uno tras otro, línea por línea; después se
+ * enciende uno a la vez y debajo queda lo que enseñó. Tocar uno lo elige.
+ */
 export function SellUpImpact() {
-  const { t, locale } = useLocale()
-  const [ref, seen] = useInView<HTMLDListElement>(0.4)
-  const num = (n: number, d = 0) => n.toLocaleString(locale === 'en' ? 'en-US' : 'es-CO', { maximumFractionDigits: d, minimumFractionDigits: d })
+  const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const rootRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  /** Cuántas líneas lleva impresas cada recibo */
+  const [printed, setPrinted] = useState<readonly number[]>(() => RECEIPTS.map((r) => (reducedMotion ? linesOf(r) : 0)))
+  const [active, setActive] = useState(0)
+  const [picked, setPicked] = useState(false)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '0px 0px -25% 0px' })
+    io.observe(root)
+    return () => io.disconnect()
+  }, [])
+
+  const printing = printed.findIndex((n, i) => n < linesOf(RECEIPTS[i]))
+  const allPrinted = printing === -1
+
+  // Se imprimen uno tras otro; mientras, el que se imprime es el activo.
+  useEffect(() => {
+    if (!inView || allPrinted) return
+    if (reducedMotion) {
+      setPrinted(RECEIPTS.map(linesOf))
+      return
+    }
+    const first = printed[printing] === 0 && printing > 0
+    const id = window.setTimeout(() => {
+      setActive(printing)
+      setPrinted((p) => p.map((n, i) => (i === printing ? n + 1 : n)))
+    }, first ? BETWEEN_MS : LINE_MS)
+    return () => window.clearTimeout(id)
+  }, [inView, allPrinted, printing, printed, reducedMotion])
+
+  // Ya impresos, se enciende uno a la vez para leer su nota.
+  useEffect(() => {
+    if (!inView || !allPrinted || reducedMotion) return
+    const id = window.setTimeout(() => {
+      setPicked(false)
+      setActive((a) => (a + 1) % RECEIPTS.length)
+    }, picked ? READ_MS * 2 : READ_MS)
+    return () => window.clearTimeout(id)
+  }, [inView, allPrinted, active, picked, reducedMotion])
+
+  // En teléfono los recibos se deslizan: el encendido siempre queda a la vista (sin mover la página).
+  useEffect(() => {
+    const track = trackRef.current
+    const ticket = track?.children[active] as HTMLElement | undefined
+    if (!track || !ticket || track.scrollWidth <= track.clientWidth) return
+    track.scrollTo({ left: ticket.offsetLeft - (track.clientWidth - ticket.offsetWidth) / 2, behavior: reducedMotion ? 'auto' : 'smooth' })
+  }, [active, reducedMotion])
+
+  const current = RECEIPTS[active]
+
   return (
-    <div>
-      <p data-reveal className="mono-label mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/40 px-3 py-1 text-amber-300">
-        ⚠ {t({ es: 'Cifras de referencia · proyección, no resultados medidos', en: 'Reference figures · projection, not measured results' })}
-      </p>
-      <p data-reveal="mask" className="max-w-[24ch] text-[clamp(1.8rem,1rem+2.4vw,3.2rem)] font-light leading-[1.1] tracking-tight">
-        {t({ es: 'Más tiempo vendiendo, mejores primeras llamadas, más ARR.', en: 'More time selling, better first calls, more ARR.' })}
-      </p>
-      <p data-reveal className="mt-6 max-w-[62ch] leading-relaxed opacity-80 max-md:hidden">
-        {t({ es: 'SellUp se entregó hace poco y todavía no hay ventas que atribuirle. Esta es la proyección con la que se justifica la inversión: un equipo de 6 vendedores, supuestos moderados y el costo de IA que ya medimos en Producción.', en: 'SellUp shipped recently and there are no sales to attribute to it yet. This is the projection that justifies the investment: a team of 6 reps, moderate assumptions and the AI cost we already measured in Production.' })}
-      </p>
+    <div ref={rootRef}>
+      <CaseLead className="mb-4">{t({ es: 'Todavía no hay ventas que atribuirle. Lo que sí está medido es cuánto cuesta cada corrida.', en: 'There are no sales to attribute to it yet. What is measured is what each run costs.' })}</CaseLead>
+      <p className="mb-12 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Corridas reales en Producción · octubre de 2026', en: 'Real Production runs · October 2026' })}</p>
 
-      <dl ref={ref} className="mt-12 grid gap-10 sm:grid-cols-[1.5fr_1fr_1fr]">
-        <BigCount to={DEFAULT.year1} format={(n) => usd(n, locale)} label={{ es: 'ARR incremental proyectado en el primer año', en: 'Projected incremental ARR in year one' }} seen={seen} />
-        <BigCount to={DEFAULT.roi} format={(n) => `${num(n, 1)}×`} label={{ es: 'retorno sobre el costo de IA y plataforma', en: 'return on AI and platform cost' }} seen={seen} />
-        <BigCount to={DEFAULT.hoursYear} format={(n) => num(n)} label={{ es: 'horas al año que el equipo deja de buscar a mano', en: 'hours a year the team stops searching by hand' }} seen={seen} />
-      </dl>
-
-      <h3 data-reveal className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Antes y después, por vendedor', en: 'Before and after, per rep' })}</h3>
-      <BeforeAfter />
-
-      <h3 data-reveal className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Simula tu equipo', en: 'Simulate your team' })}</h3>
-      <ImpactSimulator />
-
-      <p className="mono-label mb-6 mt-16 opacity-60">{t({ es: 'Lo que aprendí', en: 'What I learned' })}</p>
-      <ol className="space-y-4">
-        {LEARNINGS.map((l, i) => (
-          <li key={l.es} data-reveal className="flex gap-5 border-t border-fg/15 pt-4">
-            <span className="mono-label shrink-0 text-signal">0{i + 1}</span>
-            <span className="text-lg leading-snug">{t(l)}</span>
-          </li>
+      <div ref={trackRef} className="relative mx-auto flex max-w-[960px] gap-5 max-md:-mx-[var(--gutter)] max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:px-[11%] max-md:pb-6 max-md:[scrollbar-width:none] md:grid md:grid-cols-3 md:gap-8 [&::-webkit-scrollbar]:hidden">
+        {RECEIPTS.map((r, i) => (
+          <Ticket
+            key={r.title.es}
+            receipt={r}
+            printed={printed[i]}
+            active={i === active}
+            onPick={() => {
+              setActive(i)
+              setPicked(true)
+            }}
+          />
         ))}
-      </ol>
+      </div>
+
+      {/* Lo que enseñó el recibo encendido */}
+      <p key={active} aria-live="polite" className={`su-fade mx-auto mt-24 max-w-[56ch] text-balance text-center text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light leading-snug transition-opacity duration-500 ${printed[active] > 0 ? 'opacity-100' : 'opacity-0'}`}>
+        {t(current.note)}
+      </p>
+      {/* Bajo la lección, el nodo del que sale la fibra hacia «Demo» */}
+      <span aria-hidden="true" className="relative mx-auto mt-10 block h-2.5 w-2.5 rounded-full border border-white/70 bg-signal shadow-[0_0_14px_rgb(var(--signal))]">
+        <span data-fiber-from="su-demo" className="absolute left-1/2 top-1/2 h-px w-px" />
+      </span>
     </div>
   )
 }

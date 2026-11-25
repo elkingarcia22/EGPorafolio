@@ -1,255 +1,58 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { useLocale, type L } from '@/lib/i18n'
-import { useA11y } from '@/lib/a11y'
-import { CaseDemo } from '@/components/case/kit/case-demo'
-import { RecordModal } from '@/components/case/kit/record-modal'
-import { useTick } from '../barberlytics/thema/live-pieces'
-import { SellUpMark } from './ui'
-import { useCompact } from './camera'
-import { RealFrame, type RealNav } from './real-app'
-import { DetailScene, Scaled } from './forma-stage'
-import { FLOW_LOOP, FlowBoard, FlowScreen } from './forma-flujo'
-import { A1_LOOP, MAP_H, MAP_W, SearchMap } from './forma-a1-map'
-import { SearchRadarMobile } from './forma-a1-radar-mobile'
-import { CompanyReview, ContactReview } from './real-review-tables'
-import { CompanyDetail, ContactDetail } from './real-detail'
-import { A2_LOOP, PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
-import { PeopleRadarMobile } from './forma-a2-radar-mobile'
-import { PhoneDecoder, type A2Phone } from './forma-a2-phone'
-import { MAGNET_H, MAGNET_W, MagnetScene } from './forma-a3-magnet'
-import { MagnetMobile } from './forma-a3-magnet-mobile'
-import { FAN_H, FAN_W, FanScene, fanView } from './forma-a3-fan'
-import { CatalogScreen } from './forma-catalogo'
-import { UsageMetrics } from './forma-metrics'
-import { RumboSearch } from './ai-rumbo-search'
+import { useLocale } from '@/lib/i18n'
+import { PROFILE } from '@/lib/content/profile'
+import { ContactIcon } from '@/components/ui/contact-channels'
 
 /**
- * 08 · Demo. No hay capturas de SellUp en el repositorio y la app real necesita
- * credenciales, así que la demo es una galería a pantalla completa de las réplicas de
- * cada módulo y agente, todas animadas como si estuvieran trabajando. Se recorre con
- * las pestañas, con las flechas del modal o con ← →. Datos de ejemplo.
+ * 07 · Demo: SellUp trabaja sobre el CRM y los datos comerciales de UBITS,
+ * así que no tiene una demo pública. El nodo que recibe la fibra de «Impacto»
+ * invita a verlo en vivo, por correo o WhatsApp.
  */
-
-/** Ticks de 0,56 s, como el resto de las piezas del caso. */
-const TICK_MS = 560
-const BLUE = '91 126 255'
-
-/**
- * Reloj en bucle de `loop` ticks: en el modal todo está a la vista, no hace falta esperar a verlo.
- * Con movimiento reducido se queda quieto en `still`, un momento que cuenta la historia completa.
- */
-function useLoop(loop: number, still: number): number {
-  const { reducedMotion } = useA11y()
-  const tick = useTick(TICK_MS) % loop
-  return reducedMotion ? still : tick
-}
-
-/**
- * Cierre del bucle para escenas que no tienen salida propia: en el último tick la escena
- * se desvanece, se reinicia oculta y vuelve con un fundido, en vez de rebobinarse a la vista.
- */
-function LoopFade({ time, loop, children }: { time: number; loop: number; children: ReactNode }) {
-  const out = time === loop - 1
-  return (
-    <div style={{ opacity: out ? 0 : 1, transition: out ? 'opacity 320ms ease-in' : 'opacity 420ms ease-out 200ms' }}>
-      {children}
-    </div>
-  )
-}
-
-/** Encuadre de las tablas en teléfono: desde el borde del contenido. */
-const TABLE_VIEW = { cx: 0, x: 252, cy: 300, w: 400, h: 560 }
-
-function Flow() {
-  const time = useLoop(FLOW_LOOP, 22)
-  const compact = useCompact()
-  if (compact) return <FlowBoard time={time} />
-  return <RealFrame active="flujo" crumb={['Flujo de prospección']} height={640}><FlowScreen time={time} /></RealFrame>
-}
-
-function Agent1() {
-  const time = useLoop(A1_LOOP, 9)
-  const compact = useCompact()
-  if (compact) return <SearchRadarMobile t={time} />
-  return <Scaled width={MAP_W} height={MAP_H}><SearchMap t={time} /></Scaled>
-}
-
-function Review({ kind }: { kind: 'empresas' | 'contactos' }) {
-  const time = useLoop(10, 5)
-  const arrived = time >= 2
-  const nav: RealNav = kind === 'empresas' ? 'revisar' : 'contactos'
-  return (
-    <RealFrame active={nav} crumb={[kind === 'empresas' ? 'Empresas' : 'Contactos', 'Por revisar']} height={600} view={TABLE_VIEW}>
-      {kind === 'empresas' ? <CompanyReview arrived={arrived} focus={arrived} /> : <ContactReview arrived={arrived} focus={arrived} />}
-    </RealFrame>
-  )
-}
-
-function Company() {
-  const time = useLoop(12, 0)
-  const compact = useCompact()
-  if (compact) return <CompanyDetail show inline stack panel={time < 6 ? 0 : 1} />
-  return <DetailScene><CompanyDetail show inline /></DetailScene>
-}
-
-function Agent2() {
-  const time = useLoop(A2_LOOP, 11)
-  const compact = useCompact()
-  if (compact) return <PeopleRadarMobile t={time} />
-  return <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={time} /></Scaled>
-}
-
-const phoneAt = (time: number): A2Phone => (time < 3 ? 'idle' : time < 5 ? 'apollo' : time < 7 ? 'lusha' : 'done')
-
-function Phone() {
-  const time = useLoop(12, 9)
-  const compact = useCompact()
-  const slot = <PhoneDecoder state={phoneAt(time)} pressed={time === 3} />
-  if (compact) return <ContactDetail show inline stack phone="idle" phoneSlot={slot} />
-  return <DetailScene><ContactDetail show inline phone="idle" phoneSlot={slot} /></DetailScene>
-}
-
-const RESEARCH_LOOP = 20
-
-function Research() {
-  const time = useLoop(RESEARCH_LOOP, 15)
-  const compact = useCompact()
-  return (
-    <LoopFade time={time} loop={RESEARCH_LOOP}>
-      {compact ? <MagnetMobile time={time + 4} /> : <DetailScene width={MAGNET_W} height={MAGNET_H}><MagnetScene time={time + 4} /></DetailScene>}
-    </LoopFade>
-  )
-}
-
-const MESSAGE_LOOP = 24
-
-function Message() {
-  const u = useLoop(MESSAGE_LOOP, 12)
-  const [channel, setChannel] = useState<Parameters<typeof fanView>[1]>('email')
-  const compact = useCompact()
-  return (
-    <LoopFade time={u} loop={MESSAGE_LOOP}>
-      <DetailScene width={FAN_W} height={FAN_H} view={compact ? fanView(u, channel) : undefined}><FanScene u={u} onChannel={setChannel} /></DetailScene>
-    </LoopFade>
-  )
-}
-
-interface Module {
-  id: string
-  name: L
-  hint: L
-  render: () => ReactNode
-}
-
-const MODULES: readonly Module[] = [
-  { id: 'flujo', name: { es: 'Flujo de prospección', en: 'Prospecting flow' }, hint: { es: 'Una empresa avanza sola por las etapas', en: 'A company moves through the stages' }, render: () => <Flow /> },
-  { id: 'agente-1', name: { es: 'Agente 1 · Empresas', en: 'Agent 1 · Companies' }, hint: { es: 'El radar recorre los países, primero lo gratis', en: 'The radar sweeps the countries, free first' }, render: () => <Agent1 /> },
-  { id: 'empresas', name: { es: 'Empresas por revisar', en: 'Companies to review' }, hint: { es: 'La candidata nueva llega arriba', en: 'The new candidate lands on top' }, render: () => <Review kind="empresas" /> },
-  { id: 'empresa', name: { es: 'Detalle de empresa', en: 'Company detail' }, hint: { es: 'Sus datos y por qué entró', en: 'Its data and why it got in' }, render: () => <Company /> },
-  { id: 'agente-2', name: { es: 'Agente 2 · Contactos', en: 'Agent 2 · Contacts' }, hint: { es: 'El radar barre las fuentes hasta dar con quien decide', en: 'The radar sweeps sources until it finds who decides' }, render: () => <Agent2 /> },
-  { id: 'contactos', name: { es: 'Contactos por revisar', en: 'Contacts to review' }, hint: { es: 'La decisora nueva llega arriba', en: 'The new decision-maker lands on top' }, render: () => <Review kind="contactos" /> },
-  { id: 'telefono', name: { es: 'Revelar teléfono', en: 'Reveal phone' }, hint: { es: 'Apollo y, si no hay número, Lusha', en: 'Apollo and, if no number, Lusha' }, render: () => <Phone /> },
-  { id: 'agente-3', name: { es: 'Agente 3 · Investigación', en: 'Agent 3 · Research' }, hint: { es: 'Rumbo atrae las fuentes y cita cada dato', en: 'Rumbo pulls in sources and cites every fact' }, render: () => <Research /> },
-  { id: 'mensaje', name: { es: 'Agente 3 · Mensaje por canal', en: 'Agent 3 · Message per channel' }, hint: { es: 'Correo, LinkedIn, llamada y WhatsApp', en: 'Email, LinkedIn, call and WhatsApp' }, render: () => <Message /> },
-  { id: 'catalogo', name: { es: 'Catálogo de fuentes', en: 'Source catalog' }, hint: { es: 'Una fuente nueva se prueba y queda verificada', en: 'A new source is tested and verified' }, render: () => <CatalogScreen /> },
-  { id: 'uso', name: { es: 'Uso de IA y costos', en: 'AI usage and costs' }, hint: { es: 'Costo, consultas y resultado por rol', en: 'Cost, queries and outcome by role' }, render: () => <UsageMetrics /> },
-  { id: 'rumbo', name: { es: 'Rumbo · cómo busca', en: 'Rumbo · how it searches' }, hint: { es: 'Lo que piensa mientras baja la cascada', en: 'What it thinks while stepping down the cascade' }, render: () => <RumboSearch /> },
-]
-const IDS = MODULES.map((m) => m.id)
-
-/** Pestañas de módulos: columna a la izquierda en escritorio, fila deslizable arriba en teléfono. */
-function Tabs({ active, onPick }: { active: string; onPick: (id: string) => void }) {
-  const { t } = useLocale()
-  const current = useRef<HTMLButtonElement>(null)
-  // En teléfono la fila se desliza: la pestaña activa (también al usar las flechas) siempre queda a la vista.
-  useEffect(() => {
-    current.current?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
-  }, [active])
-  return (
-    <nav aria-label={t({ es: 'Módulos de SellUp', en: 'SellUp modules' })} className="shrink-0 border-white/10 max-lg:border-b lg:w-[240px] lg:border-r">
-      <ol className="flex gap-1 overflow-x-auto px-3 py-2.5 [scrollbar-width:none] lg:flex-col lg:overflow-y-auto lg:py-4 [&::-webkit-scrollbar]:hidden">
-        {MODULES.map((m, i) => {
-          const on = m.id === active
-          return (
-            <li key={m.id} className="shrink-0">
-              <button
-                ref={on ? current : undefined}
-                type="button"
-                onClick={() => onPick(m.id)}
-                aria-current={on ? 'page' : undefined}
-                className={`flex w-full items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-left text-[13px] transition-colors ${on ? 'bg-[#5b7eff]/[0.16] text-white ring-1 ring-[#5b7eff]/50' : 'text-white/60 hover:bg-white/[0.05] hover:text-white'}`}
-              >
-                <span className="font-mono text-[11px] tabular-nums text-white/40">{String(i + 1).padStart(2, '0')}</span>
-                {t(m.name)}
-              </button>
-            </li>
-          )
-        })}
-      </ol>
-    </nav>
-  )
-}
-
-function Gallery({ active, onPick }: { active: string; onPick: (id: string) => void }) {
-  const { t } = useLocale()
-  const m = MODULES.find((x) => x.id === active) ?? MODULES[0]
-  return (
-    <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-      <Tabs active={m.id} onPick={onPick} />
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6 lg:px-8 lg:py-6" data-lenis-prevent>
-        <div className="mx-auto max-w-[1100px]">
-          <p className="mb-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-[15px] font-medium text-white">{t(m.name)}</span>
-            <span className="text-[13px] text-white/55">{t(m.hint)}</span>
-          </p>
-          <div key={m.id} className="animate-[sellupDemoIn_.45s_cubic-bezier(.16,1,.3,1)]">{m.render()}</div>
-          <p className="mt-4 font-mono text-[11px] uppercase tracking-wider text-white/40">{t({ es: 'Réplica de la pantalla real · datos de ejemplo', en: 'Replica of the real screen · sample data' })}</p>
-        </div>
-      </div>
-      <style>{'@keyframes sellupDemoIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}'}</style>
-    </div>
-  )
-}
-
-/** La vista previa de la tarjeta: el tablero real, quieto, con la empresa a mitad de camino. */
-function Preview() {
-  return (
-    <span className="block w-full">
-      <RealFrame active="flujo" crumb={['Flujo de prospección']} height={640}><FlowScreen time={9} /></RealFrame>
-    </span>
-  )
-}
-
-/** 08 · Demo: la plataforma completa, módulo por módulo, en réplicas que trabajan solas. */
 export function SellUpDemo() {
   const { t } = useLocale()
-  const [open, setOpen] = useState<string | null>(null)
+  const subject = t({ es: 'Demostración en vivo · SellUp', en: 'Live demo · SellUp' })
+  const message = t({ es: 'Hola Elkin, quiero ver SellUp en vivo.', en: 'Hi Elkin, I’d like to see SellUp live.' })
+  const mail = `mailto:${PROFILE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`
+  const whatsapp = `https://wa.me/${PROFILE.phone}?text=${encodeURIComponent(message)}`
+
   return (
-    <>
-      <div className="max-lg:[&>div]:grid-cols-[minmax(0,1fr)]">
-        <CaseDemo
-          title={{ es: 'SellUp completo, trabajando.', en: 'All of SellUp, at work.' }}
-          lead={{ es: 'Cada módulo y cada agente de la plataforma, uno tras otro y animados como en el día a día: el flujo, los tres agentes, las bandejas de revisión, el catálogo de fuentes y el uso de IA. Réplicas fieles de las pantallas reales, con datos de ejemplo.', en: 'Every module and agent of the platform, one after another and animated as in daily use: the flow, the three agents, the review queues, the source catalog and AI usage. Faithful replicas of the real screens, with sample data.' }}
-          url="sellup · réplica de la plataforma"
-          preview={<Preview />}
-          accent={BLUE}
-          onOpen={() => setOpen(IDS[0])}
-        />
+    <div className="mx-auto flex max-w-[640px] flex-col items-center text-center">
+      {/* El nodo: late, como una señal que espera respuesta */}
+      <span aria-hidden="true" className="relative grid h-16 w-16 place-items-center">
+        <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgb(var(--signal)/0.35),transparent_70%)]" />
+        <span className="absolute inset-2 rounded-full border border-signal/50 animate-[nav-node-ping_2.4s_cubic-bezier(0,0,.2,1)_infinite]" />
+        <span className="relative h-4 w-4 rounded-full border border-white bg-[#fffaf0] shadow-[0_0_0_5px_rgb(var(--signal)/0.25),0_0_24px_6px_rgb(var(--signal)/0.7)]" />
+      </span>
+
+      <h3 className="mt-8 text-balance text-[clamp(1.6rem,1.1rem+1.8vw,2.6rem)] font-light leading-[1.1] tracking-tight">
+        {t({ es: 'Míralo en vivo.', en: 'See it live.' })}
+      </h3>
+      <p className="mt-4 max-w-[52ch] text-balance text-base leading-relaxed text-paper/65 md:text-lg">
+        {t({
+          es: 'SellUp trabaja con el CRM y los datos comerciales de UBITS, así que no se muestra aquí. Te lo enseño en una demostración en vivo.',
+          en: 'SellUp runs on UBITS’ CRM and sales data, so it isn’t shown here. I’ll walk you through it in a live demo.',
+        })}
+      </p>
+
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <a
+          href={mail}
+          className="group inline-flex items-center gap-3 rounded-full bg-signal py-2.5 pl-3 pr-5 text-on-signal shadow-[0_0_30px_-6px_rgb(var(--signal)/0.8)] transition-transform duration-300 ease-expo hover:-translate-y-0.5"
+        >
+          <ContactIcon name="mail" className="h-5 w-5" />
+          <span className="text-sm font-medium">{t({ es: 'Agendar una demostración', en: 'Book a demo' })}</span>
+        </a>
+        <a
+          href={whatsapp}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/[0.04] py-2.5 pl-3 pr-5 text-sm text-paper/85 transition-colors duration-300 hover:border-white/40 hover:text-paper"
+        >
+          <ContactIcon name="whatsapp" className="h-5 w-5" />
+          {t({ es: 'Escribirme por WhatsApp', en: 'Message me on WhatsApp' })}
+        </a>
       </div>
-      <RecordModal
-        ids={IDS}
-        openId={open}
-        onOpenChange={setOpen}
-        title={t({ es: 'SellUp · la plataforma', en: 'SellUp · the platform' })}
-        titleLeading={<SellUpMark size={36} />}
-        description={t({ es: 'Réplicas de las pantallas reales · datos de ejemplo', en: 'Replicas of the real screens · sample data' })}
-        prevLabel={t({ es: 'Módulo anterior', en: 'Previous module' })}
-        nextLabel={t({ es: 'Módulo siguiente', en: 'Next module' })}
-      >
-        {open && <Gallery active={open} onPick={setOpen} />}
-      </RecordModal>
-    </>
+    </div>
   )
 }
