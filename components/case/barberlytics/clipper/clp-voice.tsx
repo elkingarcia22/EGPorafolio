@@ -22,7 +22,7 @@ const WORD_MS = 320
 /** Cuántas letras dice por segundo, para seguirla si la voz no avisa cada palabra */
 const CHARS_PER_S = 13
 
-/** La llamada grabada (simulación; scripts/clipper-voice.mjs la rehace con Gemini «Achird») */
+/** La llamada grabada con una voz de ElevenLabs (scripts/clipper-voice.mjs) */
 const AUDIO_DIR = '/cases/barberlytics'
 type VoiceLine = 'greeting' | 'reply'
 
@@ -148,7 +148,7 @@ export function ClipperVoice() {
   const say = useCallback(
     (line: VoiceLine, onEnd: () => void, token: number) => {
       const text = t(VOICE[line])
-      const audio = new Audio(`${AUDIO_DIR}/clipper-voice-${line}-${locale === 'en' ? 'en' : 'es'}.wav`)
+      const audio = new Audio(`${AUDIO_DIR}/clipper-voice-${line}-${locale === 'en' ? 'en' : 'es'}.mp3`)
       audioRef.current = audio
       let clock = 0
       const finish = () => {
@@ -307,7 +307,7 @@ export function ClipperVoice() {
             ))}
           </div>
           <p className="mt-4 max-w-[46ch] text-[12px] leading-snug text-paper/40">
-            {t({ es: 'Una simulación de la llamada. En la reserva real, Clipper habla con la voz «Achird» de Gemini.', en: 'A simulation of the call. In real booking, Clipper speaks with Gemini’s “Achird” voice.' })}
+            {t({ es: 'Una simulación de la llamada, con una voz de ElevenLabs. En la reserva real, Clipper habla con la voz «Achird» de Gemini.', en: 'A simulation of the call, with an ElevenLabs voice. In real booking, Clipper speaks with Gemini’s “Achird” voice.' })}
           </p>
         </div>
       </div>
