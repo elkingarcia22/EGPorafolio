@@ -60,14 +60,6 @@ const METRICS: readonly ImpactMetric[] = [
   },
 ]
 
-/** Lo que ya está medido en los tableros de SellUp (Producción, 11 al 25 de noviembre de 2026) */
-const MEASURED: readonly { value: string; label: L }[] = [
-  { value: '72', label: { es: 'búsquedas de empresas', en: 'company searches' } },
-  { value: '2.341', label: { es: 'empresas y contactos encontrados', en: 'companies and contacts found' } },
-  { value: '222', label: { es: 'contactos enriquecidos', en: 'contacts enriched' } },
-  { value: '70,1 %', label: { es: 'de lo revisado, aprobado', en: 'of what was reviewed, approved' } },
-]
-
 /** Cada cuánto se enciende la siguiente métrica mientras pasan solas (ms) */
 const STEP_MS = 4600
 /** Al entrar, la fibra se tiende de una métrica a la siguiente (ms por tramo) */
@@ -76,8 +68,8 @@ const DRAW_MS = 380
 /**
  * 06 · Impacto: las cuatro métricas sobre una sola fibra, con la métrica norte
  * primero. Al entrar se encienden una tras otra; después se lee una a la vez:
- * de dónde parte, a dónde llega y qué la mueve en SellUp. Debajo, lo que ya
- * está medido en Producción. Tocar una métrica la elige.
+ * de dónde parte, a dónde llega y qué la mueve en SellUp. Tocar una métrica
+ * la elige.
  */
 export function SellUpImpact() {
   const { t } = useLocale()
@@ -184,19 +176,6 @@ export function SellUpImpact() {
             <p className="mt-2 text-sm leading-relaxed text-paper/75">{col.text}</p>
           </div>
         ))}
-      </div>
-
-      {/* Lo que ya está medido en Producción */}
-      <div className="mx-auto mt-16 max-w-[880px] border-t border-white/10 pt-8">
-        <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Ya medido en Producción · 11 al 25 de nov. de 2026', en: 'Already measured in Production · Nov 11–25, 2026' })}</p>
-        <dl className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
-          {MEASURED.map((s) => (
-            <div key={s.label.es} className="text-center">
-              <dd className="text-[clamp(1.6rem,1.2rem+1.4vw,2.4rem)] font-light leading-none tabular-nums">{s.value}</dd>
-              <dt className="mt-2 text-balance text-[12px] leading-snug text-paper/50">{t(s.label)}</dt>
-            </div>
-          ))}
-        </dl>
       </div>
 
       {/* De aquí baja la fibra hacia «Demo» */}
