@@ -61,6 +61,111 @@ export const CLIPPER_CASE = {
     ] satisfies CaseStat[],
   },
 
+  /** 02 · Patrones: lo que se repetía al observar a recepción y a los dueños. */
+  pains: [
+    {
+      id: 'agendar',
+      who: { es: 'Recepción y clientes', en: 'Front desk and clients' },
+      title: { es: 'Agendar era siempre el mismo camino, largo.', en: 'Booking was always the same long path.' },
+      steps: [
+        { es: 'Servicio', en: 'Service' },
+        { es: 'Barbero', en: 'Barber' },
+        { es: 'Día', en: 'Day' },
+        { es: 'Hora', en: 'Time' },
+        { es: 'Datos', en: 'Details' },
+      ],
+      rows: ['Martín', 'Marcela', 'Samuel'],
+      said: { es: '«corte mañana a las 5 con Andrés»', en: '“haircut tomorrow at 5 with Andrés”' },
+    },
+    {
+      id: 'saber',
+      who: { es: 'Dueños', en: 'Owners' },
+      title: { es: 'Saber algo rápido del negocio costaba tres pantallas.', en: 'Knowing something quick about the business took three screens.' },
+      steps: [
+        { es: 'Agenda', en: 'Schedule' },
+        { es: 'Caja', en: 'Till' },
+        { es: 'Clientes', en: 'Clients' },
+      ],
+      rows: [
+        { es: '¿Cuánto llevo?', en: 'How much so far?' },
+        { es: '¿Quién va tarde?', en: 'Who’s late?' },
+        { es: '¿Cuándo vuelve?', en: 'When’s he back?' },
+      ],
+      said: { es: '«¿Cómo nos fue esta semana?»', en: '“How did we do this week?”' },
+    },
+  ],
+
+  /** 03 · La idea: lo que gana cada quien en la barbería. */
+  benefits: [
+    { role: { es: 'Dueño', en: 'Owner' }, gain: { es: 'Métricas preguntando', en: 'Metrics by asking' }, q: { es: '¿Cómo nos fue esta semana frente a la anterior?', en: 'How did we do this week versus last?' }, tool: { es: 'Resumen de la semana', en: 'Weekly summary' } },
+    { role: { es: 'Recepción', en: 'Front desk' }, gain: { es: 'Clientes al instante', en: 'Clients instantly' }, q: { es: '¿Cuándo vino por última vez Samuel Martínez?', en: 'When did Samuel Martínez last come in?' }, tool: { es: 'Buscar cliente', en: 'Find client' } },
+    { role: { es: 'Barbero', en: 'Barber' }, gain: { es: 'Su día y su pago', en: 'Their day and pay' }, q: { es: '¿Qué tengo hoy y cuánto llevo?', en: 'What do I have today and how much so far?' }, tool: { es: 'Agenda del día · Nómina', en: 'Day schedule · Payroll' } },
+    { role: { es: 'Cliente', en: 'Client' }, gain: { es: 'Reservar hablando', en: 'Booking by talking' }, q: { es: 'corte mañana a las 5 con Andrés', en: 'haircut tomorrow at 5 with Andrés' }, tool: { es: 'Clipper de la reserva', en: 'Booking’s Clipper' } },
+  ],
+
+  /** 04 · Bocetos: los flujos de conversación, uno por necesidad. */
+  flows: [
+    {
+      id: 'metricas',
+      name: { es: 'Métricas', en: 'Metrics' },
+      who: { es: 'Dueño', en: 'Owner' },
+      q: { es: '¿Cómo nos fue esta semana frente a la anterior?', en: 'How did we do this week versus last?' },
+      tool: 'resumen_semana',
+      a: { es: 'Vendieron US$ 14.050 en 303 servicios, un poco menos que la semana pasada. El mejor día fue el miércoles.', en: 'You sold US$ 14,050 across 303 services, a bit less than last week. Wednesday was the best day.' },
+      note: { es: 'Cada cifra sale de la consulta', en: 'Every figure comes from the lookup' },
+    },
+    {
+      id: 'agenda',
+      name: { es: 'Agendamiento', en: 'Booking' },
+      who: { es: 'Cliente', en: 'Client' },
+      q: { es: 'corte para Martín mañana a las 4 con Nicolás', en: 'haircut for Martín tomorrow at 4 with Nicolás' },
+      tool: 'proponer_cita',
+      a: { es: '¡Listo, Martín! Nicolás te espera mañana a las 4. ¿Te lo confirmo?', en: 'Done, Martín! Nicolás will see you tomorrow at 4. Shall I confirm?' },
+      actions: [{ es: 'Sí, confírmala', en: 'Yes, confirm' }, { es: 'Otra hora', en: 'Another time' }],
+      note: { es: 'Propone; una persona confirma', en: 'Proposes; a person confirms' },
+    },
+    {
+      id: 'clientes',
+      name: { es: 'Clientes', en: 'Clients' },
+      who: { es: 'Recepción', en: 'Front desk' },
+      q: { es: '¿Cuándo vino por última vez Samuel Martínez?', en: 'When did Samuel Martínez last come in?' },
+      tool: 'buscar_cliente',
+      a: { es: 'Vino hace tres semanas, con Andrés. Suele volver cada cuatro: le toca la próxima.', en: 'He came three weeks ago, with Andrés. He usually returns every four: he’s due next week.' },
+      note: { es: 'Sin cifras inventadas', en: 'No made-up figures' },
+    },
+    {
+      id: 'ayuda',
+      name: { es: 'Ayuda', en: 'Help' },
+      who: { es: 'Recepción', en: 'Front desk' },
+      q: { es: 'Devuélvele la plata a Juan de su corte', en: 'Refund Juan for his haircut' },
+      tool: 'buscar_ayuda',
+      a: { es: 'Eso no lo puedo hacer yo: las devoluciones las hace una persona. Te dejo cómo se hacen.', en: 'I can’t do that: refunds are done by a person. Here’s how to do one.' },
+      note: { es: 'Enseña a usar la plataforma', en: 'Teaches how to use the platform' },
+    },
+  ],
+
+  /** 05 · Forma: la voz de Clipper, en una llamada de la reserva. */
+  voice: {
+    greeting: { es: '¡Hola! Soy Clipper, te ayudo a agendar. Dime, ¿qué quieres hacer hoy?', en: 'Hi! I’m Clipper, I’ll help you book. Tell me, what would you like to do today?' },
+    heard: { es: 'corte para Martín mañana a las 4 con Nicolás', en: 'haircut for Martín tomorrow at 4 with Nicolás' },
+    reply: { es: '¡Listo, Martín! Nicolás te espera mañana a las 4. ¿Te lo confirmo?', en: 'Done, Martín! Nicolás will see you tomorrow at 4. Shall I confirm?' },
+    notes: [
+      { k: { es: 'Escucha con paciencia', en: 'Listens patiently' }, v: { es: 'Una pausa de 1,6 s es «terminé». Si la frase queda abierta, espera el doble.', en: 'A 1.6 s pause means “done”. If the phrase is left open, it waits twice as long.' } },
+      { k: { es: 'Se interrumpe con un toque', en: 'One tap interrupts' }, v: { es: 'Mientras habla, las ondas siguen cada palabra; tocar el micrófono la corta.', en: 'While it talks, the waves follow each word; tapping the mic cuts it.' } },
+      { k: { es: 'Voz «Achird»', en: '“Achird” voice' }, v: { es: 'En la reserva habla con la voz «Achird» de Gemini, como un barbero amable al teléfono.', en: 'In booking it speaks with Gemini’s “Achird” voice, like a friendly barber on the phone.' } },
+    ],
+  },
+
+  /** 06 · IA en el proceso: cómo está conectado. */
+  stack: [
+    { id: 'voz', name: { es: 'Habla o escribe', en: 'Talk or type' }, tech: 'Web Speech', body: { es: 'El navegador convierte la voz en texto; también se puede escribir.', en: 'The browser turns voice into text; typing works too.' } },
+    { id: 'rol', name: { es: 'Servidor', en: 'Server' }, tech: { es: 'Sesión firmada', en: 'Signed session' }, body: { es: 'El rol sale de la sesión firmada, no del navegador: define qué herramientas hay.', en: 'The role comes from the signed session, not the browser: it defines which tools exist.' } },
+    { id: 'modelo', name: { es: 'Modelo', en: 'Model' }, tech: 'Claude API', body: { es: 'Modelo de Anthropic con herramientas, temperatura 0,2: elige qué consultar.', en: 'Anthropic model with tools, temperature 0.2: picks what to look up.' } },
+    { id: 'tools', name: { es: '18 herramientas', en: '18 tools' }, tech: { es: '13 consultan · 5 proponen', en: '13 read · 5 propose' }, body: { es: 'Consultan los datos de la barbería o dejan una propuesta para aprobar.', en: 'They look up the shop’s data or leave a proposal to approve.' } },
+    { id: 'filtro', name: { es: 'Filtro de cifras', en: 'Number guard' }, tech: { es: 'Servidor', en: 'Server' }, body: { es: 'Si la respuesta trae un número que no salió de lo consultado, la frena.', en: 'If the answer has a number that didn’t come from the lookup, it stops it.' } },
+    { id: 'respuesta', name: { es: 'Responde', en: 'Answers' }, tech: 'Gemini TTS', body: { es: 'Por escrito o en voz: Gemini, Azure, ElevenLabs u OpenAI.', en: 'In writing or by voice: Gemini, Azure, ElevenLabs or OpenAI.' } },
+  ],
+
   /** 02 · Patrones: qué tanto deja actuar cada asistente. */
   patterns: {
     lead: {

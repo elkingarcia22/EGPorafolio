@@ -15,16 +15,16 @@ import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { useReveal } from '../use-reveal'
 import { ClipperCover } from './clp-hero'
 import { ClipperDotsScene } from './clp-dots'
-import { ClipperSpectrum } from './clp-spectrum'
-import { ClipperPrinciples } from './clp-principles'
-import { ClipperTools } from './clp-tools'
-import { ClipperExchange } from './clp-exchange'
-import { ClipperEvals } from './clp-evals'
+import { ClipperPains } from './clp-pains'
+import { ClipperBenefits } from './clp-benefits'
+import { ClipperSketches } from './clp-sketches'
+import { ClipperVoice } from './clp-voice'
+import { ClipperStack } from './clp-stack'
 import { ClipperImpact } from './clp-impact'
 import { ClipperLiveDemo } from './clp-demo'
 import './clipper-case.css'
 
-type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'herramientas' | 'forma' | 'ia' | 'impacto' | 'demo'
+type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto' | 'demo'
 
 /** La red de fondo, lo más quieta posible: en la portada y en los capítulos */
 const QUIET = 1
@@ -34,7 +34,7 @@ const FIBER_TO: Record<ChapterKey, string> = {
   puntos: 'clp-puntos',
   patrones: 'clp-patrones',
   idea: 'clp-idea',
-  herramientas: 'clp-tools',
+  bocetos: 'clp-bocetos',
   forma: 'clp-forma',
   ia: 'clp-ia',
   impacto: 'clp-impacto',
@@ -45,7 +45,7 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'puntos', entry: 'bloom' },
   { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'warp' },
-  { id: 'herramientas', entry: 'bloom' },
+  { id: 'bocetos', entry: 'bloom' },
   { id: 'forma', entry: 'thread' },
   { id: 'ia', entry: 'warp' },
   { id: 'impacto', entry: 'bloom' },
@@ -54,11 +54,11 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
 
 const CONTENT: Record<ChapterKey, React.ComponentType> = {
   puntos: ClipperDotsScene,
-  patrones: ClipperSpectrum,
-  idea: ClipperPrinciples,
-  herramientas: ClipperTools,
-  forma: ClipperExchange,
-  ia: ClipperEvals,
+  patrones: ClipperPains,
+  idea: ClipperBenefits,
+  bocetos: ClipperSketches,
+  forma: ClipperVoice,
+  ia: ClipperStack,
   impacto: ClipperImpact,
   demo: ClipperLiveDemo,
 }
@@ -83,8 +83,8 @@ export function ClipperCase() {
       puntos: t(c.problem),
       patrones: t(c.research),
       idea: t(c.idea),
-      herramientas: t({ es: 'Herramientas', en: 'Tools' }),
-      forma: t({ es: 'Conversación', en: 'Conversation' }),
+      bocetos: t(c.sketches),
+      forma: t(c.form),
       ia: t(c.ai),
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
@@ -102,15 +102,15 @@ export function ClipperCase() {
           <ChapterRail chapters={chapters} label={t(CLIPPER_CASE.title)} back={BACK} />
           {/* Del orbe apagado de «Los puntos» a «Patrones» */}
           <SectionFiber id="clp-patrones" side="left">
-            {/* Del orbe ya ubicado en el medio del espectro a «La idea» */}
+            {/* De la frase del dueño a Clipper, a «La idea» */}
             <SectionFiber id="clp-idea" side="right">
-              {/* Del centro del orbe de las reglas baja a «Herramientas» */}
-              <SectionFiber id="clp-tools" side="down">
-                {/* De la última herramienta (la que propone una nota) a «Conversación» */}
+              {/* Del centro del orbe de «La idea» baja a «Bocetos» */}
+              <SectionFiber id="clp-bocetos" side="down">
+                {/* Del carrusel de bocetos a «Forma» (la voz) */}
                 <SectionFiber id="clp-forma" side="left">
-                  {/* De la parada «Revisa» a «IA en el proceso» */}
+                  {/* Del botón para escuchar a Clipper a «IA en el proceso» */}
                   <SectionFiber id="clp-ia" side="right">
-                    {/* Del filtro del servidor baja a «Impacto» */}
+                    {/* De «Responde», la última pieza de la cadena, baja a «Impacto» */}
                     <SectionFiber id="clp-impacto" side="down">
                       {/* De la última cresta de la onda baja a «Demo» */}
                       <SectionFiber id="clp-demo" side="down">
