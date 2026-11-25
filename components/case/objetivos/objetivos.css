@@ -81,3 +81,11 @@ html[data-motion='reduced'] .branch-pulse { animation: none; opacity: 0; }
   .branch-name { font-size: 30px; }
   .branch-role { font-size: 20px; letter-spacing: 0.06em; }
 }
+
+/* El orbe de la IA: respira despacio; al pensar, late un poco más rápido */
+@keyframes orb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+@keyframes orb-think { 0%, 100% { transform: scale(1) rotate(0deg); filter: saturate(1); } 50% { transform: scale(1.07) rotate(8deg); filter: saturate(1.35); } }
+html[data-motion='reduced'] [class*='orb-breathe'] { animation: none !important; }
+
+/* Impacto: la señal que va del punto de partida a la meta */
+@keyframes impact-flow { from { transform: translateX(-100%); } to { transform: translateX(300%); } }

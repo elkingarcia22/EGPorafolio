@@ -7,7 +7,6 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { PiecesBoard, ReportBoard } from './objetivos-sketches-more'
-import { useAutoplay } from './use-autoplay'
 
 type Writer = 'rrhh' | 'otros'
 
@@ -156,15 +155,18 @@ const GAP = 0.12
 /** Inclinación de cada tablero sobre el muro (grados) */
 const TILT = [-1.2, 1, 0.8, -1]
 /** Tiempo en cada tablero mientras avanza solo (ms) */
-const BOARD_MS = 8000
+const BOARD_MS = 6500
+/** Tiempo viendo el muro entero, al empezar y al volver a él entre vuelta y vuelta (ms) */
+const WALL_MS = 3200
 /** Viaje de la cámara: se aleja hasta ver el muro y entra al siguiente (s) */
 const TRAVEL = { out: 0.55, in: 0.85 }
 
 /**
  * Los bocetos como un muro: los cuatro tableros clavados en una cuadrícula y
- * unidos por fibras, en el orden en que se discutieron. La cámara está en uno;
- * para pasar al siguiente se aleja hasta ver el muro entero y entra al otro.
- * Avanza solo (se detiene con el cursor encima, para poder tocarlos).
+ * unidos por fibras, en el orden en que se discutieron. Es un ciclo: arranca
+ * viendo el muro entero, entra a cada tablero (alejándose hasta el muro entre
+ * uno y otro) y al final vuelve al muro para empezar de nuevo. Avanza solo y se
+ * detiene con el cursor encima, para poder tocarlos.
  */
 function SketchWall() {
   const { t } = useLocale()
@@ -174,8 +176,29 @@ function SketchWall() {
   const canvasRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
   const [hover, setHover] = useState(false)
-  const [overview, setOverview] = useState(false)
-  const { index: active, go } = useAutoplay(rootRef, { count: BOARDS.length, ms: BOARD_MS, loop: true, disabled: reducedMotion, hold: hover || overview })
+  const [inView, setInView] = useState(false)
+  /** Dónde va el ciclo: 0 = el muro entero; 1–4 = cada tablero */
+  const [pos, setPos] = useState(0)
+  const overview = pos === 0
+  /** El tablero en foco (en el muro, el último que se vio, para que la cámara salga de ahí) */
+  const lastBoard = useRef(0)
+  if (pos > 0) lastBoard.current = pos - 1
+  const active = lastBoard.current
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || reducedMotion) return
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { rootMargin: '0px 0px -25% 0px' })
+    observer.observe(root)
+    return () => observer.disconnect()
+  }, [reducedMotion])
+
+  // El ciclo: muro → tablero 1 → … → tablero 4 → muro → …
+  useEffect(() => {
+    if (!inView || hover || reducedMotion) return
+    const id = window.setTimeout(() => setPos((p) => (p + 1) % (BOARDS.length + 1)), overview ? WALL_MS : BOARD_MS)
+    return () => window.clearTimeout(id)
+  }, [inView, hover, reducedMotion, pos, overview])
 
   // Mide el ancho de la vista y el tablero más alto: con eso se arma el muro.
   useEffect(() => {
@@ -234,10 +257,7 @@ function SketchWall() {
     return () => ctx.revert()
   }, [active, overview, reducedMotion])
 
-  const choose = (i: number) => {
-    setOverview(false)
-    go(i)
-  }
+  const choose = (i: number) => setPos(i + 1)
   /** Fibra de un tablero al siguiente, de borde a borde por el muro (en fila: costado a costado; al bajar: de abajo a arriba) */
   const link = (i: number) => {
     const a = at(i)
@@ -317,11 +337,11 @@ function SketchWall() {
         </ol>
         <button
           type="button"
-          onClick={() => setOverview((v) => !v)}
+          onClick={() => setPos(0)}
           aria-pressed={overview}
           className="mono-label rounded-full border border-white/12 px-3 py-1 text-paper/60 transition-colors hover:border-white/35 hover:text-paper aria-pressed:border-signal aria-pressed:text-paper"
         >
-          {overview ? t({ es: 'Volver al tablero', en: 'Back to board' }) : t({ es: 'Ver el muro', en: 'See the wall' })}
+          {t({ es: 'El muro', en: 'The wall' })}
         </button>
       </div>
     </div>

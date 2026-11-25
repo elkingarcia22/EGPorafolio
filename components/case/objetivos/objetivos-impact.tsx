@@ -1,136 +1,195 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
-import { useLocale } from '@/lib/i18n'
-import { CaseLead } from '@/components/case/case-lead'
-import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
-import { NeuronQuotes } from './neuron-quotes'
-import { useAutoplay } from './use-autoplay'
-
-/** Tiempo en cada cifra mientras avanza sola (ms) */
-const METRIC_MS = 3200
-/** Dónde va cada cifra alrededor del centro (% del escenario): arriba-izq., arriba-der., abajo-izq., abajo-der. */
-const SPOTS = [
-  { x: 18, y: 20 },
-  { x: 82, y: 20 },
-  { x: 18, y: 80 },
-  { x: 82, y: 80 },
-]
-const HUB = { x: 50, y: 50 }
+import { useLocale, type L } from '@/lib/i18n'
 
 /**
- * Las cifras de referencia como una constelación: el rediseño en el centro y
- * cuatro neuronas alrededor, unidas por fibras. Una a una se encienden (la
- * señal sale del centro hacia ella) y se lee qué mide. Tocar una la elige.
+ * Las métricas con que se mide el rediseño: qué es cada una, qué del producto
+ * la mueve (todo está en este caso) y cómo se mide, con su escenario de referencia
+ * (punto de partida estimado → meta) mientras llegan las cifras medidas de UBITS.
  */
-function MetricConstellation() {
+interface ImpactMetric {
+  name: L
+  what: L
+  moves: L
+  how: L
+  /**
+   * Escenario de referencia hasta tener las medidas de UBITS: punto de partida estimado,
+   * meta del rediseño y cuánto cambia. Con las cifras reales, solo se reemplazan estos valores.
+   */
+  from: string
+  to: string
+  delta: string
+  /** Qué se cuenta en `from` y `to`, en pocas palabras */
+  unit: L
+  north?: boolean
+}
+
+const METRICS: readonly ImpactMetric[] = [
+  {
+    name: { es: 'Frecuencia de uso', en: 'Usage frequency' },
+    what: { es: 'Colaboradores que reportan avance cada semana del ciclo.', en: 'Employees who report progress every week of the cycle.' },
+    moves: { es: 'Reportar en segundos, las rachas y el podio de Ranking con «Felicitar», y «Constancia antes que %».', en: 'Reporting in seconds, Ranking streaks and podium with “Congratulate”, and “Habit over %”.' },
+    how: { es: 'Historial de reportes: reportes por persona y por semana.', en: 'Report history: reports per person per week.' },
+    from: '35 %',
+    to: '70 %',
+    delta: '+35 pp',
+    unit: { es: 'reportan cada semana', en: 'report every week' },
+    north: true,
+  },
+  {
+    name: { es: 'Usabilidad', en: 'Usability' },
+    what: { es: 'Cuántas empresas y cuántos usuarios están usando el módulo en la plataforma.', en: 'How many companies and users are using the module on the platform.' },
+    moves: { es: 'Arrancar es fácil: el constructor de 5 pasos, «Crear con IA» y la carga masiva; y cada rol tiene su vista.', en: 'Getting started is easy: the 5-step builder, “Create with AI” and bulk upload; and each role has its own view.' },
+    how: { es: 'Empresas con al menos un ciclo activo y usuarios que entran cada mes.', en: 'Companies with at least one active cycle and users who log in each month.' },
+    from: '30 %',
+    to: '60 %',
+    delta: '+30 pp',
+    unit: { es: 'de las empresas cliente lo usan', en: 'of client companies use it' },
+  },
+  {
+    name: { es: 'Retención', en: 'Retention' },
+    what: { es: 'Empresas que renovaron su contrato por influencia del módulo de Objetivos.', en: 'Companies that renewed their contract thanks to the Goals module.' },
+    moves: { es: 'El ciclo ya no termina al crearlo: Resultados en 7 pestañas, la lectura con IA y los accionables que siguen al cierre (360, matriz de talento y PDI).', en: 'The cycle no longer ends at creation: Results in 7 tabs, the AI reading and actions after close (360, talent matrix and development plans).' },
+    how: { es: 'Renovaciones de empresas que usan Objetivos, frente a las que no, y lo que dice el equipo comercial en cada renovación.', en: 'Renewals of companies using Goals vs. those that don’t, and what the sales team hears at each renewal.' },
+    from: '60 %',
+    to: '85 %',
+    delta: '+25 pp',
+    unit: { es: 'de las empresas con Objetivos renuevan', en: 'of companies with Goals renew' },
+  },
+  {
+    name: { es: 'ARR', en: 'ARR' },
+    what: { es: 'Empresas nuevas que compraron el módulo de Objetivos, en dólares de ingreso recurrente al año.', en: 'New companies that bought the Goals module, in annual recurring revenue (USD).' },
+    moves: { es: 'Un módulo completo que se vende solo y se conecta con Desempeño: del ciclo con IA a los resultados y los accionables.', en: 'A complete module that sells on its own and connects with Performance: from the AI cycle to results and actions.' },
+    how: { es: 'Contratos nuevos con Objetivos en el CRM y su valor anual en USD.', en: 'New contracts with Goals in the CRM and their annual value in USD.' },
+    from: 'USD 0',
+    to: 'USD 120 k',
+    delta: '+$120 k',
+    unit: { es: 'en ventas nuevas del módulo al año', en: 'in new module sales per year' },
+  },
+]
+
+/** Cada cuánto se enciende la siguiente métrica mientras pasan solas (ms) */
+const STEP_MS = 4200
+/** Al entrar, la fibra se tiende de una métrica a la siguiente (ms por tramo) */
+const DRAW_MS = 380
+
+/**
+ * 06 · Impacto: las cuatro métricas del rediseño sobre una sola fibra, con la
+ * métrica norte primero. Al entrar se encienden una tras otra; después se lee
+ * una a la vez: qué la mueve en el producto y cómo se mide. Tocar una la
+ * elige. De la última sale la fibra hacia «Demo».
+ */
+export function ObjetivosImpact() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
-  const metrics = OBJ_CASE.impact.reference
-  const { index: active, go, playing } = useAutoplay(rootRef, { count: metrics.length, ms: METRIC_MS, loop: true, disabled: reducedMotion })
-  const lit = playing || reducedMotion
+  const [inView, setInView] = useState(false)
+  const [lit, setLit] = useState(reducedMotion ? METRICS.length : 0)
+  const [active, setActive] = useState(0)
+  const [hold, setHold] = useState(false)
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: '0px 0px -25% 0px' })
+    io.observe(root)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!inView || reducedMotion || hold) return
+    const id = window.setTimeout(
+      () => (lit < METRICS.length ? setLit((n) => n + 1) : setActive((a) => (a + 1) % METRICS.length)),
+      lit < METRICS.length ? (lit === 0 ? 250 : DRAW_MS) : STEP_MS,
+    )
+    return () => window.clearTimeout(id)
+  }, [inView, reducedMotion, hold, lit, active])
+
+  const fill = Math.max(0, lit - 1) / (METRICS.length - 1)
+  const current = METRICS[active]
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-[860px]">
-      <p className="flex flex-wrap items-center justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em]">
-        <span className="rounded-full bg-white px-2.5 py-1 text-[#0b0d16]">{t({ es: 'Cifras de referencia', en: 'Reference figures' })}</span>
-        <span className="text-white/50">{t({ es: 'Lo que esperamos mover; no son medidas en producción', en: 'What we expect to move; not measured in production' })}</span>
-      </p>
-
-      <div className="relative mt-6 aspect-[16/10] w-full">
-        {/* Las fibras del centro a cada cifra; la activa lleva la señal */}
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-          <defs>
-            <linearGradient id="impact-fiber" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#7b5cff" />
-              <stop offset="1" stopColor="#0c5bef" />
-            </linearGradient>
-          </defs>
-          {SPOTS.map((p, i) => {
-            const d = `M${HUB.x} ${HUB.y} C${HUB.x} ${(HUB.y + p.y) / 2} ${p.x} ${(HUB.y + p.y) / 2} ${p.x} ${p.y}`
-            const on = lit && i === active
-            return (
-              <g key={metrics[i].label.es}>
-                <path d={d} fill="none" stroke="white" strokeOpacity={0.12} strokeWidth={1} vectorEffect="non-scaling-stroke" />
-                <path d={d} fill="none" stroke="url(#impact-fiber)" strokeWidth={2} vectorEffect="non-scaling-stroke" pathLength={1} strokeDasharray="1" strokeDashoffset={lit ? 0 : 1} style={{ opacity: on ? 1 : 0.35, transition: `stroke-dashoffset 1.2s cubic-bezier(.65,0,.35,1) ${i * 0.15}s, opacity .6s` }} />
-                {on && <path key={`p-${active}`} d={d} fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" vectorEffect="non-scaling-stroke" pathLength={1} strokeDasharray="0.1 0.9" className="ms-pulse" />}
-              </g>
-            )
-          })}
-        </svg>
-
-        {/* El centro: el rediseño, y lo que mide la cifra activa */}
-        <div className="absolute left-1/2 top-1/2 flex w-[min(15rem,40%)] -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center">
-          <span className="relative grid h-14 w-14 place-items-center rounded-full border border-white/70 bg-void shadow-[0_0_0_8px_rgb(123_92_255/0.15),0_0_40px_6px_rgb(123_92_255/0.5)]">
-            <span className="absolute inset-[-9px] rounded-full border border-[#7b5cff]/50 animate-[nav-node-ping_2.6s_cubic-bezier(0,0,.2,1)_infinite]" />
-            <span className="font-mono text-[8px] uppercase tracking-[0.12em]">{t({ es: 'Rediseño', en: 'Redesign' })}</span>
-          </span>
-          <p key={active} aria-live="polite" className="obj-fade mt-4 text-sm leading-snug text-paper/70">{t(metrics[active].detail)}</p>
-        </div>
-
-        {/* Las cuatro cifras */}
-        {metrics.map((m, i) => {
-          const p = SPOTS[i]
-          const on = i === active
+    <div ref={rootRef} className="mx-auto max-w-[1000px]">
+      <ol className="relative grid grid-cols-2 gap-y-10 md:grid-cols-4">
+        {/* La fibra que une las cuatro métricas: se tiende al entrar */}
+        <span aria-hidden="true" className="absolute inset-x-[12.5%] top-[7px] hidden h-px bg-white/12 md:block" />
+        <span
+          aria-hidden="true"
+          className="absolute left-[12.5%] top-[7px] hidden h-px w-3/4 origin-left bg-gradient-to-r from-signal via-[rgb(var(--glow))] to-[rgb(var(--spark))] shadow-[0_0_10px_rgb(var(--signal)/0.7)] transition-transform ease-out md:block"
+          style={{ transform: `scaleX(${fill})`, transitionDuration: `${DRAW_MS}ms` }}
+        />
+        {METRICS.map((m, i) => {
+          const on = i < lit
+          const isActive = i === active && lit > 0
           return (
-            <button
-              key={m.label.es}
-              type="button"
-              onClick={() => go(i)}
-              aria-pressed={on}
-              className="group absolute -translate-x-1/2 -translate-y-1/2 text-center"
-              style={{ left: `${p.x}%`, top: `${p.y}%` }}
-            >
-              <span className={`block font-mono text-[10px] uppercase tracking-[0.14em] transition-colors duration-500 ${on ? 'text-[#a99bff]' : 'text-white/45 group-hover:text-white/75'}`}>{t(m.label)}</span>
-              <span
-                className={`mt-2 block whitespace-nowrap bg-gradient-to-r from-[#9f8cff] to-[#4f86ff] bg-clip-text font-light leading-none text-transparent tabular-nums transition-[transform,opacity,filter] duration-700 ease-expo ${on ? 'scale-110 opacity-100' : 'scale-90 opacity-45 group-hover:opacity-80'}`}
-                style={{ fontSize: 'clamp(2.4rem, 1.6rem + 2.6vw, 4.4rem)', filter: on ? 'drop-shadow(0 0 18px rgb(123 92 255 / 0.55))' : 'none' }}
+            <li key={m.name.es} className="relative flex flex-col items-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setHold(true)
+                  setLit(METRICS.length)
+                  setActive(i)
+                }}
+                aria-pressed={isActive}
+                className="group flex flex-col items-center outline-none"
               >
-                {m.prefix}
-                <span data-count={m.value}>{m.value}</span>
-                <span className="text-[0.42em]">{m.suffix}</span>
-              </span>
-            </button>
+                <span className="relative grid h-3.5 w-3.5 place-items-center" aria-hidden="true">
+                  <span className={`absolute inset-0 rounded-full border transition-all duration-500 ${isActive ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_4px_rgb(var(--signal)/0.7)]' : on ? 'border-white/60 bg-signal' : 'border-white/35 bg-void'}`} />
+                  {isActive && <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.2s_cubic-bezier(0,0,.2,1)_infinite]" />}
+                  {i === METRICS.length - 1 && <span data-fiber-from="obj-demo" className="absolute left-1/2 top-1/2 h-px w-px" />}
+                </span>
+                {m.north && <span className="mt-4 font-mono text-[9px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</span>}
+                <span className={`mt-3 bg-gradient-to-b from-white to-white/60 bg-clip-text text-[clamp(1.9rem,1.2rem+2.2vw,3.4rem)] font-light leading-none text-transparent tabular-nums transition-opacity duration-500 ${isActive ? 'opacity-100' : on ? 'opacity-60 group-hover:opacity-90' : 'opacity-20'}`} style={{ filter: isActive ? 'drop-shadow(0 0 18px rgb(var(--signal) / 0.55))' : 'none' }}>
+                  {m.delta}
+                </span>
+                <span
+                  className={`${m.north ? 'mt-1.5' : 'mt-4'} text-balance text-center text-[clamp(1.05rem,0.9rem+0.6vw,1.45rem)] font-light leading-tight tracking-tight transition-opacity duration-500 ${isActive ? 'opacity-100' : on ? 'opacity-55 group-hover:opacity-85' : 'opacity-25'}`}
+                >
+                  {t(m.name)}
+                </span>
+              </button>
+            </li>
           )
         })}
-      </div>
-    </div>
-  )
-}
-
-/** Lo construido: una fibra con un nodo por cifra. */
-function BuiltFiber() {
-  const { t } = useLocale()
-  const built = OBJ_CASE.impact.built
-  return (
-    <div className="mx-auto mt-[clamp(4rem,3rem+4vw,6.5rem)] max-w-[820px] text-center">
-      <p className="mono-label text-paper/50">{t({ es: 'Lo construido', en: 'What was built' })}</p>
-      <ol className="relative mt-8 grid grid-cols-2 gap-y-10 md:grid-cols-4">
-        <span className="absolute inset-x-[12.5%] top-[7px] hidden h-px bg-gradient-to-r from-signal via-[#7b5cff] to-[#ff54aa] opacity-60 md:block" aria-hidden="true" />
-        {built.map((s) => (
-          <li key={s.label.es} data-reveal className="relative flex flex-col items-center px-3">
-            <span className="block h-[15px] w-[15px] rounded-full border border-white/70 bg-void shadow-[0_0_14px_2px_rgb(var(--signal)/0.5)]" aria-hidden="true" />
-            <b data-count={s.value} className="mt-4 text-[clamp(2rem,1.5rem+1.6vw,3rem)] font-light leading-none tabular-nums">{s.value}</b>
-            <span className="mt-2 max-w-[18ch] text-[12px] leading-snug text-paper/55">{t(s.label)}</span>
-          </li>
-        ))}
       </ol>
-    </div>
-  )
-}
 
-/** 07 · Impacto: las mejoras esperadas como una constelación, lo construido y lo aprendido. */
-export function ObjetivosImpact() {
-  const { t } = useLocale()
-  const { impact } = OBJ_CASE
-  return (
-    <div>
-      <CaseLead className="mb-10">{t(impact.lead)}</CaseLead>
-      <MetricConstellation />
-      <BuiltFiber />
-      <NeuronQuotes label={{ es: 'Lo que aprendí', en: 'What I learned' }} items={impact.learnings} tag="aprendí_" />
+      {/* La métrica en lectura: de dónde parte, a dónde llega y cuánto cambia */}
+      <div key={`band-${active}`} className="obj-fade relative mx-auto mt-12 max-w-[880px] overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(ellipse_at_70%_0%,rgb(var(--signal)/0.18),transparent_60%)] px-6 py-8 md:px-10">
+        <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t(current.unit)}</p>
+        <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
+          <div className="text-right">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: 'Punto de partida', en: 'Starting point' })}</p>
+            <p className="mt-2 text-[clamp(2rem,1.2rem+2.6vw,3.8rem)] font-light leading-none text-paper/45 tabular-nums">{current.from}</p>
+          </div>
+          {/* La fibra entre el antes y la meta, con la señal que la recorre */}
+          <div className="relative flex w-[clamp(4rem,10vw,9rem)] flex-col items-center">
+            <span className="rounded-full bg-signal px-3 py-1 text-sm font-medium text-on-signal shadow-[0_0_24px_-4px_rgb(var(--signal)/0.9)] tabular-nums">{current.delta}</span>
+            <span className="relative mt-3 h-px w-full overflow-hidden bg-white/15">
+              <span className="absolute inset-y-0 left-0 w-1/3 animate-[impact-flow_1.6s_cubic-bezier(.65,0,.35,1)_infinite] bg-gradient-to-r from-transparent via-white to-transparent" />
+            </span>
+          </div>
+          <div className="text-left">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Meta', en: 'Target' })}</p>
+            <p className="mt-2 text-[clamp(2.4rem,1.4rem+3.2vw,4.6rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 22px rgb(var(--signal) / 0.45))' }}>{current.to}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Qué es, qué la mueve y cómo se mide */}
+      <div key={active} aria-live="polite" className="obj-fade mx-auto mt-8 grid max-w-[880px] gap-6 text-left md:grid-cols-3">
+        {[
+          { tag: t({ es: 'Qué es', en: 'What it is' }), text: t(current.what) },
+          { tag: t({ es: 'Qué la mueve', en: 'What moves it' }), text: t(current.moves) },
+          { tag: t({ es: 'Cómo se mide', en: 'How it’s measured' }), text: t(current.how) },
+        ].map((col) => (
+          <div key={col.tag} className="border-l border-white/12 pl-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{col.tag}</p>
+            <p className="mt-2 text-sm leading-relaxed text-paper/75">{col.text}</p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

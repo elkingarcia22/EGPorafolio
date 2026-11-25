@@ -16,6 +16,8 @@ const EDGE = 16
 const EXIT_DROP = 90
 /** Holgura extra con el borde de la pantalla (px) */
 const SWAY = 26
+/** Cada cuánto se vuelve a medir mientras la fibra se tiende (ms) */
+const REMEASURE_LIVE_MS = 350
 /** Espera antes de volver a medir cuando el contenido cambia de alto (ms) */
 const REMEASURE_MS = 200
 
@@ -24,8 +26,8 @@ interface Point {
   y: number
 }
 
-/** Hacia qué costado se abre la fibra */
-type FiberSide = 'left' | 'right'
+/** Hacia qué costado se abre la fibra ('down': baja en una S suave, sin abrirse, desde una esquina hasta el nodo) */
+type FiberSide = 'left' | 'right' | 'down'
 
 /** Zona del texto que la fibra rodea, en coordenadas del contenedor */
 interface TextBox {
@@ -41,6 +43,11 @@ interface TextBox {
  * con un giro corto, sobre el nodo de destino: abierta arriba, cerrada abajo.
  */
 function fiberPath(start: Point, end: Point, box: TextBox, width: number, toward: FiberSide): string {
+  if (toward === 'down') {
+    // Cae vertical desde el origen y entra vertical al nodo: una S larga y tranquila.
+    const drop = end.y - start.y
+    return `M${start.x},${start.y} C${start.x},${start.y + drop * 0.55} ${end.x},${end.y - drop * 0.55} ${end.x},${end.y}`
+  }
   // Hacia la derecha es el mismo trazo en espejo: se calcula como si fuera a la izquierda y se refleja.
   const flip = toward === 'right'
   const mx = (x: number) => (flip ? width - x : x)
@@ -104,6 +111,7 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
     let from: Point = { x: 0, y: 0 }
     let to: Point = { x: 0, y: 0 }
     let total = 0
+    let lastMeasure = 0
 
     const centerOf = (selector: string, atEnd = false): Point | null => {
       const el = wrap.querySelector(selector)
@@ -166,7 +174,16 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
         scrub: 0.5,
         invalidateOnRefresh: true,
         onRefreshInit: measure,
-        onUpdate: (self) => show(self.progress),
+        onUpdate: (self) => {
+          // Mientras se tiende, se vuelve a medir de vez en cuando: lo que la rodea pudo terminar de
+          // entrar (piezas que aterrizan con transformaciones) después de la primera medida.
+          const now = performance.now()
+          if (now - lastMeasure > REMEASURE_LIVE_MS) {
+            lastMeasure = now
+            measure()
+          }
+          show(self.progress)
+        },
         onRefresh: (self) => show(self.progress),
       })
     }, wrap)

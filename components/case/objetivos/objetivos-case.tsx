@@ -32,7 +32,7 @@ type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 
 const QUIET = { hero: 1, chapters: 1 }
 
 /** Capítulos a los que llega una fibra que se tiende con el scroll desde la sección anterior */
-const FIBER_TO: Partial<Record<ChapterKey, string>> = { puntos: 'obj-puntos', patrones: 'obj-patrones' }
+const FIBER_TO: Partial<Record<ChapterKey, string>> = { puntos: 'obj-puntos', patrones: 'obj-patrones', idea: 'obj-idea', bocetos: 'obj-bocetos', ia: 'obj-ia', impacto: 'obj-impacto', demo: 'obj-demo' }
 
 /** Todos sobre la misma red de fondo; cada uno llega de una manera distinta */
 const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
@@ -41,7 +41,6 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'thread' },
   { id: 'bocetos', entry: 'warp' },
-  { id: 'forma', entry: 'converge' },
   { id: 'ia', entry: 'bloom' },
   { id: 'impacto', entry: 'warp' },
   { id: 'demo', entry: 'thread' },
@@ -58,18 +57,30 @@ function ObjetivosDots() {
   )
 }
 
+/** 04 · Bocetos y forma: el muro de tableros y, debajo, el producto construido (un solo capítulo) */
+function ObjetivosSketchesAndForm() {
+  return (
+    <div>
+      <ObjetivosSketches />
+      <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
+        <ObjetivosForm />
+      </div>
+    </div>
+  )
+}
+
 const CONTENT: Record<ChapterKey, React.ComponentType> = {
   puntos: ObjetivosDots,
   patrones: ObjetivosPatterns,
   idea: ObjetivosIdea,
-  bocetos: ObjetivosSketches,
+  bocetos: ObjetivosSketchesAndForm,
   forma: ObjetivosForm,
   ia: ObjetivosAi,
   impacto: ObjetivosImpact,
   demo: ObjetivosDemo,
 }
 
-/** Caso Objetivos: portada, índice fijo, los ocho capítulos y el siguiente proyecto. */
+/** Caso Objetivos: portada, índice fijo, los siete capítulos y el siguiente proyecto. */
 export function ObjetivosCase({ next }: { next: Project }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
@@ -98,7 +109,7 @@ export function ObjetivosCase({ next }: { next: Project }) {
       puntos: t(c.problem),
       patrones: t(c.research),
       idea: t(c.idea),
-      bocetos: t(c.sketches),
+      bocetos: t({ es: 'Bocetos y forma', en: 'Sketches and form' }),
       forma: t(c.form),
       ia: t(c.ai),
       impacto: t(c.results),
@@ -119,6 +130,16 @@ export function ObjetivosCase({ next }: { next: Project }) {
         <ChapterRail chapters={chapters} label={t(OBJ_CASE.title)} />
         {/* Del final de la montaña de «Los puntos» sale la fibra que baja hasta «Patrones» */}
         <SectionFiber id="obj-patrones" side="right">
+        {/* Y del constructor de «Patrones» sale otra, ahora hacia la izquierda, hasta «La idea» */}
+        <SectionFiber id="obj-idea" side="left">
+        {/* De «La idea» sale hacia la derecha, hasta «Bocetos» */}
+        <SectionFiber id="obj-bocetos" side="right">
+        {/* Desde detrás de «Alinear» asoma por abajo y baja hasta «IA en el proceso» */}
+        <SectionFiber id="obj-ia" side="down">
+        {/* Del centro del orbe de la IA baja hasta «Impacto» */}
+        <SectionFiber id="obj-impacto" side="down">
+        {/* De la última cifra de «Impacto» baja hasta «Demo» */}
+        <SectionFiber id="obj-demo" side="down">
         <div className="mx-auto min-w-0 max-w-6xl">
           {chapters.map((meta) => {
             const Content = CONTENT[meta.id as ChapterKey]
@@ -129,6 +150,11 @@ export function ObjetivosCase({ next }: { next: Project }) {
             )
           })}
         </div>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
         </SectionFiber>
       </div>
       </SectionFiber>
