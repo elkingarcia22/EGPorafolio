@@ -10,7 +10,7 @@ const WORLD = { waypoints: 3, spacing: 9, viewDistance: 6, radius: 9, count: 150
 /** La cámara avanza y retrocede muy despacio (sin cortes): la red respira */
 const DRIFT = { base: 6, amplitude: 5, speed: 0.00006 }
 /** Opacidad: más presente detrás del titular, tenue cuando ya está el EG */
-const FADE = { headline: 0.6, rest: 0.22 }
+const FADE = { headline: 0.6, rest: 0.34 }
 /** Hasta qué avance del hero se considera "detrás del titular" */
 const HEADLINE_UNTIL = 0.12
 const PULSE_CHANCE = 0.06

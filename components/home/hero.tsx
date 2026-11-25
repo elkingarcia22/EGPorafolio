@@ -40,6 +40,12 @@ const SCROLLED_PX = 80
 /** Encuadre del EG en el lienzo */
 const EG_FIT = { width: 0.62, height: 0.42, centerY: 0.38 }
 
+/** Momentos de la línea de tiempo del hero en que se leen el puente y la firma */
+const SIGNAL_READ_AT = 0.3
+const NAME_READ_AT = 0.7
+/** Margen para volver a esconderlos al subir (evita parpadeos justo en el borde) */
+const READ_HYSTERESIS = 0.03
+
 /** Momento de la línea de tiempo en que el puente ("Mi trabajo es diseñar…") está completo */
 const SIGNAL_REST_AT = 0.52
 
@@ -166,6 +172,19 @@ function useBoot(
   }, [root, headline, loaderProgress, reducedMotion, skipLoading, onIntroRead])
 }
 
+/** Una línea de la firma, letra por letra, detrás de una máscara (sube al leerse). */
+function SplitLine({ text, className }: { text: string; className: string }) {
+  return (
+    <span aria-hidden="true" className={`block overflow-hidden pb-[0.06em] ${className}`}>
+      {Array.from(text).map((char, i) => (
+        <span key={i} data-read-char className="inline-block">
+          {char}
+        </span>
+      ))}
+    </span>
+  )
+}
+
 /**
  * Hero en tres tiempos, controlados por el scroll:
  * 1. "Todo producto nace de una conexión entre lo que somos y lo que necesitamos."
@@ -244,10 +263,40 @@ export function Hero() {
       })
       tl.to(q('[data-hint-wrap]'), { autoAlpha: 0, y: 30, duration: 0.06 }, 0.02)
         .to(q('[data-phase="noise"]'), { autoAlpha: 0, filter: 'blur(12px)', y: -40, duration: 0.18 }, 0.12)
-        .fromTo(q('[data-phase="signal"]'), { autoAlpha: 0, y: 40, filter: 'blur(12px)' }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.14 }, 0.32)
-        .to(q('[data-phase="signal"]'), { autoAlpha: 0, y: -40, duration: 0.12 }, 0.58)
-        .fromTo(q('[data-phase="name"]'), { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 0.16 }, 0.7)
+        .fromTo(q('[data-phase="signal"]'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.04 }, 0.3)
+        .to(q('[data-phase="signal"]'), { autoAlpha: 0, y: -40, filter: 'blur(8px)', duration: 0.12 }, 0.58)
+        .fromTo(q('[data-phase="name"]'), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.04 }, 0.7)
         .fromTo(q('[data-bar]'), { scaleY: 0 }, { scaleY: 1, duration: 0.14, stagger: 0.03 }, 0.72)
+
+      // Lectura con tiempo propio (no sigue la velocidad del scroll): el puente
+      // aparece palabra por palabra y la firma letra por letra, al ritmo de leer.
+      const signalRead = gsap.timeline({ paused: true }).fromTo(
+        q('[data-read-word]'),
+        { autoAlpha: 0, yPercent: 55, filter: 'blur(10px)' },
+        { autoAlpha: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.9, stagger: 0.11, ease: 'expo.out' },
+      )
+      const nameRead = gsap.timeline({ paused: true })
+        .fromTo(q('[data-read-char]'), { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.045, ease: 'expo.out' })
+        .fromTo(q('[data-read-meta]'), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.9, stagger: 0.12, ease: 'expo.out' }, '-=0.7')
+      let signalShown = false
+      let nameShown = false
+      tl.eventCallback('onUpdate', () => {
+        const at = tl.time()
+        if (!signalShown && at >= SIGNAL_READ_AT) {
+          signalShown = true
+          signalRead.restart()
+        } else if (signalShown && at < SIGNAL_READ_AT - READ_HYSTERESIS) {
+          signalShown = false
+          signalRead.pause(0)
+        }
+        if (!nameShown && at >= NAME_READ_AT) {
+          nameShown = true
+          nameRead.restart()
+        } else if (nameShown && at < NAME_READ_AT - READ_HYSTERESIS) {
+          nameShown = false
+          nameRead.pause(0)
+        }
+      })
 
       snap.current = {
         trigger: tl.scrollTrigger ?? null,
@@ -321,8 +370,13 @@ export function Hero() {
           {/* 2 · Señal */}
           <div data-phase="signal" className="pointer-events-none invisible absolute inset-0 flex items-end justify-end px-[var(--gutter)] pb-[7vh] text-right">
             <p className="max-w-[18ch] text-[clamp(2.1rem,1rem+4.2vw,5rem)] font-light leading-[0.98] tracking-tight">
-              {t(COPY.hero.signal).replace(/\.$/, '')}
-              <span className="text-signal">.</span>
+              {t(COPY.hero.signal).replace(/\.$/, '').split(' ').map((word, i, words) => (
+                <span key={i} data-read-word className="inline-block">
+                  {word}
+                  {i === words.length - 1 && <span className="text-signal">.</span>}
+                  {i < words.length - 1 && '\u00a0'}
+                </span>
+              ))}
             </p>
           </div>
 
@@ -331,16 +385,17 @@ export function Hero() {
             <div className="flex items-end gap-5">
               <span data-bar className="brand-bar h-[clamp(6rem,14vw,12rem)] origin-bottom" aria-hidden="true" />
               <h1 className="leading-[0.85]">
-                <span className="block text-[clamp(2rem,1rem+4vw,4.5rem)] font-light lowercase">{PROFILE.firstName}</span>
-                <span className="block text-[clamp(3rem,1rem+9vw,10rem)] font-medium tracking-[0.12em]">{PROFILE.lastName}</span>
+                <span className="sr-only">{PROFILE.firstName} {PROFILE.lastName}</span>
+                <SplitLine text={PROFILE.firstName} className="text-[clamp(2rem,1rem+4vw,4.5rem)] font-light lowercase" />
+                <SplitLine text={PROFILE.lastName} className="text-[clamp(3rem,1rem+9vw,10rem)] font-medium tracking-[0.12em]" />
               </h1>
             </div>
             <div className="mt-6 flex flex-col gap-4 md:ml-[calc(6px+1.25rem)] md:flex-row md:items-end md:justify-between">
-              <p className="flex items-center gap-3 text-lg">
+              <p data-read-meta className="flex items-center gap-3 text-lg">
                 <span data-bar className="h-6 w-px origin-bottom bg-current" aria-hidden="true" />
                 {t(PROFILE.role)}
               </p>
-              <p className="max-w-md text-sm leading-relaxed opacity-70">{t(COPY.hero.tagline)}</p>
+              <p data-read-meta className="max-w-md text-sm leading-relaxed opacity-70">{t(COPY.hero.tagline)}</p>
             </div>
           </div>
 
