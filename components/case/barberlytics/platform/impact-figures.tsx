@@ -9,100 +9,76 @@ const GOLD = '#d9b36a'
 const PAIN = '#ff6b72'
 const GAIN = '#4cc98d'
 const FAINT = 'rgba(255,255,255,0.12)'
+const EASE = 'transition-all duration-700 ease-expo'
 
-interface Strip {
-  /** Cifra real del caso */
+const { metrics, booking } = PLATFORM_CASE.impact
+
+interface Figure {
+  id: 'time' | 'taps' | 'noshow' | 'gaps' | 'unpaid'
   value: string
-  title: L
-  /** Cuántas piezas dibuja y cuántas cambian: la cifra, a escala */
-  total: number
-  changed: number
-  before: L
-  after: L
-  /** Cómo se ve cada pieza antes y después de cambiar */
-  kind: 'noshow' | 'gap' | 'unpaid'
+  label: L
 }
 
-const M = PLATFORM_CASE.impact.metrics
-const STRIPS: readonly Strip[] = [
-  {
-    value: M[1].value,
-    title: { es: 'Citas perdidas porque no vinieron', en: 'Visits lost to no-shows' },
-    total: 9,
-    changed: 2,
-    before: { es: 'no vino', en: 'no-show' },
-    after: { es: 'confirmó a tiempo', en: 'confirmed in time' },
-    kind: 'noshow',
-  },
-  {
-    value: M[2].value,
-    title: { es: 'Huecos que antes quedaban vacíos', en: 'Gaps that used to stay empty' },
-    total: 16,
-    changed: 3,
-    before: { es: 'hueco vacío', en: 'empty gap' },
-    after: { es: 'llenado desde la lista de espera', en: 'filled from the waitlist' },
-    kind: 'gap',
-  },
-  {
-    value: M[3].value,
-    title: { es: 'Citas sin cobrar al cerrar el día', en: 'Unpaid visits at closing time' },
-    total: 5,
-    changed: 3,
-    before: { es: 'sin cobrar', en: 'unpaid' },
-    after: { es: 'cobrada', en: 'paid' },
-    kind: 'unpaid',
-  },
+/** Las cinco cifras del caso, cada una con su nombre corto */
+const FIGURES: readonly Figure[] = [
+  { id: 'time', value: `${booking.after} s`, label: { es: `para agendar · antes ${booking.before}`, en: `to book · was ${booking.before}` } },
+  { id: 'taps', value: metrics[0].value, label: { es: 'toques por cita · antes 9', en: 'taps per visit · was 9' } },
+  { id: 'noshow', value: metrics[1].value, label: { es: 'inasistencias', en: 'no-shows' } },
+  { id: 'gaps', value: metrics[2].value, label: { es: 'huecos llenados', en: 'gaps filled' } },
+  { id: 'unpaid', value: metrics[3].value, label: { es: 'sin cobrar al cierre', en: 'unpaid at close' } },
 ]
 
-/** Una pieza de la tira: cambia de «antes» a «ahora» con un pequeño retraso propio */
-function Piece({ kind, changed, delay }: { kind: Strip['kind']; changed: boolean; delay: number }) {
-  const base = 'block h-7 rounded-md transition-all duration-700 ease-expo'
-  const style = { transitionDelay: `${delay}ms` }
-  if (kind === 'noshow')
-    return <span className={`${base} w-7 border`} style={{ ...style, borderColor: changed ? GAIN : PAIN, background: changed ? `${GAIN}33` : `${PAIN}22` }} />
-  if (kind === 'gap')
-    return (
-      <span
-        className={`${base} w-5`}
-        style={{ ...style, background: changed ? GOLD : 'transparent', boxShadow: changed ? `0 0 14px ${GOLD}88` : `inset 0 0 0 1px ${FAINT}`, backgroundImage: changed ? undefined : 'repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 6px)' }}
-      />
-    )
-  return <span className={`${base} w-10 border`} style={{ ...style, borderColor: changed ? 'rgba(255,255,255,0.15)' : PAIN, background: changed ? 'transparent' : `${PAIN}1f`, opacity: changed ? 0.35 : 1 }} />
+/** El dibujito de cada cifra: se ve «antes» y pasa solo a «ahora» (a escala de la cifra) */
+function Mini({ id, now }: { id: Figure['id']; now: boolean }) {
+  switch (id) {
+    case 'time':
+      return (
+        <g>
+          <rect x={4} y={10} width={72} height={6} rx={3} fill="rgba(255,255,255,0.28)" />
+          <rect x={4} y={24} width={now ? 72 * (booking.after / booking.before) : 0} height={6} rx={3} fill={GOLD} className={EASE} style={{ transitionDuration: '1200ms' }} />
+        </g>
+      )
+    case 'taps':
+      return (
+        <g>
+          {Array.from({ length: 9 }, (_, i) => {
+            const g = Math.floor(i / 3)
+            const cx = now ? 16 + g * 24 : 6 + i * 8.5
+            return <circle key={i} cx={cx} cy={20} r={now ? (i % 3 === 1 ? 5 : 0) : 2.6} fill={now ? GOLD : 'rgba(255,255,255,0.45)'} className={EASE} style={{ transitionDelay: `${g * 80}ms` }} />
+          })}
+        </g>
+      )
+    case 'noshow':
+      return <g>{Array.from({ length: 9 }, (_, i) => <rect key={i} x={4 + i * 8} y={14} width={6} height={12} rx={1.5} fill={now && i < 2 ? GAIN : PAIN} opacity={now && i < 2 ? 1 : 0.7} className={EASE} style={{ transitionDelay: `${i * 60}ms` }} />)}</g>
+    case 'gaps':
+      return <g>{Array.from({ length: 16 }, (_, i) => <rect key={i} x={4 + i * 4.5} y={12} width={3} height={16} rx={1} fill={now && i < 3 ? GOLD : FAINT} className={EASE} style={{ transitionDelay: `${i * 40}ms` }} />)}</g>
+    case 'unpaid':
+      return <g>{Array.from({ length: 5 }, (_, i) => <rect key={i} x={6 + i * 14} y={13} width={11} height={14} rx={2} fill="none" stroke={PAIN} strokeWidth={1.4} opacity={now && i < 3 ? 0.12 : 0.85} className={EASE} style={{ transitionDelay: `${i * 90}ms` }} />)}</g>
+  }
 }
 
 /**
- * Impacto · lo que se desperdiciaba: tres tiras, cada una dibuja su cifra a
- * escala. Primero se ven como antes (rojo, vacío, sin cobrar) y luego cambian
- * solas a como quedan con el calendario.
+ * Impacto en una sola fila: cinco cifras, cada una con un dibujo que pasa solo
+ * de «antes» a «ahora». Debajo, lo que el calendario mide.
  */
-export function WasteStrips() {
+export function ImpactFigures() {
   const { t } = useLocale()
   const rootRef = useRef<HTMLDivElement>(null)
   // 0 nada · 1 antes · 2 ahora
-  const step = useAutoSteps(rootRef, 2, 1400, 300)
+  const step = useAutoSteps(rootRef, 2, 1100, 300)
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-[860px] space-y-12">
-      {STRIPS.map((s, si) => (
-        <figure key={s.kind} className={`grid items-center gap-x-8 gap-y-4 transition-opacity duration-700 sm:grid-cols-[9rem_1fr] ${step >= 1 ? 'opacity-100' : 'opacity-0'}`} style={{ transitionDelay: `${si * 150}ms` }}>
-          <p className="text-[clamp(2.2rem,1.5rem+2.4vw,3.6rem)] font-light leading-none tabular-nums" style={{ color: step >= 2 ? undefined : 'rgba(255,255,255,0.25)', transition: 'color 700ms' }}>
-            {s.value}
-          </p>
-          <div>
-            <figcaption className="mb-3 text-[15px] text-paper/80">{t(s.title)}</figcaption>
-            <div className="flex flex-wrap gap-1.5" aria-hidden="true">
-              {Array.from({ length: s.total }, (_, i) => (
-                <Piece key={i} kind={s.kind} changed={step >= 2 && i < s.changed} delay={si * 250 + i * 70} />
-              ))}
-            </div>
-            <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[10.5px] uppercase tracking-[0.12em] text-paper/45">
-              <span><span className="mr-1.5 inline-block h-2 w-2 rounded-sm align-middle" style={{ background: s.kind === 'gap' ? FAINT : PAIN }} />{t(s.before)}</span>
-              <span><span className="mr-1.5 inline-block h-2 w-2 rounded-sm align-middle" style={{ background: s.kind === 'gap' ? GOLD : s.kind === 'noshow' ? GAIN : 'rgba(255,255,255,0.3)' }} />{t(s.after)}</span>
-            </p>
-          </div>
-        </figure>
-      ))}
-      <p className="text-center font-mono text-[10.5px] text-paper/35">{t({ es: 'Cifras de referencia del caso, dibujadas a escala', en: 'Reference figures for the case, drawn to scale' })}</p>
+    <div ref={rootRef} className="mx-auto max-w-[1040px]">
+      <ol className="grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-5">
+        {FIGURES.map((f, i) => (
+          <li key={f.id} className={`flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo ${step >= 1 ? 'opacity-100' : 'translate-y-3 opacity-0'}`} style={{ transitionDelay: `${i * 90}ms` }}>
+            <svg viewBox="0 0 80 40" className="w-24" aria-hidden="true"><Mini id={f.id} now={step >= 2} /></svg>
+            <span className="mt-4 text-[clamp(2.2rem,1.6rem+2vw,3.4rem)] font-light leading-none tabular-nums" style={{ color: step >= 2 ? undefined : 'rgba(255,255,255,0.3)', transition: 'color 700ms' }}>{f.value}</span>
+            <span className="mt-2 font-mono text-[10.5px] uppercase tracking-[0.12em] text-paper/50">{t(f.label)}</span>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-6 text-center font-mono text-[10px] text-paper/30">{t({ es: 'Cifras de referencia del caso', en: 'Reference figures for the case' })}</p>
     </div>
   )
 }
@@ -158,14 +134,15 @@ export function CalendarMetrics() {
   const shown = useAutoSteps(rootRef, METRICS.length, 140, 300)
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-[880px]">
-      <ol className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
+    <div ref={rootRef} className="mx-auto mt-[clamp(4rem,3rem+3vw,6rem)] max-w-[1040px]">
+      <p className="mono-label mb-8 text-center text-signal">{t({ es: 'Y todo lo que el calendario mide', en: 'And everything the calendar measures' })}</p>
+      <ol className="grid grid-cols-4 gap-x-3 gap-y-8 lg:grid-cols-8">
         {METRICS.map((m, i) => {
           const on = i < shown
           return (
             <li key={m.name.es} className={`relative flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo ${on ? 'opacity-100' : 'translate-y-3 opacity-0'}`}>
-              <svg viewBox="0 0 60 44" className="w-24" aria-hidden="true"><Glyph kind={m.glyph} on={on} /></svg>
-              <span className="mt-3 max-w-[16ch] text-balance text-[13px] leading-snug text-paper/70">{t(m.name)}</span>
+              <svg viewBox="0 0 60 44" className="w-14" aria-hidden="true"><Glyph kind={m.glyph} on={on} /></svg>
+              <span className="mt-2 max-w-[13ch] text-balance text-[11px] leading-snug text-paper/55">{t(m.name)}</span>
               {i === METRICS.length - 1 && <span data-fiber-from="pl-demo" className="absolute -bottom-6 left-1/2 h-px w-px" />}
             </li>
           )

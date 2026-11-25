@@ -23,8 +23,7 @@ import { SketchUnfold } from './sketch-unfold'
 import { CardStudio } from './card-studio'
 import { RealScreens } from './real-screens'
 import { GhostProposals } from './ghost-proposals'
-import { StepsCollapse } from './steps-collapse'
-import { CalendarMetrics, WasteStrips } from './impact-waste'
+import { CalendarMetrics, ImpactFigures } from './impact-figures'
 import { PlatformDemo } from './platform-demo'
 import './platform.css'
 
@@ -124,11 +123,7 @@ function Impacto() {
   return (
     <div>
       <Opening line={{ es: 'Menos tiempo, menos citas perdidas.', en: 'Less time, fewer lost visits.' }} />
-      <Step n="a" label={{ es: 'El tiempo en recepción', en: 'Time at the front desk' }} />
-      <StepsCollapse />
-      <Step n="b" label={{ es: 'Lo que antes se perdía', en: 'What used to be lost' }} />
-      <WasteStrips />
-      <Step n="c" label={{ es: 'Lo que el calendario mide', en: 'What the calendar measures' }} />
+      <ImpactFigures />
       <CalendarMetrics />
     </div>
   )

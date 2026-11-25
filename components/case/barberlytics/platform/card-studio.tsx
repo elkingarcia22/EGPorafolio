@@ -111,24 +111,27 @@ export function CardStudio() {
   const change = (patch: Partial<Look>) => setManual({ ...look, ...patch })
 
   return (
-    <div ref={rootRef} className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+    <div ref={rootRef} className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
       <div className="relative">
         <span aria-hidden="true" className="pointer-events-none absolute -inset-x-8 -inset-y-6 rounded-[50%] bg-[radial-gradient(closest-side,rgba(217,179,106,0.12),transparent)]" />
         <LiveCalendar now={now} columns={3} colorBy={look.colorBy} style={look.style} density={look.density} fields={look.fields} highlight={FEATURED.client} className="relative shadow-[0_50px_100px_-40px_rgba(0,0,0,0.95)]" />
       </div>
 
-      <div>
-        <BigCard now={now} look={look} />
+      {/* La tarjeta, centrada en su columna, y debajo solo lo que está activo */}
+      <div className="flex flex-col items-center">
+        <div className="w-full max-w-[440px]">
+          <BigCard now={now} look={look} />
+        </div>
         {/* Solo lo que está activo, en una línea; tocar una palabra pasa a la siguiente opción */}
-        <p className="mt-6 flex flex-wrap items-baseline justify-center gap-x-2 text-[15px] lg:justify-start">
+        <p className="mt-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[clamp(1.2rem,1rem+0.7vw,1.6rem)] font-light tracking-tight">
           {[
             { key: 'c', label: COLOR.find((o) => o.id === look.colorBy)!.label, next: () => change({ colorBy: nextOf(COLOR, look.colorBy) }) },
             { key: 's', label: STYLE.find((o) => o.id === look.style)!.label, next: () => change({ style: nextOf(STYLE, look.style) }) },
             { key: 'd', label: DENSITY.find((o) => o.id === look.density)!.label, next: () => change({ density: nextOf(DENSITY, look.density) }) },
           ].map((w, i) => (
-            <span key={w.key} className="flex items-baseline gap-x-2">
-              {i > 0 && <span aria-hidden="true" className="text-paper/25">·</span>}
-              <button type="button" onClick={w.next} className="text-[#d9b36a] underline decoration-[#d9b36a]/30 underline-offset-[6px] transition-colors hover:decoration-[#d9b36a]">
+            <span key={w.key} className="flex items-center gap-x-4">
+              {i > 0 && <span aria-hidden="true" className="h-1 w-1 rounded-full bg-[#d9b36a]/50" />}
+              <button type="button" onClick={w.next} className="text-[#d9b36a] underline decoration-[#d9b36a]/25 decoration-1 underline-offset-[8px] transition-colors hover:decoration-[#d9b36a]">
                 <span key={w.label.es} className="pl-fade inline-block">{t(w.label)}</span>
               </button>
             </span>
