@@ -125,8 +125,8 @@ export function SectionLabel({ index, children, className = '', nodeRef, thread:
             <span className="absolute bottom-0 left-1/2 h-20 w-[4px] -translate-x-1/2 rounded-full bg-gradient-to-b from-transparent via-white/70 to-white shadow-[0_0_14px_3px_rgb(var(--signal))]" />
           </span>
         </span>}
-        {/* Nodo: cuadrado como los de la red; azul cuando la señal llega */}
-        <span className="absolute inset-0 scale-75 bg-fg/50 transition-[transform,background-color,box-shadow] duration-500 ease-expo group-data-[lit=true]/label:scale-100 group-data-[lit=true]/label:bg-signal group-data-[lit=true]/label:shadow-[0_0_0_6px_rgb(var(--signal)/0.2),0_0_26px_4px_rgb(var(--signal)/0.7)]" />
+        {/* Nodo: redondo como los de la red; se enciende cuando la señal llega */}
+        <span className="absolute inset-0 scale-75 rounded-full bg-fg/50 transition-[transform,background-color,box-shadow] duration-500 ease-expo group-data-[lit=true]/label:scale-100 group-data-[lit=true]/label:bg-signal group-data-[lit=true]/label:shadow-[0_0_0_6px_rgb(var(--signal)/0.2),0_0_26px_4px_rgb(var(--signal)/0.7)]" />
       </span>
       <span ref={indexRef} className="mono-label inline-block tabular-nums opacity-50">{index}</span>
       <span className="hairline h-px w-10 origin-left scale-x-0 transition-transform duration-700 ease-expo group-data-[lit=true]/label:scale-x-100" aria-hidden="true" />

@@ -1,5 +1,6 @@
 'use client'
 
+import { projectTone } from '@/lib/palettes'
 import { useEffect, useRef } from 'react'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { OrbitNode } from './orbit-node'
@@ -241,7 +242,7 @@ export function OrbitStage({ projects, target, onSelect, burst, reducedMotion }:
             pathLength={1}
             strokeDasharray="1"
             fill="none"
-            stroke={`rgb(${p.accent})`}
+            style={{ stroke: `rgb(${projectTone(p.slug)})` }}
             strokeWidth={1.5}
           />
         ))}
@@ -283,7 +284,7 @@ export function OrbitStage({ projects, target, onSelect, burst, reducedMotion }:
                   }
                 }}
                 className="group relative block aspect-square w-[clamp(9.5rem,5rem+11vw,16rem)] overflow-hidden rounded-full outline-none backdrop-blur-sm transition-[box-shadow,transform] duration-500 ease-expo focus-visible:ring-2 focus-visible:ring-signal aria-[current=true]:hover:scale-[1.03]"
-                style={{ boxShadow: isActive ? `0 0 80px -16px rgb(${project.accent} / 0.6)` : undefined }}
+                style={{ boxShadow: isActive ? `0 0 80px -16px rgb(${projectTone(project.slug)} / 0.6)` : undefined }}
               >
                 <OrbitNode project={project} active={isActive} />
               </TransitionLink>

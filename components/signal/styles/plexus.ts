@@ -1,7 +1,7 @@
 import type { Frame, NetworkStyle } from './types'
 import {
   bucketAlpha, bucketLinks, createBokeh, createDepthComposer, drawGlow,
-  glowSprite, linkLayer, layerOf, CYAN, ICE, SPARK, type DepthLayer,
+  glowSprite, linkLayer, layerOf, BLUE, CYAN, ICE, SPARK, type DepthLayer,
 } from './paint'
 
 const DOF = { far: 3.2, near: 8 }
@@ -15,7 +15,7 @@ const FACE_ALPHA = 0.08
  */
 export function createPlexusStyle(): NetworkStyle {
   const composer = createDepthComposer()
-  const bokeh = createBokeh(70, [CYAN, CYAN, ICE, '64,96,255'], [12, 120])
+  const bokeh = createBokeh(70, () => [CYAN, CYAN, ICE, BLUE], [12, 120])
 
   return {
     depth3d: true,

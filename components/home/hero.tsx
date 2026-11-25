@@ -57,10 +57,10 @@ const NAME_READ_AT = 0.6
 const INTRO_LOCK_MAX_Y = 10
 /** Nebulosa detrás del EG armado: rosa y azul, en los mismos lugares que la del viaje */
 const NEBULA = [
-  'radial-gradient(ellipse 55% 60% at 30% 40%, rgb(255 84 170 / 0.24), transparent 70%)',
-  'radial-gradient(ellipse 60% 65% at 72% 35%, rgb(64 96 255 / 0.26), transparent 70%)',
-  'radial-gradient(ellipse 45% 50% at 55% 68%, rgb(255 84 170 / 0.18), transparent 70%)',
-  'radial-gradient(ellipse 50% 55% at 15% 75%, rgb(64 96 255 / 0.2), transparent 70%)',
+  'radial-gradient(ellipse 55% 60% at 30% 40%, rgb(var(--spark) / 0.24), transparent 70%)',
+  'radial-gradient(ellipse 60% 65% at 72% 35%, rgb(var(--glow) / 0.26), transparent 70%)',
+  'radial-gradient(ellipse 45% 50% at 55% 68%, rgb(var(--spark) / 0.18), transparent 70%)',
+  'radial-gradient(ellipse 50% 55% at 15% 75%, rgb(var(--glow) / 0.2), transparent 70%)',
 ].join(', ')
 /** Desvanecido de la nebulosa hacia los bordes de arriba y abajo del hero */
 const NEBULA_FADE = 'linear-gradient(to bottom, transparent 0%, black 18%, black 52%, transparent 92%)'

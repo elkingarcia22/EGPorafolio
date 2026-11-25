@@ -7,8 +7,17 @@
   --paper: 241 240 236;   /* papel blanco roto */
   --ink: 42 45 51;        /* carbón */
   --void: 10 11 13;       /* ruido / oscuridad */
-  --signal: 64 96 255;    /* la señal: azul eléctrico */
+  --signal: 78 196 204;   /* la señal: aqua (elementos sólidos) */
   --static: 138 141 147;
+  --glow: 150 220 30;    /* atmósfera de fondo: lima */
+  --spark: 0 214 255;     /* chispa: cian */
+  --ice: 214 250 160;     /* lima claro */
+  --cyan: 120 240 255;    /* apoyo: cian claro */
+  /* Proyectos en el inicio (cambian con la paleta) */
+  --project-objetivos: 78 196 204;
+  --project-barberlytics: 176 212 120;
+  --project-sellup: 96 156 232;
+  --project-encuestas: 60 170 150;
 
   --bg: var(--paper);
   --fg: var(--ink);

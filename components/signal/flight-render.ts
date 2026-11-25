@@ -1,5 +1,5 @@
 import type { FlightLink, FlightWorld } from './flight-world'
-import { createDepthComposer, drawGlow, glowSprite, quadPoint, CYAN, ICE, SPARK, type DepthLayer } from './styles/paint'
+import { createDepthComposer, drawGlow, glowSprite, quadPoint, BLUE, CYAN, ICE, SPARK, type DepthLayer } from './styles/paint'
 
 /** Cámara: posición en el mundo y giro leve sobre su eje */
 export interface FlightCamera {
@@ -51,11 +51,11 @@ const DOF = { far: 3, near: 10 }
 const MAX_CORE_PX = 9
 const MAX_FLARE_PX = 150
 /** Nubes de fondo: [x, y, radio relativo al alto, color, paralaje] */
-const CLOUDS: readonly [number, number, number, string, number][] = [
+const clouds = (): readonly [number, number, number, string, number][] => [
   [0.3, 0.4, 0.55, SPARK, 14],
-  [0.72, 0.35, 0.6, '64,96,255', 22],
+  [0.72, 0.35, 0.6, BLUE, 22],
   [0.55, 0.68, 0.45, SPARK, 30],
-  [0.15, 0.75, 0.5, '64,96,255', 18],
+  [0.15, 0.75, 0.5, BLUE, 18],
 ]
 
 interface Projected {
@@ -116,7 +116,7 @@ export function createFlightRenderer(
     ctx.globalCompositeOperation = 'lighter'
 
     // Nebulosa: se mueve poco, como un fondo muy lejano.
-    CLOUDS.forEach(([x, y, r, rgb, par], i) => {
+    clouds().forEach(([x, y, r, rgb, par], i) => {
       const breathe = 0.85 + 0.15 * Math.sin(time * 0.0005 + i * 1.7)
       drawGlow(ctx, glowSprite(rgb, 0.95), x * width - camera.x * par, y * height - camera.y * par, r * height * breathe, 0.17 * f.fade)
     })

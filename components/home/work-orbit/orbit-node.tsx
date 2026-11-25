@@ -1,3 +1,4 @@
+import { projectTone } from '@/lib/palettes'
 import { ClipboardList, Compass, Scissors, Sparkles, Target, type LucideIcon } from 'lucide-react'
 import type { Project } from '@/lib/content/projects'
 import { SellUpMark, SellUpWordmark } from '@/components/case/sellup/brand'
@@ -33,7 +34,7 @@ export function OrbitNode({ project, active }: OrbitNodeProps) {
   const mark = MARKS[project.slug] ?? { icon: Sparkles, name: project.client }
   const Icon = mark.icon
   const brand = BRANDED[project.slug]
-  const accent = (alpha: number) => `rgb(${project.accent} / ${alpha})`
+  const accent = (alpha: number) => `rgb(${projectTone(project.slug)} / ${alpha})`
 
   return (
     <span className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -47,7 +48,7 @@ export function OrbitNode({ project, active }: OrbitNodeProps) {
       {/* Órbita interna punteada, girando lenta */}
       <svg viewBox="0 0 100 100" className="absolute inset-[9%] animate-[spin_38s_linear_infinite] motion-reduce:animate-none" aria-hidden="true">
         <circle cx="50" cy="50" r="49" fill="none" stroke="white" strokeOpacity={active ? 0.22 : 0.12} strokeWidth="0.4" strokeDasharray="0.6 3.2" />
-        <circle cx="50" cy="1" r="1.3" fill={`rgb(${project.accent})`} />
+        <circle cx="50" cy="1" r="1.3" style={{ fill: `rgb(${projectTone(project.slug)})` }} />
       </svg>
       {/* Anillo exterior */}
       <span
@@ -85,7 +86,7 @@ export function ProjectGlyph({ project, className = '' }: { project: Project; cl
     <span
       aria-hidden="true"
       className={`grid shrink-0 place-items-center overflow-hidden rounded-[30%] border border-white/10 ${className}`}
-      style={{ background: brand ? undefined : `linear-gradient(160deg, rgb(${project.accent} / 0.95), rgb(${project.accent} / 0.55))` }}
+      style={{ background: brand ? undefined : `linear-gradient(160deg, rgb(${projectTone(project.slug)} / 0.95), rgb(${projectTone(project.slug)} / 0.55))` }}
     >
       {brand ? brand.tile : <Icon className="h-[52%] w-[52%] text-white" strokeWidth={1.7} />}
     </span>

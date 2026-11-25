@@ -1,5 +1,6 @@
 'use client'
 
+import { projectTone } from '@/lib/palettes'
 import { useEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
@@ -135,7 +136,7 @@ export function WorkList({ projects }: { projects: readonly Project[] }) {
         {/* Ficha del proyecto del frente */}
         <div ref={infoRef} data-work-info aria-live="polite" className="relative z-10 -mt-10 flex w-full max-w-2xl flex-col items-center md:-mt-16">
           <div data-info-meta className="flex items-center gap-3">
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ background: `rgb(${project.accent})` }} />
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full" style={{ background: `rgb(${projectTone(project.slug)})` }} />
             <span className="brand-title text-[0.68rem] opacity-70">{project.client}</span>
             <span className="mono-label opacity-50">N° {project.frequency}</span>
           </div>

@@ -13,11 +13,11 @@ export function Neuron({ size, live = false }: { size: 'lg' | 'sm'; live?: boole
   const box = size === 'lg' ? 'h-10 w-10' : 'h-6 w-6'
   return (
     <span className={`relative grid place-items-center ${box}`} aria-hidden="true">
-      <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgb(150_190_255/0.55)_0%,rgb(64_96_255/0.18)_45%,transparent_70%)] transition-[background] duration-500 group-hover:bg-[radial-gradient(circle,rgb(255_84_170/0.7)_0%,rgb(255_84_170/0.2)_45%,transparent_70%)]" />
-      {live && <span className="absolute inset-[22%] rounded-full border border-[rgb(150_190_255/0.6)] [animation:cue-ring_2.4s_cubic-bezier(.2,.7,.3,1)_infinite]" />}
+      <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgb(var(--ice)/0.55)_0%,rgb(var(--signal)/0.18)_45%,transparent_70%)] transition-[background] duration-500 group-hover:bg-[radial-gradient(circle,rgb(var(--spark)/0.7)_0%,rgb(var(--spark)/0.2)_45%,transparent_70%)]" />
+      {live && <span className="absolute inset-[22%] rounded-full border border-[rgb(var(--ice)/0.6)] [animation:cue-ring_2.4s_cubic-bezier(.2,.7,.3,1)_infinite]" />}
       <span className="absolute h-px w-[160%] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
       <span className="absolute h-[110%] w-px bg-gradient-to-b from-transparent via-white/40 to-transparent" />
-      <span className={`relative rounded-full bg-white shadow-[0_0_10px_2px_rgb(150_190_255/0.9)] ${size === 'lg' ? 'h-2 w-2' : 'h-1.5 w-1.5'}`} />
+      <span className={`relative rounded-full bg-white shadow-[0_0_10px_2px_rgb(var(--ice)/0.9)] ${size === 'lg' ? 'h-2 w-2' : 'h-1.5 w-1.5'}`} />
     </span>
   )
 }
@@ -46,7 +46,7 @@ export function ScrollCue() {
       className="group absolute bottom-5 left-1/2 flex -translate-x-1/2 flex-col items-center text-paper md:bottom-7"
     >
       <span className="mb-1 flex flex-col items-center">
-        <span className="brand-title whitespace-nowrap bg-gradient-to-r from-white via-[rgb(200,215,255)] to-white bg-clip-text text-xs text-transparent transition-[letter-spacing] duration-700 ease-expo group-hover:tracking-[0.42em] md:text-sm">
+        <span className="brand-title whitespace-nowrap bg-gradient-to-r from-white via-[rgb(var(--ice))] to-white bg-clip-text text-xs text-transparent transition-[letter-spacing] duration-700 ease-expo group-hover:tracking-[0.42em] md:text-sm">
           {t(COPY.hero.scroll)}
         </span>
         <Neuron size="lg" live />
@@ -55,8 +55,8 @@ export function ScrollCue() {
       <svg viewBox="0 0 24 64" className="-my-2 h-10 w-6 overflow-visible md:h-14" aria-hidden="true">
         <defs>
           <linearGradient id="cue-fiber" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="rgb(150,190,255)" stopOpacity="0.55" />
-            <stop offset="1" stopColor="rgb(150,190,255)" stopOpacity="0.12" />
+            <stop offset="0" style={{ stopColor: "rgb(var(--ice))", stopOpacity: 0.55 }} />
+            <stop offset="1" style={{ stopColor: "rgb(var(--ice))", stopOpacity: 0.12 }} />
           </linearGradient>
         </defs>
         <path d={FIBER_PATH} fill="none" stroke="url(#cue-fiber)" strokeWidth="1" />
@@ -69,7 +69,7 @@ export function ScrollCue() {
           strokeLinecap="round"
           pathLength={100}
           strokeDasharray="14 86"
-          className="drop-shadow-[0_0_4px_rgb(150,190,255)] [animation:cue-impulse_1.9s_cubic-bezier(.65,0,.35,1)_infinite] group-hover:[animation-duration:1.1s]"
+          className="drop-shadow-[0_0_4px_rgb(var(--ice))] [animation:cue-impulse_1.9s_cubic-bezier(.65,0,.35,1)_infinite] group-hover:[animation-duration:1.1s]"
         />
       </svg>
 

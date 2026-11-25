@@ -1,5 +1,6 @@
 'use client'
 
+import { projectTone } from '@/lib/palettes'
 import { MockScreen } from '@/components/mock/mock-screen'
 import { HeroRumboCard } from '@/components/case/sellup/hero-rumbo'
 import type { Project } from '@/lib/content/projects'
@@ -36,5 +37,5 @@ interface ProjectPreviewProps {
 export function ProjectPreview({ project, className = '', compact = false }: ProjectPreviewProps) {
   const Custom = (compact && COMPACT_PREVIEWS[project.slug]) || PREVIEWS[project.slug]
   if (Custom) return <div className={`overflow-hidden ${className}`}><Custom compact={compact} /></div>
-  return <MockScreen kind={project.mock} mode="ui" accent={project.accent} className={className} />
+  return <MockScreen kind={project.mock} mode="ui" accent={projectTone(project.slug)} className={className} />
 }

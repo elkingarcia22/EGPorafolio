@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { createNetworkStyles, hash, type FrameLink, type FrameNode, type FramePulse } from './styles'
 import { getNetworkStyle } from './network-style-store'
+import { PALETTE_EVENT } from '@/lib/palettes'
 
 /** Grafo en coordenadas de una caja 0–1 (x a la derecha, y hacia abajo). */
 export interface NetworkGraph {
@@ -118,7 +119,9 @@ export function NetworkCanvas({
     let graph: NetworkGraph = initial
 
     const styles = createNetworkStyles()
-    const colors = { paper: rgbVar('--paper'), signal: rgbVar('--signal') }
+    const readColors = () => ({ paper: rgbVar('--paper'), signal: rgbVar('--glow') })
+    let colors = readColors()
+    const onPalette = () => { colors = readColors() }
     const n = graph.nodes.length
     const glow = new Float32Array(n)
     const sizes = Float32Array.from({ length: n }, () => 1.3 + Math.random() * 2)
@@ -404,6 +407,7 @@ export function NetworkCanvas({
     })
     observer.observe(wrap)
     window.addEventListener('resize', resize)
+    window.addEventListener(PALETTE_EVENT, onPalette)
     window.addEventListener('pointermove', onMove)
     document.documentElement.addEventListener('pointerleave', onLeave)
     if (reducedMotion) draw(0)
@@ -414,6 +418,7 @@ export function NetworkCanvas({
       cancelAnimationFrame(frame)
       observer.disconnect()
       window.removeEventListener('resize', resize)
+      window.removeEventListener(PALETTE_EVENT, onPalette)
       window.removeEventListener('pointermove', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)
       setHovering(false)

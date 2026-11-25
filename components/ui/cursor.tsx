@@ -168,10 +168,10 @@ export function Cursor() {
       <div ref={badgeRef} aria-hidden="true" data-cursor-layer className="pointer-events-none fixed left-0 top-0 z-[81]">
         <div
           ref={badgeInnerRef}
-          className="absolute flex items-center gap-2 whitespace-nowrap rounded-full border border-[rgb(150_190_255/0.35)] bg-[rgb(10_11_13/0.62)] py-1.5 pl-2 pr-3 text-paper shadow-[0_8px_30px_-8px_rgb(var(--signal)/0.6)] backdrop-blur-md"
+          className="absolute flex items-center gap-2 whitespace-nowrap rounded-full border border-[rgb(var(--ice)/0.35)] bg-[rgb(10_11_13/0.62)] py-1.5 pl-2 pr-3 text-paper shadow-[0_8px_30px_-8px_rgb(var(--signal)/0.6)] backdrop-blur-md"
           style={{ left: BADGE_OFFSET_PX, top: BADGE_OFFSET_PX, visibility: 'hidden', opacity: 0 }}
         >
-          <span className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_2px_rgb(150,190,255)]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_2px_rgb(var(--ice))]" />
           <span className="mono-label text-[11px] tracking-[0.16em]">{label}</span>
         </div>
       </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import { projectTone } from '@/lib/palettes'
 import { Fragment } from 'react'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { CV_HASH } from '@/components/ui/cv-viewer'
@@ -73,7 +74,7 @@ export function CaseCard({ project }: { project: Project }) {
       transitionLabel={`N° ${project.frequency} · ${t(project.title)}`}
       className="group flex items-center gap-3 border border-fg/20 px-4 py-3 transition-colors duration-300 hover:border-signal"
     >
-      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: `rgb(${project.accent})` }} aria-hidden="true" />
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: `rgb(${projectTone(project.slug)})` }} aria-hidden="true" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm">{t(project.title)}</span>
         <span className="mono-label mt-0.5 block opacity-50">{project.client} · {project.year}</span>

@@ -18,7 +18,7 @@ const SWAY = 0.05
  */
 export function createNeuronStyle(): NetworkStyle {
   const composer = createDepthComposer()
-  const bokeh = createBokeh(46, [ICE, CYAN, ICE, SPARK], [14, 90])
+  const bokeh = createBokeh(46, () => [ICE, CYAN, ICE, SPARK], [14, 90])
 
   const curve = (frame: Frame, link: FrameLink) => {
     const a = frame.nodes[link.a]

@@ -1,5 +1,6 @@
 'use client'
 
+import { projectTone } from '@/lib/palettes'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { TransitionLink } from '@/components/transition/page-transition'
@@ -106,7 +107,7 @@ export function ProjectsMenu({ onWorkClick }: ProjectsMenuProps) {
                   <span
                     className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/10 bg-[rgb(var(--void))] transition-[box-shadow,border-color] duration-500 ease-expo group-hover:border-white/25"
                   >
-                    <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" style={{ boxShadow: `0 0 0 5px rgb(${project.accent} / 0.12), 0 0 22px 4px rgb(${project.accent} / 0.45)` }} aria-hidden="true" />
+                    <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" style={{ boxShadow: `0 0 0 5px rgb(${projectTone(project.slug)} / 0.12), 0 0 22px 4px rgb(${projectTone(project.slug)} / 0.45)` }} aria-hidden="true" />
                     <ProjectGlyph project={project} className="relative h-7 w-7" />
                   </span>
                   <span className="min-w-0 flex-1">

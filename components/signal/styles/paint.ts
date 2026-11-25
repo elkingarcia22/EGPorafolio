@@ -1,10 +1,26 @@
 import type { Frame, FrameLink } from './types'
 
-/** Tonos de apoyo, derivados del azul de la marca */
-export const ICE = '150,190,255'
-export const CYAN = '110,220,255'
+import { toCanvasRgb, type Palette } from '@/lib/palettes'
+
+/*
+ * Tonos de la señal para los canvas. Son `let` exportados: los imports son
+ * enlaces vivos, así que al cambiar de paleta todos los dibujos los ven.
+ */
+/** Principal de la atmósfera: lima */
+export let BLUE = '150,220,30'
+/** Versión clara del principal */
+export let ICE = '214,250,160'
+/** Tono de apoyo para fibras y estelas */
+export let CYAN = '120,240,255'
 /** Chispa: solo para neuronas que "disparan", muy poco */
-export const SPARK = '255,84,170'
+export let SPARK = '0,214,255'
+
+export function setCanvasPalette(palette: Palette): void {
+  BLUE = toCanvasRgb(palette.signal)
+  ICE = toCanvasRgb(palette.ice)
+  CYAN = toCanvasRgb(palette.cyan)
+  SPARK = toCanvasRgb(palette.spark)
+}
 
 const spriteCache = new Map<string, HTMLCanvasElement>()
 
@@ -167,7 +183,8 @@ interface BokehDot {
   y: number
   depth: number
   r: number
-  rgb: string
+  /** posición en la paleta (se resuelve al dibujar, para seguir la paleta activa) */
+  slot: number
   alpha: number
   drift: number
   phase: number
@@ -177,7 +194,7 @@ interface BokehDot {
  * Partículas desenfocadas de fondo y primer plano. Se mueven con la cámara
  * (paralaje): las cercanas se desplazan más que las lejanas.
  */
-export function createBokeh(count: number, palette: readonly string[], sizes: readonly [number, number] = [10, 60]) {
+export function createBokeh(count: number, palette: () => readonly string[], sizes: readonly [number, number] = [10, 60]) {
   const dots: BokehDot[] = Array.from({ length: count }, (_, i) => {
     const depth = Math.random()
     return {
@@ -185,7 +202,7 @@ export function createBokeh(count: number, palette: readonly string[], sizes: re
       y: Math.random(),
       depth,
       r: sizes[0] + (sizes[1] - sizes[0]) * depth * depth,
-      rgb: palette[i % palette.length],
+      slot: i,
       alpha: 0.05 + 0.13 * Math.random(),
       drift: 0.3 + Math.random(),
       phase: Math.random() * Math.PI * 2,
@@ -194,13 +211,14 @@ export function createBokeh(count: number, palette: readonly string[], sizes: re
   return {
     draw(frame: Frame, filter: (depth: number) => boolean, strength = 1): void {
       const { ctx, width, height, time, camera } = frame
+      const tones = palette()
       for (const d of dots) {
         if (!filter(d.depth)) continue
         const par = (d.depth - 0.4) * 70
         const x = d.x * width + camera.x * par + Math.sin(time * 0.00012 * d.drift + d.phase) * 24
         const y = d.y * height + camera.y * par + Math.cos(time * 0.0001 * d.drift + d.phase) * 18
         const twinkle = 0.75 + 0.25 * Math.sin(time * 0.0012 + d.phase)
-        drawGlow(ctx, glowSprite(d.rgb, 0.92), x, y, d.r, d.alpha * twinkle * strength)
+        drawGlow(ctx, glowSprite(tones[d.slot % tones.length], 0.92), x, y, d.r, d.alpha * twinkle * strength)
       }
     },
   }
