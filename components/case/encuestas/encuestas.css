@@ -18,3 +18,21 @@ html[data-motion='reduced'] .enc-fade, html[data-motion='reduced'] .enc-pulse, h
 @media (prefers-reduced-motion: reduce) { .enc-pop { animation: none; } }
 html[data-motion='reduced'] .enc-pop { animation: none; }
 @keyframes enc-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Textos de los gráficos SVG del caso: en teléfono el SVG se encoge, así que las letras crecen para seguir legibles */
+.enc-ring-label { font-size: 13px; }
+.enc-ring-sub { font-size: 12px; }
+.enc-layer-label { font-size: 18px; }
+.enc-layer-sub { font-size: 11px; }
+.enc-layer-insight { font-size: 20px; }
+.enc-fan-name { font-size: 15px; }
+.enc-fan-sub { font-size: 10px; }
+@media (max-width: 640px) {
+  .enc-ring-label { font-size: 22px; letter-spacing: 0.04em; }
+  .enc-ring-sub { font-size: 18px; }
+  .enc-layer-label { font-size: 26px; }
+  .enc-layer-sub { font-size: 16px; }
+  .enc-layer-insight { font-size: 24px; }
+  .enc-fan-name { font-size: 22px; }
+  .enc-fan-sub { font-size: 15px; letter-spacing: 0.04em; }
+}

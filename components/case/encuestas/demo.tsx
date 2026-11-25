@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { RecordModal } from '@/components/case/kit/record-modal'
-import { SHOTS } from '@/lib/content/cases/encuestas/case'
 import { UBITS_BLUE } from './shared'
-import { CaseDemo } from '@/components/case/kit/case-demo'
 
 /** El playground de UBITS publicado desde la rama `staging`. */
 const STAGING = 'https://staging-playground.ubits.co'
@@ -91,7 +89,10 @@ function StagingFrame({ entry }: { entry: Entry }) {
   )
 }
 
-/** 08 · Demo: el módulo real de Encuestas en staging, solo el módulo, sin el resto de la plataforma. */
+/**
+ * 08 · Demo: el nodo que recibe la fibra de «Impacto» abre el módulo real de
+ * Encuestas en staging (datos de prueba, solo Encuestas habilitado).
+ */
 export function SurveyDemo() {
   const { t } = useLocale()
   const [open, setOpen] = useState<string | null>(null)
@@ -99,19 +100,39 @@ export function SurveyDemo() {
 
   return (
     <>
-      {/* La columna de la demo no debe crecer con la URL larga de la barra: en celular el texto se salía por la derecha. */}
-      <div className="max-lg:[&>div]:grid-cols-[minmax(0,1fr)]">
-      <CaseDemo
-        title={{ es: 'El módulo real de Encuestas.', en: 'The real Surveys module.' }}
-        lead={{
-          es: 'Es el producto construido, en vivo y con datos de prueba. Se ve la plataforma completa, pero solo está habilitado Encuestas. Recórrelo como quieras: crear, leer resultados, la NOM 035 o comparar.',
-          en: 'This is the built product, live and with test data. You see the whole platform, but only Surveys is enabled. Explore freely: create, read results, NOM 035 or compare.',
-        }}
-        url={`ubits · ${MODULE}`}
-        image={{ src: SHOTS.lista.src, width: SHOTS.lista.width, height: SHOTS.lista.height }}
-        accent="64 96 255"
-        onOpen={() => setOpen(ENTRIES[0].id)}
-      />
+      <div className="mx-auto flex max-w-[640px] flex-col items-center text-center">
+        <span aria-hidden="true" className="relative grid h-16 w-16 place-items-center">
+          <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgb(var(--signal)/0.35),transparent_70%)]" />
+          <span className="absolute inset-2 rounded-full border border-signal/50 animate-[nav-node-ping_2.4s_cubic-bezier(0,0,.2,1)_infinite]" />
+          <span className="relative h-4 w-4 rounded-full border border-white bg-[#fffaf0] shadow-[0_0_0_5px_rgb(var(--signal)/0.25),0_0_24px_6px_rgb(var(--signal)/0.7)]" />
+        </span>
+        <h3 className="mt-8 text-balance text-[clamp(1.6rem,1.1rem+1.8vw,2.6rem)] font-light leading-[1.1] tracking-tight">
+          {t({ es: 'Míralo en vivo.', en: 'See it live.' })}
+        </h3>
+        <p className="mt-4 max-w-[52ch] text-balance text-base leading-relaxed text-paper/65 md:text-lg">
+          {t({
+            es: 'El módulo real, con datos de prueba. Solo Encuestas está habilitado: crea una, lee resultados o compara.',
+            en: 'The real module, with test data. Only Surveys is enabled: create one, read results or compare.',
+          })}
+        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setOpen(ENTRIES[0].id)}
+            className="inline-flex items-center gap-3 rounded-full bg-signal py-2.5 pl-4 pr-5 text-sm font-medium text-on-signal shadow-[0_0_30px_-6px_rgb(var(--signal)/0.8)] transition-transform duration-300 ease-expo hover:-translate-y-0.5"
+          >
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-current" />
+            {t({ es: 'Abrir Encuestas', en: 'Open Surveys' })}
+          </button>
+          <a
+            href={urlOf(ENTRIES[0])}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.04] px-5 py-2.5 text-sm text-paper/85 transition-colors duration-300 hover:border-white/40 hover:text-paper"
+          >
+            {t({ es: 'En una pestaña nueva', en: 'In a new tab' })} ↗
+          </a>
+        </div>
       </div>
       <RecordModal
         ids={ENTRIES.map((e) => e.id)}
@@ -127,7 +148,7 @@ export function SurveyDemo() {
             </a>
           )
         }
-              >
+      >
         {entry && <StagingFrame key={entry.id} entry={entry} />}
       </RecordModal>
     </>

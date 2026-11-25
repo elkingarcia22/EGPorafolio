@@ -1,45 +1,107 @@
 'use client'
 
-import { useMemo, useRef } from 'react'
-import { Chapter, type ChapterMeta } from '@/components/case/chapter'
-import { ChapterNav } from '@/components/case/chapter-nav'
+import { useEffect, useMemo, useRef } from 'react'
+import { Chapter, type ChapterEntry, type ChapterMeta } from '@/components/case/chapter'
+import { NeuralBackdrop } from '@/components/home/neural-backdrop'
+import { backdropQuiet } from '@/components/home/backdrop-journey'
+import { ScrollTrigger } from '@/lib/motion'
+import { ChapterRail } from '@/components/case/chapter-rail'
+import { SectionFiber } from '@/components/home/section-fiber'
+import { CaseLead } from '@/components/case/case-lead'
 import { NextProject } from '@/components/case/next-project'
+import { useReveal } from '@/components/case/barberlytics/use-reveal'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
+import { ENC } from '@/lib/content/cases/encuestas/chapters'
 import type { Project } from '@/lib/content/projects'
-import { useReveal } from '@/components/case/barberlytics/use-reveal'
-import { EncuestasHero } from './hero'
-import { CycleDots } from './dots'
-import { AuditPatterns } from './patterns'
-import { PromiseIdea } from './idea'
-import { IterationSketches } from './sketches'
-import { SurveyForm } from './form'
-import { SurveyAi } from './ai'
-import { SurveyImpact } from './impact'
+import { EncHero } from './enc-hero'
+import { EncCycleRing } from './enc-cycle-ring'
+import { EncPatternLayers } from './enc-pattern-layers'
+import { EncBuilderFan } from './enc-builder-fan'
+import { EncIterationSketch } from './enc-iteration-sketch'
+import { EncSurfaces } from './enc-surfaces'
+import { EncOrbitChain } from './enc-orbit-chain'
+import { EncImpactTracks } from './enc-impact-tracks'
 import { SurveyDemo } from './demo'
+// Las animaciones compartidas del lenguaje de Objetivos (obj-fade, branch-pulse, dots-signal, ms-pulse, orb-*)
+import '../objetivos/objetivos.css'
 import './encuestas.css'
 
 type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto' | 'demo'
 
-const CHAPTERS: readonly { id: ChapterKey; tone: 'dark' | 'light'; Content: React.ComponentType }[] = [
-  { id: 'puntos', tone: 'dark', Content: CycleDots },
-  { id: 'patrones', tone: 'dark', Content: AuditPatterns },
-  { id: 'idea', tone: 'light', Content: PromiseIdea },
-  { id: 'bocetos', tone: 'light', Content: IterationSketches },
-  { id: 'forma', tone: 'light', Content: SurveyForm },
-  { id: 'ia', tone: 'dark', Content: SurveyAi },
-  { id: 'impacto', tone: 'light', Content: SurveyImpact },
-  { id: 'demo', tone: 'dark', Content: SurveyDemo },
+/** Cuánto se calma la red de fondo: en la portada se ve; en los capítulos, deja leer */
+const QUIET = { hero: 1, chapters: 1 }
+
+/** Capítulos a los que llega una fibra que se tiende con el scroll desde la sección anterior */
+const FIBER_TO: Record<ChapterKey, string> = {
+  puntos: 'enc-puntos',
+  patrones: 'enc-patrones',
+  idea: 'enc-idea',
+  bocetos: 'enc-bocetos',
+  forma: 'enc-forma',
+  ia: 'enc-ia',
+  impacto: 'enc-impacto',
+  demo: 'enc-demo',
+}
+
+const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
+  { id: 'puntos', entry: 'bloom' },
+  { id: 'patrones', entry: 'thread' },
+  { id: 'idea', entry: 'thread' },
+  { id: 'bocetos', entry: 'warp' },
+  { id: 'forma', entry: 'thread' },
+  { id: 'ia', entry: 'bloom' },
+  { id: 'impacto', entry: 'warp' },
+  { id: 'demo', entry: 'thread' },
 ]
 
-/** Caso Encuestas: portada, índice fijo y los ocho capítulos, con el siguiente proyecto al final. */
+/** Cada capítulo: una frase de contexto y su gráfico (el detalle sale al tocar) */
+const withLead = (key: Exclude<ChapterKey, 'demo'>, Graphic: React.ComponentType) =>
+  function ChapterBody() {
+    const { t } = useLocale()
+    return (
+      <div>
+        <CaseLead>{t(ENC.leads[key])}</CaseLead>
+        <Graphic />
+      </div>
+    )
+  }
+
+const CONTENT: Record<ChapterKey, React.ComponentType> = {
+  puntos: withLead('puntos', EncCycleRing),
+  patrones: withLead('patrones', EncPatternLayers),
+  idea: withLead('idea', EncBuilderFan),
+  bocetos: withLead('bocetos', EncIterationSketch),
+  forma: withLead('forma', EncSurfaces),
+  ia: withLead('ia', EncOrbitChain),
+  impacto: withLead('impacto', EncImpactTracks),
+  demo: SurveyDemo,
+}
+
+/** Caso Encuestas: portada, índice fijo, los ocho capítulos unidos por fibras y el siguiente proyecto. */
 export function EncuestasCase({ next }: { next: Project }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const ref = useRef<HTMLDivElement>(null)
   useReveal(ref, reducedMotion)
+
+  // La red de fondo se calma mientras se leen los capítulos.
+  useEffect(() => {
+    backdropQuiet.set('case', QUIET.hero)
+    const trigger = ScrollTrigger.create({
+      trigger: `#${CHAPTERS[0].id}`,
+      endTrigger: `#${CHAPTERS[CHAPTERS.length - 1].id}`,
+      start: 'top 85%',
+      end: 'bottom 40%',
+      onToggle: (self) => backdropQuiet.set('case', self.isActive ? QUIET.chapters : QUIET.hero),
+    })
+    return () => {
+      trigger.kill()
+      backdropQuiet.set('case', 0)
+    }
+  }, [])
   const c = COPY.case.chapters
 
   const chapters: readonly ChapterMeta[] = useMemo(() => {
@@ -53,20 +115,34 @@ export function EncuestasCase({ next }: { next: Project }) {
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
     }
-    return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: ch.tone }))
+    return CHAPTERS.map((ch, i) => ({ id: ch.id, index: String(i + 1).padStart(2, '0'), title: titles[ch.id], tone: 'dark' as const, entry: ch.entry, fiberTo: FIBER_TO[ch.id] }))
   }, [t, c])
 
   return (
     <article ref={ref} className="overflow-x-clip">
-      <EncuestasHero />
-      <div className="grid gap-10 px-[var(--gutter)] lg:grid-cols-12">
-        {/* El índice fijo solo cabe en escritorio: en tableta el contenido usa todo el ancho. */}
-        <aside className="hidden lg:col-span-3 lg:block">
-          <ChapterNav chapters={chapters} label={t(ENCUESTAS_CASE.title)} />
-        </aside>
-        <div className="min-w-0 lg:col-span-9">
-          {chapters.map((meta, i) => {
-            const { Content } = CHAPTERS[i]
+      <NeuralBackdrop />
+      {/* De la «Lectura» de la portada baja la fibra hasta «Los puntos» */}
+      <SectionFiber id="enc-puntos" side="right">
+      <EncHero />
+      <div className="px-[var(--gutter)] lg:pl-[calc(var(--gutter)+88px)]">
+        <ChapterRail chapters={chapters} label={t(ENCUESTAS_CASE.title)} />
+        {/* De «Actuar», el último momento del anillo (arriba a la izquierda), hasta «Patrones» */}
+        <SectionFiber id="enc-patrones" side="left">
+        {/* De «El histórico es la línea base» hacia la derecha, hasta «La idea» */}
+        <SectionFiber id="enc-idea" side="right">
+        {/* Del nodo del constructor, a la izquierda, hasta «Bocetos» */}
+        <SectionFiber id="enc-bocetos" side="left">
+        {/* De la cuarta iteración hacia la derecha, hasta «Forma» */}
+        <SectionFiber id="enc-forma" side="right">
+        {/* De «Resultados», la última superficie, hasta «IA en el proceso» */}
+        <SectionFiber id="enc-ia" side="right">
+        {/* Del centro del orbe de Orbit baja hasta «Impacto» */}
+        <SectionFiber id="enc-impacto" side="down">
+        {/* De la última pista de «Impacto» baja hasta «Demo» */}
+        <SectionFiber id="enc-demo" side="down">
+        <div className="mx-auto min-w-0 max-w-6xl">
+          {chapters.map((meta) => {
+            const Content = CONTENT[meta.id as ChapterKey]
             return (
               <Chapter key={meta.id} meta={meta}>
                 <Content />
@@ -74,7 +150,15 @@ export function EncuestasCase({ next }: { next: Project }) {
             )
           })}
         </div>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
+        </SectionFiber>
       </div>
+      </SectionFiber>
       <NextProject project={next} />
     </article>
   )
