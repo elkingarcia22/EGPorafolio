@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import { STAGE } from './calendar-model'
@@ -11,29 +11,20 @@ const GOLD = '#d9b36a'
 const OLD = ['open', 'edit', 'save'] as const
 const OLD_LABEL: Record<(typeof OLD)[number], L> = { open: { es: 'abrir', en: 'open' }, edit: { es: 'editar', en: 'edit' }, save: { es: 'guardar', en: 'save' } }
 const TAPS = [STAGE.upcoming.next, STAGE.waiting.next, STAGE.seated.next] as const
-/** Nombre corto de cada cifra; el detalle completo sale al tocarla */
-const SHORT: readonly L[] = [
-  { es: 'toques', en: 'taps' },
-  { es: 'inasistencias', en: 'no-shows' },
-  { es: 'huecos llenados', en: 'slots filled' },
-  { es: 'sin cobrar al cierre', en: 'unpaid at close' },
-]
 /** La carrera de los segundos: ms de animación por segundo real */
 const RACE_MS_PER_S = 45
 
 /**
  * 07 · Impacto: nueve pasos (abrir, editar, guardar ×3) se juntan en tres
  * toques —Ingresar, Sentar, Cobrar—; debajo, la carrera de los segundos para
- * agendar y las cifras de referencia, cuyo detalle sale al tocarlas. De la
- * última cifra baja la fibra a «Demo».
+ * agendar en recepción.
  */
 export function StepsCollapse() {
   const { t } = useLocale()
   const { impact } = PLATFORM_CASE
   const rootRef = useRef<HTMLDivElement>(null)
-  // 0 nada · 1 los nueve pasos · 2 se juntan en tres · 3 la carrera · 4 las cifras
-  const step = useAutoSteps(rootRef, 4, 900, 300)
-  const [picked, setPicked] = useState<number | null>(null)
+  // 0 nada · 1 los nueve pasos · 2 se juntan en tres · 3 la carrera
+  const step = useAutoSteps(rootRef, 3, 900, 300)
   const merged = step >= 2
   const metrics = impact.metrics
 
@@ -87,36 +78,6 @@ export function StepsCollapse() {
         ))}
       </figure>
 
-      {/* Las demás cifras: el número y su nombre corto; el detalle, al tocarlas */}
-      <ol className="mx-auto mt-16 grid max-w-[760px] grid-cols-3 gap-4">
-        {metrics.slice(1).map((m, j) => {
-          const i = j + 1
-          const on = step >= 4
-          const isPicked = picked === i
-          return (
-            <li key={m.label.es} className="relative flex flex-col items-center">
-              <button type="button" aria-pressed={isPicked} onClick={() => setPicked(isPicked ? null : i)} className="group flex flex-col items-center text-center outline-none">
-                <span className={`text-[clamp(2rem,1.3rem+2.4vw,3.6rem)] font-light leading-none tabular-nums transition-all duration-700 ${on ? 'opacity-100' : 'translate-y-3 opacity-0'} ${isPicked ? '' : 'group-hover:opacity-90'}`} style={{ transitionDelay: `${j * 120}ms`, filter: isPicked ? 'drop-shadow(0 0 18px rgb(var(--signal) / 0.6))' : 'none' }}>
-                  {m.value}
-                </span>
-                <span className={`mt-2 font-mono text-[10px] uppercase tracking-[0.12em] transition-opacity duration-500 ${isPicked ? 'text-signal' : 'text-paper/50'}`}>{t(SHORT[i])}</span>
-              </button>
-              {i === metrics.length - 1 && <span data-fiber-from="pl-demo" className="absolute bottom-0 left-1/2 h-px w-px" />}
-            </li>
-          )
-        })}
-      </ol>
-      <div key={picked ?? 'note'} aria-live="polite" className="pl-fade mx-auto mt-8 min-h-[3rem] max-w-[48ch] text-center">
-        {picked !== null ? (
-          <p className="text-balance text-base leading-relaxed text-paper/75">{t(metrics[picked].label)}</p>
-        ) : (
-          <p className="font-mono text-[10.5px] leading-relaxed text-paper/35">
-            {t({ es: 'Cifras de referencia del caso · toca una para leerla', en: 'Reference figures for the case · tap one to read it' })}
-            <br />
-            {t({ es: 'Detrás', en: 'Behind it' })}: {impact.build.map((b) => `${b.value} ${t(b.label)}`).join(' · ')}
-          </p>
-        )}
-      </div>
     </div>
   )
 }

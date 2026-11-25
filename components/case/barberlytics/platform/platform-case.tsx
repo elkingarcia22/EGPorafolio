@@ -24,6 +24,7 @@ import { CardStudio } from './card-studio'
 import { RealScreens } from './real-screens'
 import { GhostProposals } from './ghost-proposals'
 import { StepsCollapse } from './steps-collapse'
+import { CalendarMetrics, WasteStrips } from './impact-waste'
 import { PlatformDemo } from './platform-demo'
 import './platform.css'
 
@@ -122,8 +123,13 @@ function Ia() {
 function Impacto() {
   return (
     <div>
-      <Opening line={{ es: 'Menos pasos en recepción.', en: 'Fewer steps at the front desk.' }} lead={{ es: 'Menos pasos por cita, menos citas perdidas y menos cuentas abiertas al cerrar el día.', en: 'Fewer steps per visit, fewer lost visits and fewer open tabs at closing time.' }} />
+      <Opening line={{ es: 'Menos tiempo, menos citas perdidas.', en: 'Less time, fewer lost visits.' }} />
+      <Step n="a" label={{ es: 'El tiempo en recepción', en: 'Time at the front desk' }} />
       <StepsCollapse />
+      <Step n="b" label={{ es: 'Lo que antes se perdía', en: 'What used to be lost' }} />
+      <WasteStrips />
+      <Step n="c" label={{ es: 'Lo que el calendario mide', en: 'What the calendar measures' }} />
+      <CalendarMetrics />
     </div>
   )
 }
