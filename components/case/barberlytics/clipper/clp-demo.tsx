@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { CaseDemo } from '@/components/case/kit/case-demo'
 import { RecordModal, NewTabLink } from '@/components/case/kit/record-modal'
 import { useLocale } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
@@ -8,55 +9,56 @@ import { ClipperOrb } from '../clipper-orb'
 import { AI } from './clp-kit'
 
 const { demo } = CLIPPER_CASE
+const GRADIENT = `linear-gradient(120deg,${AI[0]},${AI[1]} 45%,${AI[2]} 75%,${AI[3]})`
+/** Barras de la onda de voz bajo el orbe */
+const BARS = 28
+
+/** La onda de voz del modo voz, en barras con los colores de IA. */
+function Wave() {
+  return (
+    <span className="flex h-6 items-center gap-[3px]" aria-hidden="true">
+      {Array.from({ length: BARS }, (_, i) => (
+        <span
+          key={i}
+          className="w-[3px] animate-[wave_1s_ease-in-out_infinite] rounded-full"
+          style={{ height: `${30 + ((i * 37) % 70)}%`, animationDelay: `${(i % 7) * 0.09}s`, background: AI[[2, 1, 0][i % 3]] }}
+        />
+      ))}
+    </span>
+  )
+}
 
 /**
- * 08 · Demo: la reserva pública usa datos de prueba, así que Clipper se queda
- * vivo. El orbe recibe la fibra de «Impacto» y escucha; al tocarlo (o el botón)
- * se abre el Clipper de la reserva, funcionando aquí mismo.
+ * 08 · Demo: la misma forma de demo que los demás casos (texto y botón a la
+ * izquierda, la pantalla a la derecha). La reserva usa datos de prueba, así
+ * que Clipper se abre vivo en el modal.
  */
 export function ClipperLiveDemo() {
   const { t } = useLocale()
   const [open, setOpen] = useState(false)
+  const close = useCallback(() => setOpen(false), [])
 
   return (
-    <div className="mx-auto flex max-w-[640px] flex-col items-center text-center">
-      <button type="button" onClick={() => setOpen(true)} aria-label={t({ es: 'Abrir a Clipper en vivo', en: 'Open Clipper live' })} className="group relative grid place-items-center rounded-full outline-none transition-transform duration-500 ease-expo hover:scale-105 focus-visible:ring-2 focus-visible:ring-[#f0ce86]">
-        <span aria-hidden="true" className="pointer-events-none absolute inset-[-60%] rounded-full opacity-30 blur-3xl transition-opacity duration-500 group-hover:opacity-50" style={{ backgroundImage: `radial-gradient(circle, ${AI[1]}, ${AI[3]} 55%, transparent 70%)` }} />
-        <ClipperOrb size={112} state="listening" />
-      </button>
-
-      <h3 className="mt-10 text-balance text-[clamp(1.6rem,1.1rem+1.8vw,2.6rem)] font-light leading-[1.1] tracking-tight">
-        {t({ es: 'Háblale a Clipper.', en: 'Talk to Clipper.' })}
-      </h3>
-      <p className="mt-4 max-w-[52ch] text-balance text-base leading-relaxed text-paper/65 md:text-lg">
-        {t({ es: 'El Clipper de la reserva, aquí mismo y con datos de prueba. Escríbele o toca el micrófono.', en: 'Booking’s Clipper, right here with test data. Type to it or tap the mic.' })}
-      </p>
-
-      <dl className="mt-6 flex flex-wrap justify-center gap-2">
-        {demo.tryIt.map((item) => (
-          <div key={item.label.es} className="flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-3 py-1.5 text-[12px]">
-            <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-paper/45">{t(item.label)}</dt>
-            <dd className="text-paper/85">{typeof item.value === 'string' ? item.value : t(item.value)}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="mt-8 inline-flex items-center gap-3 rounded-full py-2.5 pl-4 pr-5 text-sm font-medium text-[#16130f] shadow-[0_0_30px_-6px_rgb(222_140_58/0.8)] transition-transform duration-300 ease-expo hover:-translate-y-0.5"
-        style={{ backgroundImage: `linear-gradient(120deg,${AI.join(',')})` }}
-      >
-        {t({ es: 'Probar en vivo', en: 'Try it live' })} <span aria-hidden="true">↗</span>
-      </button>
-      <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.1em] text-paper/35">
-        {t({ es: 'Esta versión funciona con reglas, sin modelo de lenguaje', en: 'This version runs on rules, without a language model' })}
-      </p>
-
+    <>
+      <CaseDemo
+        title={{ es: 'Háblale a Clipper.', en: 'Talk to Clipper.' }}
+        lead={demo.lead}
+        url="booking-flow-alpha.vercel.app/reservar"
+        preview={
+          <span className="relative flex h-full w-full flex-col items-center justify-center gap-6 bg-[#0f0d0b]">
+            <span className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-3xl" style={{ backgroundImage: GRADIENT }} />
+            <ClipperOrb size={120} state="listening" />
+            <Wave />
+          </span>
+        }
+        accent="217 179 106"
+        tryIt={demo.tryIt}
+        onOpen={() => setOpen(true)}
+      />
       <RecordModal
         ids={['reserva']}
         openId={open ? 'reserva' : null}
-        onOpenChange={(id) => id === null && setOpen(false)}
+        onOpenChange={(id) => id === null && close()}
         title={t({ es: 'Clipper en la reserva', en: 'Clipper in booking' })}
         titleLeading={<ClipperOrb size={36} />}
         description="booking-flow-alpha.vercel.app"
@@ -64,6 +66,6 @@ export function ClipperLiveDemo() {
       >
         <iframe src={demo.url} title={t({ es: 'Clipper en la reserva, en vivo', en: 'Clipper in booking, live' })} allow="microphone; autoplay" className="w-full flex-1 bg-[#121009]" />
       </RecordModal>
-    </div>
+    </>
   )
 }
