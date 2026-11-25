@@ -30,20 +30,9 @@ const ROWS: readonly Row[] = [
   { token: 'Radius lg', values: ['8px', '16px', null, '16px'], decision: '16px', premium: '16px', why: { es: 'Thema prefiere radios amplios', en: 'Thema prefers generous radii' }, kind: 'radius' },
 ]
 
-/** Lo prohibido, en corto (de la columna «Prohibido» del caso) */
-const OFF_LIMITS: readonly L[] = [
-  { es: 'Glassmorphism', en: 'Glassmorphism' },
-  { es: 'Gradientes de adorno', en: 'Decorative gradients' },
-  { es: 'Sombras difusas', en: 'Diffuse shadows' },
-  { es: 'Animación cosmética', en: 'Cosmetic animation' },
-  { es: 'HEX a mano', en: 'Hand-written HEX' },
-]
-
 const GOLD = '#D9B36A'
 /** Al entrar, cada token se resuelve después del anterior (ms) */
 const RESOLVE = { first: 450, step: 170 } as const
-/** Cuándo empieza a tacharse lo prohibido, después del último token (ms) */
-const STRIKE_DELAY_MS = 250
 
 const same = (a: string | null, b: string) => a !== null && a.toLowerCase() === b.toLowerCase()
 
@@ -67,7 +56,7 @@ function Swatch({ value, kind, state }: { value: string | null; kind?: Row['kind
  * se resuelve solo al entrar. Cada fila muestra lo que decía cada una de las
  * cuatro fuentes; al resolverse, las que coinciden se marcan, las demás se
  * apagan y llega la decisión. Tocar un token muestra el motivo y cómo queda en
- * el tema Premium. Debajo se tacha lo prohibido; de ahí sale la fibra hacia «La idea».
+ * el tema Premium. De la última decisión sale la fibra hacia «La idea».
  */
 export function TokenAgreement() {
   const { t } = useLocale()
@@ -121,8 +110,9 @@ export function TokenAgreement() {
                   </span>
                 ))}
                 <span aria-hidden="true" className={`text-center text-paper/40 transition-opacity duration-300 ${isResolved ? 'opacity-100' : 'opacity-0'}`}>→</span>
-                <span role="cell" className={`transition-all duration-500 ${isResolved ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'}`}>
+                <span role="cell" className={`relative transition-all duration-500 ${isResolved ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'}`}>
                   <Swatch value={r.decision} kind={r.kind} state="decision" />
+                  {i === ROWS.length - 1 && <span data-fiber-from="th-idea" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
               </button>
             )
@@ -149,21 +139,6 @@ export function TokenAgreement() {
         </div>
       </div>
 
-      {/* Lo que no queríamos nunca: se tacha cuando el tablero termina de resolverse */}
-      <div className="mx-auto mt-[clamp(2.5rem,2rem+2vw,4rem)] max-w-[860px] text-center">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#e5484d]/80">{t({ es: 'Prohibido', en: 'Off-limits' })}</p>
-        <ul className="mt-5 flex flex-wrap justify-center gap-x-6 gap-y-3">
-          {OFF_LIMITS.map((item, i) => (
-            <li key={item.es} className="relative text-[clamp(1rem,0.9rem+0.5vw,1.3rem)] font-light text-paper/70">
-              {t(item)}
-              {done && (
-                <span aria-hidden="true" className="th-strike absolute inset-x-[-4px] top-1/2 h-px bg-[#e5484d]" style={{ animationDelay: `${STRIKE_DELAY_MS + i * 120}ms` }} />
-              )}
-              {i === OFF_LIMITS.length - 1 && <span data-fiber-from="th-idea" aria-hidden="true" className="absolute -bottom-2 left-1/2 h-px w-px" />}
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   )
 }

@@ -1,29 +1,89 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useA11y } from '@/lib/a11y'
-import { useLocale } from '@/lib/i18n'
+import { useLocale, type L } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
 import { useInView } from './use-in-view'
 import { ChapterHead } from './chapter-head'
 
 const { impact } = THEMA_CASE
+const [COMPONENTS, SPEED, REVIEW, COLORS] = impact.kpis
 const STAGES = impact.growth.bars
 const TOTAL = STAGES[STAGES.length - 1].value
-/** Cuántas columnas tiene el campo de componentes */
-const COLS = 22
-/** Al entrar, cada etapa se enciende después de la anterior (ms) */
-const STAGE_MS = { first: 350, next: 900 } as const
-/** Las cifras de equipo (velocidad y retrabajo) son de referencia, definidas por el autor */
-const REFERENCE_KPIS = new Set([1, 2])
-const DOTS = Array.from({ length: TOTAL }, (_, i) => i)
+const GOLD = '#D9B36A'
+/** Cada fila se dibuja un poco después de la anterior (ms) */
+const ROW_DELAY_MS = 180
+
+interface Bar {
+  label: L
+  /** Fracción del ancho (0–1) */
+  size: number
+  value: L
+  now?: boolean
+}
+
+interface Row {
+  value: string
+  unit: string
+  title: L
+  /** Qué significa, en palabras simples */
+  plain: L
+  bars: readonly Bar[]
+  /** Cifra de referencia del equipo (no una medición del sistema) */
+  reference?: boolean
+}
+
+/** Cuatro cambios, cada uno con su antes y su ahora explicados */
+const ROWS: readonly Row[] = [
+  {
+    value: String(COMPONENTS.value),
+    unit: '',
+    title: COMPONENTS.label,
+    plain: { es: 'Piezas listas para usar, cada una con su ficha y su ejemplo. Al revisar lo que había, solo 27 estaban aprobadas.', en: 'Pieces ready to use, each with its sheet and example. When I reviewed what existed, only 27 were approved.' },
+    bars: STAGES.map((s, i) => ({
+      label: i === 0 ? { es: 'Al revisar lo que había', en: 'Reviewing what existed' } : i === 1 ? { es: 'Primera versión de Thema', en: 'Thema’s first version' } : { es: 'Hoy', en: 'Today' },
+      size: s.value / TOTAL,
+      value: { es: String(s.value), en: String(s.value) },
+      now: i === STAGES.length - 1,
+    })),
+  },
+  {
+    value: String(SPEED.value),
+    unit: SPEED.unit,
+    title: { es: 'Más rápido armar una pantalla nueva', en: 'Faster to build a new screen' },
+    plain: { es: 'Se arma con piezas que ya existen en vez de dibujarla desde cero: toma un tercio del tiempo.', en: 'It’s assembled from pieces that already exist instead of drawn from scratch: it takes a third of the time.' },
+    bars: [
+      { label: { es: 'Antes', en: 'Before' }, size: 1, value: ({ es: 'tiempo completo', en: 'full time' }) },
+      { label: { es: 'Con Thema', en: 'With Thema' }, size: 1 / SPEED.value, value: ({ es: '⅓ del tiempo', en: '⅓ of the time' }), now: true },
+    ],
+    reference: true,
+  },
+  {
+    value: String(REVIEW.value),
+    unit: REVIEW.unit,
+    title: { es: 'Menos correcciones al revisar', en: 'Fewer fixes in review' },
+    plain: { es: 'Cada pantalla se revisa antes de publicarse. Por cada 10 arreglos de color, espacio o tamaño que se pedían antes, ahora se piden 3: las piezas ya vienen bien desde el sistema.', en: 'Every screen is reviewed before shipping. For every 10 color, spacing or size fixes requested before, now 3 are: pieces already come right from the system.' },
+    bars: [
+      { label: { es: 'Antes', en: 'Before' }, size: 1, value: ({ es: '10 arreglos', en: '10 fixes' }) },
+      { label: { es: 'Con Thema', en: 'With Thema' }, size: 1 - REVIEW.value / 100, value: ({ es: '3 arreglos', en: '3 fixes' }), now: true },
+    ],
+    reference: true,
+  },
+  {
+    value: String(COLORS.value),
+    unit: '',
+    title: COLORS.label,
+    plain: { es: 'Un color escrito directo en el código (como #ff3b30) en lugar del color del tema. El sistema lo bloquea antes de que llegue al código, venga de una persona o de la IA.', en: 'A color written straight into the code (like #ff3b30) instead of the theme’s color. The system blocks it before it reaches the code, from a person or from AI.' },
+    bars: [{ label: { es: 'Con Thema', en: 'With Thema' }, size: 0, value: ({ es: 'ninguno: se bloquean', en: 'none: they’re blocked' }), now: true }],
+  },
+]
 
 /**
- * 07 · Impacto de Thema: un campo con un punto por componente documentado (218)
- * que se enciende por etapas al entrar —27 en la auditoría, 159 en la primera
- * versión, 218 hoy—. Tocar una etapa la vuelve a mostrar. Debajo, las cifras
- * de equipo y del sistema; tocar una dice de dónde sale. De la última línea sale
- * la fibra hacia «Demo».
+ * 07 · Impacto de Thema: cuatro cambios, cada uno con su número, qué significa
+ * en palabras simples y su antes y ahora en barras que se dibujan al entrar.
+ * Las cifras de velocidad y revisión se marcan como de referencia del equipo.
+ * Debajo, la calidad que respalda las piezas; de ahí sale la fibra hacia «Demo».
  */
 export function ThemaImpact() {
   const { t } = useLocale()
@@ -31,103 +91,60 @@ export function ThemaImpact() {
   const { chapters } = THEMA_CASE
   const rootRef = useRef<HTMLDivElement>(null)
   const { entered } = useInView(rootRef)
-  const [stage, setStage] = useState(reducedMotion ? STAGES.length : 0)
-  const [held, setHeld] = useState(false)
-  const [kpi, setKpi] = useState<number | null>(null)
-
-  useEffect(() => {
-    if (!entered || reducedMotion || held || stage >= STAGES.length) return
-    const id = window.setTimeout(() => setStage((s) => s + 1), stage === 0 ? STAGE_MS.first : STAGE_MS.next)
-    return () => window.clearTimeout(id)
-  }, [entered, reducedMotion, held, stage])
-
-  const lit = stage === 0 ? 0 : STAGES[stage - 1].value
-  const prev = stage <= 1 ? 0 : STAGES[stage - 2].value
-  const picked = kpi === null ? null : impact.kpis[kpi]
+  const drawn = entered || reducedMotion
 
   return (
     <div ref={rootRef}>
       <ChapterHead phrase={t(chapters.impacto.phrase)} lead={t(chapters.impacto.lead)} />
 
-      <div className="mx-auto grid max-w-[920px] items-center gap-10 md:grid-cols-[minmax(0,1fr)_auto]">
-        {/* Un punto por componente */}
-        <div
-          role="img"
-          aria-label={t({ es: `${lit} de ${TOTAL} componentes documentados`, en: `${lit} of ${TOTAL} documented components` })}
-          className="mx-auto grid w-full max-w-[520px] gap-[5px]"
-          style={{ gridTemplateColumns: `repeat(${COLS}, minmax(0, 1fr))` }}
-        >
-          {DOTS.map((i) => {
-            const on = i < lit
-            const fresh = on && i >= prev
-            return (
-              <span
-                key={i}
-                className="aspect-square rounded-full transition-[background-color,box-shadow,transform] duration-500"
-                style={{
-                  background: on ? (fresh ? 'rgb(var(--signal))' : 'rgba(239,233,221,0.55)') : 'rgba(255,255,255,0.07)',
-                  boxShadow: fresh ? '0 0 8px 1px rgb(var(--signal) / 0.7)' : 'none',
-                  transform: on ? 'scale(1)' : 'scale(0.7)',
-                  transitionDelay: fresh && !reducedMotion ? `${Math.min(500, (i - prev) * 3)}ms` : '0ms',
-                }}
-              />
-            )
-          })}
-        </div>
-
-        {/* La cuenta y las etapas */}
-        <div className="flex flex-col items-center md:items-start">
-          <p className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-[clamp(3.6rem,2.4rem+4vw,6.5rem)] font-light leading-none text-transparent tabular-nums" style={{ filter: 'drop-shadow(0 0 22px rgb(var(--signal) / 0.4))' }}>
-            {lit}
-          </p>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{t(impact.growth.title)}</p>
-          <ol className="mt-6 flex gap-2 md:flex-col md:gap-1.5">
-            {STAGES.map((s, i) => {
-              const active = stage === i + 1
-              return (
-                <li key={s.label.es}>
-                  <button
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => {
-                      setHeld(true)
-                      setStage(i + 1)
-                    }}
-                    className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs outline-none transition-colors focus-visible:ring-2 focus-visible:ring-signal ${active ? 'border-signal/70 text-paper' : 'border-white/12 text-paper/55 hover:border-white/30'}`}
-                  >
-                    <span className="tabular-nums">{s.value}</span>
-                    <span className="opacity-70">{t(s.label)}</span>
-                  </button>
-                </li>
-              )
-            })}
-          </ol>
-        </div>
-      </div>
-
-      {/* Lo que cambió para el equipo: tocar una cifra dice de dónde sale */}
-      <ol className="relative mx-auto mt-[clamp(3.5rem,3rem+3vw,5.5rem)] grid max-w-[900px] grid-cols-1 gap-y-10 sm:grid-cols-3">
-        <span aria-hidden="true" className="absolute inset-x-[16.6%] top-[5px] hidden h-px bg-white/12 sm:block" />
-        {impact.kpis.slice(1).map((k, n) => {
-          const i = n + 1
-          const isPicked = kpi === i
+      <ol className="mx-auto max-w-[900px]">
+        {ROWS.map((row, i) => {
           return (
-            <li key={k.label.es} className="relative flex flex-col items-center text-center">
-              <button type="button" aria-expanded={isPicked} onClick={() => setKpi(isPicked ? null : i)} className="group flex flex-col items-center outline-none">
-                <span aria-hidden="true" className={`relative h-2.5 w-2.5 rounded-full border transition-all duration-300 ${isPicked ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_14px_3px_rgb(var(--signal)/0.7)]' : 'border-white/60 bg-signal'}`}>
-                </span>
-                <span className="mt-5 text-[clamp(2.4rem,1.6rem+2.6vw,4rem)] font-light leading-none tabular-nums">
-                  {k.value}
-                  <span className="text-[0.55em]">{k.unit}</span>
-                </span>
-                <span className="mt-3 max-w-[20ch] text-balance text-sm leading-snug text-paper/65 group-hover:text-paper/85">{t(k.label)}</span>
-                {isPicked && (
-                  <span className="th-fade mt-2 max-w-[24ch] text-xs leading-snug text-paper/55">
-                    {t(k.note)}
-                    {REFERENCE_KPIS.has(i) && <span className="block font-mono text-[9px] uppercase tracking-[0.14em] text-paper/40">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
+            <li key={row.title.es} className="border-t border-white/[0.08] first:border-t-0">
+              <div className="grid items-center gap-x-10 gap-y-5 py-8 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                {/* El número y qué es */}
+                <span className="flex items-start gap-4">
+                  <span className="min-w-[3.2ch] text-[clamp(2.6rem,1.8rem+2.6vw,4.2rem)] font-light leading-none tabular-nums">
+                    {row.value}
+                    <span className="text-[0.5em]">{row.unit}</span>
                   </span>
-                )}
-              </button>
+                  <span className="flex flex-col">
+                    <span className="text-base leading-snug text-paper/85 ">{t(row.title)}</span>
+                    <span className="mt-2 max-w-[42ch] text-pretty text-sm leading-relaxed text-paper/55">{t(row.plain)}</span>
+                    {row.reference && <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-paper/35">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
+                  </span>
+                </span>
+
+                {/* Antes y ahora */}
+                <span className="flex flex-col gap-2.5">
+                  {row.bars.map((b, k) => (
+                    <span key={b.label.es} className="grid grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_minmax(0,7rem)] items-center gap-3 text-xs md:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_minmax(0,8rem)]">
+                      <span className={b.now ? 'text-paper/80' : 'text-paper/45'}>{t(b.label)}</span>
+                      <span className="relative flex h-6 items-center">
+                        <span
+                          aria-hidden="true"
+                          className="absolute inset-y-1 left-0 rounded-full"
+                          style={{
+                            width: `${Math.max(b.size, 0) * 100}%`,
+                            background: b.now ? `linear-gradient(90deg, ${GOLD}99, ${GOLD})` : 'rgba(239,233,221,0.22)',
+                            boxShadow: b.now ? `0 0 14px -2px ${GOLD}aa` : 'none',
+                            transform: `scaleX(${drawn ? 1 : 0})`,
+                            transformOrigin: 'left',
+                            transition: reducedMotion ? 'none' : `transform 900ms cubic-bezier(0.16,1,0.3,1) ${i * ROW_DELAY_MS + k * 120}ms`,
+                          }}
+                        />
+                        {b.size === 0 && <span aria-hidden="true" className="absolute left-0 h-3 w-3 rounded-full border border-dashed" style={{ borderColor: GOLD }} />}
+                      </span>
+                      <span
+                        className={`font-mono text-[10px] uppercase tracking-[0.1em] transition-opacity duration-500 ${b.now ? 'text-paper' : 'text-paper/55'}`}
+                        style={{ opacity: drawn ? 1 : 0, transitionDelay: `${i * ROW_DELAY_MS + 500}ms` }}
+                      >
+                        {t(b.value)}
+                      </span>
+                    </span>
+                  ))}
+                </span>
+              </div>
             </li>
           )
         })}
