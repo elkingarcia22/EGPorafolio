@@ -114,7 +114,6 @@ export function ClipperImpact() {
               transform={`translate(${x} ${MID - AMP})`}
               onClick={() => setPicked(picked === i ? null : i)}
               className="cursor-pointer"
-              data-fiber-from={i === PEAKS.length - 1 ? 'clp-demo' : undefined}
             >
               <circle r={22} fill={AI[i]} opacity={seen ? (picked === i ? 0.3 : 0.12) : 0} style={{ transition: `opacity .5s ${i * STAGGER_MS + 400}ms` }} />
               {picked === i && !reducedMotion && <circle r={10} fill="none" stroke="white" strokeWidth={1.4} className="clp-ping" />}
@@ -124,6 +123,8 @@ export function ClipperImpact() {
             </g>
           ))}
         </svg>
+        {/* La fibra hacia «Demo» sigue la onda: sale de su punta derecha */}
+        <span data-fiber-from="clp-demo" className="pointer-events-none absolute h-px w-px" style={{ left: `${(X1 / W) * 100}%`, top: `${(MID / H) * 100}%` }} />
         {METRICS.map((m, i) => (
           <Metric key={m.value} i={i} start={seen} hot={picked === i} onPick={() => setPicked(picked === i ? null : i)} />
         ))}

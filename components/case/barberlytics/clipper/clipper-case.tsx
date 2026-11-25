@@ -107,13 +107,13 @@ export function ClipperCase() {
               {/* Del centro del orbe de «La idea» baja a «Bocetos» */}
               <SectionFiber id="clp-bocetos" side="down">
                 {/* Del carrusel de bocetos a «Forma» (la voz) */}
-                <SectionFiber id="clp-forma" side="left">
+                <SectionFiber id="clp-forma" side="right">
                   {/* Del botón para escuchar a Clipper a «IA en el proceso» */}
                   <SectionFiber id="clp-ia" side="right">
                     {/* De «Responde», la última pieza de la cadena, baja a «Impacto» */}
-                    <SectionFiber id="clp-impacto" side="down">
+                    <SectionFiber id="clp-impacto" side="right">
                       {/* De la última cresta de la onda baja a «Demo» */}
-                      <SectionFiber id="clp-demo" side="down">
+                      <SectionFiber id="clp-demo" side="right">
                         <div className="mx-auto min-w-0 max-w-6xl">
                           {chapters.map((meta) => {
                             const Content = CONTENT[meta.id as ChapterKey]

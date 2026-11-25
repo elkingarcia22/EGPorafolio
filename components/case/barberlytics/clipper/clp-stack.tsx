@@ -65,8 +65,10 @@ export function ClipperStack() {
                   type="button"
                   aria-pressed={picked === i}
                   onClick={() => setPicked(picked === i ? null : i)}
-                  className="group flex w-[8.5rem] flex-col items-center text-center outline-none"
+                  className="group relative flex w-[8.5rem] flex-col items-center text-center outline-none"
                 >
+                  {/* La fibra hacia «Impacto» sigue la cadena: sale del costado derecho de la última pieza */}
+                  {i === STACK.length - 1 && <span data-fiber-from="clp-impacto" className="pointer-events-none absolute left-full top-[28px] h-px w-px" />}
                   <span className="relative grid h-[56px] w-[56px] place-items-center">
                     {i === MODEL ? (
                       <ClipperOrb size={56} state={active === i ? 'thinking' : 'idle'} />
@@ -77,7 +79,6 @@ export function ClipperStack() {
                       />
                     )}
                     {hot && !reducedMotion && i !== MODEL && <span className="clp-ping absolute h-6 w-6 rounded-full border border-white" />}
-                    {i === STACK.length - 1 && <span data-fiber-from="clp-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />}
                   </span>
                   <span className={`mt-3 text-[14px] leading-tight transition-colors ${hot ? 'text-paper' : lit ? 'text-paper/85' : 'text-paper/45'}`}>{t(s.name)}</span>
                   <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: lit ? color : 'rgb(var(--paper) / 0.35)' }}>{tech(s.tech, t)}</span>
