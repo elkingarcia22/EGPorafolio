@@ -14,20 +14,21 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
-import { PLATFORM } from '@/lib/content/cases/barberlytics/platform'
 import { useReveal } from '../use-reveal'
 import { PlatformHero } from './platform-hero'
 import { GridHub } from './grid-hub'
 import { SectorMatrix } from './sector-matrix'
-import { CardAnatomy } from './card-anatomy'
-import { LivingDay } from './living-day'
-import { RoleDoors } from './role-doors'
+import { NeedsTree } from './needs-tree'
+import { CardAnatomyBoard } from './sketch-boards'
+import { ViewsBoard } from './sketch-views'
+import { CardStudio } from './card-studio'
+import { RealScreens } from './real-screens'
 import { GhostProposals } from './ghost-proposals'
 import { StepsCollapse } from './steps-collapse'
 import { PlatformDemo } from './platform-demo'
 import './platform.css'
 
-type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'forma' | 'roles' | 'ia' | 'impacto' | 'demo'
+type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'forma' | 'ia' | 'impacto' | 'demo'
 
 /** Cuánto se calma la red de fondo: al máximo, para que se lea */
 const QUIET = { hero: 1, chapters: 1 }
@@ -38,7 +39,6 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'warp' },
   { id: 'forma', entry: 'thread' },
-  { id: 'roles', entry: 'bloom' },
   { id: 'ia', entry: 'warp' },
   { id: 'impacto', entry: 'thread' },
   { id: 'demo', entry: 'bloom' },
@@ -72,26 +72,55 @@ function Patrones() {
 }
 
 function Idea() {
-  return <CardAnatomy />
+  return (
+    <div>
+      <Opening
+        line={{ es: 'Un calendario que se arma según quién lo usa.', en: 'A calendar shaped by whoever uses it.' }}
+        lead={{ es: 'Ninguno de los 22 se adaptaba a la barbería. La idea: que cada necesidad tenga su ajuste.', en: 'None of the 22 adapted to the shop. The idea: every need gets its own setting.' }}
+      />
+      <NeedsTree />
+    </div>
+  )
+}
+
+/** Un boceto, con su rótulo arriba */
+function Sketch({ label, children }: { label: L; children: React.ReactNode }) {
+  const { t } = useLocale()
+  return (
+    <figure data-reveal="device">
+      <figcaption className="mono-label mb-4 text-center opacity-50">{t(label)}</figcaption>
+      {children}
+    </figure>
+  )
+}
+
+/** Un tramo de «Forma»: un rótulo corto que separa bocetos, tarjeta y pantallas */
+function Step({ n, label }: { n: string; label: L }) {
+  const { t } = useLocale()
+  return (
+    <p className="mb-10 mt-[clamp(5rem,4rem+4vw,8rem)] flex items-center justify-center gap-3 text-center first:mt-0">
+      <span className="font-mono text-[11px] text-signal">{n}</span>
+      <span className="text-[clamp(1.2rem,1rem+0.8vw,1.6rem)] font-light tracking-tight">{t(label)}</span>
+    </p>
+  )
 }
 
 function Forma() {
   return (
     <div>
       <Opening
-        line={{ es: 'De agendada a cobrada, sin salir de la rejilla.', en: 'From booked to paid, without leaving the grid.' }}
-        lead={{ es: 'Cada tarjeta dice en qué va la cita y qué sigue. La hora corre: mira cómo cambian.', en: 'Every card says where the visit is and what’s next. Time runs: watch them change.' }}
+        line={{ es: 'Primero a mano, después en la rejilla.', en: 'First by hand, then on the grid.' }}
+        lead={{ es: 'Bocetos de la tarjeta y de las formas de ver el día; luego la tarjeta viva, con todo lo que se puede ajustar.', en: 'Sketches of the card and the ways to see the day; then the live card, with everything that can be adjusted.' }}
       />
-      <LivingDay />
-    </div>
-  )
-}
-
-function Roles() {
-  return (
-    <div>
-      <Opening line={PLATFORM.roles.title} lead={{ es: 'La misma barbería, recortada a cada quien. El rol se aplica en el servidor, no solo en la pantalla.', en: 'The same shop, cut down to each person. Roles are enforced on the server, not just on screen.' }} />
-      <RoleDoors />
+      <Step n="a" label={{ es: 'Los bocetos', en: 'The sketches' }} />
+      <div className="space-y-14">
+        <Sketch label={{ es: 'La tarjeta dinámica', en: 'The dynamic card' }}><CardAnatomyBoard /></Sketch>
+        <Sketch label={{ es: 'Las rejillas: siete formas de ver el día', en: 'The grids: seven ways to see the day' }}><ViewsBoard /></Sketch>
+      </div>
+      <Step n="b" label={{ es: 'La tarjeta, a gusto de cada quien', en: 'The card, each person’s way' }} />
+      <CardStudio />
+      <Step n="c" label={{ es: 'Así quedó en la plataforma', en: 'How it shipped in the platform' }} />
+      <RealScreens />
     </div>
   )
 }
@@ -119,7 +148,6 @@ const CONTENT: Record<ChapterKey, React.ComponentType> = {
   patrones: Patrones,
   idea: Idea,
   forma: Forma,
-  roles: Roles,
   ia: Ia,
   impacto: Impacto,
   demo: PlatformDemo,
@@ -155,7 +183,6 @@ export function PlatformCase() {
       patrones: t(c.research),
       idea: t(c.idea),
       forma: t(c.form),
-      roles: t({ es: 'Por rol', en: 'By role' }),
       ia: t(c.ai),
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
@@ -176,11 +203,9 @@ export function PlatformCase() {
           <SectionFiber id="pl-patrones" side="right">
           {/* De la última voz (lo que aplauden) a «La idea» */}
           <SectionFiber id="pl-idea" side="right">
-          {/* De la tarjeta de la cita baja hasta «Forma» */}
+          {/* Del árbol de necesidades baja hasta «Forma» */}
           <SectionFiber id="pl-forma" side="down">
-          {/* De la última pantalla real a «Por rol» */}
-          <SectionFiber id="pl-roles" side="down">
-          {/* De la pantalla del rol baja hasta «IA» */}
+          {/* De la última pantalla real baja hasta «IA» */}
           <SectionFiber id="pl-ia" side="down">
           {/* De la propuesta de Clipper baja a «Impacto» */}
           <SectionFiber id="pl-impacto" side="down">
@@ -196,7 +221,6 @@ export function PlatformCase() {
                 )
               })}
             </div>
-          </SectionFiber>
           </SectionFiber>
           </SectionFiber>
           </SectionFiber>
