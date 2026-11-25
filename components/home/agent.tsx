@@ -160,7 +160,7 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
 
         {/* La caja del chat: aquí llegan las fibras de Trayectoria */}
         <div className="mt-12 w-full min-w-0 text-left">
-          <div data-ag-panel data-converge-to className="relative flex h-[min(32rem,72svh)] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[rgb(var(--void)/0.7)] shadow-[0_30px_90px_-30px_rgb(var(--signal)/0.45)] backdrop-blur-md lg:h-[min(36rem,74svh)]">
+          <div data-ag-panel data-converge-to className="relative z-10 flex h-[min(32rem,72svh)] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[rgb(var(--void)/0.7)] shadow-[0_30px_90px_-30px_rgb(var(--signal)/0.45)] backdrop-blur-md lg:h-[min(36rem,74svh)]">
             <div data-ag-head className="flex items-center justify-between gap-4 border-b border-fg/15 px-4 py-3">
               <span className="mono-label flex shrink-0 items-center gap-2 whitespace-nowrap">
                 <span className={`h-2 w-2 rounded-full bg-signal ${busy ? 'animate-pulse' : ''}`} aria-hidden="true" />

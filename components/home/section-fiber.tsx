@@ -12,6 +12,8 @@ const TEXT_GAP = 90
 const OPEN = 0.1
 /** Margen mínimo con el borde (px) */
 const EDGE = 16
+/** Cuánto baja la fibra al salir de un nodo cuya etiqueta queda del lado hacia el que se abre (px) */
+const EXIT_DROP = 90
 /** Holgura extra con el borde de la pantalla (px) */
 const SWAY = 26
 
@@ -54,7 +56,11 @@ function fiberPath(start: Point, end: Point, box: TextBox, width: number, toward
   return [
     `M${p(a.x, a.y)}`,
     // Sale casi en horizontal y se abre en un arco amplio hasta el costado.
-    `C${p(a.x - (a.x - side) * 0.9, a.y)} ${p(side, a.y + (turn.y - a.y) * 0.3)} ${p(turn.x, turn.y)}`,
+    // Hacia la derecha el texto de la etiqueta queda a ese lado: la fibra primero baja y luego se
+    // abre por debajo del texto, en curva (no en horizontal por encima de él).
+    flip
+      ? `C${p(a.x, a.y + EXIT_DROP)} ${p(side, a.y + (turn.y - a.y) * 0.3)} ${p(turn.x, turn.y)}`
+      : `C${p(a.x - (a.x - side) * 0.9, a.y)} ${p(side, a.y + (turn.y - a.y) * 0.3)} ${p(turn.x, turn.y)}`,
     // Baja y se va recogiendo hacia el centro de a poco, hasta caer sobre el nodo desde arriba.
     `C${p(side, turn.y + down * 0.4)} ${p(b.x - Math.min(40, (b.x - side) * 0.1), b.y - down * 0.45)} ${p(b.x, b.y)}`,
   ].join(' ')
@@ -167,7 +173,7 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
 
   return (
     <div ref={wrapRef} className="relative">
-      {children}
+      {/* Detrás del contenido: la fibra pasa por debajo de los textos, no por encima */}
       <svg ref={svgRef} aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible">
         <defs>
           <linearGradient id={`section-fiber-${id}`} x1="0" y1="0" x2="0" y2="1">
@@ -199,6 +205,7 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
           <circle r={3} fill="white" style={{ filter: 'drop-shadow(0 0 6px white)' }} />
         </g>
       </svg>
+      <div className="relative">{children}</div>
       <style>{'@keyframes fiber-impulse { from { stroke-dashoffset: 0.05 } to { stroke-dashoffset: -1 } }'}</style>
     </div>
   )

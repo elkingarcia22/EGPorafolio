@@ -100,12 +100,17 @@ export function ContactMenu({ onContactClick }: ContactMenuProps) {
         id={panelId}
         className={`absolute -right-6 top-full w-[23rem] pt-4 transition-[opacity,transform] duration-300 ease-expo ${open ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none -translate-y-2 opacity-0'}`}
       >
-        <div className="overflow-hidden border border-fg/15 bg-bg/95 text-fg shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl">
-          <p className="flex items-center gap-2 px-5 pb-2 pt-4">
-            <span className="h-1.5 w-1.5 rounded-full bg-signal" aria-hidden="true" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-[rgb(var(--void)/0.82)] p-2 text-fg shadow-[0_30px_80px_-30px_rgb(0_0_0/0.8),0_0_60px_-20px_rgb(var(--signal)/0.35)] backdrop-blur-xl">
+          <p className="flex items-center gap-2 px-3 pb-2 pt-3">
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-signal opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-signal" />
+            </span>
             <span className="mono-label opacity-60">{t(COPY.contact.menuTitle)}</span>
           </p>
-          <ul>
+          {/* La fibra que une los canales, detrás de sus neuronas */}
+          <span aria-hidden="true" className="pointer-events-none absolute bottom-[4.5rem] left-[1.95rem] top-[3.6rem] w-px bg-gradient-to-b from-white/5 via-white/25 to-white/5" />
+          <ul className="relative">
             {channels.map((channel, i) => (
               <li key={channel.icon}>
                 <a
@@ -114,24 +119,25 @@ export function ContactMenu({ onContactClick }: ContactMenuProps) {
                   rel={channel.external ? 'noopener noreferrer' : undefined}
                   tabIndex={open ? 0 : -1}
                   onClick={hide}
-                  className="group relative flex items-center gap-4 px-5 py-3 transition-colors duration-300 hover:bg-signal hover:text-paper focus-visible:bg-signal focus-visible:text-paper focus-visible:outline-none"
-                  style={{ transitionDelay: open ? `${i * 30}ms` : '0ms' }}
+                  className={`group relative flex items-center gap-4 rounded-xl px-3 py-2.5 transition-[background-color,opacity,transform] duration-500 ease-expo hover:bg-white/[0.05] focus-visible:bg-white/[0.07] focus-visible:outline-none ${open ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0'}`}
+                  style={{ transitionDelay: open ? `${i * 40}ms` : '0ms' }}
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-fg/15 transition-colors group-hover:border-paper/40 group-focus-visible:border-paper/40">
+                  {/* El canal en una neurona que se enciende al pasar */}
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/12 bg-[rgb(var(--void))] transition-[border-color,box-shadow] duration-500 ease-expo group-hover:border-white/35 group-hover:shadow-[0_0_0_5px_rgb(var(--signal)/0.12),0_0_22px_4px_rgb(var(--signal)/0.45)] group-focus-visible:border-white/35">
                     <ContactIcon name={channel.icon} className="h-[1.1rem] w-[1.1rem]" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[0.95rem] leading-tight">{t(channel.label)}</span>
-                    <span className="mt-0.5 block truncate text-xs opacity-55 group-hover:opacity-80">{channel.value}</span>
+                    <span className="mt-0.5 block truncate text-xs text-paper/55 group-hover:text-paper/80">{channel.value}</span>
                   </span>
-                  <span aria-hidden="true" className="text-base opacity-40 transition-[transform,opacity] duration-500 ease-expo group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100">
+                  <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/10 text-xs opacity-50 transition-[transform,opacity,border-color] duration-500 ease-expo group-hover:rotate-45 group-hover:border-white/30 group-hover:opacity-100">
                     ↗
                   </span>
                 </a>
               </li>
             ))}
           </ul>
-          <div className="flex items-center justify-between gap-4 border-t border-fg/10 px-5 py-3">
+          <div className="mt-1 flex items-center justify-between gap-4 border-t border-white/10 px-3 pb-2 pt-3">
             <button
               type="button"
               tabIndex={open ? 0 : -1}
@@ -174,7 +180,7 @@ export function ContactQuickActions({ onNavigate }: { onNavigate: () => void }) 
             rel={channel.external ? 'noopener noreferrer' : undefined}
             onClick={onNavigate}
             aria-label={t(channel.label)}
-            className="flex flex-col items-center gap-2 rounded-lg border border-fg/15 px-1 py-3 transition-colors active:bg-signal active:text-paper"
+            className="flex flex-col items-center gap-2 rounded-2xl border border-white/12 bg-white/[0.03] px-1 py-3 backdrop-blur-sm transition-[background-color,border-color] active:border-white/40 active:bg-white/10"
           >
             <ContactIcon name={channel.icon} className="h-5 w-5" />
             <span className="mono-label text-[0.6rem]">{t(channel.short)}</span>

@@ -101,8 +101,8 @@ export function Contact() {
   return (
     <ToneSection tone="dark" as="footer" id="contact" className="px-[var(--gutter)] pb-10 pt-[clamp(5rem,3rem+8vw,10rem)]">
       <div ref={rootRef} className="mx-auto flex max-w-5xl flex-col items-center text-center">
-        {/* La luz azul baja hasta esta etiqueta, como en Enfoque */}
-        <SectionLabel index="05" className="mb-10">{t(COPY.contact.label)}</SectionLabel>
+        {/* La luz azul nace detrás del chat del agente y baja hasta esta etiqueta */}
+        <SectionLabel index="05" threadFrom="[data-ag-panel]" className="mb-10">{t(COPY.contact.label)}</SectionLabel>
 
         <p data-ct-available className="mono-label mb-6 flex items-center gap-2 text-signal">
           <span className="relative flex h-2 w-2" aria-hidden="true">

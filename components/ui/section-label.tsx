@@ -22,10 +22,17 @@ interface SectionLabelProps {
    * cuando la etiqueta queda fija y la fibra que llegó sigue de largo con la página.
    */
   riser?: boolean
+  /**
+   * El hilo nace detrás de este elemento (selector), en vez del borde de la sección: p. ej. sale
+   * de detrás del chat del agente y baja hasta el nodo.
+   */
+  threadFrom?: string
 }
 
 /** Margen para que el hilo no toque el borde exacto de la sección */
 const THREAD_GAP_PX = 6
+/** Cuánto se mete el hilo por debajo del elemento del que nace (`threadFrom`) */
+const THREAD_TUCK_PX = 40
 
 /**
  * Etiqueta de sección: número + título espaciado + línea fina (estilo hoja de vida).
@@ -36,7 +43,7 @@ const THREAD_GAP_PX = 6
  * nítidos. Así cada sección queda conectada
  * con la anterior.
  */
-export function SectionLabel({ index, children, className = '', nodeRef, thread: withThread = true, fiberFrom, fiberTo, riser = false }: SectionLabelProps) {
+export function SectionLabel({ index, children, className = '', nodeRef, thread: withThread = true, fiberFrom, fiberTo, riser = false, threadFrom }: SectionLabelProps) {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const threadRef = useRef<HTMLSpanElement>(null)
@@ -64,8 +71,11 @@ export function SectionLabel({ index, children, className = '', nodeRef, thread:
 
     // El hilo mide exactamente lo que hay entre el borde de la sección y el nodo.
     const measure = () => {
-      if (!section) return
-      const gap = root.getBoundingClientRect().top - section.getBoundingClientRect().top
+      const from = threadFrom ? document.querySelector(threadFrom) : null
+      // Desde detrás de otro elemento (se mete un poco debajo de él) o desde el borde de la sección.
+      const top = from ? from.getBoundingClientRect().bottom - THREAD_TUCK_PX : section?.getBoundingClientRect().top
+      if (top === undefined) return
+      const gap = root.getBoundingClientRect().top - top
       thread.style.height = `${Math.max(0, gap - THREAD_GAP_PX)}px`
     }
     measure()
@@ -96,7 +106,7 @@ export function SectionLabel({ index, children, className = '', nodeRef, thread:
       ScrollTrigger.removeEventListener('refreshInit', measure)
       ctx.revert()
     }
-  }, [reducedMotion, withThread])
+  }, [reducedMotion, withThread, threadFrom])
 
   return (
     <div ref={rootRef} data-lit="false" className={`group/label flex items-center gap-4 ${className}`}>

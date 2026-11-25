@@ -72,3 +72,22 @@ export function OrbitNode({ project, active }: OrbitNodeProps) {
     </span>
   )
 }
+
+/**
+ * Marca pequeña de un proyecto (para menús): su ícono sobre el color del
+ * proyecto, o su logo si lo tiene. Se dibuja al tamaño de su contenedor.
+ */
+export function ProjectGlyph({ project, className = '' }: { project: Project; className?: string }) {
+  const mark = MARKS[project.slug] ?? { icon: Sparkles, name: project.client }
+  const Icon = mark.icon
+  const brand = BRANDED[project.slug]
+  return (
+    <span
+      aria-hidden="true"
+      className={`grid shrink-0 place-items-center overflow-hidden rounded-[30%] border border-white/10 ${className}`}
+      style={{ background: brand ? undefined : `linear-gradient(160deg, rgb(${project.accent} / 0.95), rgb(${project.accent} / 0.55))` }}
+    >
+      {brand ? brand.tile : <Icon className="h-[52%] w-[52%] text-white" strokeWidth={1.7} />}
+    </span>
+  )
+}

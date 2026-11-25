@@ -228,7 +228,7 @@ export function SiteHeader() {
             aria-expanded={a11yOpen}
             aria-label={t(COPY.a11y.open)}
             onClick={() => setA11yOpen((v) => !v)}
-            className="flex h-8 w-8 items-center justify-center border border-fg/30 transition-colors hover:bg-fg hover:text-bg"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-white/[0.03] transition-[border-color,background-color,box-shadow] duration-300 hover:border-white/50 hover:bg-white/10 hover:shadow-[0_0_18px_rgb(var(--signal)/0.4)]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
               <circle cx="12" cy="4.5" r="1.8" />
@@ -269,18 +269,21 @@ export function SiteHeader() {
       </div>
 
       {quickOpen && (
-        <div id="mobile-quick-contact" className="relative border-t border-fg/15 bg-bg px-[var(--gutter)] pb-5 pt-4 lg:hidden">
+        <div id="mobile-quick-contact" className="relative border-t border-white/10 bg-[rgb(var(--void)/0.85)] px-[var(--gutter)] pb-5 pt-4 backdrop-blur-xl lg:hidden">
           <p className="mono-label opacity-60">{t(COPY.contact.menuTitle)}</p>
           <ContactQuickActions onNavigate={() => setQuickOpen(false)} />
         </div>
       )}
 
       {menuOpen && (
-        <nav id="mobile-menu" aria-label="Principal móvil" className="relative border-t border-fg/15 bg-bg px-[var(--gutter)] py-6 lg:hidden">
+        <nav id="mobile-menu" aria-label="Principal móvil" className="relative max-h-[calc(100svh-4rem)] overflow-y-auto border-t border-white/10 bg-[rgb(var(--void)/0.88)] px-[var(--gutter)] py-6 backdrop-blur-xl lg:hidden">
           <ul className="space-y-4">
             {NAV.map((item, i) => (
               <li key={item.id} className="flex items-baseline gap-4">
-                <span className="mono-label opacity-40">0{i + 1}</span>
+                <span className="mono-label flex items-center gap-2 opacity-50">
+                  <span className="h-1.5 w-1.5 translate-y-[-1px] rounded-full bg-white/70 shadow-[0_0_8px_rgb(255_255_255/0.5)]" aria-hidden="true" />
+                  0{i + 1}
+                </span>
                 {item.id === 'home' ? (
                   <TransitionLink href="/" transitionLabel="EG" onClick={goHome} className="brand-title text-2xl">
                     {t(item.label)}

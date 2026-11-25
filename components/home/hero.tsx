@@ -31,7 +31,7 @@ const HEADLINE_IN_WARP = 0.2
 /** Paso entre palabras al aparecer un texto (titular y puente) */
 const WORD_STAGGER_S = 0.1
 /** Tiempo para leer el titular antes de que la entrada siga sola (desde que empieza a aparecer) */
-const INTRO_READ_S = 2.1
+const INTRO_READ_S = 2.9
 /** El puente nunca se lee más rápido que esto (s), aunque el EG ya esté casi armado */
 const MIN_BRIDGE_READ_S = 1.6
 /** Duración del salto final hacia el titular */
