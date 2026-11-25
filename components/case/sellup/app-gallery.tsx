@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 
@@ -76,6 +77,13 @@ export function AppGallery() {
     setPickedAt(Date.now())
   }
 
+  /** Gira un paso hacia un lado (−1 anterior, +1 siguiente) */
+  const step = (dir: -1 | 1) => {
+    setTurn((n) => n + dir)
+    setPickedAt(Date.now())
+  }
+  const arrow = 'absolute top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-[#0b0d16]/70 text-paper/80 backdrop-blur transition-all duration-300 hover:scale-105 hover:border-white/50 hover:text-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-signal'
+
   return (
     <div ref={rootRef} className="relative">
       <div className="relative mx-auto" style={{ height: cardH + 60, perspective: `${Math.max(1600, radius * 3)}px` }}>
@@ -106,6 +114,13 @@ export function AppGallery() {
             )
           })}
         </div>
+        {/* Flechas a los lados para pasar las pantallas */}
+        <button type="button" onClick={() => step(-1)} aria-label={t({ es: 'Pantalla anterior', en: 'Previous screen' })} className={`${arrow} left-0 md:left-[4%]`} style={{ marginTop: 15 }}>
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button type="button" onClick={() => step(1)} aria-label={t({ es: 'Pantalla siguiente', en: 'Next screen' })} className={`${arrow} right-0 md:right-[4%]`} style={{ marginTop: 15 }}>
+          <ChevronRight className="h-5 w-5" />
+        </button>
       </div>
 
       {/* Qué pantalla está al frente, y un punto por pantalla */}
