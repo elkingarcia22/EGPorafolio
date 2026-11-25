@@ -128,7 +128,6 @@ export function LogoSketches() {
         <figure className={`relative flex flex-col items-center transition-[opacity,transform,filter] duration-1000 ease-expo ${logoOn ? 'scale-100 opacity-100 blur-0' : 'scale-95 opacity-0 blur-sm'}`}>
           {/* eslint-disable-next-line @next/next/no-img-element -- SVG oficial del logo */}
           <img src="/cases/barberlytics/logo-official-paper.svg" alt="Barberlytics" width={1200} height={270} className="block h-auto w-full max-w-[360px] drop-shadow-[0_0_30px_rgba(222,140,58,0.35)]" />
-          <span data-fiber-from="th-forma" aria-hidden="true" className="absolute bottom-0 left-1/2 h-px w-px" />
           <figcaption className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/60">{t({ es: 'El logo oficial', en: 'The official logo' })}</figcaption>
         </figure>
       </div>

@@ -26,28 +26,43 @@ const STATIONS: readonly Station[] = [
 ]
 const LAST_STATION = STATIONS.length - 1
 
-/** Lo que la IA intenta escribir, uno tras otro; `stop` = estación que lo frena (null = llega al código) */
-const ATTEMPTS: readonly { label: L; stop: number | null }[] = [
-  { label: { es: '<KpiCard />', en: '<KpiCard />' }, stop: null },
-  { label: { es: 'color="#ff3b30"', en: 'color="#ff3b30"' }, stop: 2 },
-  { label: { es: '<DayStrip />', en: '<DayStrip />' }, stop: null },
-  { label: { es: 'otra librería de iconos', en: 'another icon library' }, stop: 2 },
-  { label: { es: '<svg> pegado', en: 'pasted <svg>' }, stop: 3 },
-  { label: { es: '<ClipperOrb />', en: '<ClipperOrb />' }, stop: null },
+interface Attempt {
+  code: string
+  /** Estación que lo frena (null = llega al código) */
+  stop: number | null
+  /** La regla que lo frena (de las validaciones del caso) */
+  rule?: L
+}
+
+/** Lo que la IA intenta escribir en una pantalla, línea por línea */
+const ATTEMPTS: readonly Attempt[] = [
+  { code: '<KpiCard title="Citas hoy" />', stop: null },
+  { code: '<p style={{ color: "#ff3b30" }}>', stop: 2, rule: ai.checks[1] },
+  { code: '<DayStrip days={semana} />', stop: null },
+  { code: "import { Scissors } from 'otra-libreria'", stop: 2, rule: ai.checks[0] },
+  { code: '<svg viewBox="0 0 24 24">…</svg>', stop: 3, rule: ai.checks[4] },
+  { code: '<ClipperOrb />', stop: null },
 ]
 
-/** Ritmo (ms): tramo entre dos estaciones, pausa al llegar o al frenarse, y espera antes del siguiente */
-const PACE = { segment: 260, hold: 900, gap: 200 } as const
-type Phase = 'ready' | 'travel' | 'arrived'
+/** Ritmo (ms): escribir la línea, pasar por cada estación, y pausa al resolverse */
+const PACE = { type: 520, station: 300, hold: 1100, restart: 1600 } as const
 
-const xOf = (station: number) => (station / LAST_STATION) * 100
+/** at = estación en la que va la línea actual; -1 = se está escribiendo */
+interface Run {
+  k: number
+  at: number
+  done: boolean
+}
+
+const targetOf = (a: Attempt) => a.stop ?? LAST_STATION
 
 /**
- * 06 · IA en el proceso, como una línea con cinco estaciones: lo que la IA
- * escribe viaja del pedido al código; las piezas del sistema llegan (verde) y lo
- * que se sale —un HEX a mano, otra librería, un SVG pegado— se frena en el
- * guardián o en la validación (rojo). Tocar una estación muestra qué hace.
- * Del código sale la fibra hacia «Impacto».
+ * 06 · IA en el proceso: a la izquierda, el riel con las cinco estaciones; a la
+ * derecha, la pantalla que la IA escribe línea a línea. Cada línea baja por el
+ * riel: las piezas del sistema llegan al código (verde) y lo que se sale —un
+ * HEX a mano, otra librería, un SVG pegado— se frena en el guardián o en la
+ * validación (rojo), con la regla que la frenó. Tocar una estación dice qué hace.
+ * Del nodo «Código» sale la fibra hacia «Impacto».
  */
 export function AiGate() {
   const { t } = useLocale()
@@ -55,105 +70,125 @@ export function AiGate() {
   const { chapters } = THEMA_CASE
   const rootRef = useRef<HTMLDivElement>(null)
   const { entered, visible } = useInView(rootRef)
-  const [k, setK] = useState(0)
-  const [phase, setPhase] = useState<Phase>('ready')
+  const [run, setRun] = useState<Run>(reducedMotion ? { k: ATTEMPTS.length - 1, at: LAST_STATION, done: true } : { k: 0, at: -1, done: false })
   const [picked, setPicked] = useState<number | null>(null)
-  const [tally, setTally] = useState({ passed: 0, stopped: 0 })
 
-  const attempt = ATTEMPTS[k]
-  const target = attempt.stop ?? LAST_STATION
-  const blocked = attempt.stop !== null
+  const current = ATTEMPTS[run.k]
+  const target = targetOf(current)
 
   useEffect(() => {
     if (!entered || !visible || reducedMotion) return
-    const wait = phase === 'ready' ? PACE.gap : phase === 'travel' ? PACE.segment * target : PACE.hold
+    const last = run.k === ATTEMPTS.length - 1
+    const wait = run.done ? (last ? PACE.restart : PACE.hold) : run.at < 0 ? PACE.type : PACE.station
     const id = window.setTimeout(() => {
-      if (phase === 'ready') setPhase('travel')
-      else if (phase === 'travel') {
-        setPhase('arrived')
-        setTally((n) => (blocked ? { ...n, stopped: n.stopped + 1 } : { ...n, passed: n.passed + 1 }))
-      } else {
-        setK((i) => (i + 1) % ATTEMPTS.length)
-        setPhase('ready')
-      }
+      setRun((r) => {
+        if (r.done) return { k: (r.k + 1) % ATTEMPTS.length, at: -1, done: false }
+        const next = r.at + 1
+        return next >= targetOf(ATTEMPTS[r.k]) ? { ...r, at: targetOf(ATTEMPTS[r.k]), done: true } : { ...r, at: next }
+      })
     }, wait)
     return () => window.clearTimeout(id)
-  }, [entered, visible, reducedMotion, phase, target, blocked])
+  }, [entered, visible, reducedMotion, run])
 
-  const pos = phase === 'ready' ? 0 : xOf(target)
-  const arrived = phase === 'arrived'
-  const tone = arrived ? (blocked ? NO : OK) : 'rgba(255,255,255,0.85)'
+  const blocked = current.stop !== null
+  const verdict = run.done ? (blocked ? NO : OK) : null
+  const lines = ATTEMPTS.slice(0, run.k + 1)
+  const passed = lines.filter((a, i) => a.stop === null && (i < run.k || run.done)).length
+  const stopped = lines.filter((a, i) => a.stop !== null && (i < run.k || run.done)).length
   const station = picked === null ? null : STATIONS[picked]
 
   return (
     <div ref={rootRef}>
       <ChapterHead phrase={t(chapters.ia.phrase)} lead={t(chapters.ia.lead)} />
 
-      <div className="mx-auto max-w-[900px] px-10 md:px-16">
-        <div className="relative h-[170px] md:h-[150px]">
-          {/* La línea y la señal que avanza con cada intento */}
-          <span aria-hidden="true" className="absolute inset-x-0 top-[88px] h-px bg-white/15" />
+      <div className="mx-auto grid max-w-[860px] gap-y-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-x-14">
+        {/* El riel: las estaciones, de arriba abajo */}
+        <ol className="relative flex flex-col justify-between py-1" aria-label={t({ es: 'Estaciones', en: 'Stations' })}>
+          <span aria-hidden="true" className="absolute bottom-3 left-[11px] top-3 w-px bg-white/12" />
           <span
             aria-hidden="true"
-            className="absolute left-0 top-[88px] h-px w-full origin-left bg-gradient-to-r from-signal to-[rgb(var(--spark))]"
+            className="absolute left-[11px] top-3 w-px origin-top"
             style={{
-              transform: `scaleX(${pos / 100})`,
-              transition: reducedMotion ? 'none' : phase === 'travel' ? `transform ${PACE.segment * target}ms linear` : 'transform 200ms ease-out',
-              opacity: phase === 'ready' ? 0 : 0.9,
+              height: 'calc(100% - 1.5rem)',
+              background: verdict ? `linear-gradient(to bottom, rgb(var(--signal)), ${verdict})` : 'linear-gradient(to bottom, rgb(var(--signal)), rgb(var(--spark)))',
+              transform: `scaleY(${Math.max(0, run.at) / LAST_STATION})`,
+              transition: reducedMotion ? 'none' : `transform ${run.at < 0 ? 200 : PACE.station}ms linear, background 300ms`,
+              opacity: run.at < 0 ? 0 : 1,
             }}
           />
-
-          {/* Lo que viaja: una etiqueta de código */}
-          {!reducedMotion && (
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 top-[22px]"
-              style={{ transform: `translateX(${pos}%)`, transition: phase === 'travel' ? `transform ${PACE.segment * target}ms linear` : 'none' }}
-            >
-              <span
-                key={k}
-                className={`th-fade absolute left-0 -translate-x-1/2 whitespace-nowrap rounded-full border px-2.5 py-1 font-mono text-[10px] transition-[color,border-color,background-color,opacity] duration-300 md:text-[11px] ${arrived && blocked ? 'line-through' : ''}`}
-                style={{ color: tone, borderColor: arrived ? tone : 'rgba(255,255,255,0.25)', background: arrived ? `${tone}1f` : 'rgba(255,255,255,0.04)', opacity: arrived && blocked ? 0.85 : 1 }}
-              >
-                {t(attempt.label)}
-              </span>
-            </div>
-          )}
-
-          {/* Las estaciones */}
           {STATIONS.map((s, i) => {
-            const hit = arrived && i === target
-            const color = hit ? (blocked ? NO : OK) : null
+            const passing = !run.done && run.at === i
+            const hit = run.done && i === target
+            const color = hit ? verdict : null
             const isPicked = picked === i
             return (
-              <button
-                key={s.name.es}
-                type="button"
-                aria-pressed={isPicked}
-                onClick={() => setPicked(isPicked ? null : i)}
-                className="group absolute top-[76px] flex -translate-x-1/2 flex-col items-center outline-none"
-                style={{ left: `${xOf(i)}%` }}
-              >
-                <span className="relative grid h-6 w-6 place-items-center">
-                  <span
-                    className={`h-3.5 w-3.5 rounded-full border transition-all duration-300 ${isPicked ? 'scale-125 border-white bg-[#fffaf0]' : 'border-white/50 bg-void group-hover:border-white'}`}
-                    style={color ? { background: color, borderColor: color, boxShadow: `0 0 0 5px ${color}33, 0 0 18px 4px ${color}99` } : undefined}
-                  />
-                  {i === LAST_STATION && <span data-fiber-from="th-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />}
-                </span>
-                <span className={`${i % 2 ? 'mt-7 md:mt-3' : 'mt-3'} whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.12em] transition-colors md:text-[10px] ${isPicked ? 'text-paper' : 'text-paper/55 group-hover:text-paper/85'}`}>{t(s.name)}</span>
-              </button>
+              <li key={s.name.es} className="relative">
+                <button
+                  type="button"
+                  aria-pressed={isPicked}
+                  onClick={() => setPicked(isPicked ? null : i)}
+                  className="group flex items-center gap-3 py-2 text-left outline-none md:gap-4 md:py-3"
+                >
+                  <span className="relative grid h-6 w-6 shrink-0 place-items-center">
+                    {(passing || hit) && (
+                      <span aria-hidden="true" className="absolute inset-[-6px] rounded-full opacity-60 blur-md" style={{ background: color ?? 'rgb(var(--signal))' }} />
+                    )}
+                    <span
+                      className={`relative h-3.5 w-3.5 rounded-full border transition-all duration-300 ${isPicked ? 'scale-125 border-white bg-[#fffaf0]' : passing ? 'scale-110 border-white bg-signal' : 'border-white/45 bg-void group-hover:border-white'}`}
+                      style={color ? { background: color, borderColor: color, boxShadow: `0 0 0 5px ${color}33` } : undefined}
+                    />
+                    {i === LAST_STATION && <span data-fiber-from="th-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />}
+                  </span>
+                  <span className="flex flex-col">
+                    <span className={`whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] transition-colors md:text-[11px] ${isPicked || passing || hit ? 'text-paper' : 'text-paper/50 group-hover:text-paper/85'}`}>{t(s.name)}</span>
+                    <span className="hidden font-mono text-[9px] tracking-[0.08em] text-paper/30 md:block">0{i + 1}</span>
+                  </span>
+                </button>
+              </li>
             )
           })}
+        </ol>
+
+        {/* La pantalla que la IA escribe */}
+        <div className="min-w-0">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/45">
+            <span className="flex items-center gap-2">
+              <span aria-hidden="true" className="inline-block h-3 w-3 rounded-full" style={{ background: 'conic-gradient(from 180deg, #f0ce86, #3f72d8, #8f5bd8, #f0ce86)' }} />
+              agenda.tsx
+            </span>
+            <span className="tabular-nums">
+              <span style={{ color: OK }}>{passed}</span> {t({ es: 'al código', en: 'in code' })} · <span style={{ color: NO }}>{stopped}</span> {t({ es: 'frenadas', en: 'stopped' })}
+            </span>
+          </div>
+          <ol className="min-h-[260px] pt-3 md:min-h-[300px] font-mono text-[11px] leading-relaxed md:text-[12.5px]" aria-live="polite">
+            {lines.map((a, i) => {
+              const isCurrent = i === run.k
+              const settled = !isCurrent || run.done
+              const stop = a.stop !== null
+              const tone = !settled ? 'rgb(var(--paper))' : stop ? NO : OK
+              return (
+                <li key={`${a.code}-${i}`} className="th-fade grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-x-2 py-1.5">
+                  <span className="select-none text-right text-paper/25 tabular-nums">{i + 1}</span>
+                  <span className="min-w-0">
+                    <span className={`block truncate transition-[color,opacity] duration-300 ${settled && stop ? 'line-through decoration-[#e5484d]/70 opacity-60' : ''}`} style={{ color: settled ? (stop ? 'rgba(239,233,221,0.7)' : 'rgba(239,233,221,0.92)') : 'rgba(239,233,221,0.92)' }}>
+                      {a.code}
+                      {isCurrent && run.at < 0 && <span aria-hidden="true" className="ml-0.5 inline-block h-[1.1em] w-[0.5ch] translate-y-[2px] animate-pulse bg-signal" />}
+                    </span>
+                    {settled && stop && a.rule && (
+                      <span className="th-fade mt-0.5 block font-sans text-[11px] text-[#e5484d]/90 md:text-xs">
+                        {t(STATIONS[a.stop as number].name)} · {t(a.rule)}
+                      </span>
+                    )}
+                  </span>
+                  <span className="pt-px text-[10px] uppercase tracking-[0.12em] transition-colors duration-300" style={{ color: tone }}>
+                    {settled ? (stop ? '✕' : '✓') : run.at < 0 ? '' : '…'}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
         </div>
       </div>
-
-      {/* La cuenta: lo que llegó y lo que se frenó */}
-      {!reducedMotion && (
-        <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-paper/45">
-          <span style={{ color: OK }}>{tally.passed}</span> {t({ es: 'llegan al código', en: 'reach the code' })} · <span style={{ color: NO }}>{tally.stopped}</span> {t({ es: 'frenados', en: 'stopped' })}
-        </p>
-      )}
 
       {/* La estación tocada */}
       <div className="mx-auto mt-8 min-h-[4rem] max-w-[640px]" aria-live="polite">

@@ -153,7 +153,7 @@ export function LogoToApp() {
       <span className="pointer-events-none absolute -left-24 top-1/2 h-[420px] w-[420px] -translate-y-1/2 rounded-full opacity-20 blur-3xl transition-[background] duration-1000" style={{ background: primary }} aria-hidden="true" />
       <span className="pointer-events-none absolute -right-20 bottom-0 h-[320px] w-[320px] rounded-full opacity-15 blur-3xl transition-[background] duration-1000" style={{ background: aiEndFrom(primary) }} aria-hidden="true" />
 
-      <div className="relative grid items-center gap-10 md:grid-cols-[1fr_auto_minmax(0,300px)]">
+      <div className="relative mx-auto grid max-w-[820px] items-center justify-center gap-10 md:grid-cols-[minmax(0,280px)_auto_minmax(0,290px)] md:gap-12">
         {/* El logo y sus colores */}
         <div>
           <p className="mono-label mb-5 text-white/50">{t({ es: '1 · El logo de la barbería', en: '1 · The shop’s logo' })}</p>

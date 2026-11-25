@@ -25,7 +25,7 @@ import { ThemaImpact } from './thema-impact'
 import { ThemaDemo } from './thema-demo'
 import './thema.css'
 
-type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto' | 'demo'
+type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'ia' | 'impacto' | 'demo'
 
 /** La red de fondo, calmada al máximo: en la portada y en los capítulos */
 const QUIET = 1
@@ -36,18 +36,28 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'warp' },
   { id: 'bocetos', entry: 'thread' },
-  { id: 'forma', entry: 'bloom' },
   { id: 'ia', entry: 'warp' },
   { id: 'impacto', entry: 'thread' },
   { id: 'demo', entry: 'bloom' },
 ]
 
+/** 04 · Bocetos y forma: del boceto al logo oficial y, debajo, el sistema construido (un solo capítulo, como en Objetivos) */
+function ThemaSketchesAndForm() {
+  return (
+    <div>
+      <LogoSketches />
+      <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
+        <ThemaForm />
+      </div>
+    </div>
+  )
+}
+
 const CONTENT: Record<ChapterKey, React.ComponentType> = {
   puntos: ThemaDots,
   patrones: TokenAgreement,
   idea: ThemaIdea,
-  bocetos: LogoSketches,
-  forma: ThemaForm,
+  bocetos: ThemaSketchesAndForm,
   ia: AiGate,
   impacto: ThemaImpact,
   demo: ThemaDemo,
@@ -80,7 +90,7 @@ function BackToBarberlytics() {
 }
 
 /**
- * Caso Thema: portada con la cinta «un color → un tema», índice fijo y ocho
+ * Caso Thema: portada con la cinta «un color → un tema», índice fijo y siete
  * capítulos sobre la misma red de fondo, unidos por fibras que se tienden con
  * el scroll; al final, de vuelta a Barberlytics.
  */
@@ -103,8 +113,7 @@ export function ThemaCase() {
       puntos: t(c.problem),
       patrones: t(c.research),
       idea: t(c.idea),
-      bocetos: t(c.sketches),
-      forma: t(c.form),
+      bocetos: t({ es: 'Bocetos y forma', en: 'Sketches and form' }),
       ia: t(c.ai),
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
@@ -126,8 +135,6 @@ export function ThemaCase() {
         <SectionFiber id="th-idea" side="left">
         {/* Del último principio a «Bocetos» */}
         <SectionFiber id="th-bocetos" side="right">
-        {/* Del logo oficial a «Forma» */}
-        <SectionFiber id="th-forma" side="left">
         {/* Del carrete de componentes a «IA en el proceso» */}
         <SectionFiber id="th-ia" side="down">
         {/* De la estación «Código» a «Impacto» */}
@@ -144,7 +151,6 @@ export function ThemaCase() {
             )
           })}
         </div>
-        </SectionFiber>
         </SectionFiber>
         </SectionFiber>
         </SectionFiber>
