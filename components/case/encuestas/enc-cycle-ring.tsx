@@ -6,7 +6,6 @@ import { useLocale } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 
 const STATIONS = ENCUESTAS_CASE.dots.stations
-const FACTS = ENCUESTAS_CASE.dots.facts
 /** Los momentos que no existían: sin importación y sin experiencia para responder */
 const MISSING = new Set(['historico', 'responder'])
 
@@ -176,18 +175,6 @@ export function EncCycleRing() {
         </svg>
       </div>
 
-      {/* Al cerrarse, las cifras reales del punto de partida */}
-      <dl className={`mx-auto mt-6 grid w-full max-w-[760px] grid-cols-2 gap-x-3 gap-y-6 transition-all duration-700 ease-expo md:grid-cols-4 ${closed ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>
-        {FACTS.map((f) => (
-          <div key={f.label.es} className="text-center">
-            <dt className="sr-only">{t(f.label)}</dt>
-            <dd>
-              <span className="block text-[clamp(1.6rem,1.2rem+1.4vw,2.6rem)] font-light leading-none text-signal tabular-nums">{f.value}</span>
-              <span className="mx-auto mt-2 block max-w-[22ch] text-[11px] leading-snug text-paper/50">{t(f.label)}</span>
-            </dd>
-          </div>
-        ))}
-      </dl>
     </div>
   )
 }

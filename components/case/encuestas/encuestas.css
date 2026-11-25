@@ -36,3 +36,7 @@ html[data-motion='reduced'] .enc-pop { animation: none; }
   .enc-fan-name { font-size: 22px; }
   .enc-fan-sub { font-size: 15px; letter-spacing: 0.04em; }
 }
+
+/* Bocetos en cuadrícula: el tablero se dibuja al ancho de la cuadrícula (sin el mínimo ni el desliz del kit) */
+.enc-wall figure { overflow: visible; }
+.enc-wall figure > div { min-width: 0; }

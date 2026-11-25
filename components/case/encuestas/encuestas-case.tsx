@@ -20,16 +20,16 @@ import { EncHero } from './enc-hero'
 import { EncCycleRing } from './enc-cycle-ring'
 import { EncPatternLayers } from './enc-pattern-layers'
 import { EncBuilderFan } from './enc-builder-fan'
-import { EncIterationSketch } from './enc-iteration-sketch'
+import { EncSketchGrid } from './enc-sketch-grid'
 import { EncSurfaces } from './enc-surfaces'
 import { EncOrbitChain } from './enc-orbit-chain'
-import { EncImpactTracks } from './enc-impact-tracks'
+import { EncImpact } from './enc-impact'
 import { SurveyDemo } from './demo'
 // Las animaciones compartidas del lenguaje de Objetivos (obj-fade, branch-pulse, dots-signal, ms-pulse, orb-*)
 import '../objetivos/objetivos.css'
 import './encuestas.css'
 
-type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto' | 'demo'
+type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'ia' | 'impacto' | 'demo'
 
 /** Cuánto se calma la red de fondo: en la portada se ve; en los capítulos, deja leer */
 const QUIET = { hero: 1, chapters: 1 }
@@ -40,7 +40,6 @@ const FIBER_TO: Record<ChapterKey, string> = {
   patrones: 'enc-patrones',
   idea: 'enc-idea',
   bocetos: 'enc-bocetos',
-  forma: 'enc-forma',
   ia: 'enc-ia',
   impacto: 'enc-impacto',
   demo: 'enc-demo',
@@ -51,14 +50,13 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'thread' },
   { id: 'bocetos', entry: 'warp' },
-  { id: 'forma', entry: 'thread' },
   { id: 'ia', entry: 'bloom' },
   { id: 'impacto', entry: 'warp' },
   { id: 'demo', entry: 'thread' },
 ]
 
 /** Cada capítulo: una frase de contexto y su gráfico (el detalle sale al tocar) */
-const withLead = (key: Exclude<ChapterKey, 'demo'>, Graphic: React.ComponentType) =>
+const withLead = (key: keyof typeof ENC.leads, Graphic: React.ComponentType) =>
   function ChapterBody() {
     const { t } = useLocale()
     return (
@@ -69,18 +67,32 @@ const withLead = (key: Exclude<ChapterKey, 'demo'>, Graphic: React.ComponentType
     )
   }
 
+/** 04 · Bocetos y forma: la cuadrícula de tableros y, debajo, el producto construido (un solo capítulo) */
+function EncSketchesAndForm() {
+  const { t } = useLocale()
+  return (
+    <div>
+      <CaseLead className="mb-10">{t(ENC.leads.bocetos)}</CaseLead>
+      <EncSketchGrid />
+      <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
+        <CaseLead>{t(ENC.leads.forma)}</CaseLead>
+        <EncSurfaces />
+      </div>
+    </div>
+  )
+}
+
 const CONTENT: Record<ChapterKey, React.ComponentType> = {
   puntos: withLead('puntos', EncCycleRing),
   patrones: withLead('patrones', EncPatternLayers),
   idea: withLead('idea', EncBuilderFan),
-  bocetos: withLead('bocetos', EncIterationSketch),
-  forma: withLead('forma', EncSurfaces),
+  bocetos: EncSketchesAndForm,
   ia: withLead('ia', EncOrbitChain),
-  impacto: withLead('impacto', EncImpactTracks),
+  impacto: withLead('impacto', EncImpact),
   demo: SurveyDemo,
 }
 
-/** Caso Encuestas: portada, índice fijo, los ocho capítulos unidos por fibras y el siguiente proyecto. */
+/** Caso Encuestas: portada, índice fijo, los siete capítulos unidos por fibras y el siguiente proyecto. */
 export function EncuestasCase({ next }: { next: Project }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
@@ -109,8 +121,7 @@ export function EncuestasCase({ next }: { next: Project }) {
       puntos: t(c.problem),
       patrones: t(c.research),
       idea: t(c.idea),
-      bocetos: t(c.sketches),
-      forma: t(c.form),
+      bocetos: t({ es: 'Bocetos y forma', en: 'Sketches and form' }),
       ia: t(c.ai),
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
@@ -132,9 +143,7 @@ export function EncuestasCase({ next }: { next: Project }) {
         <SectionFiber id="enc-idea" side="right">
         {/* Del nodo del constructor, a la izquierda, hasta «Bocetos» */}
         <SectionFiber id="enc-bocetos" side="left">
-        {/* De la cuarta iteración hacia la derecha, hasta «Forma» */}
-        <SectionFiber id="enc-forma" side="right">
-        {/* De «Resultados», la última superficie, hasta «IA en el proceso» */}
+        {/* De «Resultados», la última superficie del producto, hasta «IA en el proceso» */}
         <SectionFiber id="enc-ia" side="right">
         {/* Del centro del orbe de Orbit baja hasta «Impacto» */}
         <SectionFiber id="enc-impacto" side="down">
@@ -150,7 +159,6 @@ export function EncuestasCase({ next }: { next: Project }) {
             )
           })}
         </div>
-        </SectionFiber>
         </SectionFiber>
         </SectionFiber>
         </SectionFiber>
