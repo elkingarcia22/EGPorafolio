@@ -60,13 +60,13 @@ const METRICS: readonly ImpactMetric[] = [
   },
   {
     name: { es: 'ARR', en: 'ARR' },
-    what: { es: 'Empresas nuevas que compraron el módulo de Objetivos, en dólares de ingreso recurrente al año.', en: 'New companies that bought the Goals module, in annual recurring revenue (USD).' },
+    what: { es: 'Ingreso recurrente al año del módulo de Objetivos: lo que ya tenía y lo que suman las empresas nuevas que lo compran.', en: 'Annual recurring revenue of the Goals module: what it already had plus what new companies buying it add.' },
     moves: { es: 'Un módulo completo que se vende solo y se conecta con Desempeño: del ciclo con IA a los resultados y los accionables.', en: 'A complete module that sells on its own and connects with Performance: from the AI cycle to results and actions.' },
-    how: { es: 'Contratos nuevos con Objetivos en el CRM y su valor anual en USD.', en: 'New contracts with Goals in the CRM and their annual value in USD.' },
-    from: 'USD 0',
-    to: 'USD 120 k',
-    delta: '+$120 k',
-    unit: { es: 'en ventas nuevas del módulo al año', en: 'in new module sales per year' },
+    how: { es: 'ARR del módulo en el CRM: contratos vigentes más los nuevos con Objetivos, en USD al año.', en: 'Module ARR in the CRM: current contracts plus new ones with Goals, in USD per year.' },
+    from: 'USD 1,2 M',
+    to: 'USD 1,5 M',
+    delta: '+25 %',
+    unit: { es: 'ARR del módulo de Objetivos', en: 'Goals module ARR' },
   },
 ]
 
