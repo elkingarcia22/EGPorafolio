@@ -8,6 +8,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { PiecesBoard, ReportBoard } from './objetivos-sketches-more'
 import { useSwipe } from '@/components/case/kit/use-swipe'
+import { useNarrow } from '@/components/case/kit/use-narrow'
 
 type Writer = 'rrhh' | 'otros'
 
@@ -180,10 +181,16 @@ function SketchWall() {
   const [inView, setInView] = useState(false)
   /** Dónde va el ciclo: 0 = el muro entero; 1–4 = cada tablero */
   const [pos, setPos] = useState(0)
-  const overview = pos === 0
+  /** En el teléfono el muro entero no se lee: se va de tablero en tablero, sin la vista general */
+  const narrow = useNarrow()
+  const overview = pos === 0 && !narrow
+  /** Siguiente y anterior en el ciclo (en el teléfono, solo entre tableros) */
+  const nextPos = (p: number) => (narrow ? (p % BOARDS.length) + 1 : (p + 1) % (BOARDS.length + 1))
+  const prevPos = (p: number) => (narrow ? ((p - 2 + BOARDS.length) % BOARDS.length) + 1 : (p - 1 + BOARDS.length + 1) % (BOARDS.length + 1))
   /** El tablero en foco (en el muro, el último que se vio, para que la cámara salga de ahí) */
   const lastBoard = useRef(0)
   if (pos > 0) lastBoard.current = pos - 1
+  else if (narrow) lastBoard.current = 0
   const active = lastBoard.current
 
   useEffect(() => {
@@ -197,9 +204,9 @@ function SketchWall() {
   // El ciclo: muro → tablero 1 → … → tablero 4 → muro → …
   useEffect(() => {
     if (!inView || hover || reducedMotion) return
-    const id = window.setTimeout(() => setPos((p) => (p + 1) % (BOARDS.length + 1)), overview ? WALL_MS : BOARD_MS)
+    const id = window.setTimeout(() => setPos(nextPos), overview ? WALL_MS : BOARD_MS)
     return () => window.clearTimeout(id)
-  }, [inView, hover, reducedMotion, pos, overview])
+  }, [inView, hover, reducedMotion, pos, overview, narrow])
 
   // Mide el ancho de la vista y el tablero más alto: con eso se arma el muro.
   useEffect(() => {
@@ -261,8 +268,8 @@ function SketchWall() {
   const choose = (i: number) => setPos(i + 1)
   // En el teléfono también se pasa deslizando el dedo de lado.
   useSwipe(rootRef, {
-    onNext: () => setPos((p) => (p + 1) % (BOARDS.length + 1)),
-    onPrev: () => setPos((p) => (p - 1 + BOARDS.length + 1) % (BOARDS.length + 1)),
+    onNext: () => setPos(nextPos),
+    onPrev: () => setPos(prevPos),
   })
   /** Fibra de un tablero al siguiente, de borde a borde por el muro (en fila: costado a costado; al bajar: de abajo a arriba) */
   const link = (i: number) => {
@@ -344,6 +351,7 @@ function SketchWall() {
         <button
           type="button"
           onClick={() => setPos(0)}
+          hidden={narrow}
           aria-pressed={overview}
           className="mono-label rounded-full border border-white/12 px-3 py-1 text-paper/60 transition-colors hover:border-white/35 hover:text-paper aria-pressed:border-signal aria-pressed:text-paper"
         >

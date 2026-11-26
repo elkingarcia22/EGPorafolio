@@ -95,8 +95,8 @@ export function LogoSketches() {
                 <span className={`block aspect-square w-[74%] transition-transform duration-500 ease-expo ${isPicked ? 'scale-110' : 'group-hover:scale-105'}`}>
                   <Strokes paths={d.paths} accent={d.accent} viewBox="0 0 100 100" on={on} />
                 </span>
-                <span className={`mt-3 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors ${isPicked ? 'text-paper' : 'text-paper/50 group-hover:text-paper/80'}`}>0{i + 1} {t(d.name)}</span>
-                {isPicked && <span className="th-fade mt-1 text-center text-xs leading-snug text-paper/65">{t(d.note)}</span>}
+                <span className={`mt-3 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] transition-colors ${isPicked ? 'text-paper' : 'text-paper/50 group-hover:text-paper/80'}`}>0{i + 1} {t(d.name)}</span>
+                {isPicked && <span className="th-fade mt-1 text-center text-[13px] leading-snug text-paper/65 md:text-xs">{t(d.note)}</span>}
               </button>
             </li>
           )
@@ -104,12 +104,12 @@ export function LogoSketches() {
       </ol>
 
       {/* Lo que se queda, de izquierda a derecha, hasta el logo oficial */}
-      <div className="mx-auto mt-[clamp(3rem,2.5rem+2vw,4.5rem)] grid max-w-[980px] items-center gap-8 md:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,2fr)] md:gap-4">
+      <div className="mx-auto mt-[clamp(3rem,2.5rem+2vw,4.5rem)] grid max-w-[980px] grid-cols-3 items-center gap-x-3 gap-y-10 md:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,2fr)] md:gap-4">
         {KEEPS.map((k, i) => {
           const on = step > DIRECTIONS.length + i
           return (
             <div key={k.label.es} className="relative flex flex-col items-center">
-              <span className={`block h-14 w-28 transition-opacity duration-300 ${on ? 'opacity-100' : 'opacity-0'}`}>
+              <span className={`block h-12 w-full max-w-[96px] md:h-14 md:w-28 md:max-w-none transition-opacity duration-300 ${on ? 'opacity-100' : 'opacity-0'}`}>
                 {i === KEEPS.length - 1 ? (
                   <span className="grid h-full place-items-center">
                     <span className="grid h-14 w-14 place-items-center rounded-xl bg-[#2a2d33] ring-1 ring-white/10">
@@ -120,15 +120,15 @@ export function LogoSketches() {
                   <Strokes paths={k.paths} accent={k.accent} viewBox="0 0 100 50" on={on} />
                 )}
               </span>
-              <span className={`mt-3 text-center font-mono text-[10px] uppercase tracking-[0.14em] transition-opacity duration-500 ${on ? 'text-paper/60' : 'opacity-0'}`}>{t(k.label)}</span>
+              <span className={`mt-3 text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] transition-opacity duration-500 ${on ? 'text-paper/60' : 'opacity-0'}`}>{t(k.label)}</span>
               <span aria-hidden="true" className={`absolute -right-3 top-7 hidden text-paper/30 transition-opacity duration-500 md:block ${on ? 'opacity-100' : 'opacity-0'}`}>→</span>
             </div>
           )
         })}
-        <figure className={`relative flex flex-col items-center transition-[opacity,transform,filter] duration-1000 ease-expo ${logoOn ? 'scale-100 opacity-100 blur-0' : 'scale-95 opacity-0 blur-sm'}`}>
+        <figure className={`relative col-span-3 flex flex-col items-center md:col-span-1 transition-[opacity,transform,filter] duration-1000 ease-expo ${logoOn ? 'scale-100 opacity-100 blur-0' : 'scale-95 opacity-0 blur-sm'}`}>
           {/* eslint-disable-next-line @next/next/no-img-element -- SVG oficial del logo */}
           <img src="/cases/barberlytics/logo-official-paper.svg" alt="Barberlytics" width={1200} height={270} className="block h-auto w-full max-w-[360px] drop-shadow-[0_0_30px_rgba(222,140,58,0.35)]" />
-          <figcaption className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/60">{t({ es: 'El logo oficial', en: 'The official logo' })}</figcaption>
+          <figcaption className="mt-4 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-paper/60">{t({ es: 'El logo oficial', en: 'The official logo' })}</figcaption>
         </figure>
       </div>
     </div>

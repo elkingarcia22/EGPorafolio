@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { useNarrow } from '@/components/case/kit/use-narrow'
 
 /** Los cuatro principios que salieron de la pregunta: nombre corto y su porqué (este solo se lee al tocarlo). */
 const PRINCIPLES: readonly { title: L; body: L }[] = [
@@ -57,6 +58,8 @@ export function IdeaFork({ question }: { question: string }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
+  // En el teléfono las ramas bajan en vez de ir de lado (ver ForkPortrait).
+  const narrow = useNarrow()
   const [step, setStep] = useState(reducedMotion ? LAST : 0)
   const [inView, setInView] = useState(false)
   const [picked, setPicked] = useState<number | null>(null)
@@ -93,6 +96,9 @@ export function IdeaFork({ question }: { question: string }) {
         {caption.sub && <span className="mt-2 max-w-[52ch] text-balance text-sm leading-relaxed text-paper/55">{caption.sub}</span>}
       </figcaption>
 
+      {narrow ? (
+        <ForkPortrait step={step} done={done} picked={picked} onPick={toggle} />
+      ) : (
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-6 block h-auto max-h-[44vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Una pregunta, cuatro principios', en: 'One question, four principles' })}>
         <defs>
           <linearGradient id="fork-fiber" x1="0" y1="0" x2="1" y2="0">
@@ -188,6 +194,94 @@ export function IdeaFork({ question }: { question: string }) {
         </text>
         <circle cx={TO.x} cy={TO.y} r={1} fill="none" data-fiber-from="obj-bocetos" />
       </svg>
+      )}
     </figure>
+  )
+}
+
+/** El dibujo de pie para el teléfono, a su tamaño real (px) */
+const F = { w: 340, h: 430, from: { x: 170, y: 22 }, to: { x: 170, y: 404 } }
+/** Los cuatro principios en una cuadrícula de dos por dos */
+const F_AT = [
+  { x: 85, y: 140 },
+  { x: 255, y: 140 },
+  { x: 85, y: 268 },
+  { x: 255, y: 268 },
+]
+/** Fila de arriba de la cuadrícula */
+const isTop = (p: { y: number }) => p.y === F_AT[0].y
+/** Las ramas a la fila de abajo bajan por los bordes, para no cruzar los textos de arriba */
+const EDGE = { left: 4, right: F.w - 4 }
+const forkIn = (p: { x: number; y: number }) => {
+  if (isTop(p)) return `M${F.from.x} ${F.from.y} C${F.from.x} ${F.from.y + 60} ${p.x} ${p.y - 70} ${p.x} ${p.y}`
+  const e = p.x < F.from.x ? EDGE.left : EDGE.right
+  return `M${F.from.x} ${F.from.y} C${F.from.x} ${F.from.y + 50} ${e} ${F.from.y + 40} ${e} ${F.from.y + 140} S${p.x} ${p.y - 50} ${p.x} ${p.y}`
+}
+/** Las de arriba se recogen por el centro (entre los textos de abajo); las de abajo bajan directo */
+const forkOut = (p: { x: number; y: number }) => {
+  if (isTop(p)) return `M${p.x} ${p.y + 50} C${p.x} ${p.y + 80} ${F.to.x} ${p.y + 60} ${F.to.x} ${p.y + 120} L${F.to.x} ${F.to.y}`
+  return `M${p.x} ${p.y + 62} C${p.x} ${p.y + 110} ${F.to.x} ${F.to.y - 50} ${F.to.x} ${F.to.y}`
+}
+
+interface ForkPortraitProps {
+  step: number
+  done: boolean
+  picked: number | null
+  onPick: (i: number) => void
+}
+
+/**
+ * La idea en el teléfono: de la pregunta (arriba) bajan cuatro ramas a los
+ * principios, en dos por dos, y vuelven a juntarse abajo, «a su manera». De
+ * ahí sale la fibra hacia «Bocetos».
+ */
+function ForkPortrait({ step, done, picked, onPick }: ForkPortraitProps) {
+  const { t } = useLocale()
+  const pct = (v: number, total: number) => `${(v / total) * 100}%`
+  return (
+    <div className="relative mt-6 w-full max-w-[340px]">
+      <svg viewBox={`0 0 ${F.w} ${F.h}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
+        <defs>
+          <linearGradient id="fork-fiber-p" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="rgb(var(--signal))" />
+            <stop offset="0.5" stopColor="#ff54aa" />
+            <stop offset="1" stopColor="rgb(var(--signal))" />
+          </linearGradient>
+        </defs>
+        {F_AT.map((p, i) => (
+          <g key={`${p.x}-${p.y}`}>
+            <path d={forkIn(p)} fill="none" stroke="white" strokeOpacity={0.08} />
+            <path d={forkOut(p)} fill="none" stroke="white" strokeOpacity={0.08} />
+            <path d={forkIn(p)} pathLength={1} fill="none" stroke="url(#fork-fiber-p)" strokeWidth={picked === i ? 2.4 : 1.6} strokeLinecap="round" strokeDasharray="1" strokeDashoffset={step > i ? 0 : 1} style={{ transition: `stroke-dashoffset ${AUTO.step}ms cubic-bezier(.5,0,.3,1)`, filter: 'drop-shadow(0 0 4px rgb(var(--signal) / 0.55))' }} />
+            <path d={forkOut(p)} pathLength={1} fill="none" stroke="url(#fork-fiber-p)" strokeWidth={1.6} strokeLinecap="round" strokeDasharray="1" strokeDashoffset={done ? 0 : 1} style={{ transition: `stroke-dashoffset ${AUTO.step}ms cubic-bezier(.5,0,.3,1) ${i * 60}ms`, filter: 'drop-shadow(0 0 4px rgb(var(--signal) / 0.55))' }} />
+            <circle cx={p.x} cy={p.y} r={14} fill={picked === i ? '#ff54aa' : 'rgb(var(--signal))'} opacity={step > i ? (picked === i ? 0.3 : 0.14) : 0} style={{ transition: 'opacity .4s' }} />
+            <circle cx={p.x} cy={p.y} r={5} fill={step > i ? (picked === i ? 'white' : 'rgb(var(--signal))') : 'rgb(var(--void))'} stroke={step > i ? 'white' : 'rgb(255 255 255 / 0.45)'} strokeWidth={1.3} style={{ transition: 'fill .4s, stroke .4s' }} />
+          </g>
+        ))}
+        <circle cx={F.from.x} cy={F.from.y} r={8} fill="white" style={{ filter: 'drop-shadow(0 0 8px rgb(var(--signal)))' }} />
+        <circle cx={F.to.x} cy={F.to.y} r={18} fill="rgb(var(--signal))" opacity={done ? 0.18 : 0} style={{ transition: 'opacity .5s' }} />
+        <circle cx={F.to.x} cy={F.to.y} r={9} fill={done ? 'white' : 'rgb(var(--void))'} stroke="white" strokeOpacity={done ? 1 : 0.4} strokeWidth={1.4} style={{ transition: 'fill .5s', filter: done ? 'drop-shadow(0 0 8px rgb(var(--signal)))' : undefined }} />
+      </svg>
+
+      <span className="absolute -translate-y-1/2 font-mono text-[11px] uppercase tracking-[0.14em] text-paper/70" style={{ left: 'calc(50% + 18px)', top: pct(F.from.y, F.h) }}>
+        {t({ es: 'La pregunta', en: 'The question' })}
+      </span>
+      {F_AT.map((p, i) => (
+        <button
+          key={PRINCIPLES[i].title.es}
+          type="button"
+          onClick={() => onPick(i)}
+          aria-pressed={picked === i}
+          className={`absolute w-[44%] -translate-x-1/2 text-balance text-center text-[15px] leading-snug transition-opacity duration-300 ${picked === i ? 'opacity-100' : step > i ? 'opacity-90' : 'opacity-40'}`}
+          style={{ left: pct(p.x, F.w), top: `calc(${pct(p.y, F.h)} + 14px)` }}
+        >
+          {t(PRINCIPLES[i].title)}
+        </button>
+      ))}
+      <span className={`absolute -translate-y-1/2 font-mono text-[11px] uppercase tracking-[0.14em] transition-opacity ${done ? 'opacity-85' : 'opacity-35'}`} style={{ left: 'calc(50% + 22px)', top: pct(F.to.y, F.h) }}>
+        {t({ es: 'A su manera', en: 'Their own way' })}
+      </span>
+      <span data-fiber-from="obj-bocetos" aria-hidden="true" className="absolute h-px w-px" style={{ left: pct(F.to.x, F.w), top: pct(F.to.y, F.h) }} />
+    </div>
   )
 }

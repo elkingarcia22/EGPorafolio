@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { APPTS, SERVICE, STAGE, type Stage } from './calendar-model'
+import { useNarrow } from '../use-narrow'
+import { VisitColumn } from './visit-column'
 
 /** Las etapas por las que pasa una cita en la rejilla, en orden (la plataforma real) */
 const STAGES: readonly Stage[] = ['upcoming', 'waiting', 'seated', 'toCollect', 'paid']
@@ -49,6 +51,18 @@ export function VisitLine({ running, reducedMotion }: VisitLineProps) {
   const visit = VISITS[Math.floor(tick / lap) % VISITS.length]
   const stage = STAGES[at]
   const s = STAGE[stage]
+  const narrow = useNarrow('(max-width: 767px)')
+
+  if (narrow) {
+    return (
+      <div>
+        <VisitColumn stages={STAGES} at={at} visit={visit} />
+        <p className="mt-6 text-center font-mono text-[11px] leading-relaxed text-white/45">
+          {t({ es: 'Día de ejemplo · cada cita, de agendada a cobrada sin salir de la rejilla', en: 'Sample day · every visit, from booked to paid without leaving the grid' })}
+        </p>
+      </div>
+    )
+  }
 
   return (
     <figure className="relative mx-auto w-full max-w-[980px] pt-[68px]">

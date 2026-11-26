@@ -1,11 +1,12 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { ClipperOrb } from '../clipper-orb'
 import { AI, Caption, Lead, useAutoSteps, useInView } from './clp-kit'
+import { Spine, usePhone } from './clp-phone-kit'
 
 const PAINS = CLIPPER_CASE.pains
 const ROWS = PAINS[0].rows.length
@@ -83,6 +84,7 @@ export function ClipperPains() {
   const rootRef = useRef<HTMLDivElement>(null)
   const inView = useInView(rootRef)
   const [step] = useAutoSteps({ last: LAST, ms: msFor, run: inView, reducedMotion, loopAfter: 5200 })
+  const phone = usePhone()
   const collapsed = step === LAST
   const shownA = Math.min(ROWS, step)
   const shownB = Math.max(0, Math.min(ROWS, step - ROWS))
@@ -97,10 +99,110 @@ export function ClipperPains() {
     <div ref={rootRef}>
       <Caption {...caption} />
       <Lead>{t({ es: 'Lo que más se repetía al ver trabajar a recepción y a los dueños: agendar y preguntar.', en: 'What repeated most watching front desks and owners work: booking and asking.' })}</Lead>
-      <div className="mx-auto mt-12 grid max-w-[980px] gap-12 lg:grid-cols-2 lg:gap-16">
-        <Lane lane={0} shown={shownA} collapsed={collapsed} />
-        <Lane lane={1} shown={shownB} collapsed={collapsed} />
+      {phone ? (
+        <PainsColumn step={step} reducedMotion={reducedMotion} />
+      ) : (
+        <div className="mx-auto mt-12 grid max-w-[980px] gap-12 lg:grid-cols-2 lg:gap-16">
+          <Lane lane={0} shown={shownA} collapsed={collapsed} />
+          <Lane lane={1} shown={shownB} collapsed={collapsed} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Cada paso del camino se enciende tras el anterior (ms) */
+const WALK_MS = 150
+
+/**
+ * Patrones en el teléfono: un carril a la vez. Los pasos bajan en columna y
+ * se recorren enteros con cada cliente (o con cada pregunta), uno tras otro;
+ * al final, los dos carriles se vuelven una frase dicha a Clipper.
+ */
+function PainsColumn({ step, reducedMotion }: { step: number; reducedMotion: boolean }) {
+  const { t } = useLocale()
+  const collapsed = step === LAST
+  const lane = step > ROWS ? 1 : 0
+  const row = Math.max(0, Math.min(ROWS, lane === 0 ? step : step - ROWS) - 1)
+  const started = lane === 1 || step > 0
+  const pain = PAINS[lane]
+  const color = lane === 0 ? AI[1] : AI[2]
+
+  // Con cada fila, el camino se recorre de nuevo desde el primer paso.
+  const [walk, setWalk] = useState(reducedMotion ? pain.steps.length : 0)
+  useEffect(() => {
+    if (reducedMotion) {
+      setWalk(pain.steps.length)
+      return
+    }
+    if (!started) {
+      setWalk(0)
+      return
+    }
+    setWalk(0)
+    let k = 0
+    const id = window.setInterval(() => {
+      k += 1
+      setWalk(k)
+      if (k >= pain.steps.length) window.clearInterval(id)
+    }, WALK_MS)
+    return () => window.clearInterval(id)
+  }, [lane, row, started, reducedMotion, pain.steps.length])
+
+  return (
+    <div className="mx-auto mt-10 w-full max-w-[420px]">
+      {/* Los dos carriles: se ve uno a la vez */}
+      <div className="flex gap-2" aria-hidden="true">
+        {PAINS.map((p, i) => (
+          <span key={i} className={`grid flex-1 place-items-center rounded-xl border px-2 py-2 text-center font-mono text-[11px] uppercase leading-tight tracking-[0.08em] transition-colors duration-500 ${!collapsed && lane === i ? 'text-paper' : 'border-white/10 text-paper/40'}`} style={!collapsed && lane === i ? { borderColor: i === 0 ? AI[1] : AI[2] } : undefined}>
+            {t(p.who)}
+          </span>
+        ))}
       </div>
+
+      <div className="relative mt-6 min-h-[22rem]">
+        {collapsed ? (
+          <div className="clp-fade flex min-h-[22rem] flex-col justify-center gap-4">
+            {PAINS.map((p, i) => (
+              <span key={i} className="flex items-center gap-3 rounded-full border border-white/15 bg-white/[0.04] py-2 pl-2 pr-5">
+                <ClipperOrb size={36} state="listening" />
+                <span className="text-[16px] leading-snug">{t(p.said)}</span>
+              </span>
+            ))}
+            <p className="mt-2 text-center text-[14px] text-paper/55">{t({ es: 'Una frase en vez del camino entero.', en: 'One sentence instead of the whole path.' })}</p>
+          </div>
+        ) : (
+          <div key={lane} className="clp-fade">
+            <div className="flex items-baseline justify-between gap-3">
+              <span key={row} className="clp-fade text-[20px] font-light">{started ? rowLabel(pain.rows[row], t) : '…'}</span>
+              <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-paper/45">
+                {row + 1} {t({ es: 'de', en: 'of' })} {ROWS}
+              </span>
+            </div>
+            {/* Las veces que ya se recorrió: una marca por cada una */}
+            <div className="mt-2 flex gap-1.5" aria-hidden="true">
+              {pain.rows.map((_, i) => (
+                <span key={i} className="h-1 flex-1 rounded-full transition-colors duration-500" style={{ background: started && i <= row ? color : 'rgb(255 255 255 / 0.1)' }} />
+              ))}
+            </div>
+            <div className="mt-6">
+              <Spine
+                reducedMotion={reducedMotion}
+                gap="pb-2"
+                items={pain.steps.map((s, k) => ({
+                  id: `${k}`,
+                  color,
+                  lit: k < walk,
+                  hot: k === walk - 1,
+                  children: <span className={`block pt-2.5 text-[16px] transition-colors duration-300 ${k < walk ? 'text-paper/90' : 'text-paper/35'}`}>{t(s)}</span>,
+                }))}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+      {/* De aquí baja la fibra hacia «La idea» */}
+      <span data-fiber-from="clp-idea" className="mx-auto block h-px w-px" />
     </div>
   )
 }

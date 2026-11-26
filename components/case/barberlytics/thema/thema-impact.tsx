@@ -101,29 +101,29 @@ export function ThemaImpact() {
         {ROWS.map((row, i) => {
           return (
             <li key={row.title.es} className="border-white/[0.08] max-md:rounded-2xl max-md:border max-md:bg-white/[0.02] max-md:px-5 md:border-t md:first:border-t-0">
-              <div className="grid items-center gap-x-10 gap-y-5 py-8 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+              <div className="grid items-center gap-x-10 gap-y-6 py-7 md:gap-y-5 md:py-8 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                 {/* El número y qué es */}
-                <span className="flex items-start gap-4">
-                  <span className="min-w-[3.2ch] text-[clamp(2.6rem,1.8rem+2.6vw,4.2rem)] font-light leading-none tabular-nums">
+                <span className="flex flex-col items-start gap-3 md:flex-row md:gap-4">
+                  <span className="min-w-[3.2ch] text-[4rem] font-light leading-none tabular-nums md:text-[clamp(2.6rem,1.8rem+2.6vw,4.2rem)]">
                     {row.value}
                     <span className="text-[0.5em]">{row.unit}</span>
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-base leading-snug text-paper/85 ">{t(row.title)}</span>
-                    <span className="mt-2 max-w-[42ch] text-pretty text-sm leading-relaxed text-paper/55">{t(row.plain)}</span>
-                    {row.reference && <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-paper/35">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
+                    <span className="text-[17px] leading-snug text-paper/90 md:text-base md:text-paper/85">{t(row.title)}</span>
+                    <span className="mt-2 max-w-[42ch] text-pretty text-[14px] leading-relaxed text-paper/60 md:text-sm md:text-paper/55">{t(row.plain)}</span>
+                    {row.reference && <span className="mt-2 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/40 md:mt-1 md:text-[9px] md:tracking-[0.14em] md:text-paper/35">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
                   </span>
                 </span>
 
                 {/* Antes y ahora */}
-                <span className="flex flex-col gap-2.5">
+                <span className="flex flex-col gap-4 md:gap-2.5">
                   {row.bars.map((b, k) => (
-                    <span key={b.label.es} className="grid grid-cols-[minmax(0,6.5rem)_minmax(0,1fr)_auto] items-center gap-3 text-xs md:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_minmax(0,8rem)]">
+                    <span key={b.label.es} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 text-[13px] md:gap-y-0 md:text-xs md:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_minmax(0,8rem)]">
                       <span className={b.now ? 'text-paper/80' : 'text-paper/45'}>{t(b.label)}</span>
-                      <span className="relative flex h-6 items-center">
+                      <span className="relative order-last col-span-2 flex h-3 items-center md:order-none md:col-span-1 md:h-6">
                         <span
                           aria-hidden="true"
-                          className="absolute inset-y-1 left-0 rounded-full"
+                          className="absolute inset-y-0 left-0 rounded-full md:inset-y-1"
                           style={{
                             width: `${Math.max(b.size, 0) * 100}%`,
                             background: b.now ? `linear-gradient(90deg, ${GOLD}99, ${GOLD})` : 'rgba(239,233,221,0.22)',
@@ -136,7 +136,7 @@ export function ThemaImpact() {
                         {b.size === 0 && <span aria-hidden="true" className="absolute left-0 h-3 w-3 rounded-full border border-dashed" style={{ borderColor: GOLD }} />}
                       </span>
                       <span
-                        className={`font-mono text-[10px] uppercase tracking-[0.1em] transition-opacity duration-500 ${b.now ? 'text-paper' : 'text-paper/55'}`}
+                        className={`font-mono text-[12px] uppercase tracking-[0.06em] md:text-[10px] md:tracking-[0.1em] transition-opacity duration-500 ${b.now ? 'text-paper' : 'text-paper/55'}`}
                         style={{ opacity: drawn ? 1 : 0, transitionDelay: `${i * ROW_DELAY_MS + 500}ms` }}
                       >
                         {t(b.value)}
@@ -151,11 +151,11 @@ export function ThemaImpact() {
       </ol>
 
       {/* La calidad que respalda las piezas */}
-      <ul className="relative mx-auto mt-14 flex max-w-[860px] flex-wrap justify-center gap-x-8 gap-y-3 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/45">
+      <ul className="relative mx-auto mt-12 grid max-w-[860px] grid-cols-2 gap-x-6 gap-y-5 text-[13px] leading-snug text-paper/55 md:mt-14 md:flex md:flex-wrap md:justify-center md:gap-x-8 md:gap-y-3 md:font-mono md:text-[11px] md:uppercase md:tracking-[0.12em] md:text-paper/45">
         <span data-fiber-from="th-demo" aria-hidden="true" className="absolute -bottom-6 left-1/2 h-px w-px" />
         {impact.quality.map((q) => (
           <li key={q.label.es}>
-            <span className="text-paper/85 tabular-nums">{q.value}</span> {t(q.label)}
+            <span className="block text-[28px] font-light leading-none text-paper/90 tabular-nums md:inline md:text-[11px] md:text-paper/85">{q.value}</span> {t(q.label)}
           </li>
         ))}
       </ul>

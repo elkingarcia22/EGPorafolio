@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
+import { CoverTapPhone } from './phone/cover-tap-phone'
+import { usePhone } from './use-phone'
 
 interface TapNode {
   x: number
@@ -49,6 +51,9 @@ export function CoverTap({ running, reducedMotion }: CoverTapProps) {
   }, [running, reducedMotion, lit, last])
 
   const progress = lit / last
+  const phone = usePhone()
+
+  if (phone) return <CoverTapPhone nodes={NODES} lit={lit} hopMs={HOP_MS} reducedMotion={reducedMotion} />
 
   return (
     <figure className="mx-auto w-full max-w-[1000px]">

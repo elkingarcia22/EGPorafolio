@@ -5,6 +5,8 @@ import { useLocale } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
+import { ReturnPhone } from './phone/return-phone'
+import { usePhone } from './use-phone'
 
 /** Lienzo de la curva */
 const W = 900
@@ -38,6 +40,7 @@ export function ReturnCurve() {
   const drawn = Math.max(0, step - 1) / (values.length - 1)
   const lastV = values[values.length - 1]
 
+  const phone = usePhone()
   const kpi = picked !== null ? impact.kpis[picked] : null
   const caption = kpi
     ? { tag: t(kpi.label), title: `${fmt(kpi.before, kpi.unit, 'beforeLabel' in kpi && kpi.beforeLabel ? t(kpi.beforeLabel) : undefined)} → ${fmt(kpi.after, kpi.unit)}`, sub: t(kpi.delta) }
@@ -47,6 +50,9 @@ export function ReturnCurve() {
     <div ref={ref} className="flex flex-col items-center">
       <BookingLede tag={caption.tag} title={caption.title} sub={caption.sub} swapKey={picked ?? 'all'} />
 
+      {phone ? (
+        <ReturnPhone months={months} values={values} launch={launch} launchLabel={impact.retention.launchLabel} step={step} stepMs={AUTO.step} done={done} />
+      ) : (
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-8 block h-auto max-h-[40vh] w-full max-w-[900px] overflow-visible" role="img" aria-label={`${t(impact.retention.title)}: ${values.join(', ')} %`}>
         <defs>
           <linearGradient id="bk-area" x1="0" x2="0" y1="0" y2="1">
@@ -74,6 +80,7 @@ export function ReturnCurve() {
         <text x={x(0)} y={y(values[0]) - 14} textAnchor="middle" className="bk-t-row fill-current opacity-55">{values[0]} %</text>
         <text x={x(values.length - 1)} y={y(lastV) - 18} textAnchor="middle" className="bk-t-big fill-current" fontWeight={300} style={{ opacity: done ? 1 : 0, transition: 'opacity .5s' }}>{lastV} %</text>
       </svg>
+      )}
 
       {/* Las cuatro cifras: el cambio a la vista; el antes y el ahora, al tocarlas */}
       <ol className="mt-12 grid w-full max-w-[900px] grid-cols-2 gap-y-8 md:grid-cols-4">

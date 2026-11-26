@@ -191,7 +191,7 @@ export function BarberSelect() {
       <ul className="mt-2 space-y-0.5 rounded-xl border border-[#efe9dd]/10 bg-black/30 p-1">
         {BARBERS.map(([initials, name], i) => (
           <li key={name} className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs transition-colors duration-300 ${i === hover ? 'bg-[#d9b36a]/15' : ''}`}>
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2e9cb0]/30 text-[10px]">{initials}</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2e9cb0]/30 text-[11px] md:text-[10px]">{initials}</span>
             {name}
             {i === hover && <span className="ml-auto" style={{ color: GOLD }}>✓</span>}
           </li>
@@ -267,7 +267,7 @@ export function AppointmentCard() {
           <p className="text-sm font-medium">Marcela Rojas</p>
           <p className="text-[11px] text-[#efe9dd]/55">Corte y barba · 45 min</p>
         </div>
-        <span className="rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors duration-500" style={{ background: `${status.color}26`, color: status.color }}>{status.label}</span>
+        <span className="rounded-full px-2 py-0.5 text-[11px] md:text-[10px] font-medium transition-colors duration-500" style={{ background: `${status.color}26`, color: status.color }}>{status.label}</span>
       </div>
       <div className="mt-4 flex items-center justify-between border-t border-[#efe9dd]/10 pt-3 text-xs">
         <span className="text-[#efe9dd]/60">Jue 19 · 5:00 p. m.</span>

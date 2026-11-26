@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import { useAutoSteps } from './use-auto-steps'
+import { useNarrow } from '../use-narrow'
 
 const GOLD = '#d9b36a'
 const PAIN = '#ff6b72'
@@ -66,6 +67,33 @@ export function ImpactFigures() {
   const rootRef = useRef<HTMLDivElement>(null)
   // 0 nada · 1 antes · 2 ahora
   const step = useAutoSteps(rootRef, 2, 1100, 300)
+  const narrow = useNarrow('(max-width: 767px)')
+
+  if (narrow) {
+    return (
+      <div ref={rootRef} className="mx-auto max-w-[420px]">
+        {/* En teléfono, una cifra por renglón sobre una fibra que baja: el número grande, su dibujo al lado */}
+        <ol className="relative">
+          <span aria-hidden="true" className="absolute bottom-6 left-[6px] top-6 w-px origin-top bg-gradient-to-b from-[#d9b36a]/70 via-white/20 to-[#4cc98d]/60 transition-transform duration-[1600ms] ease-[cubic-bezier(.65,0,.35,1)]" style={{ transform: `scaleY(${step >= 1 ? 1 : 0})` }} />
+          {FIGURES.map((f, i) => (
+            <li
+              key={f.id}
+              className={`relative grid grid-cols-[14px_minmax(0,1fr)_88px] items-center gap-x-5 border-b border-white/[0.06] py-6 last:border-b-0 transition-[opacity,transform] duration-700 ease-expo ${step >= 1 ? 'opacity-100' : 'translate-y-3 opacity-0'}`}
+              style={{ transitionDelay: `${i * 120}ms` }}
+            >
+              <span aria-hidden="true" className="relative h-3.5 w-3.5 rounded-full border transition-all duration-700" style={{ borderColor: step >= 2 ? GOLD : 'rgba(255,255,255,0.35)', background: step >= 2 ? '#fffaf0' : 'rgb(var(--void))', boxShadow: step >= 2 ? '0 0 14px 3px rgba(217,179,106,0.55)' : undefined, transitionDelay: `${300 + i * 120}ms` }} />
+              <span className="flex flex-col">
+                <span className="text-[44px] font-light leading-none tabular-nums" style={{ color: step >= 2 ? undefined : 'rgba(255,255,255,0.3)', transition: 'color 700ms' }}>{f.value}</span>
+                <span className="mt-2 text-[14px] leading-snug text-paper/70">{t(f.label)}</span>
+              </span>
+              <svg viewBox="0 0 80 40" className="w-full" aria-hidden="true"><Mini id={f.id} now={step >= 2} /></svg>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-4 text-center font-mono text-[11px] text-paper/35">{t({ es: 'Cifras de referencia del caso', en: 'Reference figures for the case' })}</p>
+      </div>
+    )
+  }
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[1040px]">
@@ -136,11 +164,11 @@ export function CalendarMetrics() {
   return (
     <div ref={rootRef} className="mx-auto mt-[clamp(4rem,3rem+3vw,6rem)] max-w-[1040px]">
       <p className="mono-label mb-10 text-center text-signal">{t({ es: 'Y todo lo que el calendario mide', en: 'And everything the calendar measures' })}</p>
-      <ol className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4">
+      <ol className="grid grid-cols-2 gap-x-6 gap-y-10 max-md:gap-3 sm:grid-cols-4">
         {METRICS.map((m, i) => {
           const on = i < shown
           return (
-            <li key={m.name.es} className={`relative flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo ${on ? 'opacity-100' : 'translate-y-3 opacity-0'}`}>
+            <li key={m.name.es} className={`relative flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo max-md:rounded-2xl max-md:border max-md:border-white/[0.07] max-md:bg-white/[0.025] max-md:px-3 max-md:py-5 ${on ? 'opacity-100' : 'translate-y-3 opacity-0'}`}>
               <svg viewBox="0 0 60 44" className="w-20" aria-hidden="true"><Glyph kind={m.glyph} on={on} /></svg>
               <span className="mt-3 max-w-[16ch] text-balance text-[15px] leading-snug text-paper/85">{t(m.name)}</span>
               {i === METRICS.length - 1 && <span data-fiber-from="pl-demo" className="absolute -bottom-6 left-1/2 h-px w-px" />}

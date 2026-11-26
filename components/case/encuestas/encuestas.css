@@ -19,7 +19,7 @@ html[data-motion='reduced'] .enc-fade, html[data-motion='reduced'] .enc-pulse, h
 html[data-motion='reduced'] .enc-pop { animation: none; }
 @keyframes enc-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-/* Textos de los gráficos SVG del caso: en teléfono el SVG se encoge, así que las letras crecen para seguir legibles */
+/* Textos de los gráficos SVG del caso (escritorio; el teléfono tiene composiciones propias en HTML) */
 .enc-ring-label { font-size: 13px; }
 .enc-ring-sub { font-size: 12px; }
 .enc-layer-label { font-size: 18px; }
@@ -27,18 +27,14 @@ html[data-motion='reduced'] .enc-pop { animation: none; }
 .enc-layer-insight { font-size: 20px; }
 .enc-fan-name { font-size: 15px; }
 .enc-fan-sub { font-size: 10px; }
-@media (max-width: 640px) {
-  .enc-ring-label { font-size: 22px; letter-spacing: 0.04em; }
-  .enc-ring-sub { font-size: 18px; }
-  .enc-layer-label { font-size: 26px; }
-  .enc-layer-sub { font-size: 16px; }
-  .enc-layer-insight { font-size: 24px; }
-  .enc-fan-name { font-size: 22px; }
-  .enc-fan-sub { font-size: 15px; letter-spacing: 0.04em; }
-}
 
 /* Bocetos en hojas apiladas: cada hoja es un tablero del kit, al ancho de la pila (sin título, mínimo ni desliz) */
 .enc-sheets figure { overflow: visible; }
 .enc-sheets figure > p,
 .enc-sheets figure > div > p { display: none; }
 .enc-sheets figure > div { min-width: 0; }
+
+/* Teléfono · la señal baja por la rama de la portada (se detiene a mitad si el grupo es reservado) */
+@keyframes enc-drop { from { top: -2.5rem; opacity: 0; } 15% { opacity: 1; } to { top: calc(var(--enc-drop-to, 100%) - 1.25rem); opacity: 1; } }
+/* Teléfono · la columna grande de Impacto sube del punto de partida a la meta */
+@keyframes enc-rise { from { transform: scaleY(var(--enc-from)); } to { transform: scaleY(var(--enc-to)); } }

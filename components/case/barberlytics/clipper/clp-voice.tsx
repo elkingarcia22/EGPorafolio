@@ -237,7 +237,7 @@ export function ClipperVoice() {
               <header className="relative flex items-center gap-2 px-3 py-2.5">
                 <ClipperOrb size={22} state={phase === 'think' ? 'thinking' : phase === 'rest' ? 'idle' : 'listening'} />
                 <span className="font-medium">Clipper</span>
-                <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-2.5 py-0.5 text-[10px] text-white/70">
+                <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-2.5 py-0.5 text-[11px] text-white/70 sm:text-[10px]">
                   <span className={`h-1.5 w-1.5 rounded-full ${phase !== 'rest' ? 'animate-pulse bg-[#e5484d]' : 'bg-white/40'}`} />
                   {phase !== 'rest' ? t({ es: 'Modo voz activo', en: 'Voice mode on' }) : t({ es: 'En pausa', en: 'Paused' })}
                 </span>
@@ -280,7 +280,7 @@ export function ClipperVoice() {
               <ClipperOrb size={48} state={talking ? 'listening' : 'idle'} />
               <span className="text-left">
                 <span className="block text-[17px] font-light">{talking ? t({ es: 'Detener', en: 'Stop' }) : t({ es: 'Escuchar a Clipper', en: 'Hear Clipper' })}</span>
-                <span className="block font-mono text-[10px] uppercase tracking-[0.12em] text-paper/50">{t({ es: 'Activa el sonido', en: 'Turn sound on' })}</span>
+                <span className="block font-mono text-[11px] uppercase tracking-[0.12em] text-paper/50 sm:text-[10px]">{t({ es: 'Activa el sonido', en: 'Turn sound on' })}</span>
               </span>
             </span>
             <span data-fiber-from="clp-ia" className="absolute left-1/2 top-full h-px w-px" />
@@ -300,7 +300,7 @@ export function ClipperVoice() {
                 type="button"
                 aria-pressed={note === i}
                 onClick={() => setNote(note === i ? null : i)}
-                className={`rounded-full border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] transition-colors ${note === i ? 'border-[#f0ce86] text-[#f0ce86]' : 'border-white/15 text-paper/55 hover:border-white/40 hover:text-paper'}`}
+                className={`rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase sm:text-[10px] tracking-[0.1em] transition-colors ${note === i ? 'border-[#f0ce86] text-[#f0ce86]' : 'border-white/15 text-paper/55 hover:border-white/40 hover:text-paper'}`}
               >
                 {t(n.k)}
               </button>

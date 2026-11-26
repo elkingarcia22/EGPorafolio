@@ -5,6 +5,8 @@ import { useLocale, type L } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
+import { RhythmPhone } from './phone/rhythm-phone'
+import { usePhone } from './use-phone'
 
 /** Lienzo: doce semanas de izquierda a derecha y tres filas, una por hallazgo */
 const W = 900
@@ -51,11 +53,15 @@ export function RhythmScene() {
       : { tag: t({ es: 'Lo que vi', en: 'What I saw' }), title: t(dots.kicker), sub: t({ es: 'La reserva no habla con la barbería: habla con su cliente. Y ese cliente quiere lo de siempre, o la primera hora libre.', en: 'Booking doesn’t talk to the shop: it talks to its client. And that client wants the usual, or the first free slot.' }) }
 
   const toggle = (i: number) => setPicked((p) => (p === i ? null : i))
+  const phone = usePhone()
 
   return (
     <div ref={ref} className="flex flex-col items-center">
       <BookingLede tag={caption.tag} title={caption.title} sub={caption.sub} swapKey={picked ?? 'all'} />
 
+      {phone ? (
+        <RhythmPhone rows={ROWS} visits={VISITS} visitsOn={visitsOn} newOn={newOn} remindersOn={remindersOn} stepMs={AUTO.step} picked={picked} onPick={toggle} />
+      ) : (
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-8 block h-auto max-h-[46vh] w-full max-w-[900px] overflow-visible" role="group" aria-label={t({ es: 'Doce semanas de una barbería', en: 'Twelve weeks at a barbershop' })}>
         {/* Las semanas: marcas tenues */}
         {Array.from({ length: WEEKS }, (_, w) => (
@@ -133,6 +139,7 @@ export function RhythmScene() {
         {/* De aquí, el final del ritmo, sale la fibra hacia «Patrones» */}
         <circle cx={X1} cy={ROW_Y[2]} r={1} fill="none" data-fiber-from="bk-patrones" />
       </svg>
+      )}
 
       {/* Ya armado: las cifras del punto de partida */}
       <dl className={`mt-10 grid w-full max-w-[760px] grid-cols-2 gap-6 transition-all duration-700 ease-expo sm:grid-cols-4 ${done ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>

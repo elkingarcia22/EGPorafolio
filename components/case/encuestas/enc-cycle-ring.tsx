@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
+import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
+import { CyclePhone } from './phone/cycle-phone'
 
 const STATIONS = ENCUESTAS_CASE.dots.stations
 /** Los momentos que no existían: sin importación y sin experiencia para responder */
@@ -42,6 +44,7 @@ export function EncCycleRing() {
   const [step, setStep] = useState(reducedMotion ? LAST : 0)
   const [inView, setInView] = useState(false)
   const [picked, setPicked] = useState<number | null>(null)
+  const wide = useMedia(TABLET_QUERY)
   const closed = step === LAST
   const current = step >= 1 && step <= STATIONS.length ? step - 1 : null
   const onRing = (i: number) => closed || !MISSING.has(STATIONS[i].id) || (current !== null && i <= current)
@@ -65,6 +68,26 @@ export function EncCycleRing() {
 
   const focus = picked ?? current
   const st = focus !== null ? STATIONS[focus] : null
+
+  if (!wide) {
+    return (
+      <div ref={rootRef}>
+        <CyclePhone
+          stations={STATIONS}
+          onRing={STATIONS.map((_, i) => onRing(i))}
+          current={current}
+          picked={picked}
+          onPick={(i) => setPicked(picked === i ? null : i)}
+          closed={closed}
+          headline={{
+            label: closed ? t({ es: 'Rediseño', en: 'Redesign' }) : step === 0 ? t({ es: 'Antes', en: 'Before' }) : t(STATIONS[current ?? 0].name),
+            text: closed ? t({ es: 'Un ciclo cerrado, de crear a actuar.', en: 'A closed cycle, from creating to acting.' }) : t({ es: 'Dos momentos ni siquiera existían.', en: 'Two moments didn’t even exist.' }),
+          }}
+          countLabel={step === 0 ? t({ es: 'existían antes', en: 'existed before' }) : t({ es: 'en el rediseño', en: 'in the redesign' })}
+        />
+      </div>
+    )
+  }
 
   return (
     <div ref={rootRef} className="relative mt-6">

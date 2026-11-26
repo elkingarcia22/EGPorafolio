@@ -60,7 +60,7 @@ export function ThemeShowcase({ auto = false, tilt, sizes = '(min-width: 1024px)
             <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-            <span className="ml-3 flex h-5 flex-1 items-center rounded-md bg-white/[0.06] px-2 font-mono text-[10px] text-white/45">barberlytics.vercel.app/docs</span>
+            <span className="ml-3 flex h-5 flex-1 items-center rounded-md bg-white/[0.06] px-2 font-mono text-[11px] md:text-[10px] text-white/45">barberlytics.vercel.app/docs</span>
           </div>
           <div className="relative aspect-[1400/817]">
             {themes.map((theme, i) => (

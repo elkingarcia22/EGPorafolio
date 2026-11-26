@@ -6,6 +6,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { ClipperOrb } from '../clipper-orb'
 import { AI, Caption, Lead, useAutoSteps, useInView } from './clp-kit'
+import { Spine, usePhone } from './clp-phone-kit'
 
 const STACK = CLIPPER_CASE.stack
 const EVALS = CLIPPER_CASE.build.evals
@@ -31,11 +32,12 @@ export function ClipperStack() {
   const inView = useInView(rootRef)
   const [step] = useAutoSteps({ last: LAST, ms: () => STEP_MS, run: inView, reducedMotion, loopAfter: LOOP_MS })
   const [picked, setPicked] = useState<number | null>(null)
+  const phone = usePhone()
   const active = step >= 1 && step <= STACK.length ? step - 1 : null
   const focus = picked ?? active
 
   const caption =
-    focus !== null
+    focus !== null && !phone
       ? { id: `s${focus}`, tag: `${t(STACK[focus].name)} · ${tech(STACK[focus].tech, t)}`, title: t(STACK[focus].body) }
       : { id: 'all', tag: t({ es: 'Cómo está construido', en: 'How it’s built' }), title: t({ es: 'Un modelo de IA conectado a los datos de la barbería, con frenos de por medio.', en: 'An AI model wired to the shop’s data, with brakes in between.' }) }
 
@@ -44,6 +46,41 @@ export function ClipperStack() {
       <Caption {...caption} />
       <Lead>{t({ es: 'El modelo no ve la base de datos: solo puede pedir lo que sus herramientas le dejan, según el rol.', en: 'The model doesn’t see the database: it can only ask for what its tools allow, by role.' })}</Lead>
 
+      {phone ? (
+        <div className="mx-auto mt-10 w-full max-w-[420px]">
+          <Spine
+            reducedMotion={reducedMotion}
+            pulseAt={active !== null && active > 0 ? active - 1 : null}
+            gap="pb-5"
+            items={STACK.map((s, i) => {
+              const lit = active !== null && i <= active
+              const hot = focus === i
+              const color = colorAt(i)
+              return {
+                id: s.id,
+                color,
+                lit,
+                hot,
+                onPick: () => setPicked(picked === i ? null : i),
+                node:
+                  i === MODEL ? (
+                    <span className="relative grid h-full w-full place-items-center">
+                      <ClipperOrb size={48} state={active === i ? 'thinking' : 'idle'} />
+                    </span>
+                  ) : undefined,
+                children: (
+                  <span className="relative block">
+                    <span className={`block text-[17px] leading-tight transition-colors ${hot ? 'text-paper' : lit ? 'text-paper/85' : 'text-paper/45'}`}>{t(s.name)}</span>
+                    <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.08em]" style={{ color: lit ? color : 'rgb(var(--paper) / 0.35)' }}>{tech(s.tech, t)}</span>
+                    {hot && <span className="clp-fade mt-2 block text-[14px] leading-relaxed text-paper/60">{t(s.body)}</span>}
+                    {i === STACK.length - 1 && <span data-fiber-from="clp-impacto" className="pointer-events-none absolute -left-10 top-5 h-px w-px" />}
+                  </span>
+                ),
+              }
+            })}
+          />
+        </div>
+      ) : (
       <ol className="mx-auto mt-12 flex max-w-[1040px] flex-col items-center lg:flex-row lg:items-start">
         {STACK.map((s, i) => {
           const lit = active !== null && i <= active
@@ -88,6 +125,7 @@ export function ClipperStack() {
           )
         })}
       </ol>
+      )}
 
       {/* Y de vuelta: lo que se aprende de cada respuesta */}
       <div className="mx-auto mt-14 flex max-w-[760px] flex-col items-center gap-3 text-center sm:flex-row sm:justify-center sm:gap-6">
@@ -97,7 +135,7 @@ export function ClipperStack() {
           {EVALS.total} {t({ es: 'preguntas reales en 3 idiomas', en: 'real questions in 3 languages' })} · {t({ es: 'meta 90 %', en: '90% target' })}
         </span>
       </div>
-      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/40">
+      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/40 max-md:hidden">
         {CLIPPER_CASE.tools.map((x) => <span key={x}>{x}</span>)}
       </p>
     </div>

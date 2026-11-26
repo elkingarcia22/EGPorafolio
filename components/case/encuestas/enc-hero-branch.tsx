@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { AREAS, ROWS, ROW1_HINTS } from '@/lib/content/cases/encuestas/heatmap-real'
 import { favColor } from './shared'
+import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
+import { HeroBranchPhone } from './phone/hero-branch-phone'
 
 /** Cada cuánto pasa al área siguiente (ms) */
 const STEP_MS = 3000
@@ -37,6 +39,7 @@ interface EncHeroBranchProps {
 export function EncHeroBranch({ running, reducedMotion }: EncHeroBranchProps) {
   const { t } = useLocale()
   const [step, setStep] = useState(0)
+  const wide = useMedia(TABLET_QUERY)
 
   useEffect(() => {
     if (!running || reducedMotion) return
@@ -50,6 +53,22 @@ export function EncHeroBranch({ running, reducedMotion }: EncHeroBranchProps) {
   const reserved = cell === 'R'
   const score = typeof cell === 'number' ? cell : 0
   const fills = [hint.responses / hint.people, reserved ? 0 : score / 5, reserved ? 0 : 1]
+
+  if (!wide) {
+    const ring = 'rgb(var(--signal))'
+    return (
+      <HeroBranchPhone
+        pulseKey={step}
+        stopsHalfway={reserved}
+        reducedMotion={reducedMotion}
+        stages={[
+          { value: String(hint.responses), name: AREAS[area], role: t({ es: `de ${hint.people} responden`, en: `of ${hint.people} answer` }), fill: fills[0], color: ring, dim: false },
+          { value: reserved ? null : score.toFixed(1).replace('.', ','), name: t({ es: 'Favorabilidad', en: 'Favorability' }), role: reserved ? t({ es: 'Bajo el mínimo', en: 'Below minimum' }) : t({ es: 'De 1 a 5', en: '1 to 5' }), fill: fills[1], color: ring, dim: reserved },
+          { value: '', name: hint.band, role: t({ es: 'Lectura', en: 'Reading' }), fill: fills[2], color: reserved ? ring : favColor(score), dim: reserved },
+        ]}
+      />
+    )
+  }
 
   return (
     <figure className="mx-auto w-full max-w-[980px]">

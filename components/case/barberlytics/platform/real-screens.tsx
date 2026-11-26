@@ -6,6 +6,8 @@ import { useLocale, type L } from '@/lib/i18n'
 import { BrowserMockup, PanelMockup, type Callout } from '@/components/case/kit/device'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import type { CaseImage } from '@/lib/content/cases/barberlytics/types'
+import { useNarrow } from '../use-narrow'
+import { ScreenPan } from './screen-pan'
 
 interface Piece {
   id: string
@@ -27,6 +29,7 @@ export function RealScreens() {
   const { t } = useLocale()
   const [open, setOpen] = useState<number | null>(0)
   const piece = open === null ? null : PIECES[open]
+  const narrow = useNarrow('(max-width: 767px)')
 
   return (
     <div className="mx-auto max-w-[1000px]">
@@ -56,7 +59,9 @@ export function RealScreens() {
 
         {piece && (
           <div key={piece.id} className="pl-fade mt-14">
-            {piece.tall ? (
+            {narrow ? (
+              <ScreenPan image={piece.image} callouts={piece.callouts} name={t(piece.name)} />
+            ) : piece.tall ? (
               <PanelMockup image={piece.image} callouts={piece.callouts} />
             ) : (
               <BrowserMockup image={piece.image} callouts={piece.callouts} />

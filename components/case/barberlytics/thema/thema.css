@@ -22,16 +22,6 @@
 .th-marquee { animation: th-marquee 60s linear infinite; }
 .th-marquee:hover { animation-play-state: paused; }
 
-/* Textos de la cinta de la portada: en teléfono el SVG se encoge, así que las letras crecen */
-.ribbon-name { font-size: 17px; }
-.ribbon-role { font-size: 11px; }
-.ribbon-button { font-size: 14px; }
-@media (max-width: 640px) {
-  .ribbon-name { font-size: 28px; }
-  .ribbon-role { font-size: 19px; letter-spacing: 0.06em; }
-  .ribbon-button { font-size: 18px; }
-}
-
 html[data-motion='reduced'] .th-fade, html[data-motion='reduced'] .th-draw, html[data-motion='reduced'] .th-strike, html[data-motion='reduced'] .th-marquee { animation: none; }
 html[data-motion='reduced'] .th-pulse { animation: none; opacity: 0; }
 

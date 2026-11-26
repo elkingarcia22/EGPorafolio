@@ -5,6 +5,8 @@ import { useLocale, type L } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
+import { IdeaPhone } from './phone/idea-phone'
+import { usePhone } from './use-phone'
 
 /** Lienzo del concepto */
 const W = 900
@@ -65,6 +67,7 @@ export function IdeaConcept() {
   const draw = (on: boolean) => ({ pathLength: 1, strokeDasharray: '1', strokeDashoffset: on ? 0 : 1, style: { transition: 'stroke-dashoffset .6s cubic-bezier(.5,0,.3,1)' } })
   const show = (on: boolean, delay = 0) => ({ style: { opacity: on ? 1 : 0, transition: `opacity .5s ${delay}ms` } })
 
+  const phone = usePhone()
   const caption =
     picked !== null
       ? { tag: `${t({ es: 'Principio', en: 'Principle' })} 0${picked + 1}`, title: t(idea.principles[picked].title), sub: t(idea.principles[picked].body) }
@@ -74,6 +77,9 @@ export function IdeaConcept() {
     <div ref={ref} className="flex flex-col items-center">
       <BookingLede tag={caption.tag} title={caption.title} sub={caption.sub} swapKey={picked ?? 'q'} />
 
+      {phone ? (
+        <IdeaPhone step={step} done={done} reducedMotion={reducedMotion} picked={picked} onPick={(i) => setPicked((p) => (p === i ? null : i))} labels={LABELS} marksAt={MARKS.map((m) => m.at)} principles={idea.principles} />
+      ) : (
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-10 block h-auto w-full max-w-[900px] overflow-visible" role="group" aria-label={t({ es: 'La idea: una pregunta, dos caminos, un motor', en: 'The idea: one question, two paths, one engine' })}>
         {/* Del celular a la pregunta */}
         <line x1={NODE.phone} y1={MID} x2={NODE.ask} y2={MID} stroke="white" strokeOpacity={0.35} strokeWidth={1.4} {...draw(step >= 1)} />
@@ -145,6 +151,7 @@ export function IdeaConcept() {
           )
         })}
       </svg>
+      )}
     </div>
   )
 }

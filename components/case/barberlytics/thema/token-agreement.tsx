@@ -6,6 +6,9 @@ import { useLocale, type L } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
 import { useInView } from './use-in-view'
 import { ChapterHead } from './chapter-head'
+import { useAutoplay } from '@/components/case/objetivos/use-autoplay'
+import { useNarrow } from './use-narrow'
+import { StepNodes } from './step-nodes'
 
 /** Filas reales de docs/TOKEN_DECISION_MATRIX.md: lo que decía cada fuente y lo que se decidió. */
 const SOURCES = ['Starter', 'Comparativo', 'Legado', 'Oficial'] as const
@@ -75,6 +78,16 @@ export function TokenAgreement() {
   }, [entered, reducedMotion, resolved, done])
 
   const row = picked === null ? null : ROWS[picked]
+  const narrow = useNarrow()
+
+  if (narrow)
+    return (
+      <div ref={rootRef}>
+        <ChapterHead phrase={t(chapters.patrones.phrase)} lead={t(chapters.patrones.lead)} />
+        <TokenStepper />
+        <FiberNode />
+      </div>
+    )
 
   return (
     <div ref={rootRef}>
@@ -137,13 +150,99 @@ export function TokenAgreement() {
           )}
         </div>
 
-        {/* De aquí, por debajo de la matriz, sale la fibra hacia «La idea» */}
-        <div className="mt-6 flex justify-center">
-          <span aria-hidden="true" className="relative h-2.5 w-2.5 rounded-full border border-white/60 bg-signal shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
-            <span data-fiber-from="th-idea" className="absolute left-1/2 top-1/2 h-px w-px" />
+        <FiberNode />
+      </div>
+    </div>
+  )
+}
+
+/** Por debajo de la matriz sale la fibra hacia «La idea» */
+function FiberNode() {
+  return (
+    <div className="mt-6 flex justify-center">
+      <span aria-hidden="true" className="relative h-2.5 w-2.5 rounded-full border border-white/60 bg-signal shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
+        <span data-fiber-from="th-idea" className="absolute left-1/2 top-1/2 h-px w-px" />
+      </span>
+    </div>
+  )
+}
+
+/** Cada token se queda a la vista este tiempo en el teléfono (ms) */
+const TOKEN_MS = 3400
+/** Tras llegar a un token, las fuentes se resuelven a este tiempo (ms) */
+const SETTLE_MS = 700
+
+/**
+ * Patrones en el teléfono: un token a la vez. Arriba, lo que decía cada una de
+ * las cuatro fuentes (con su valor); al resolverse, las que coinciden se marcan
+ * en dorado y la fibra baja hasta la decisión, con su motivo. Pasa solo o
+ * deslizando de lado; los nodos de abajo llevan a cualquier token.
+ */
+function TokenStepper() {
+  const { t } = useLocale()
+  const { reducedMotion } = useA11y()
+  const ref = useRef<HTMLDivElement>(null)
+  const { index, go } = useAutoplay(ref, { count: ROWS.length, ms: TOKEN_MS, loop: true, disabled: reducedMotion })
+  const [settled, setSettled] = useState(reducedMotion)
+  const r = ROWS[index]
+
+  useEffect(() => {
+    if (reducedMotion) return
+    setSettled(false)
+    const id = window.setTimeout(() => setSettled(true), SETTLE_MS)
+    return () => window.clearTimeout(id)
+  }, [index, reducedMotion])
+
+  return (
+    <div ref={ref} className="mx-auto max-w-[420px]">
+      <div className="rounded-[22px] border border-white/12 bg-white/[0.03] p-5">
+        <div className="flex items-baseline justify-between">
+          <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">Token</span>
+          <span className="font-mono text-[11px] tabular-nums text-paper/40">{String(index + 1).padStart(2, '0')} / {String(ROWS.length).padStart(2, '0')}</span>
+        </div>
+        <p key={r.token} className="th-fade mt-1 text-[24px] font-light leading-tight tracking-tight">{r.token}</p>
+
+        {/* Lo que decía cada fuente */}
+        <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
+          {SOURCES.map((source, k) => {
+            const v = r.values[k]
+            const agree = settled && same(v, r.decision)
+            const lose = settled && !agree
+            return (
+              <li key={source} className={`flex items-center gap-3 transition-opacity duration-500 ${lose ? 'opacity-40' : 'opacity-100'}`}>
+                <span className="shrink-0"><Swatch value={v} kind={r.kind} state={!settled ? 'idle' : agree ? 'agree' : 'lose'} /></span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate text-[13px] text-paper/85">{source}</span>
+                  <span className="font-mono text-[11px] uppercase text-paper/45">{v ?? '—'}</span>
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+
+        {/* La fibra baja hasta la decisión */}
+        <div className="relative mt-4 flex justify-center" aria-hidden="true">
+          <span className="block h-8 w-px origin-top bg-gradient-to-b from-white/10 to-[#D9B36A] transition-transform duration-500" style={{ transform: `scaleY(${settled ? 1 : 0})` }} />
+        </div>
+
+        <div className={`flex items-center gap-4 transition-[opacity,transform] duration-500 ${settled ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}>
+          <span className="shrink-0 scale-125"><Swatch value={r.decision} kind={r.kind} state="decision" /></span>
+          <span className="flex min-w-0 flex-col">
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#D9B36A]">{t({ es: 'Decisión', en: 'Decision' })} · {r.decision}</span>
+            <span className="mt-0.5 text-[15px] leading-snug text-paper/90">{t(r.why)}</span>
+            <span className="mt-1 text-[13px] leading-snug text-paper/50">
+              {r.premium
+                ? t({ es: `En el tema Premium: ${r.premium}`, en: `In the Premium theme: ${r.premium}` })
+                : t({ es: 'Fijo en todos los temas', en: 'Fixed in every theme' })}
+            </span>
           </span>
         </div>
       </div>
+
+      <div className="mt-6">
+        <StepNodes count={ROWS.length} active={index} onPick={go} labels={ROWS.map((x) => x.token)} />
+      </div>
+      <p className="mt-3 text-center text-[13px] text-paper/45">{t({ es: 'Anillo dorado: las fuentes que coincidían · desliza para ver otro token', en: 'Gold ring: the sources that agreed · swipe for another token' })}</p>
     </div>
   )
 }

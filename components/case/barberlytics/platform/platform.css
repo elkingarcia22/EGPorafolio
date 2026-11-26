@@ -31,17 +31,10 @@
 @keyframes pl-race { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .pl-race { transform-origin: left; animation: pl-race linear both; }
 
-/* Textos de la línea de la portada: en teléfono el SVG se encoge, así que las letras crecen */
+/* Textos de los dibujos de escritorio (en teléfono cada pieza tiene su propia composición en HTML) */
 .pl-hero-stage { font-size: 12px; }
-.pl-hero-next { font-size: 12px; }
 .pl-hub-name { font-size: 15px; }
 .pl-hub-sub { font-size: 11px; }
-@media (max-width: 640px) {
-  .pl-hero-stage { font-size: 27px; letter-spacing: 0.02em; }
-  .pl-hero-next { font-size: 20px; }
-  .pl-hub-name { font-size: 34px; }
-  .pl-hub-sub { display: none; }
-}
 
 /* Bocetos: la hoja arrugada y la que se despliega al centro */
 .pl-crumple {

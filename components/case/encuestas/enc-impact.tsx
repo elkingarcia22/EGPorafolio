@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { useSwipe } from '@/components/case/kit/use-swipe'
+import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
+import { ImpactPhone } from './phone/impact-phone'
 
 /**
  * Las métricas con que se mide el rediseño: qué es cada una, qué del producto
@@ -94,6 +97,17 @@ export function EncImpact() {
   const [inView, setInView] = useState(false)
   const [active, setActive] = useState(0)
   const [hold, setHold] = useState(false)
+  const wide = useMedia(TABLET_QUERY)
+  const pick = (i: number) => {
+    setHold(true)
+    setActive(i)
+  }
+  // En el teléfono, deslizar de lado pasa de métrica
+  useSwipe(rootRef, {
+    onNext: () => pick((active + 1) % METRICS.length),
+    onPrev: () => pick((active - 1 + METRICS.length) % METRICS.length),
+    disabled: wide,
+  })
 
   useEffect(() => {
     const root = rootRef.current
@@ -111,6 +125,14 @@ export function EncImpact() {
 
   const risen = reducedMotion || inView
   const current = METRICS[active]
+
+  if (!wide) {
+    return (
+      <div ref={rootRef}>
+        <ImpactPhone metrics={METRICS} active={active} risen={risen} onPick={pick} reducedMotion={reducedMotion} />
+      </div>
+    )
+  }
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[920px]">

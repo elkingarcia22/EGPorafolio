@@ -6,6 +6,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
 import { useInView } from './use-in-view'
 import { ChapterHead } from './chapter-head'
+import { useNarrow } from './use-narrow'
 
 const OK = '#17b26a'
 const NO = '#e5484d'
@@ -96,11 +97,15 @@ export function AiGate() {
   const passed = lines.filter((a, i) => a.stop === null && (i < run.k || run.done)).length
   const stopped = lines.filter((a, i) => a.stop !== null && (i < run.k || run.done)).length
   const station = picked === null ? null : STATIONS[picked]
+  const narrow = useNarrow()
 
   return (
     <div ref={rootRef}>
       <ChapterHead phrase={t(chapters.ia.phrase)} lead={t(chapters.ia.lead)} />
 
+      {narrow ? (
+        <GateTall run={run} picked={picked} onPick={(i) => setPicked(picked === i ? null : i)} passed={passed} stopped={stopped} reducedMotion={reducedMotion} />
+      ) : (
       <div className="mx-auto grid max-w-[860px] gap-y-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-x-14">
         {/* El riel: las estaciones, de arriba abajo */}
         <ol className="relative flex flex-col justify-between py-1" aria-label={t({ es: 'Estaciones', en: 'Stations' })}>
@@ -140,7 +145,7 @@ export function AiGate() {
                   </span>
                   <span className="flex flex-col">
                     <span className={`whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] transition-colors md:text-[11px] ${isPicked || passing || hit ? 'text-paper' : 'text-paper/50 group-hover:text-paper/85'}`}>{t(s.name)}</span>
-                    <span className="hidden font-mono text-[9px] tracking-[0.08em] text-paper/30 md:block">0{i + 1}</span>
+                    <span className="hidden font-mono text-[11px] md:text-[9px] tracking-[0.08em] text-paper/30 md:block">0{i + 1}</span>
                   </span>
                 </button>
               </li>
@@ -188,12 +193,13 @@ export function AiGate() {
           </ol>
         </div>
       </div>
+      )}
 
       {/* La estación tocada */}
       <div className="mx-auto mt-8 min-h-[4rem] max-w-[640px]" aria-live="polite">
         {station ? (
           <div key={picked} className="th-fade border-l border-signal/60 pl-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{t(station.detail.title)}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal md:text-[10px]">{t(station.detail.title)}</p>
             {Array.isArray(station.detail.body) ? (
               <ul className="mt-3 grid gap-x-6 gap-y-1.5 text-sm text-paper/75 sm:grid-cols-2">
                 {(station.detail.body as readonly L[]).map((line) => (
@@ -208,7 +214,7 @@ export function AiGate() {
             )}
           </div>
         ) : (
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-paper/35">{t({ es: 'Toca una estación', en: 'Tap a station' })}</p>
+          <p className="text-center text-[13px] text-paper/40 md:font-mono md:text-[10px] md:uppercase md:tracking-[0.16em] md:text-paper/35">{t({ es: 'Toca una estación', en: 'Tap a station' })}</p>
         )}
       </div>
 
@@ -216,6 +222,110 @@ export function AiGate() {
       <div className="mt-6 flex justify-center">
         <span aria-hidden="true" className="relative h-2.5 w-2.5 rounded-full border border-white/60 bg-signal shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
           <span data-fiber-from="th-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />
+        </span>
+      </div>
+    </div>
+  )
+}
+
+interface GateTallProps {
+  run: Run
+  picked: number | null
+  onPick: (i: number) => void
+  passed: number
+  stopped: number
+  reducedMotion: boolean
+}
+
+/**
+ * IA en el teléfono: una línea a la vez. Arriba, la línea que la IA escribe, en
+ * grande; debajo, el riel de lado con las cinco estaciones por las que baja, y
+ * el nombre de la estación en la que va. Al final, el veredicto con la regla
+ * que la frenó, y una fila de marcas con lo que ya pasó.
+ */
+function GateTall({ run, picked, onPick, passed, stopped, reducedMotion }: GateTallProps) {
+  const { t } = useLocale()
+  const a = ATTEMPTS[run.k]
+  const target = targetOf(a)
+  const blocked = a.stop !== null
+  const verdict = run.done ? (blocked ? NO : OK) : null
+  const at = Math.max(0, run.at)
+  const now = STATIONS[run.done ? target : at]
+
+  return (
+    <div className="mx-auto max-w-[420px]">
+      {/* La pantalla que la IA escribe: solo la línea actual */}
+      <div className="rounded-[20px] border border-white/12 bg-[#141210]/80 p-4">
+        <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.12em] text-paper/45">
+          <span className="flex items-center gap-2">
+            <span aria-hidden="true" className="inline-block h-3 w-3 rounded-full" style={{ background: 'conic-gradient(from 180deg, #f0ce86, #3f72d8, #8f5bd8, #f0ce86)' }} />
+            agenda.tsx
+          </span>
+          <span className="tabular-nums">{t({ es: 'línea', en: 'line' })} {run.k + 1}/{ATTEMPTS.length}</span>
+        </div>
+        <p key={run.k} aria-live="polite" className={`th-fade mt-4 min-h-[3.2em] break-all font-mono text-[14px] leading-relaxed transition-[color,opacity] duration-300 ${run.done && blocked ? 'text-paper/55 line-through decoration-[#e5484d]/70' : 'text-paper'}`}>
+          {a.code}
+          {run.at < 0 && <span aria-hidden="true" className="ml-0.5 inline-block h-[1.1em] w-[0.5ch] translate-y-[2px] animate-pulse bg-signal" />}
+        </p>
+      </div>
+
+      {/* El riel, de lado: la línea baja estación por estación */}
+      <div className="relative mt-7 px-2">
+        <span aria-hidden="true" className="absolute left-[calc(0.5rem+14px)] right-[calc(0.5rem+14px)] top-[14px] h-px bg-white/12" />
+        <span
+          aria-hidden="true"
+          className="absolute left-[calc(0.5rem+14px)] right-[calc(0.5rem+14px)] top-[14px] h-px origin-left"
+          style={{
+            background: verdict ? `linear-gradient(90deg, rgb(var(--signal)), ${verdict})` : 'linear-gradient(90deg, rgb(var(--signal)), rgb(var(--spark)))',
+            transform: `scaleX(${at / LAST_STATION})`,
+            transition: reducedMotion ? 'none' : `transform ${run.at < 0 ? 200 : PACE.station}ms linear, background 300ms`,
+            opacity: run.at < 0 ? 0 : 1,
+          }}
+        />
+        <ol className="relative flex justify-between" aria-label={t({ es: 'Estaciones', en: 'Stations' })}>
+          {STATIONS.map((s, i) => {
+            const passing = !run.done && run.at === i
+            const hit = run.done && i === target
+            const color = hit ? verdict : null
+            const isPicked = picked === i
+            return (
+              <li key={s.name.es}>
+                <button type="button" aria-pressed={isPicked} aria-label={t(s.name)} onClick={() => onPick(i)} className="relative grid h-7 w-7 place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-signal">
+                  {(passing || hit) && <span aria-hidden="true" className="absolute inset-[-6px] rounded-full opacity-60 blur-md" style={{ background: color ?? 'rgb(var(--signal))' }} />}
+                  <span
+                    className={`relative h-3.5 w-3.5 rounded-full border transition-all duration-300 ${isPicked ? 'scale-125 border-white bg-[#fffaf0]' : passing ? 'scale-110 border-white bg-signal' : i < at ? 'border-white/60 bg-signal/70' : 'border-white/45 bg-void'}`}
+                    style={color ? { background: color, borderColor: color, boxShadow: `0 0 0 5px ${color}33` } : undefined}
+                  />
+                </button>
+              </li>
+            )
+          })}
+        </ol>
+      </div>
+
+      {/* Dónde va y cómo termina */}
+      <div className="mt-5 min-h-[5.5rem] text-center">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/45">0{(run.done ? target : at) + 1} · {t(now.name)}</p>
+        {run.done ? (
+          <p key={`v-${run.k}`} className="th-fade mt-2 text-[16px] leading-snug" style={{ color: verdict ?? undefined }}>
+            {blocked ? `✕ ${t({ es: 'Frenada', en: 'Stopped' })}` : `✓ ${t({ es: 'Llega al código', en: 'Reaches the code' })}`}
+            {blocked && a.rule && <span className="mt-1 block text-[14px] text-paper/70">{t(a.rule)}</span>}
+          </p>
+        ) : (
+          <p className="mt-2 text-[15px] text-paper/60">{run.at < 0 ? t({ es: 'La IA escribe…', en: 'AI is writing…' }) : t({ es: 'Revisando…', en: 'Checking…' })}</p>
+        )}
+      </div>
+
+      {/* Lo que ya pasó: una marca por línea */}
+      <div className="mt-2 flex items-center justify-center gap-4 text-[13px] text-paper/55">
+        <span className="flex gap-1.5" aria-hidden="true">
+          {ATTEMPTS.map((x, i) => {
+            const done = i < run.k || (i === run.k && run.done)
+            return <span key={i} className="h-2 w-5 rounded-full transition-colors duration-300" style={{ background: done ? (x.stop === null ? OK : NO) : 'rgba(255,255,255,0.12)' }} />
+          })}
+        </span>
+        <span className="tabular-nums">
+          <span style={{ color: OK }}>{passed}</span> {t({ es: 'al código', en: 'in code' })} · <span style={{ color: NO }}>{stopped}</span> {t({ es: 'frenadas', en: 'stopped' })}
         </span>
       </div>
     </div>

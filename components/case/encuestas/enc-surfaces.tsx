@@ -6,6 +6,8 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { SHOTS, type ShotKey } from '@/lib/content/cases/encuestas/case'
 import { useAutoplay } from '../objetivos/use-autoplay'
+import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
+import { SurfacesPhone } from './phone/surfaces-phone'
 
 /** Las seis superficies del producto, cada una con su captura real */
 const SURFACES: readonly { id: string; name: L; shot: ShotKey; line: L }[] = [
@@ -33,6 +35,7 @@ export function EncSurfaces() {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const [hold, setHold] = useState(false)
+  const wide = useMedia(TABLET_QUERY)
   const { index, go } = useAutoplay(rootRef, { count: SURFACES.length, ms: STEP_MS, loop: true, disabled: reducedMotion, hold })
   const fill = index / (SURFACES.length - 1)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -62,6 +65,14 @@ export function EncSurfaces() {
       return prev + d
     })
   }, [index])
+
+  if (!wide) {
+    return (
+      <div ref={rootRef}>
+        <SurfacesPhone surfaces={SURFACES} index={index} go={go} reducedMotion={reducedMotion} />
+      </div>
+    )
+  }
 
   return (
     <div ref={rootRef} className="relative mt-6" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>

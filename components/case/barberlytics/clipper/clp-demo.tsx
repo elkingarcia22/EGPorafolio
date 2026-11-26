@@ -61,13 +61,23 @@ export function ClipperLiveDemo() {
       </div>
 
       {/* Para probar: lo que hay que escribir o dictar */}
-      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.1em] text-paper/40">
+      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.1em] text-paper/40 max-md:hidden">
         {demo.tryIt.map((item) => (
           <span key={item.label.es}>
             {t(item.label)} · <span className="normal-case tracking-normal text-paper/70">{typeof item.value === 'string' ? item.value : t(item.value)}</span>
           </span>
         ))}
       </p>
+
+      {/* En el teléfono, los datos de prueba en una tarjeta: uno por renglón */}
+      <dl className="mt-8 w-full max-w-[360px] divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03] text-left md:hidden">
+        {demo.tryIt.map((item) => (
+          <div key={item.label.es} className="px-4 py-3">
+            <dt className="mono-label text-paper/45">{t(item.label)}</dt>
+            <dd className="mt-1 text-[15px] text-paper/85">{typeof item.value === 'string' ? item.value : t(item.value)}</dd>
+          </div>
+        ))}
+      </dl>
 
       <RecordModal
         ids={['reserva']}

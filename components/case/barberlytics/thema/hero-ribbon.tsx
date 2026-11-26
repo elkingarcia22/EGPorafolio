@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
 import { inkOn, shade } from './color-utils'
+import { useNarrow } from './use-narrow'
 
 /** Cada cuánto entra el color del siguiente tema (ms) */
 const THEME_MS = 3200
@@ -11,10 +12,27 @@ const THEME_MS = 3200
 const ARRIVE_MS = { tokens: 550, theme: 1100 } as const
 
 const THEMES = THEMA_CASE.themes
-const Y = 110
-const X = [130, 500, 870] as const
-/** La fibra: una sola cinta que ondula entre los tres nodos */
-const FIBER = `M${X[0]} ${Y} C 250 ${Y + 40}, 380 ${Y - 40}, ${X[1]} ${Y} S 750 ${Y + 40}, ${X[2]} ${Y}`
+
+interface Layout {
+  viewBox: string
+  /** Centro de cada uno de los tres nodos */
+  nodes: readonly (readonly [number, number])[]
+  /** La fibra: una sola cinta que ondula entre los tres nodos */
+  fiber: string
+  /** Dónde va cada texto respecto a su nodo */
+  label: { anchor: 'middle' | 'start'; dx: number; top: number; bottom: number }
+  font: { name: number; role: number; button: number }
+}
+
+/** Escritorio: los tres nodos en fila, los textos encima y debajo */
+const WIDE: Layout = {
+  viewBox: '0 0 1000 230',
+  nodes: [[130, 110], [500, 110], [870, 110]],
+  fiber: 'M130 110 C 250 150, 380 70, 500 110 S 750 150, 870 110',
+  label: { anchor: 'middle', dx: 0, top: -82, bottom: 92 },
+  font: { name: 17, role: 11, button: 14 },
+}
+
 /** La escala que el sistema deriva del primario: de claro (50) a oscuro (800) */
 const RAMP = [0.86, 0.7, 0.5, 0.3, 0.14, 0, -0.25, -0.45, -0.65] as const
 /** Los nueve pasos se abren en abanico alrededor del nodo del medio */
@@ -44,6 +62,10 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
   /** Qué tema muestra cada nodo: el color cambia al instante; tokens y tema, cuando les llega la señal */
   const [shown, setShown] = useState<[number, number, number]>([0, 0, 0])
   const timers = useRef<number[]>([])
+  const narrow = useNarrow()
+  const lay = WIDE
+  const FIBER = lay.fiber
+  const at = (i: number) => `translate(${lay.nodes[i][0]} ${lay.nodes[i][1]})`
 
   useEffect(() => {
     if (!running || reducedMotion) return
@@ -65,9 +87,11 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
   const tokens = THEMES[shown[1]]
   const out = THEMES[shown[2]]
 
+  if (narrow) return <RibbonTall input={input} tokens={tokens} out={out} step={step} reducedMotion={reducedMotion} />
+
   return (
     <figure className="mx-auto w-full max-w-[980px]">
-      <svg viewBox="0 0 1000 230" className="w-full overflow-visible" role="img" aria-label={t({ es: 'Un color primario entra, el sistema deriva sus tokens y sale un tema completo', en: 'A primary color goes in, the system derives its tokens and a full theme comes out' })}>
+      <svg viewBox={lay.viewBox} className="w-full overflow-visible" role="img" aria-label={t({ es: 'Un color primario entra, el sistema deriva sus tokens y sale un tema completo', en: 'A primary color goes in, the system derives its tokens and a full theme comes out' })}>
         <defs>
           <linearGradient id="thema-ribbon" x1="0" x2="1">
             <stop offset="0" stopColor={input.primary} style={{ transition: 'stop-color 700ms' }} />
@@ -81,13 +105,13 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
         )}
 
         {/* 1 · El color que entra */}
-        <g transform={`translate(${X[0]} ${Y})`}>
+        <g transform={at(0)}>
           <circle r={58} fill={input.primary} fillOpacity={0.12} style={{ transition: 'fill 700ms' }} />
           <circle r={34} fill={input.primary} stroke="white" strokeOpacity={0.3} strokeWidth={2} style={{ transition: 'fill 700ms' }} />
         </g>
 
         {/* 2 · La escala que el sistema deriva, en abanico */}
-        <g transform={`translate(${X[1]} ${Y})`}>
+        <g transform={at(1)}>
           <circle r={58} fill={tokens.primary} fillOpacity={0.08} style={{ transition: 'fill 700ms' }} />
           {RAMP.map((k, i) => {
             const angle = Math.PI * (1 - i / (RAMP.length - 1))
@@ -112,10 +136,10 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
         </g>
 
         {/* 3 · El tema que sale: su botón y el gradiente de la IA */}
-        <g transform={`translate(${X[2]} ${Y})`}>
+        <g transform={at(2)}>
           <circle r={58} fill={out.aiEnd} fillOpacity={0.1} style={{ transition: 'fill 700ms' }} />
           <rect x={-52} y={-19} width={104} height={38} rx={12} fill={out.primary} style={{ transition: 'fill 700ms' }} data-fiber-from="th-puntos" />
-          <text y={6} textAnchor="middle" className="ribbon-button font-medium" fill={inkOn(out.primary)}>{t({ es: 'Reservar', en: 'Book' })}</text>
+          <text y={6} textAnchor="middle" className="font-medium" fontSize={lay.font.button} fill={inkOn(out.primary)}>{t({ es: 'Reservar', en: 'Book' })}</text>
           <rect x={-52} y={28} width={104} height={4} rx={2} fill={`url(#thema-ai-${out.id})`} />
           <defs>
             <linearGradient id={`thema-ai-${out.id}`} x1="0" x2="1">
@@ -126,9 +150,9 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
         </g>
 
         {LABELS.map((label, i) => (
-          <g key={i} transform={`translate(${X[i]} ${Y})`}>
-            <text y={-82} textAnchor="middle" className="ribbon-name fill-paper">{t(label.top)}</text>
-            <text y={92} textAnchor="middle" className="ribbon-role fill-paper/50 font-mono uppercase tracking-[0.14em]">{t(label.bottom(shown[i]))}</text>
+          <g key={i} transform={at(i)}>
+            <text x={lay.label.dx} y={lay.label.top} textAnchor={lay.label.anchor} fontSize={lay.font.name} className="fill-paper">{t(label.top)}</text>
+            <text x={lay.label.dx} y={lay.label.bottom} textAnchor={lay.label.anchor} fontSize={lay.font.role} className="fill-paper/55 font-mono uppercase tracking-[0.12em]">{t(label.bottom(shown[i]))}</text>
           </g>
         ))}
       </svg>
@@ -136,5 +160,90 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
         {t({ es: 'Los seis temas reales de Thema · el gradiente de la IA también se deriva', en: 'Thema’s six real themes · the AI gradient is derived too' })}
       </figcaption>
     </figure>
+  )
+}
+
+type Theme = (typeof THEMES)[number]
+
+interface RibbonTallProps {
+  input: Theme
+  tokens: Theme
+  out: Theme
+  step: number
+  reducedMotion: boolean
+}
+
+/** Alto de cada parada de la cinta en teléfono (px) */
+const STOP_H = 132
+
+/**
+ * La cinta en el teléfono: los tres pasos en columna, con la fibra bajando por
+ * la izquierda y cada texto en HTML a su lado, a tamaño de lectura.
+ */
+function RibbonTall({ input, tokens, out, step, reducedMotion }: RibbonTallProps) {
+  const { t } = useLocale()
+  const stops = [
+    { label: LABELS[0], value: input.primary, halo: input.primary },
+    { label: LABELS[1], value: t(LABELS[1].bottom(0)), halo: tokens.primary },
+    { label: LABELS[2], value: out.name, halo: out.aiEnd },
+  ]
+  return (
+    <figure className="mx-auto w-full max-w-[360px]" aria-label={t({ es: 'Un color primario entra, el sistema deriva sus tokens y sale un tema completo', en: 'A primary color goes in, the system derives its tokens and a full theme comes out' })}>
+      <ol className="relative">
+        {/* La fibra baja de nodo en nodo; la señal la recorre con cada tema */}
+        <svg aria-hidden="true" className="absolute left-0 w-24 overflow-visible" style={{ top: STOP_H / 2, height: STOP_H * 2 }} viewBox="0 0 96 200" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="thema-ribbon-tall" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor={input.primary} style={{ transition: 'stop-color 700ms' }} />
+              <stop offset="1" stopColor={out.aiEnd} style={{ transition: 'stop-color 700ms' }} />
+            </linearGradient>
+          </defs>
+          <path d="M48 0 C 78 40, 18 60, 48 100 S 78 160, 48 200" fill="none" stroke="url(#thema-ribbon-tall)" strokeOpacity={0.6} strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+          {!reducedMotion && (
+            <path key={step} d="M48 0 C 78 40, 18 60, 48 100 S 78 160, 48 200" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" pathLength={1} vectorEffect="non-scaling-stroke" className="th-pulse" style={{ filter: `drop-shadow(0 0 6px ${input.primary})` }} />
+          )}
+        </svg>
+        {stops.map((stop, i) => (
+          <li key={i} className="relative flex items-center gap-5" style={{ height: STOP_H }}>
+            <span className="relative grid h-24 w-24 shrink-0 place-items-center">
+              <span aria-hidden="true" className="absolute inset-0 rounded-full transition-colors duration-700" style={{ background: stop.halo, opacity: 0.14 }} />
+              {i === 0 && <span className="h-14 w-14 rounded-full border-2 border-white/30 transition-colors duration-700" style={{ background: input.primary }} />}
+              {i === 1 && <TokenFan primary={tokens.primary} />}
+              {i === 2 && (
+                <span className="relative flex flex-col items-center gap-1.5">
+                  <span className="rounded-xl px-4 py-2 text-[15px] font-medium transition-colors duration-700" style={{ background: out.primary, color: inkOn(out.primary) }}>
+                    {t({ es: 'Reservar', en: 'Book' })}
+                    <span data-fiber-from="th-puntos" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />
+                  </span>
+                  <span aria-hidden="true" className="h-1 w-full rounded-full" style={{ background: `linear-gradient(90deg, ${out.primary}, ${out.aiEnd})` }} />
+                </span>
+              )}
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[17px] leading-tight text-paper">{t(stop.label.top)}</span>
+              <span key={stop.value} className="th-fade mt-1.5 font-mono text-[12px] uppercase tracking-[0.12em] text-paper/55">{stop.value}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <figcaption className="mt-4 text-center text-[13px] leading-snug text-white/50">
+        {t({ es: 'Los seis temas reales de Thema · el gradiente de la IA también se deriva', en: 'Thema’s six real themes · the AI gradient is derived too' })}
+      </figcaption>
+    </figure>
+  )
+}
+
+/** Los nueve pasos de la escala, en abanico alrededor del nodo */
+function TokenFan({ primary }: { primary: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="-60 -40 120 70" className="w-[88px] overflow-visible">
+      {RAMP.map((k, i) => {
+        const angle = Math.PI * (1 - i / (RAMP.length - 1))
+        const x = Math.round(Math.cos(angle) * FAN_R * 100) / 100
+        const y = Math.round(-Math.sin(angle) * FAN_R * 0.55 * 100) / 100
+        return <rect key={i} x={x - 8} y={y - 8} width={16} height={16} rx={4} fill={k === 0 ? primary : shade(primary, k)} stroke="white" strokeOpacity={k === 0 ? 0.8 : 0.12} style={{ transition: `fill 600ms ${i * 45}ms` }} />
+      })}
+      <circle r={7} fill="rgb(var(--void))" stroke="white" strokeOpacity={0.5} />
+    </svg>
   )
 }
