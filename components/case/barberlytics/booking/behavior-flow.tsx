@@ -5,6 +5,8 @@ import { useLocale, type L } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
+import { BehaviorPhone } from './phone/behavior-phone'
+import { usePhone } from './use-phone'
 
 /** Se arma solo: una fila por comportamiento, rápido (ms) */
 const AUTO = { intro: 400, step: 320 }
@@ -49,7 +51,8 @@ export function BehaviorFlow() {
   const { t } = useLocale()
   const { ref, step, done, reducedMotion } = useAutoSteps<HTMLDivElement>(BEHAVIORS.length, AUTO)
   const [picked, setPicked] = useState<number | null>(null)
-  const current = picked !== null ? BEHAVIORS[picked] : null
+  const phone = usePhone()
+  const current = picked !== null && !phone ? BEHAVIORS[picked] : null
 
   return (
     <div ref={ref} className="flex flex-col items-center">
@@ -60,7 +63,11 @@ export function BehaviorFlow() {
         swapKey={picked ?? 'all'}
       />
 
+      {phone && <BehaviorPhone items={BEHAVIORS.map((b) => ({ ...b, source: SOURCE[b.source] }))} />}
+
       <div className="mt-10 w-full max-w-[940px]">
+        {!phone && (
+        <>
         <div className="mb-4 hidden grid-cols-[1fr_minmax(120px,22%)_1fr] font-mono text-[10px] uppercase tracking-[0.14em] text-paper/45 md:grid">
           <span className="text-right">{t({ es: 'Lo que hace el cliente', en: 'What the client does' })}</span>
           <span />
@@ -111,6 +118,8 @@ export function BehaviorFlow() {
             )
           })}
         </ol>
+        </>
+        )}
 
         {/* De dónde sale cada respuesta */}
         <ul className={`mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 transition-opacity duration-700 ${done ? 'opacity-100' : 'opacity-0'}`}>

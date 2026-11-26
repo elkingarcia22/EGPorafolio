@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { IdeaPortrait, PrincipleMark } from './idea-portrait'
 import { useLocale, type L } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
-import { useNarrow } from '../use-narrow'
+import { IdeaPhone } from './phone/idea-phone'
+import { usePhone } from './use-phone'
 
 /** Lienzo del concepto */
 const W = 900
@@ -20,18 +20,18 @@ const DOWN = `M${NODE.ask} ${MID} C330 320 570 320 ${NODE.engine} ${MID}`
 /** Punto medio de cada camino (curva simétrica) */
 const ARC_MID = { up: 92.5, down: 287.5 }
 /** Se arma solo: entrada, pregunta, los dos caminos, el motor y la cita (ms) */
-export const AUTO = { intro: 300, step: 380 }
-export const LAST = 5
+const AUTO = { intro: 300, step: 380 }
+const LAST = 5
 
 /** Dónde vive cada principio sobre el concepto */
-export const MARKS: readonly { x: number; y: number; at: number }[] = [
+const MARKS: readonly { x: number; y: number; at: number }[] = [
   { x: NODE.ask, y: MID, at: 2 },
   { x: NODE.engine, y: MID, at: 4 },
   { x: 450, y: MID, at: 3 },
   { x: NODE.code, y: MID, at: 5 },
 ]
 
-export const LABELS: Record<'phone' | 'ask' | 'engine' | 'code' | 'booked' | 'up' | 'down', L> = {
+const LABELS: Record<'phone' | 'ask' | 'engine' | 'code' | 'booked' | 'up' | 'down', L> = {
   phone: { es: 'tu celular', en: 'your phone' },
   ask: { es: '¿vuelves|o llegas?', en: 'back|or new?' },
   engine: { es: 'un motor|un cobro', en: 'one engine|one checkout' },
@@ -67,8 +67,7 @@ export function IdeaConcept() {
   const draw = (on: boolean) => ({ pathLength: 1, strokeDasharray: '1', strokeDashoffset: on ? 0 : 1, style: { transition: 'stroke-dashoffset .6s cubic-bezier(.5,0,.3,1)' } })
   const show = (on: boolean, delay = 0) => ({ style: { opacity: on ? 1 : 0, transition: `opacity .5s ${delay}ms` } })
 
-  const narrow = useNarrow()
-  const pick = (i: number) => setPicked((p) => (p === i ? null : i))
+  const phone = usePhone()
   const caption =
     picked !== null
       ? { tag: `${t({ es: 'Principio', en: 'Principle' })} 0${picked + 1}`, title: t(idea.principles[picked].title), sub: t(idea.principles[picked].body) }
@@ -78,8 +77,8 @@ export function IdeaConcept() {
     <div ref={ref} className="flex flex-col items-center">
       <BookingLede tag={caption.tag} title={caption.title} sub={caption.sub} swapKey={picked ?? 'q'} />
 
-      {narrow ? (
-        <IdeaPortrait step={step} done={done} reducedMotion={reducedMotion} picked={picked} onPick={pick} />
+      {phone ? (
+        <IdeaPhone step={step} done={done} reducedMotion={reducedMotion} picked={picked} onPick={(i) => setPicked((p) => (p === i ? null : i))} labels={LABELS} marksAt={MARKS.map((m) => m.at)} principles={idea.principles} />
       ) : (
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-10 block h-auto w-full max-w-[900px] overflow-visible" role="group" aria-label={t({ es: 'La idea: una pregunta, dos caminos, un motor', en: 'The idea: one question, two paths, one engine' })}>
         {/* Del celular a la pregunta */}
@@ -125,9 +124,32 @@ export function IdeaConcept() {
         </g>
 
         {/* Los principios, numerados sobre el concepto: tocarlos muestra su porqué */}
-        {MARKS.map((m, i) => (
-          <PrincipleMark key={i} x={m.x} y={m.y} index={i} on={step >= m.at} picked={picked === i} label={t(idea.principles[i].title)} onPick={pick} />
-        ))}
+        {MARKS.map((m, i) => {
+          const on = step >= m.at
+          const isPicked = picked === i
+          return (
+            <g
+              key={i}
+              role="button"
+              tabIndex={on ? 0 : -1}
+              aria-pressed={isPicked}
+              aria-label={t(idea.principles[i].title)}
+              onClick={() => setPicked((p) => (p === i ? null : i))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setPicked((p) => (p === i ? null : i))
+                }
+              }}
+              className="cursor-pointer outline-none"
+              style={{ opacity: on ? 1 : 0, transition: 'opacity .5s', pointerEvents: on ? 'auto' : 'none' }}
+            >
+              {isPicked && <circle cx={m.x} cy={m.y} r={26} fill="none" stroke="rgb(var(--bk))" strokeOpacity={0.6} />}
+              <circle cx={m.x} cy={m.y} r={17} fill={isPicked ? 'rgb(var(--bk))' : 'rgb(var(--void))'} stroke="rgb(var(--bk))" strokeWidth={1.6} style={{ transition: 'fill .3s' }} />
+              <text x={m.x} y={m.y} dy="0.35em" textAnchor="middle" className="bk-t-note font-mono" fill={isPicked ? '#14110b' : 'rgb(var(--bk))'}>0{i + 1}</text>
+            </g>
+          )
+        })}
       </svg>
       )}
     </div>

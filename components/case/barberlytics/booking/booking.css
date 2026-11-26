@@ -25,13 +25,9 @@
 @keyframes bk-ping { 0% { transform: scale(0.8); opacity: 0.9; } 100% { transform: scale(1.9); opacity: 0; } }
 .bk-ping { animation: bk-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite; }
 
-/* Textos del recorrido de la portada: en el teléfono el SVG se encoge, así que crecen */
+/* Textos del recorrido de la portada (en el teléfono, la portada usa su propia composición) */
 .tap-value { font-size: 17px; }
 .tap-label { font-size: 11px; }
-@media (max-width: 640px) {
-  .tap-value { font-size: 30px; }
-  .tap-label { font-size: 19px; letter-spacing: 0.06em; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .bk-fade, .bk-tap, .bk-run, .bk-loop, .bk-caret, .bk-ping { animation: none; }
@@ -44,14 +40,17 @@ html[data-motion='reduced'] .bk-caret,
 html[data-motion='reduced'] .bk-ping { animation: none; }
 html[data-motion='reduced'] .bk-run { animation: none; opacity: 0; }
 
-/* Textos de los SVG: en el teléfono el dibujo se encoge, así que las letras crecen para seguir legibles */
+/* Textos de los SVG del escritorio (en el teléfono cada pieza tiene su composición, con texto HTML) */
 .bk-t-row { font-size: 16px; }
 .bk-t-note { font-size: 10px; letter-spacing: 0.12em; }
 .bk-t-axis { font-size: 11px; }
 .bk-t-big { font-size: 26px; font-weight: 300; }
-@media (max-width: 640px) {
-  .bk-t-row { font-size: 32px; }
-  .bk-t-note { font-size: 21px; letter-spacing: 0.04em; }
-  .bk-t-axis { font-size: 22px; }
-  .bk-t-big { font-size: 44px; }
-}
+
+/* Un toque en HTML: el anillo que se abre sobre el nodo (versión del teléfono) */
+.bk-ring { animation: bk-tap 900ms cubic-bezier(0, 0, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .bk-ring { animation: none; opacity: 0; } }
+
+/* Los datos que bajan por la fibra de Patrones (versión del teléfono) */
+@keyframes bk-drip { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translateY(58px); opacity: 0; } }
+.bk-drip { animation: bk-drip 1.35s cubic-bezier(0.45, 0, 0.55, 1) infinite both; }
+@media (prefers-reduced-motion: reduce) { .bk-drip { animation: none; opacity: 0; } }
