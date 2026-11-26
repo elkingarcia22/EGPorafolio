@@ -316,15 +316,16 @@ function LogoToAppTall({ shop, primary, palette, custom, onPick, onCustom }: Log
       </div>
 
       {/* La app y, al lado, los colores que salen del logo */}
-      <div className="relative mt-2 grid grid-cols-[minmax(0,1fr)_76px] items-start gap-3">
-        <div>
-          <p className="mb-3 whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.1em] text-white/50">{t({ es: '3 · Su app', en: '3 · Their app' })}</p>
-          <PhoneBody className="ml-auto w-full max-w-[250px]">
+      {/* Los dos juntos, centrados bajo el logo: la fibra cae entre la app y los colores */}
+      <div className="relative mx-auto mt-2 flex w-fit max-w-full items-start justify-center gap-4">
+        <div className="flex flex-col items-center">
+          <p className="mb-3 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.1em] text-white/50">{t({ es: '3 · Su app', en: '3 · Their app' })}</p>
+          <PhoneBody className="w-[min(250px,calc(100vw-8.5rem))]">
             <StatusBar />
             <ShopApp shop={shop} primary={primary} />
           </PhoneBody>
         </div>
-        <div className="flex flex-col items-center">
+        <div className="flex w-[64px] shrink-0 flex-col items-center">
           <p className="mb-3 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.1em] text-white/50">2 · {t({ es: 'Colores', en: 'Colors' })}</p>
           <ul className="relative flex flex-col items-center gap-4">
             <span aria-hidden="true" className="absolute bottom-6 top-6 left-1/2 w-px -translate-x-1/2 bg-white/12" />
