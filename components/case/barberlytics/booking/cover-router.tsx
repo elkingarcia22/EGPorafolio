@@ -80,7 +80,7 @@ export function CoverRouter() {
               <PhoneBody className="mx-auto w-full max-w-[220px]">
                 <Image src={`${IMG}/${s.src}.webp`} width={780} height={1688} alt={t(s.alt)} sizes="(min-width: 768px) 220px, 28vw" className="block h-auto w-full" />
               </PhoneBody>
-              <figcaption className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.12em] text-paper/60">{t(s.name)}</figcaption>
+              <figcaption className="mt-3 text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.12em] text-paper/60">{t(s.name)}</figcaption>
             </figure>
           )
         })}

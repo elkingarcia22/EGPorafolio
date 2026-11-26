@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
+import { useNarrow } from '../use-narrow'
 
 interface TapNode {
   x: number
@@ -27,6 +28,11 @@ const PATH = NODES.slice(1).reduce((d, n, i) => {
   return `${d} Q${mid} ${Y + (i % 2 ? 18 : -18)} ${n.x} ${Y}`
 }, `M${NODES[0].x} ${Y}`)
 
+/** En el teléfono el recorrido baja: un nodo por renglón, con la letra a tamaño real */
+const TALL = { w: 320, x: 28, y0: 26, gap: 84 }
+const tallY = (i: number) => TALL.y0 + i * TALL.gap
+const TALL_PATH = NODES.slice(1).reduce((d, _, i) => `${d} Q${TALL.x + (i % 2 ? 14 : -14)} ${(tallY(i) + tallY(i + 1)) / 2} ${TALL.x} ${tallY(i + 1)}`, `M${TALL.x} ${tallY(0)}`)
+
 interface CoverTapProps {
   running: boolean
   reducedMotion: boolean
@@ -49,20 +55,24 @@ export function CoverTap({ running, reducedMotion }: CoverTapProps) {
   }, [running, reducedMotion, lit, last])
 
   const progress = lit / last
+  const narrow = useNarrow()
+
+  const path = narrow ? TALL_PATH : PATH
+  const at = (i: number) => (narrow ? `translate(${TALL.x} ${tallY(i)})` : `translate(${NODES[i].x} ${Y})`)
 
   return (
     <figure className="mx-auto w-full max-w-[1000px]">
-      <svg viewBox="0 0 1000 200" className="w-full overflow-visible" role="img" aria-label={t({ es: 'Quien vuelve: su celular, lo reconoce, lo de siempre y un toque', en: 'Returning client: their phone, recognized, the usual and one tap' })}>
+      <svg viewBox={narrow ? `0 0 ${TALL.w} ${tallY(last) + 30}` : '0 0 1000 200'} className={`w-full overflow-visible ${narrow ? 'mx-auto max-w-[340px]' : ''}`} role="img" aria-label={t({ es: 'Quien vuelve: su celular, lo reconoce, lo de siempre y un toque', en: 'Returning client: their phone, recognized, the usual and one tap' })}>
         <defs>
-          <linearGradient id="tap-fiber" x1="0" x2="1">
+          <linearGradient id="tap-fiber" x1="0" x2={narrow ? 0 : 1} y2={narrow ? 1 : 0}>
             <stop offset="0" stopColor="rgb(var(--signal))" />
             <stop offset="1" stopColor="rgb(var(--bk))" />
           </linearGradient>
         </defs>
-        <path d={PATH} fill="none" stroke="white" strokeOpacity={0.08} strokeWidth={1.5} />
+        <path d={path} fill="none" stroke="white" strokeOpacity={0.08} strokeWidth={1.5} />
         {/* Lo recorrido hasta ahora */}
         <path
-          d={PATH}
+          d={path}
           fill="none"
           stroke="url(#tap-fiber)"
           strokeWidth={2}
@@ -76,7 +86,7 @@ export function CoverTap({ running, reducedMotion }: CoverTapProps) {
           const on = i <= lit
           const end = i === last
           return (
-            <g key={n.x} transform={`translate(${n.x} ${Y})`}>
+            <g key={n.x} transform={at(i)}>
               <circle r={end ? 34 : 26} fill={end ? 'rgb(var(--bk) / 0.14)' : 'rgb(var(--signal) / 0.08)'} opacity={on ? 1 : 0.3} style={{ transition: 'opacity .4s' }} />
               {/* El toque: un anillo que se abre al llegar la señal */}
               {on && i === lit && !reducedMotion && <circle key={`tap-${lit}`} r={16} fill="none" stroke="white" strokeWidth={1.5} className="bk-tap" />}
@@ -89,8 +99,17 @@ export function CoverTap({ running, reducedMotion }: CoverTapProps) {
                 data-fiber-from={end ? 'bk-puntos' : undefined}
               />
               {end && <path d="M-5 0 l3.5 3.5 l6.5 -7" fill="none" stroke="rgb(var(--void))" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" opacity={on ? 1 : 0} />}
-              <text y={-46} textAnchor="middle" className="tap-value fill-paper" style={{ opacity: on ? 1 : 0.3, transition: 'opacity .4s' }}>{t(n.value)}</text>
-              <text y={58} textAnchor="middle" className="tap-label fill-paper/50 font-mono uppercase tracking-[0.14em]">{t(n.label)}</text>
+              {narrow ? (
+                <>
+                  <text x={48} y={-4} fontSize={19} className="fill-paper" style={{ opacity: on ? 1 : 0.3, transition: 'opacity .4s' }}>{t(n.value)}</text>
+                  <text x={48} y={17} fontSize={11.5} letterSpacing="0.12em" className="fill-paper/50 font-mono uppercase">{t(n.label)}</text>
+                </>
+              ) : (
+                <>
+                  <text y={-46} textAnchor="middle" className="tap-value fill-paper" style={{ opacity: on ? 1 : 0.3, transition: 'opacity .4s' }}>{t(n.value)}</text>
+                  <text y={58} textAnchor="middle" className="tap-label fill-paper/50 font-mono uppercase tracking-[0.14em]">{t(n.label)}</text>
+                </>
+              )}
             </g>
           )
         })}

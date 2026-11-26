@@ -5,19 +5,23 @@ import { gsap } from '@/lib/motion'
 import { useLocale } from '@/lib/i18n'
 import { BookingLede } from './booking-lede'
 import { NOTEBOOK_PAGES } from './notebook-pages'
+import { NOTEBOOK_PAGES_NARROW } from './notebook-pages-narrow'
 import { useAutoSteps } from './use-auto-steps'
+import { useNarrow } from '../use-narrow'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Tiempo en cada página mientras pasan solas (ms) */
 const PAGE_MS = 5200
-/** Anillos del espiral sobre el borde de arriba */
-const RINGS = 22
+/** Anillos del espiral sobre el borde de arriba (menos en la hoja angosta del teléfono) */
+const RINGS = { wide: 22, narrow: 11 }
 const N = NOTEBOOK_PAGES.length
 
 /**
  * 04 · Bocetos y forma: los bocetos en un cuaderno de espiral. Las páginas se
  * pasan solas hacia arriba, como al hojear un cuaderno; en cada una las notas
  * se pegan y las flechas se dibujan. Se detiene con el cursor encima y se puede
- * ir a cualquier página. En el teléfono, el cuaderno se desliza de lado.
+ * ir a cualquier página. En el teléfono la hoja es vertical, con la letra a un
+ * tamaño que se lee, y se pasa deslizando el dedo de lado.
  */
 export function SketchNotebook() {
   const { t } = useLocale()
@@ -26,6 +30,9 @@ export function SketchNotebook() {
   const [page, setPage] = useState(0)
   const [hold, setHold] = useState(false)
   const current = NOTEBOOK_PAGES[page]
+  const narrow = useNarrow()
+  const swipeRef = useRef<HTMLDivElement>(null)
+  useSwipe(swipeRef, { onNext: () => setPage((p) => (p + 1) % N), onPrev: () => setPage((p) => (p - 1 + N) % N), disabled: !narrow })
 
   // Pasa de página sola mientras se ve y nadie la está mirando de cerca
   useEffect(() => {
@@ -90,12 +97,11 @@ export function SketchNotebook() {
     <div ref={ref} className="flex flex-col items-center">
       <BookingLede tag={`${t({ es: 'Cuaderno', en: 'Sketchbook' })} · ${String(page + 1).padStart(2, '0')} / ${String(N).padStart(2, '0')}`} title={t(current.title)} sub={t(current.note)} swapKey={page} />
 
-      <div className="mt-10 w-full max-w-[1000px] overflow-x-auto overscroll-x-contain pb-2" onPointerEnter={() => setHold(true)} onPointerLeave={() => setHold(false)}>
-        <p className="mono-label mb-3 text-center opacity-50 md:hidden" aria-hidden="true">{t({ es: 'Desliza →', en: 'Swipe →' })}</p>
-        <div data-reveal-off className="relative mx-auto min-w-[820px] pt-5 [perspective:1800px] [perspective-origin:50%_-30%]">
+      <div ref={swipeRef} className={`mt-10 w-full max-w-[1000px] pb-2 ${narrow ? '' : 'overflow-x-auto overscroll-x-contain'}`} onPointerEnter={() => setHold(true)} onPointerLeave={() => setHold(false)}>
+        <div data-reveal-off className={`relative mx-auto pt-5 [perspective:1800px] [perspective-origin:50%_-30%] ${narrow ? 'max-w-[440px]' : 'min-w-[820px]'}`}>
           {/* El espiral, por encima de todas las hojas */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-x-[4%] top-0 z-[300] flex justify-between">
-            {Array.from({ length: RINGS }, (_, i) => (
+            {Array.from({ length: narrow ? RINGS.narrow : RINGS.wide }, (_, i) => (
               <span key={i} className="h-7 w-2.5 rounded-full border-2 border-[#c9c4b6] bg-gradient-to-b from-[#3a3d44] to-[#1b1d21] shadow-[0_2px_3px_rgba(0,0,0,0.5)]" />
             ))}
           </div>
@@ -104,9 +110,10 @@ export function SketchNotebook() {
           <span aria-hidden="true" className="absolute inset-x-[0.6%] bottom-[-10px] top-8 rounded-xl bg-[#d9d5ca]" />
           <span aria-hidden="true" className="absolute inset-x-[0.3%] bottom-[-5px] top-7 rounded-xl bg-[#e8e5dc]" />
 
-          <div ref={stackRef} className="relative aspect-[1200/700] [&_figure]:overflow-visible [&_figure>div]:min-w-0 [&_figure>div>p]:hidden [&_figure>p]:hidden">
-            {NOTEBOOK_PAGES.map(({ Page, title }, i) => {
+          <div ref={stackRef} className={`relative [&_figure]:overflow-visible [&_figure>div]:min-w-0 [&_figure>div>p]:hidden [&_figure>p]:hidden ${narrow ? 'aspect-[400/720]' : 'aspect-[1200/700]'}`}>
+            {NOTEBOOK_PAGES.map(({ Page: WidePage, title }, i) => {
               const on = i === page
+              const Page = narrow ? NOTEBOOK_PAGES_NARROW[i] : WidePage
               return (
                 <div
                   key={title.es}

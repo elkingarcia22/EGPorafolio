@@ -115,7 +115,7 @@ export function BehaviorFlow() {
         {/* De dónde sale cada respuesta */}
         <ul className={`mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 transition-opacity duration-700 ${done ? 'opacity-100' : 'opacity-0'}`}>
           {Object.values(SOURCE).map((s) => (
-            <li key={s.label.es} className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/55">
+            <li key={s.label.es} className="flex items-center gap-2 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-paper/55">
               <span className="h-2 w-2 rounded-full" style={{ background: `rgb(${s.tone})` }} />
               {t(s.label)}
             </li>
