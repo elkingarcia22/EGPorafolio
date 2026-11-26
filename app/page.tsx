@@ -23,11 +23,11 @@ export default async function HomePage() {
       {/* Fibras de la red entre secciones: del «00» de Enfoque al «01» de Proyectos (por la izquierda),
           del «01» al «02» de Proceso (por la derecha), del final de Proceso al «03» de Trayectoria,
           y de las cajas de Trayectoria al Agente. A Contacto baja la luz azul, como a Enfoque */}
-      <SectionFiber id="enfoque">
+      <SectionFiber id="enfoque" narrowFromBelow={false}>
         <Manifesto />
-        <SectionFiber id="proyectos" side="right">
+        <SectionFiber id="proyectos" side="right" narrowFromBelow={false}>
           <WorkList projects={projects} />
-          <SectionFiber id="proceso" side="right">
+          <SectionFiber id="proceso" side="right" narrowFromBelow={false}>
             <ProcessFlow />
             <ConvergeFibers>
               <Trajectory />

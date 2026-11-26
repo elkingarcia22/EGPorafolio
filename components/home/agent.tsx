@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { getLenis } from '@/lib/motion'
 import { ToneSection } from '@/components/ui/tone-section'
 import { SectionLabel } from '@/components/ui/section-label'
 import { useA11y } from '@/lib/a11y'
@@ -67,7 +69,27 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const title = t(COPY.agent.title)
+  /** En el teléfono el chat puede abrirse a pantalla completa */
+  const [full, setFull] = useState(false)
   useRiseIn(titleRef, reducedMotion)
+
+  // A pantalla completa la página de atrás no se mueve, y Escape lo cierra.
+  useEffect(() => {
+    if (!full) return
+    const lenis = getLenis()
+    lenis?.stop()
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFull(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = overflow
+      lenis?.start()
+    }
+  }, [full])
   useEnterSequence(rootRef, ENTER_STEPS, reducedMotion)
 
   useEffect(() => {
@@ -163,6 +185,131 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
   }
 
   const last = messages[messages.length - 1]
+  const panel = (
+          <div
+        data-ag-panel={full ? undefined : true}
+        data-converge-to={full ? undefined : true}
+        role={full ? 'dialog' : undefined}
+        aria-modal={full || undefined}
+        aria-label={full ? title : undefined}
+        className={full
+          ? 'fixed inset-0 z-[200] flex h-[100dvh] flex-col overflow-hidden bg-[rgb(var(--void))] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-left'
+          : 'relative z-10 flex h-[min(32rem,72svh)] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[rgb(var(--void)/0.7)] shadow-[0_30px_90px_-30px_rgb(var(--signal)/0.45)] backdrop-blur-md lg:h-[min(36rem,74svh)]'}
+      >
+        <div data-ag-head className="flex items-center justify-between gap-4 border-b border-fg/15 px-4 py-3">
+          <span className="mono-label flex shrink-0 items-center gap-2 whitespace-nowrap">
+            <span className={`h-2 w-2 rounded-full bg-signal ${busy ? 'animate-pulse' : ''}`} aria-hidden="true" />
+            EG · agent
+          </span>
+          <span className="flex min-w-0 items-center gap-3">
+            {messages.length > 0 ? (
+              <button type="button" onClick={reset} className="mono-label opacity-40 transition-opacity hover:opacity-100">
+                {t({ es: 'Reiniciar', en: 'Reset' })}
+              </button>
+            ) : (
+              <span className="mono-label truncate opacity-40">{t(COPY.agent.disclaimer)}</span>
+            )}
+            {/* Teléfono: ampliar el chat a pantalla completa (y volver) */}
+            <button
+              type="button"
+              onClick={() => setFull((v) => !v)}
+              aria-label={full ? t({ es: 'Cerrar pantalla completa', en: 'Exit full screen' }) : t({ es: 'Ampliar el chat', en: 'Expand the chat' })}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/15 text-paper/80 transition-colors hover:border-white/40 md:hidden"
+            >
+              <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" aria-hidden="true">
+                {full ? <path d="M6 2v4H2M10 2v4h4M6 14v-4H2M10 14v-4h4" /> : <path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4" />}
+              </svg>
+            </button>
+          </span>
+        </div>
+
+        <div ref={logRef} role="log" aria-live="polite" aria-busy={busy} className="fiber-scroll flex-1 space-y-6 overflow-y-auto p-5 text-[15px] leading-relaxed" data-lenis-prevent={logScrolls || undefined}>
+          {messages.length === 0 && (
+            <div className="space-y-5">
+              <p className="opacity-60">
+                <span className="mono-label mr-2 text-signal">EG ▸</span>
+                {t({ es: 'Hola, soy Elkin. Pregúntame cómo diseño, mido y construyo productos.', en: 'Hi, I’m Elkin. Ask me how I design, measure and build products.' })}
+              </p>
+              {/* Atajos: unas pocas preguntas para empezar */}
+              <div className="flex flex-wrap gap-2">
+                {STARTERS.slice(0, STARTER_CHIPS).map((s) => (
+                  <button
+                    key={s.q.es}
+                    type="button"
+                    data-ag-starter
+                    onClick={() => ask(t(s.q))}
+                    disabled={busy}
+                    className="rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-left text-xs text-paper/80 transition-[border-color,background-color,color] duration-300 hover:border-white/40 hover:bg-white/10 hover:text-paper disabled:opacity-40"
+                  >
+                    {t(s.q)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.map((m) => {
+            if (m.role === 'user') {
+              return (
+                <p key={m.id} className="opacity-55">
+                  <span className="mono-label mr-2">{t(COPY.agent.you)} ▸</span>
+                  {m.content}
+                </p>
+              )
+            }
+            const { text, extras } = parseReply(m.content)
+            const streaming = busy && m.id === last?.id
+            const cases = extras.cases.map((slug) => projects.find((p) => p.slug === slug)).filter((p): p is Project => Boolean(p))
+            return (
+              <div key={m.id} className="space-y-4">
+                <div className="flex gap-2">
+                  <span className="mono-label mt-[0.35em] shrink-0 text-signal">EG ▸</span>
+                  <div className="min-w-0 flex-1 opacity-90">
+                    {text ? <RichText text={text} /> : streaming && <Thinking />}
+                    {text && streaming && <span className="caret" />}
+                  </div>
+                </div>
+                {!streaming && cases.length > 0 && <div className="grid gap-2 sm:grid-cols-2">{cases.map((p) => <CaseCard key={p.slug} project={p} />)}</div>}
+                {!streaming && (extras.contact || extras.cv) && <ContactActions contact={extras.contact} cv={extras.cv} />}
+                {!streaming && m.id === last?.id && extras.suggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {extras.suggestions.slice(0, 2).map((s) => (
+                      <button key={s} type="button" onClick={() => ask(s)} className="border border-fg/25 px-3 py-1.5 text-xs transition-colors hover:border-signal hover:text-signal">
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        <form
+          className="flex items-center gap-3 border-t border-fg/15 p-4"
+          onSubmit={(e) => {
+            e.preventDefault()
+            ask(draft)
+          }}
+        >
+          <label htmlFor="agent-input" className="sr-only">{t(COPY.agent.placeholder)}</label>
+          <span className="font-mono text-signal" aria-hidden="true">▸</span>
+          <input
+            ref={inputRef}
+            id="agent-input"
+            value={draft}
+            maxLength={MAX_QUESTION_LENGTH}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={t(COPY.agent.placeholder)}
+            autoComplete="off"
+            className="min-w-0 flex-1 bg-transparent text-[15px] placeholder:text-fg/40 focus:outline-none"
+          />
+          <button type="submit" disabled={busy || !draft.trim()} className="mono-label border border-fg/30 px-4 py-2 transition-colors hover:bg-fg hover:text-bg disabled:opacity-40">
+            {t(COPY.agent.send)}
+          </button>
+        </form>
+      </div>
+  )
 
   return (
     <ToneSection tone="dark" id="agent" className="px-[var(--gutter)] py-[clamp(5rem,3rem+8vw,10rem)]">
@@ -172,107 +319,15 @@ export function Agent({ projects }: { projects: readonly Project[] }) {
 
         {/* La caja del chat: aquí llegan las fibras de Trayectoria */}
         <div className="mt-12 w-full min-w-0 text-left">
-          <div data-ag-panel data-converge-to className="relative z-10 flex h-[min(32rem,72svh)] flex-col overflow-hidden rounded-2xl border border-white/12 bg-[rgb(var(--void)/0.7)] shadow-[0_30px_90px_-30px_rgb(var(--signal)/0.45)] backdrop-blur-md lg:h-[min(36rem,74svh)]">
-            <div data-ag-head className="flex items-center justify-between gap-4 border-b border-fg/15 px-4 py-3">
-              <span className="mono-label flex shrink-0 items-center gap-2 whitespace-nowrap">
-                <span className={`h-2 w-2 rounded-full bg-signal ${busy ? 'animate-pulse' : ''}`} aria-hidden="true" />
-                EG · agent
-              </span>
-              {messages.length > 0 ? (
-                <button type="button" onClick={reset} className="mono-label opacity-40 transition-opacity hover:opacity-100">
-                  {t({ es: 'Reiniciar', en: 'Reset' })}
-                </button>
-              ) : (
-                <span className="mono-label truncate opacity-40">{t(COPY.agent.disclaimer)}</span>
-              )}
-            </div>
-
-            <div ref={logRef} role="log" aria-live="polite" aria-busy={busy} className="fiber-scroll flex-1 space-y-6 overflow-y-auto p-5 text-[15px] leading-relaxed" data-lenis-prevent={logScrolls || undefined}>
-              {messages.length === 0 && (
-                <div className="space-y-5">
-                  <p className="opacity-60">
-                    <span className="mono-label mr-2 text-signal">EG ▸</span>
-                    {t({ es: 'Hola, soy Elkin. Pregúntame cómo diseño, mido y construyo productos.', en: 'Hi, I’m Elkin. Ask me how I design, measure and build products.' })}
-                  </p>
-                  {/* Atajos: unas pocas preguntas para empezar */}
-                  <div className="flex flex-wrap gap-2">
-                    {STARTERS.slice(0, STARTER_CHIPS).map((s) => (
-                      <button
-                        key={s.q.es}
-                        type="button"
-                        data-ag-starter
-                        onClick={() => ask(t(s.q))}
-                        disabled={busy}
-                        className="rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-left text-xs text-paper/80 transition-[border-color,background-color,color] duration-300 hover:border-white/40 hover:bg-white/10 hover:text-paper disabled:opacity-40"
-                      >
-                        {t(s.q)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {messages.map((m) => {
-                if (m.role === 'user') {
-                  return (
-                    <p key={m.id} className="opacity-55">
-                      <span className="mono-label mr-2">{t(COPY.agent.you)} ▸</span>
-                      {m.content}
-                    </p>
-                  )
-                }
-                const { text, extras } = parseReply(m.content)
-                const streaming = busy && m.id === last?.id
-                const cases = extras.cases.map((slug) => projects.find((p) => p.slug === slug)).filter((p): p is Project => Boolean(p))
-                return (
-                  <div key={m.id} className="space-y-4">
-                    <div className="flex gap-2">
-                      <span className="mono-label mt-[0.35em] shrink-0 text-signal">EG ▸</span>
-                      <div className="min-w-0 flex-1 opacity-90">
-                        {text ? <RichText text={text} /> : streaming && <Thinking />}
-                        {text && streaming && <span className="caret" />}
-                      </div>
-                    </div>
-                    {!streaming && cases.length > 0 && <div className="grid gap-2 sm:grid-cols-2">{cases.map((p) => <CaseCard key={p.slug} project={p} />)}</div>}
-                    {!streaming && (extras.contact || extras.cv) && <ContactActions contact={extras.contact} cv={extras.cv} />}
-                    {!streaming && m.id === last?.id && extras.suggestions.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {extras.suggestions.slice(0, 2).map((s) => (
-                          <button key={s} type="button" onClick={() => ask(s)} className="border border-fg/25 px-3 py-1.5 text-xs transition-colors hover:border-signal hover:text-signal">
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            <form
-              className="flex items-center gap-3 border-t border-fg/15 p-4"
-              onSubmit={(e) => {
-                e.preventDefault()
-                ask(draft)
-              }}
-            >
-              <label htmlFor="agent-input" className="sr-only">{t(COPY.agent.placeholder)}</label>
-              <span className="font-mono text-signal" aria-hidden="true">▸</span>
-              <input
-                ref={inputRef}
-                id="agent-input"
-                value={draft}
-                maxLength={MAX_QUESTION_LENGTH}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder={t(COPY.agent.placeholder)}
-                autoComplete="off"
-                className="min-w-0 flex-1 bg-transparent text-[15px] placeholder:text-fg/40 focus:outline-none"
-              />
-              <button type="submit" disabled={busy || !draft.trim()} className="mono-label border border-fg/30 px-4 py-2 transition-colors hover:bg-fg hover:text-bg disabled:opacity-40">
-                {t(COPY.agent.send)}
-              </button>
-            </form>
-          </div>
+          {/* A pantalla completa el chat sale de la página; aquí queda su hueco para que nada salte */}
+          {full ? (
+            <>
+              {createPortal(panel, document.body)}
+              <div aria-hidden="true" className="h-[min(32rem,72svh)]" />
+            </>
+          ) : (
+            panel
+          )}
         </div>
       </div>
     </ToneSection>

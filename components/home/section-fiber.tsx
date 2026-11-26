@@ -20,6 +20,8 @@ const SWAY = 26
 const REMEASURE_LIVE_MS = 350
 /** Espera antes de volver a medir cuando el contenido cambia de alto (ms) */
 const REMEASURE_MS = 200
+/** Pantallas angostas: la fibra no cruza el contenido, sale por debajo de la sección de origen */
+const NARROW_QUERY = '(max-width: 767px)'
 
 interface Point {
   x: number
@@ -87,10 +89,15 @@ interface SectionFiberProps {
   id: string
   /** costado hacia el que se abre la curva (por defecto, la izquierda) */
   side?: FiberSide
+  /**
+   * En el teléfono, la fibra sale del borde inferior de la sección de origen y baja recta al nodo
+   * de destino, sin pasar sobre gráficos ni textos (por defecto, sí). En pantallas anchas no cambia.
+   */
+  narrowFromBelow?: boolean
   children: React.ReactNode
 }
 
-export function SectionFiber({ id, side = 'left', children }: SectionFiberProps) {
+export function SectionFiber({ id, side = 'left', narrowFromBelow = true, children }: SectionFiberProps) {
   const { reducedMotion } = useA11y()
   const wrapRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -142,10 +149,33 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
       pulse.style.opacity = p >= 0.995 ? '1' : '0'
     }
 
+    const narrowQuery = window.matchMedia(NARROW_QUERY)
+    /** En el teléfono: el borde inferior de la sección donde nace la fibra (si no contiene el destino) */
+    const belowSource = (): number | null => {
+      if (!narrowFromBelow || !narrowQuery.matches) return null
+      const source = wrap.querySelector(`[data-fiber-from="${id}"]`)
+      const target = wrap.querySelector(`[data-fiber-to="${id}"]`)
+      // El capítulo entero (no una sección anidada dentro de él); si no hay capítulo, la sección.
+      const section = source?.closest('[data-chapter]') ?? source?.closest('section')
+      if (!section || !target || section.contains(target)) return null
+      return section.getBoundingClientRect().bottom - wrap.getBoundingClientRect().top
+    }
+
     const measure = () => {
       const a = centerOf(`[data-fiber-from="${id}"]`, true)
       const b = centerOf(`[data-fiber-to="${id}"]`)
       if (!a || !b) return
+      const below = belowSource()
+      if (below !== null && below < b.y) {
+        // Sale por debajo de la sección de origen, a la altura del nodo de destino, y baja recta.
+        from = { x: b.x, y: below }
+        to = b
+        svg.setAttribute('viewBox', `0 0 ${wrap.clientWidth} ${wrap.clientHeight}`)
+        const d = `M${from.x},${from.y} L${to.x},${to.y}`
+        ;[base, drawn, pulse, glowRef.current].forEach((path) => path?.setAttribute('d', d))
+        total = drawn.getTotalLength()
+        return
+      }
       from = a
       to = b
       svg.setAttribute('viewBox', `0 0 ${wrap.clientWidth} ${wrap.clientHeight}`)
@@ -198,12 +228,15 @@ export function SectionFiber({ id, side = 'left', children }: SectionFiberProps)
       pending = window.setTimeout(() => ScrollTrigger.refresh(), REMEASURE_MS)
     })
     ro.observe(wrap)
+    const onNarrowChange = () => ScrollTrigger.refresh()
+    narrowQuery.addEventListener('change', onNarrowChange)
     return () => {
+      narrowQuery.removeEventListener('change', onNarrowChange)
       ro.disconnect()
       window.clearTimeout(pending)
       ctx.revert()
     }
-  }, [reducedMotion, id, side])
+  }, [reducedMotion, id, side, narrowFromBelow])
 
   return (
     <div ref={wrapRef} className="relative">
