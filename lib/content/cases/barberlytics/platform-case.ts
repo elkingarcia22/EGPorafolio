@@ -23,7 +23,7 @@ export type Mark = 'yes' | 'half' | 'no' | 'unknown'
 export const PLATFORM_CASE = {
   slug: 'plataforma',
   index: '03',
-  title: { es: 'Plataforma', en: 'Platform' },
+  title: { es: 'Calendario', en: 'Calendar' },
   eyebrow: { es: 'El calendario, en el centro', en: 'The calendar, at the center' },
   tagline: {
     es: 'Un calendario que se adapta a la barbería —y no la barbería al calendario—, que lleva cada cita de «agendada» a «cobrada» sin salir de la rejilla y que propone sin decidir.',

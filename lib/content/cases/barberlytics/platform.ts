@@ -11,7 +11,7 @@ const shot = (name: string, width: number, height: number, alt: L, caption?: L):
 })
 
 export const PLATFORM = {
-  title: { es: 'Plataforma · el negocio por dentro', en: 'Platform · the business inside' },
+  title: { es: 'Calendario · el negocio por dentro', en: 'Calendar · the business inside' },
   intro: {
     kicker: { es: '¿Qué ve cada persona de la barbería?', en: 'What does each person in the shop see?' },
     lead: {

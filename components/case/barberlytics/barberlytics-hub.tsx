@@ -89,7 +89,7 @@ const PROJECTS: readonly HubProject[] = [
   {
     slug: 'plataforma',
     index: '03',
-    title: { es: 'Plataforma', en: 'Platform' },
+    title: { es: 'Calendario', en: 'Calendar' },
     what: { es: 'El calendario, en el centro', en: 'The calendar, at the center' },
     body: { es: 'Un calendario que se adapta a la barbería y lleva cada cita de agendada a cobrada sin salir de la rejilla.', en: 'A calendar that adapts to the shop and takes every visit from booked to paid without leaving the grid.' },
     stat: { es: '22 calendarios comparados · 6 etapas en vivo', en: '22 calendars compared · 6 live stages' },

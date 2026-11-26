@@ -107,7 +107,7 @@ function casesBlock(locale: Locale): string {
     ['Caso Barberlytics (producto completo) · slug barberlytics', [PROJECTS.find((p) => p.slug === 'barberlytics'), OVERVIEW]],
     ['Barberlytics · Thema, el sistema de diseño', THEMA_CASE],
     ['Barberlytics · Reserva en línea (booking flow)', BOOKING_CASE],
-    ['Barberlytics · Plataforma, el calendario', PLATFORM_CASE],
+    ['Barberlytics · Calendario', PLATFORM_CASE],
     ['Barberlytics · Clipper, la IA', CLIPPER_CASE],
     ['Caso SellUp · slug sellup', [PROJECTS.find((p) => p.slug === 'sellup'), SELLUP_CASE]],
     ['Caso Encuestas (UBITS) · slug encuestas', [PROJECTS.find((p) => p.slug === 'encuestas'), ENCUESTAS_CASE]],

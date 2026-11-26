@@ -30,7 +30,7 @@ export const OVERVIEW = {
   pieces: [
     { id: 'thema', title: { es: 'Thema', en: 'Thema' }, what: { es: 'Sistema de diseño', en: 'Design system' }, stat: { es: '218 componentes', en: '218 components' } },
     { id: 'reserva', title: { es: 'Reserva', en: 'Booking' }, what: { es: 'Booking flow del cliente', en: 'Client booking flow' }, stat: { es: '4 versiones', en: '4 versions' } },
-    { id: 'plataforma', title: { es: 'Plataforma', en: 'Platform' }, what: { es: 'El negocio por dentro', en: 'The business inside' }, stat: { es: '5 roles · 17 módulos', en: '5 roles · 17 modules' } },
+    { id: 'plataforma', title: { es: 'Calendario', en: 'Calendar' }, what: { es: 'El negocio por dentro', en: 'The business inside' }, stat: { es: '5 roles · 17 módulos', en: '5 roles · 17 modules' } },
     { id: 'clipper', title: { es: 'Clipper', en: 'Clipper' }, what: { es: 'La IA y su identidad', en: 'The AI and its identity' }, stat: { es: '18 herramientas', en: '18 tools' } },
   ] as const,
   context: {

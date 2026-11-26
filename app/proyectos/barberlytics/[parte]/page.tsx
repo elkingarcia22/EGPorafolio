@@ -13,7 +13,7 @@ interface PartPageProps {
 const PARTS = {
   thema: { title: 'Thema, sistema de diseño · Barberlytics — Elkin Garcia', Case: ThemaCase },
   reserva: { title: 'Reserva en línea · Barberlytics — Elkin Garcia', Case: BookingCase },
-  plataforma: { title: 'Plataforma · Barberlytics — Elkin Garcia', Case: PlatformCase },
+  plataforma: { title: 'Calendario · Barberlytics — Elkin Garcia', Case: PlatformCase },
   clipper: { title: 'Clipper · Barberlytics — Elkin Garcia', Case: ClipperCase },
 } as const
 
