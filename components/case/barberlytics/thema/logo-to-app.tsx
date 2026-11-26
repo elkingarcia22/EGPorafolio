@@ -95,14 +95,14 @@ function ShopApp({ shop, primary }: { shop: Shop; primary: string }) {
   return (
     <div className="space-y-3 px-4 pb-6 pt-3 text-[11px] transition-colors duration-700" style={{ background: app, color: text }}>
       <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg text-[10px] font-bold transition-colors duration-700" style={{ background: primary, color: ink }}>{shop.initials}</span>
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg text-[11px] md:text-[10px] font-bold transition-colors duration-700" style={{ background: primary, color: ink }}>{shop.initials}</span>
         <span className="text-[13px] font-semibold">{shop.name}</span>
       </div>
       <p className="pt-1 text-[17px] font-semibold leading-tight">Hola, Andrés</p>
       <div className="rounded-xl border p-3 transition-colors duration-700" style={card}>
         <p style={{ color: muted }}>Te toca el jueves 19</p>
         <p className="mt-0.5 text-[13px] font-semibold">Fade · con Emilio</p>
-        <span className="mt-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ background: withAlpha(primary, dark ? 0.2 : 0.12), color: dark ? primary : shade(primary, -0.1) }}>Lo de siempre</span>
+        <span className="mt-2 inline-block rounded-full px-2 py-0.5 text-[11px] md:text-[10px] font-medium" style={{ background: withAlpha(primary, dark ? 0.2 : 0.12), color: dark ? primary : shade(primary, -0.1) }}>Lo de siempre</span>
       </div>
       <div className="grid grid-cols-5 gap-1.5 text-center">
         {['L 16', 'M 17', 'M 18', 'J 19', 'V 20'].map((d, i) => (
@@ -168,7 +168,7 @@ export function LogoToApp() {
             {palette.map((c, i) => (
               <li key={`${c}-${i}`} className="animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: `${0.9 + i * 0.12}s` }}>
                 <span className={`block h-12 w-12 rounded-xl ring-1 ring-white/15 ${i === 0 ? 'ring-2 ring-white' : ''}`} style={{ background: c }} />
-                <span className="mt-1.5 block font-mono text-[9px] text-white/45">{i === 0 ? t({ es: 'primario', en: 'primary' }) : c.startsWith('#') ? c.toUpperCase() : ''}</span>
+                <span className="mt-1.5 block font-mono text-[11px] md:text-[9px] text-white/45">{i === 0 ? t({ es: 'primario', en: 'primary' }) : c.startsWith('#') ? c.toUpperCase() : ''}</span>
               </li>
             ))}
           </ul>

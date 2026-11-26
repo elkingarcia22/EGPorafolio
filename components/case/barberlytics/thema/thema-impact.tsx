@@ -111,7 +111,7 @@ export function ThemaImpact() {
                   <span className="flex flex-col">
                     <span className="text-base leading-snug text-paper/85 ">{t(row.title)}</span>
                     <span className="mt-2 max-w-[42ch] text-pretty text-sm leading-relaxed text-paper/55">{t(row.plain)}</span>
-                    {row.reference && <span className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-paper/35">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
+                    {row.reference && <span className="mt-1 font-mono text-[11px] md:text-[9px] uppercase tracking-[0.14em] text-paper/35">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
                   </span>
                 </span>
 
@@ -136,7 +136,7 @@ export function ThemaImpact() {
                         {b.size === 0 && <span aria-hidden="true" className="absolute left-0 h-3 w-3 rounded-full border border-dashed" style={{ borderColor: GOLD }} />}
                       </span>
                       <span
-                        className={`font-mono text-[10px] uppercase tracking-[0.1em] transition-opacity duration-500 ${b.now ? 'text-paper' : 'text-paper/55'}`}
+                        className={`font-mono text-[11px] md:text-[10px] uppercase tracking-[0.1em] transition-opacity duration-500 ${b.now ? 'text-paper' : 'text-paper/55'}`}
                         style={{ opacity: drawn ? 1 : 0, transitionDelay: `${i * ROW_DELAY_MS + 500}ms` }}
                       >
                         {t(b.value)}

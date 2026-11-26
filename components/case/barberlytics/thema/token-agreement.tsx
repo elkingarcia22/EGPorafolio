@@ -82,13 +82,20 @@ export function TokenAgreement() {
 
       <div className="mx-auto max-w-[760px]">
         <div role="table" aria-label={t({ es: 'Matriz de decisión de tokens', en: 'Token decision matrix' })} className="text-sm">
-          <div role="row" className="grid grid-cols-[minmax(0,6.5rem)_repeat(4,minmax(0,1fr))_1.25rem_minmax(0,1fr)] items-end gap-x-1 pb-3 font-mono text-[9px] uppercase tracking-[0.12em] text-paper/45 md:grid-cols-[minmax(0,10rem)_repeat(4,minmax(0,1fr))_2rem_minmax(0,1fr)] md:gap-x-2 md:text-[10px]">
+          <div role="row" className="grid grid-cols-[minmax(0,6.5rem)_repeat(4,minmax(0,1fr))_1.25rem_minmax(0,1fr)] items-end gap-x-1 pb-3 font-mono text-[12px] uppercase tracking-[0.12em] text-paper/45 md:grid-cols-[minmax(0,10rem)_repeat(4,minmax(0,1fr))_2rem_minmax(0,1fr)] md:gap-x-2 md:text-[10px]">
             <span role="columnheader">Token</span>
             {SOURCES.map((s) => (
-              <span key={s} role="columnheader" className="truncate text-center">{s}</span>
+              <span key={s} role="columnheader" aria-label={s} className="truncate text-center">
+                {/* En teléfono, solo la inicial (la leyenda va debajo de la matriz) */}
+                <span aria-hidden="true" className="md:hidden">{s[0]}</span>
+                <span className="hidden md:inline">{s}</span>
+              </span>
             ))}
             <span aria-hidden="true" />
-            <span role="columnheader" className="text-center text-paper/80">{t({ es: 'Decisión', en: 'Decision' })}</span>
+            <span role="columnheader" aria-label={t({ es: 'Decisión', en: 'Decision' })} className="text-center text-paper/80">
+              <span aria-hidden="true" className="text-[#D9B36A] md:hidden">✓</span>
+              <span className="hidden md:inline">{t({ es: 'Decisión', en: 'Decision' })}</span>
+            </span>
           </div>
           {ROWS.map((r, i) => {
             const isResolved = i < resolved
@@ -118,11 +125,19 @@ export function TokenAgreement() {
           })}
         </div>
 
+        {/* En teléfono, qué es cada inicial de la cabecera */}
+        <p aria-hidden="true" className="mt-3 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-[0.08em] text-paper/45 md:hidden">
+          {SOURCES.map((s) => (
+            <span key={s}><span className="text-paper/80">{s[0]}</span> {s}</span>
+          ))}
+          <span><span className="text-[#D9B36A]">✓</span> {t({ es: 'Decisión', en: 'Decision' })}</span>
+        </p>
+
         {/* El detalle del token tocado */}
         <div className="mt-5 min-h-[4.5rem]" aria-live="polite">
           {row ? (
             <div key={row.token} className="th-fade grid grid-cols-[auto_1fr] items-start gap-x-5 gap-y-1 border-l border-[#D9B36A]/60 pl-4">
-              <p className="col-span-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[#D9B36A]">{row.token} · {row.decision}</p>
+              <p className="col-span-2 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-[#D9B36A]">{row.token} · {row.decision}</p>
               <p className="col-span-2 text-base leading-snug text-paper/85">{t(row.why)}</p>
               <p className="col-span-2 text-sm text-paper/55">
                 {row.premium
@@ -131,7 +146,7 @@ export function TokenAgreement() {
               </p>
             </div>
           ) : (
-            <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-paper/35">
+            <p className="text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/35">
               {t({ es: 'Anillo dorado: las fuentes que coincidían · toca un token para ver el motivo', en: 'Gold ring: the sources that agreed · tap a token to see why' })}
             </p>
           )}

@@ -52,7 +52,7 @@ function ComponentReel() {
               <span className="text-paper/45"> · {t({ es: 'familia', en: 'family' })} «{current.family}»</span>
             </span>
           ) : (
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: '218 componentes en 22 familias · toca uno', en: '218 components in 22 families · tap one' })}</span>
+            <span className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: '218 componentes en 22 familias · toca uno', en: '218 components in 22 families · tap one' })}</span>
           )}
         </p>
         <span aria-hidden="true" className="relative mt-5 h-2.5 w-2.5 rounded-full border border-white/60 bg-signal shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">

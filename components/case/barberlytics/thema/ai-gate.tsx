@@ -139,8 +139,8 @@ export function AiGate() {
                     />
                   </span>
                   <span className="flex flex-col">
-                    <span className={`whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] transition-colors md:text-[11px] ${isPicked || passing || hit ? 'text-paper' : 'text-paper/50 group-hover:text-paper/85'}`}>{t(s.name)}</span>
-                    <span className="hidden font-mono text-[9px] tracking-[0.08em] text-paper/30 md:block">0{i + 1}</span>
+                    <span className={`whitespace-nowrap font-mono text-[12px] uppercase tracking-[0.12em] transition-colors md:text-[11px] md:tracking-[0.14em] ${isPicked || passing || hit ? 'text-paper' : 'text-paper/50 group-hover:text-paper/85'}`}>{t(s.name)}</span>
+                    <span className="hidden font-mono text-[11px] md:text-[9px] tracking-[0.08em] text-paper/30 md:block">0{i + 1}</span>
                   </span>
                 </button>
               </li>
@@ -150,7 +150,7 @@ export function AiGate() {
 
         {/* La pantalla que la IA escribe */}
         <div className="min-w-0">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/45">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-paper/45">
             <span className="flex items-center gap-2">
               <span aria-hidden="true" className="inline-block h-3 w-3 rounded-full" style={{ background: 'conic-gradient(from 180deg, #f0ce86, #3f72d8, #8f5bd8, #f0ce86)' }} />
               agenda.tsx
@@ -179,7 +179,7 @@ export function AiGate() {
                       </span>
                     )}
                   </span>
-                  <span className="pt-px text-[10px] uppercase tracking-[0.12em] transition-colors duration-300" style={{ color: tone }}>
+                  <span className="pt-px text-[11px] md:text-[10px] uppercase tracking-[0.12em] transition-colors duration-300" style={{ color: tone }}>
                     {settled ? (stop ? '✕' : '✓') : run.at < 0 ? '' : '…'}
                   </span>
                 </li>
@@ -193,7 +193,7 @@ export function AiGate() {
       <div className="mx-auto mt-8 min-h-[4rem] max-w-[640px]" aria-live="polite">
         {station ? (
           <div key={picked} className="th-fade border-l border-signal/60 pl-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{t(station.detail.title)}</p>
+            <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-signal">{t(station.detail.title)}</p>
             {Array.isArray(station.detail.body) ? (
               <ul className="mt-3 grid gap-x-6 gap-y-1.5 text-sm text-paper/75 sm:grid-cols-2">
                 {(station.detail.body as readonly L[]).map((line) => (
@@ -208,7 +208,7 @@ export function AiGate() {
             )}
           </div>
         ) : (
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-paper/35">{t({ es: 'Toca una estación', en: 'Tap a station' })}</p>
+          <p className="text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/35">{t({ es: 'Toca una estación', en: 'Tap a station' })}</p>
         )}
       </div>
 
