@@ -77,9 +77,9 @@ html[data-motion='reduced'] .branch-pulse { animation: none; opacity: 0; }
 .branch-name { font-size: 17px; }
 .branch-role { font-size: 11px; }
 @media (max-width: 640px) {
-  .branch-value { font-size: 30px; }
-  .branch-name { font-size: 30px; }
-  .branch-role { font-size: 20px; letter-spacing: 0.06em; }
+  .branch-value { font-size: 34px; }
+  .branch-name { font-size: 34px; }
+  .branch-role { font-size: 31px; letter-spacing: 0; }
 }
 
 /* El orbe de la IA: respira despacio; al pensar, late un poco más rápido */

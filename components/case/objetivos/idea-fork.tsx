@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { useSvgScale } from '@/components/case/kit/use-svg-scale'
 
 /** Los cuatro principios que salieron de la pregunta: nombre corto y su porqué (este solo se lee al tocarlo). */
 const PRINCIPLES: readonly { title: L; body: L }[] = [
@@ -57,6 +58,9 @@ export function IdeaFork({ question }: { question: string }) {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  // En el teléfono el dibujo se encoge: los textos se agrandan para seguir leyéndose.
+  const { narrow, fit } = useSvgScale(svgRef, W)
   const [step, setStep] = useState(reducedMotion ? LAST : 0)
   const [inView, setInView] = useState(false)
   const [picked, setPicked] = useState<number | null>(null)
@@ -93,7 +97,7 @@ export function IdeaFork({ question }: { question: string }) {
         {caption.sub && <span className="mt-2 max-w-[52ch] text-balance text-sm leading-relaxed text-paper/55">{caption.sub}</span>}
       </figcaption>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="mt-6 block h-auto max-h-[44vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Una pregunta, cuatro principios', en: 'One question, four principles' })}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="mt-6 block h-auto max-h-[44vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Una pregunta, cuatro principios', en: 'One question, four principles' })}>
         <defs>
           <linearGradient id="fork-fiber" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stopColor="rgb(var(--signal))" />
@@ -148,7 +152,7 @@ export function IdeaFork({ question }: { question: string }) {
 
         {/* La pregunta, de donde se abren las ramas */}
         <Dot x={FROM.x} y={FROM.y} r={10} on picked={false} />
-        <text x={FROM.x} y={FROM.y + 40} textAnchor="middle" className="fill-current font-mono uppercase opacity-70" fontSize={11} letterSpacing="0.16em">
+        <text x={narrow ? 0 : FROM.x} y={FROM.y + 40} textAnchor={narrow ? 'start' : 'middle'} className="fill-current font-mono uppercase opacity-70" fontSize={fit(10.5, 11)} letterSpacing="0.16em">
           {t({ es: 'La pregunta', en: 'The question' })}
         </text>
 
@@ -174,7 +178,7 @@ export function IdeaFork({ question }: { question: string }) {
             >
               <rect x={MID_X - 110} y={y - 34} width={220} height={52} fill="transparent" />
               <Dot x={MID_X} y={y} r={6} on={on} picked={isPicked} />
-              <text x={MID_X} y={y - 18} textAnchor="middle" className="pointer-events-none fill-current" fontSize={14} style={{ opacity: isPicked ? 1 : on ? 0.85 : 0.35, transition: 'opacity .4s' }}>
+              <text x={MID_X} y={y - 18} textAnchor="middle" className="pointer-events-none fill-current" fontSize={fit(12, 14)} style={{ opacity: isPicked ? 1 : on ? 0.85 : 0.35, transition: 'opacity .4s' }}>
                 {t(PRINCIPLES[i].title)}
               </text>
             </g>
@@ -183,7 +187,7 @@ export function IdeaFork({ question }: { question: string }) {
 
         {/* La llegada: los cuatro se juntan en uno; de aquí sale la fibra hacia «Bocetos» */}
         <Dot x={TO.x} y={TO.y} r={12} on={done} picked={false} />
-        <text x={TO.x} y={TO.y + 42} textAnchor="middle" className="fill-current font-mono uppercase" fontSize={11} letterSpacing="0.16em" style={{ opacity: done ? 0.85 : 0.35, transition: 'opacity .4s' }}>
+        <text x={narrow ? W : TO.x} y={TO.y + 42} textAnchor={narrow ? 'end' : 'middle'} className="fill-current font-mono uppercase" fontSize={fit(10.5, 11)} letterSpacing="0.16em" style={{ opacity: done ? 0.85 : 0.35, transition: 'opacity .4s' }}>
           {t({ es: 'A su manera', en: 'Their own way' })}
         </text>
         <circle cx={TO.x} cy={TO.y} r={1} fill="none" data-fiber-from="obj-bocetos" />

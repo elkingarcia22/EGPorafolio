@@ -5,6 +5,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
 import { MOMENTS, ROLE_NAME } from './lifecycle-moments'
+import { useSvgScale } from '@/components/case/kit/use-svg-scale'
 
 /** Lienzo de la escena (unidades del SVG) */
 const W = 900
@@ -51,6 +52,9 @@ export function DotsScene() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  // En el teléfono el dibujo se encoge: los textos se agrandan para seguir leyéndose.
+  const { narrow, fit } = useSvgScale(svgRef, W)
   const [step, setStep] = useState(reducedMotion ? LAST : 0)
   const [picked, setPicked] = useState<number | null>(null)
   /** La escena está a la vista (solo entonces avanza sola) */
@@ -108,7 +112,7 @@ export function DotsScene() {
         </div>
 
         <div className="relative mx-auto mt-6 w-full max-w-[900px]">
-          <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto max-h-[44vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Los siete momentos del ciclo', en: 'The seven cycle moments' })}>
+          <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="block h-auto max-h-[44vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Los siete momentos del ciclo', en: 'The seven cycle moments' })}>
             <defs>
               <linearGradient id="dots-fiber" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0" stopColor="rgb(var(--signal))" />
@@ -176,13 +180,18 @@ export function DotsScene() {
                       <circle r={on ? 7 : 6} fill={on ? (isPicked ? 'white' : 'rgb(var(--signal))') : 'rgb(var(--void))'} stroke={on ? 'white' : 'rgb(255 255 255 / 0.55)'} strokeWidth={1.4} style={{ transition: 'fill .5s, stroke .5s' }} />
                     </g>
                     <g style={{ transform: `translate(${pos.x}px, ${pos.y - 30}px)`, transition: 'transform .5s cubic-bezier(.16,1,.3,1)' }}>
+                      {/* En el teléfono no caben los siete nombres: solo se lee el del momento en curso o el tocado */}
                       <text
-                        textAnchor="middle"
+                        textAnchor={narrow && i === 0 ? 'start' : narrow && i === MOMENTS.length - 1 ? 'end' : 'middle'}
+                        dx={narrow && i === 0 ? -14 : narrow && i === MOMENTS.length - 1 ? 14 : 0}
                         dy="0.35em"
                         className="pointer-events-none fill-current font-mono uppercase"
-                        fontSize={12}
+                        fontSize={fit(11, 12)}
                         letterSpacing="0.14em"
-                        style={{ opacity: hot ? 1 : on ? 0.85 : 0.42, transition: 'opacity .6s' }}
+                        style={{
+                          opacity: narrow && !(hot || (picked === null && current === i)) ? 0 : hot ? 1 : on ? 0.85 : 0.42,
+                          transition: 'opacity .6s',
+                        }}
                       >
                         {t(m.name)}
                       </text>
@@ -196,7 +205,7 @@ export function DotsScene() {
                 <tspan key={count} className="ms-value">{count}</tspan>
                 <tspan fontSize={26} className="opacity-40">/7</tspan>
               </text>
-              <text x={SUMMIT.x} y={SUMMIT.y + 186} textAnchor="middle" className="fill-current font-mono uppercase opacity-50" fontSize={11} letterSpacing="0.14em">
+              <text x={SUMMIT.x} y={SUMMIT.y + 186} textAnchor="middle" className="fill-current font-mono uppercase opacity-50" fontSize={fit(11, 11)} letterSpacing="0.14em">
                 {step === 0 ? t({ es: 'cubiertos antes', en: 'covered before' }) : t({ es: 'en el rediseño', en: 'in the redesign' })}
               </text>
               </g>

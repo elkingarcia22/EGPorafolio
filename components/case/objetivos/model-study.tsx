@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { MODELS } from './models-data'
+import { useSvgScale } from '@/components/case/kit/use-svg-scale'
 
 /** Lienzo de la escena (unidades del SVG) */
 const W = 900
@@ -37,6 +38,9 @@ export function ModelStudy() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null)
+  // En el teléfono el dibujo se encoge: los textos se agrandan para seguir leyéndose.
+  const { fit } = useSvgScale(svgRef, W)
   const [step, setStep] = useState(reducedMotion ? LAST : 0)
   const [inView, setInView] = useState(false)
   const [picked, setPicked] = useState<number | null>(null)
@@ -78,7 +82,7 @@ export function ModelStudy() {
         {caption.sub && <span className="mt-1 text-sm text-paper/55">{caption.sub}</span>}
       </figcaption>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="mt-6 block h-auto max-h-[44vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Cinco modelos, un solo constructor', en: 'Five models, one builder' })}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} className="mt-6 block h-auto max-h-[44vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Cinco modelos, un solo constructor', en: 'Five models, one builder' })}>
         <defs>
           <linearGradient id="ms-fiber" x1="1" y1="0" x2="0" y2="0">
             <stop offset="0" stopColor="#ff54aa" />
@@ -140,7 +144,7 @@ export function ModelStudy() {
               <rect x={-14} y={-16} width={150} height={32} fill="transparent" />
               <circle r={18} fill={isPicked ? '#ff54aa' : 'rgb(var(--signal))'} opacity={on ? (isPicked ? 0.3 : 0.14) : 0} style={{ transition: 'opacity .4s, fill .4s' }} />
               <circle r={6} fill={on ? (isPicked ? 'white' : 'rgb(var(--signal))') : 'rgb(var(--void))'} stroke={on ? 'white' : 'rgb(255 255 255 / 0.45)'} strokeWidth={1.4} style={{ transition: 'fill .4s, stroke .4s' }} />
-              <text x={24} dy="0.35em" className="pointer-events-none fill-current font-mono uppercase" fontSize={13} letterSpacing="0.16em" style={{ opacity: isPicked ? 1 : on ? 0.85 : 0.4, transition: 'opacity .4s' }}>
+              <text x={24} dy="0.35em" className="pointer-events-none fill-current font-mono uppercase" fontSize={fit(11, 13)} letterSpacing="0.16em" style={{ opacity: isPicked ? 1 : on ? 0.85 : 0.4, transition: 'opacity .4s' }}>
                 {MODELS[i].label}
               </text>
             </g>
@@ -176,11 +180,11 @@ export function ModelStudy() {
             transform="rotate(-90)"
             style={{ transition: `stroke-dashoffset ${AUTO.step}ms ease-out` }}
           />
-          <text y={10} textAnchor="middle" className="fill-current" fontSize={40} fontWeight={300}>
+          <text y={10} textAnchor="middle" className="fill-current" fontSize={fit(20, 40)} fontWeight={300}>
             <tspan key={step} className="ms-value">{Math.min(step, LAST)}</tspan>
-            <tspan fontSize={16} className="opacity-40">/5</tspan>
+            <tspan fontSize={fit(9, 16)} className="opacity-40">/5</tspan>
           </text>
-          <text y={HUB_R + 30} textAnchor="middle" className="pointer-events-none fill-current font-mono uppercase" fontSize={12} letterSpacing="0.16em" style={{ opacity: picked === LAST || done ? 1 : 0.6 }}>
+          <text y={HUB_R + 30} textAnchor="middle" className="pointer-events-none fill-current font-mono uppercase" fontSize={fit(10.5, 12)} letterSpacing="0.16em" style={{ opacity: picked === LAST || done ? 1 : 0.6 }}>
             {t({ es: 'Constructor', en: 'Builder' })}
           </text>
           {/* De aquí sale la fibra que baja, por la izquierda, hasta «La idea» */}
