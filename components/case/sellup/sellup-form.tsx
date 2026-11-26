@@ -11,7 +11,7 @@ import { A2_LOOP, PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
 import { PeopleRadarMobile } from './forma-a2-radar-mobile'
 import { FAN_H, FAN_W, FanScene, fanView } from './forma-a3-fan'
 import type { Channel } from './forma-a3-devices'
-import { Agent1Radar } from './agent1-radar'
+import { Agent1Map } from './agent1-map'
 import { AppGallery } from './app-gallery'
 
 /** Los ticks de las réplicas: 0,56 s, como en el resto del caso */
@@ -118,8 +118,8 @@ export function SellUpForm() {
     <div>
       <CaseLead>{t({ es: 'Lo construido: tres agentes, cada uno con su trabajo, y la plataforma donde viven.', en: 'What got built: three agents, each with its job, and the platform they live in.' })}</CaseLead>
 
-      <Station index="4.1" title={{ es: 'Agente 1 · Empresas', en: 'Agent 1 · Companies' }} lead={{ es: 'Barre de lo gratis a lo de bajo costo y deja listas las empresas libres.', en: 'Sweeps from free to low-cost sources and readies the unowned companies.' }}>
-        <Agent1Radar />
+      <Station index="4.1" title={{ es: 'Agente 1 · Empresas', en: 'Agent 1 · Companies' }} lead={{ es: 'Recorre los 20 países, primero lo gratis, y deja listas las empresas libres.', en: 'Goes through the 20 countries, free sources first, and readies the unowned companies.' }}>
+        <Agent1Map />
       </Station>
 
       <Station index="4.2" title={{ es: 'Agente 2 · Contactos', en: 'Agent 2 · Contacts' }} lead={{ es: 'Recorre las fuentes en cascada hasta dar con quien decide.', en: 'Goes through the sources in a cascade until it finds who decides.' }}>
