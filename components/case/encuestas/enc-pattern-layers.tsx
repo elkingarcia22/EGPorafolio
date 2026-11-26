@@ -7,6 +7,7 @@ import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 import type { Finding } from '@/lib/content/cases/encuestas/types'
 import { useAutoplay } from '../objetivos/use-autoplay'
 import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
+import { PatternsPhone } from './phone/patterns-phone'
 
 type Area = Finding['area']
 
@@ -19,12 +20,6 @@ const AREAS: readonly { id: Area; name: L; to: readonly number[] }[] = [
   { id: 'privacidad', name: { es: 'Privacidad', en: 'Privacy' }, to: [0] },
 ]
 /** Las tres ideas, en corto (la frase completa sale al tocarlas) */
-/** En teléfono, las ideas van abajo y en corto */
-const INSIGHT_NAMES_PHONE: readonly [L, L][] = [
-  [{ es: 'Privacidad', en: 'Privacy' }, { es: 'en todo', en: 'everywhere' }],
-  [{ es: 'Una vista,', en: 'One view,' }, { es: 'una pregunta', en: 'one question' }],
-  [{ es: 'Histórico,', en: 'History,' }, { es: 'línea base', en: 'baseline' }],
-]
 const INSIGHT_NAMES: readonly [L, L][] = [
   [{ es: 'La privacidad viaja', en: 'Privacy travels' }, { es: 'a cada pantalla', en: 'to every screen' }],
   [{ es: 'Una vista,', en: 'One view,' }, { es: 'una pregunta', en: 'one question' }],
@@ -37,7 +32,7 @@ interface Pt {
   x: number
   y: number
 }
-/** La capa en escritorio (partes a la izquierda, ideas a la derecha) o en teléfono (partes arriba, ideas abajo) */
+/** La capa en escritorio: partes a la izquierda, ideas a la derecha (el teléfono tiene su propia composición) */
 interface Layout {
   w: number
   h: number
@@ -62,19 +57,6 @@ const DESKTOP: Layout = {
     return `M${a.x} ${a.y} C${mx} ${a.y} ${mx} ${b.y} ${b.x} ${b.y}`
   },
 }
-const PHONE: Layout = {
-  w: 500,
-  h: 600,
-  area: (i) => ({ x: 44, y: 34 + i * 68 }),
-  insight: (j) => ({ x: 90 + j * 160, y: 450 }),
-  areaText: (i) => ({ x: 80, y: 34 + i * 68, anchor: 'start' }),
-  insightText: (j) => ({ x: 90 + j * 160, y: 506, anchor: 'middle' }),
-  link(i, j) {
-    const a = this.area(i)
-    const b = this.insight(j)
-    return `M${a.x} ${a.y} C${a.x + 240} ${a.y} ${b.x} ${b.y - 140} ${b.x} ${b.y}`
-  },
-}
 const STEP_MS = 2600
 
 type Pick = { kind: 'area'; i: number } | { kind: 'insight'; j: number } | null
@@ -92,9 +74,9 @@ export function EncPatternLayers() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [pick, setPick] = useState<Pick>(null)
   const wide = useMedia(TABLET_QUERY)
-  const lay = wide ? DESKTOP : PHONE
-  const names = wide ? INSIGHT_NAMES : INSIGHT_NAMES_PHONE
-  const { index } = useAutoplay(rootRef, { count: AREAS.length, ms: STEP_MS, loop: true, disabled: reducedMotion, hold: pick !== null })
+  const lay = DESKTOP
+  const names = INSIGHT_NAMES
+  const { index, go } = useAutoplay(rootRef, { count: AREAS.length, ms: STEP_MS, loop: true, disabled: reducedMotion, hold: pick !== null })
   const activeArea = pick?.kind === 'area' ? pick.i : pick === null ? index : -1
   const activeInsights = pick?.kind === 'insight' ? [pick.j] : activeArea >= 0 ? AREAS[activeArea].to : []
 
@@ -105,6 +87,30 @@ export function EncPatternLayers() {
       e.preventDefault()
       fn()
     }
+  }
+
+  if (!wide) {
+    const area = activeArea >= 0 ? activeArea : index
+    return (
+      <div ref={rootRef}>
+        <PatternsPhone
+          areas={AREAS.map((a) => ({ ...a, findings: FINDINGS.filter((f) => f.area === a.id).map((f) => f.text) }))}
+          insights={INSIGHT_NAMES.map(([l1, l2], j) => ({ short: `${t(l1)} ${t(l2)}`, full: INSIGHTS[j] }))}
+          area={area}
+          areaOpen={pick?.kind === 'area'}
+          insightOpen={pick?.kind === 'insight' ? pick.j : null}
+          lit={pick?.kind === 'insight' ? [pick.j] : AREAS[area].to}
+          pulseKey={`${area}-${keyOf(pick)}`}
+          onArea={(i) => toggle({ kind: 'area', i })}
+          onInsight={(j) => toggle({ kind: 'insight', j })}
+          onStep={(i) => {
+            setPick(null)
+            go(i)
+          }}
+          reducedMotion={reducedMotion}
+        />
+      </div>
+    )
   }
 
   return (
@@ -134,11 +140,11 @@ export function EncPatternLayers() {
             const count = FINDINGS.filter((f) => f.area === a.id).length
             return (
               <g key={a.id} role="button" tabIndex={0} aria-pressed={pick?.kind === 'area' && pick.i === i} aria-label={t(a.name)} onClick={() => toggle({ kind: 'area', i })} onKeyDown={keyed(() => toggle({ kind: 'area', i }))} className="cursor-pointer outline-none">
-                <rect x={wide ? 0 : lay.area(i).x - 30} y={lay.area(i).y - 30} width={wide ? lay.area(i).x + 24 : lay.w - lay.area(i).x} height={60} fill="transparent" />
+                <rect x={0} y={lay.area(i).y - 30} width={lay.area(i).x + 24} height={60} fill="transparent" />
                 <circle cx={lay.area(i).x} cy={lay.area(i).y} r={22} fill="rgb(var(--signal))" opacity={on ? 0.3 : 0.08} style={{ transition: 'opacity .5s' }} />
                 <circle cx={lay.area(i).x} cy={lay.area(i).y} r={7} fill={on ? 'white' : 'rgb(var(--signal))'} stroke="white" strokeWidth={1.4} style={{ transition: 'fill .5s' }} />
-                <text x={lay.areaText(i).x} y={lay.areaText(i).y - (wide ? 0 : 8)} dy="0.35em" textAnchor={lay.areaText(i).anchor} className="enc-layer-label fill-current" style={{ opacity: on ? 1 : 0.6, transition: 'opacity .5s' }}>{t(a.name)}</text>
-                <text x={lay.areaText(i).x} y={lay.areaText(i).y + (wide ? 22 : 16)} dy="0.35em" textAnchor={lay.areaText(i).anchor} className="enc-layer-sub fill-current font-mono uppercase opacity-40" letterSpacing="0.12em">{count} {t({ es: 'hallazgos', en: 'findings' })}</text>
+                <text x={lay.areaText(i).x} y={lay.areaText(i).y} dy="0.35em" textAnchor={lay.areaText(i).anchor} className="enc-layer-label fill-current" style={{ opacity: on ? 1 : 0.6, transition: 'opacity .5s' }}>{t(a.name)}</text>
+                <text x={lay.areaText(i).x} y={lay.areaText(i).y + 22} dy="0.35em" textAnchor={lay.areaText(i).anchor} className="enc-layer-sub fill-current font-mono uppercase opacity-40" letterSpacing="0.12em">{count} {t({ es: 'hallazgos', en: 'findings' })}</text>
               </g>
             )
           })}
@@ -147,7 +153,7 @@ export function EncPatternLayers() {
             const on = activeInsights.includes(j)
             return (
               <g key={l1.es} role="button" tabIndex={0} aria-pressed={pick?.kind === 'insight' && pick.j === j} aria-label={`${t(l1)} ${t(l2)}`} onClick={() => toggle({ kind: 'insight', j })} onKeyDown={keyed(() => toggle({ kind: 'insight', j }))} className="cursor-pointer outline-none">
-                <rect x={wide ? lay.insight(j).x - 24 : lay.insight(j).x - 80} y={lay.insight(j).y - 40} width={wide ? lay.w - lay.insight(j).x + 24 : 160} height={wide ? 80 : 130} fill="transparent" />
+                <rect x={lay.insight(j).x - 24} y={lay.insight(j).y - 40} width={lay.w - lay.insight(j).x + 24} height={80} fill="transparent" />
                 <circle cx={lay.insight(j).x} cy={lay.insight(j).y} r={30} fill="#ff54aa" opacity={on ? 0.28 : 0.06} style={{ transition: 'opacity .5s' }} />
                 {on && <circle cx={lay.insight(j).x} cy={lay.insight(j).y} r={16} fill="none" stroke="#ff54aa" strokeWidth={1.5} className="dots-hot" />}
                 <circle cx={lay.insight(j).x} cy={lay.insight(j).y} r={10} fill={on ? '#fffaf0' : 'rgb(var(--void))'} stroke="white" strokeWidth={1.5} style={{ transition: 'fill .5s' }} />
