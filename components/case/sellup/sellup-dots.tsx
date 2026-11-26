@@ -128,7 +128,7 @@ export function SellUpDots() {
 
       {/* Lo que dice el paso: una frase sobre el campo */}
       <div key={view} className="su-fade mx-auto flex min-h-[6.5rem] max-w-[62ch] flex-col items-center justify-end text-center">
-        <p className="mono-label text-signal">{t(copy.tag)}</p>
+        <p className="mono-label max-md:text-[12px] text-signal">{t(copy.tag)}</p>
         <p className="mt-3 text-balance text-[clamp(1.2rem,0.95rem+1vw,1.75rem)] font-light leading-[1.2] tracking-tight">{t(copy.title)}</p>
         {picked !== null && copy.body && <p className="mt-3 max-w-[56ch] text-balance text-sm leading-relaxed text-paper/60">{t(copy.body)}</p>}
       </div>

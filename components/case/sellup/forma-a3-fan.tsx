@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { RealTag, REAL } from './real-app'
 import { BASE, CHANNELS, Cited, Device, PEOPLE, type Channel } from './forma-a3-devices'
+import { useCompact } from './camera'
 
 /**
  * 5.4 · Escena 3: el mensaje se arma con los hechos citados y se abre en abanico
@@ -25,8 +26,9 @@ const SLOTS: Record<Channel, { x: number; y: number; r: number }> = {
 
 /** Encuadre en pantallas chicas: el mensaje base y, al abrirse el abanico, el aparato del canal activo. */
 export function fanView(u: number, c: Channel) {
-  if (u < FAN_AT) return { cx: FAN_W / 2, cy: 255, w: 620, h: 290 }
-  return { cx: SLOTS[c].x, cy: 300, w: 360, h: 440 }
+  // Antes del abanico, el mensaje base en su versión de teléfono (más angosta y con letra más grande)
+  if (u < FAN_AT) return { cx: FAN_W / 2, cy: 300, w: 440, h: 420 }
+  return { cx: SLOTS[c].x, cy: 300, w: 330, h: 470 }
 }
 
 export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel) => void }) {
@@ -43,6 +45,8 @@ export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel)
     onChannel?.(c)
   }, [c, onChannel])
   const sentences = Math.min(BASE[p].length, Math.max(0, u))
+  /** En teléfono la cámara encuadra solo el mensaje base: más angosto y con letra más grande para que se lea */
+  const compact = useCompact()
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/10 text-white" style={{ width: FAN_W, height: FAN_H, fontFamily: REAL.font, background: 'radial-gradient(ellipse at 50% 60%, #1a1230 0%, #0d0d0f 65%)' }}>
@@ -68,19 +72,19 @@ export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel)
 
       {/* El mensaje base que se arma con las citas */}
       <div
-        className="absolute left-1/2 top-[150px] w-[600px] -translate-x-1/2 rounded-2xl border border-[#7e2be0]/50 bg-[#151320] p-5 shadow-[0_30px_80px_-30px_rgba(126,43,224,0.8)] transition-[transform,opacity,filter] duration-[380ms] ease-[cubic-bezier(.6,0,.2,1)]"
+        className={`absolute left-1/2 -translate-x-1/2 ${compact ? 'top-[96px] w-[420px]' : 'top-[150px] w-[600px]'} rounded-2xl border border-[#7e2be0]/50 bg-[#151320] p-5 shadow-[0_30px_80px_-30px_rgba(126,43,224,0.8)] transition-[transform,opacity,filter] duration-[380ms] ease-[cubic-bezier(.6,0,.2,1)]`}
         style={{ opacity: fanned ? 0 : 1, transform: `translateX(-50%) scale(${fanned ? 0.55 : 1}) translateY(${fanned ? 120 : 0}px)`, filter: fanned ? 'blur(8px)' : 'none' }}
         aria-hidden={fanned}
       >
-        <p className="text-[12px] uppercase tracking-wide text-white/45">Mensaje base · {PEOPLE[p].name}</p>
-        <p className="mt-3 text-[18px] leading-relaxed">
+        <p className={`uppercase tracking-wide text-white/55 ${compact ? 'text-[15px]' : 'text-[12px]'}`}>Mensaje base · {PEOPLE[p].name}</p>
+        <p className={`mt-3 leading-relaxed ${compact ? 'text-[21px]' : 'text-[18px]'}`}>
           {BASE[p].map((s, i) => (
             <span key={s} className="inline transition-[opacity,filter] duration-300" style={{ opacity: i < sentences ? 1 : 0.08, filter: i < sentences ? 'none' : 'blur(3px)' }}>
               <Cited text={`${s} `} />
             </span>
           ))}
         </p>
-        <p className="mt-4 text-[12px] text-white/45">Cada frase sale de un hecho citado. Ahora se adapta a cada canal…</p>
+        <p className={`mt-4 text-white/55 ${compact ? 'text-[15px]' : 'text-[12px]'}`}>Cada frase sale de un hecho citado. Ahora se adapta a cada canal…</p>
       </div>
 
       {/* El abanico de canales */}
@@ -106,7 +110,7 @@ export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel)
                 : `translate(-50%, -50%) translate(${FAN_W / 2 - s.x}px, ${300 - s.y}px) scale(0.3) rotate(0deg)`,
             }}
           >
-            <span className={`block rounded-2xl transition-shadow duration-300 ${active ? 'shadow-[0_0_0_3px_rgba(210,45,106,0.55),0_30px_80px_-20px_rgba(126,43,224,0.9)]' : ''}`}>
+            <span className={`block rounded-2xl transition-shadow duration-300 ${compact && active ? 'su-dev-lg' : ''} ${active ? 'shadow-[0_0_0_3px_rgba(210,45,106,0.55),0_30px_80px_-20px_rgba(126,43,224,0.9)]' : ''}`}>
               <Device channel={id} p={p} />
             </span>
             <span className={`mt-3 block text-center text-[12px] font-medium transition-colors duration-200 ${active ? 'text-white' : 'text-white/45'}`}>{label}</span>

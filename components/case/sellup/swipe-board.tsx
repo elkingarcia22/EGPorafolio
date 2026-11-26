@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { useCompact } from './camera'
 
@@ -23,10 +23,15 @@ interface SwipeBoardProps {
   children: ReactNode
 }
 
+/** Columna que pide quien envuelve el tablero (p. ej. la cortina de «Bocetos»), si no la da el propio tablero. */
+export const SwipeFocusContext = createContext<number | undefined>(undefined)
+
 export function SwipeBoard({ designW, stops, focus, children }: SwipeBoardProps) {
   const compact = useCompact()
+  const outer = useContext(SwipeFocusContext)
   if (!compact) return <>{children}</>
-  return <SwipeTrack designW={designW} stops={stops} focus={focus}>{children}</SwipeTrack>
+  const asked = focus ?? outer
+  return <SwipeTrack designW={designW} stops={stops} focus={asked === undefined ? undefined : Math.min(asked, stops.length - 1)}>{children}</SwipeTrack>
 }
 
 function SwipeTrack({ designW, stops, focus, children }: SwipeBoardProps) {

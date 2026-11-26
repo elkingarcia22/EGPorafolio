@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
+import { useNarrow } from './camera'
 import { useLocale, type L } from '@/lib/i18n'
 
 /** Cada cuánto se enciende el país siguiente (ms) */
@@ -104,6 +105,8 @@ export function Agent1Map() {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const dots = useMemo(buildDots, [])
+  /** En teléfono el mapa se dibuja a ~0,6×: la etiqueta de España se dobla para seguir leyéndose */
+  const narrow = useNarrow()
   const [inView, setInView] = useState(false)
   /** Cuántos países van encendidos */
   const [lit, setLit] = useState(reducedMotion ? COUNTRIES.length : 0)
@@ -174,12 +177,12 @@ export function Agent1Map() {
         {/* España, fuera del mapa: un nodo aparte que se enciende de último */}
         <g transform="translate(560 120)">
           <circle r={7} fill={lit >= COUNTRIES.length ? 'rgb(var(--signal))' : 'rgb(var(--void))'} stroke="white" strokeOpacity={lit >= COUNTRIES.length ? 1 : 0.4} style={{ transition: 'fill .5s' }} />
-          <text y={-14} textAnchor="middle" className="fill-paper font-mono uppercase" fontSize={10} letterSpacing="0.12em" opacity={0.55}>{t({ es: 'España', en: 'Spain' })}</text>
+          <text y={narrow ? -18 : -14} textAnchor="middle" className="fill-paper font-mono uppercase" fontSize={narrow ? 20 : 10} letterSpacing="0.12em" opacity={narrow ? 0.75 : 0.55}>{t({ es: 'España', en: 'Spain' })}</text>
         </g>
       </svg>
 
       <div className="text-center md:text-left">
-        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: 'Empresas encontradas', en: 'Companies found' })}</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/55 md:text-[10px] md:text-paper/45">{t({ es: 'Empresas encontradas', en: 'Companies found' })}</p>
         <p className="mt-3 text-[clamp(3rem,2rem+4vw,5.5rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 24px rgb(var(--signal) / 0.45))' }}>{fmt(shown)}</p>
         <div className="mt-5 flex items-center justify-center gap-3 md:justify-start">
           <span className="font-mono text-[12px] tabular-nums text-signal">{String(Math.min(lit, COUNTRIES.length)).padStart(2, '0')} / {COUNTRIES.length}</span>

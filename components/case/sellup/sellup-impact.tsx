@@ -108,7 +108,7 @@ export function SellUpImpact() {
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[960px]">
-      <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
+      <p className="text-center font-mono text-[12px] md:text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
 
       {/* Antes / Con SellUp: cambia solo; tocar uno lo fija un rato */}
       <div role="tablist" aria-label={t({ es: 'Escenario', en: 'Scenario' })} className="mx-auto mt-6 flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
@@ -162,7 +162,7 @@ export function SellUpImpact() {
       {/* Leads y éxito del primer contacto */}
       <div className="mt-14 grid gap-12 md:grid-cols-2">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
+          <p className="font-mono text-[12px] md:text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
           <p className="mt-2 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
           <div className="mt-5 grid max-w-[230px] grid-cols-5 gap-2" aria-hidden="true">
             {Array.from({ length: LEAD_SLOTS }, (_, i) => {

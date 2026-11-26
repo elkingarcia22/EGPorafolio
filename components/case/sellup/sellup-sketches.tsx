@@ -6,7 +6,8 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { CaseLead } from '@/components/case/case-lead'
-import { SwipeBoard } from './swipe-board'
+import { SwipeBoard, SwipeFocusContext } from './swipe-board'
+import { useCompact } from './camera'
 import { CascadeBoard } from './sketch-cascade-board'
 import { RumboSketchBoard } from './sketch-rumbo-board'
 
@@ -106,6 +107,8 @@ const RESUME_MS = 7000
 const WIPE_MAX = 92
 /** La cortina arranca y vuelve siempre al medio */
 const MID = 50
+/** En teléfono y tableta, columnas del tablero que recorre la cortina: una por vuelta */
+const COMPACT_COLS = 3
 
 interface Pair {
   id: string
@@ -140,6 +143,10 @@ export function SellUpSketches() {
   const [pos, setPos] = useState(MID)
   const [dragging, setDragging] = useState(false)
   const [heldUntil, setHeldUntil] = useState(0)
+  /** En teléfono, la columna del tablero (y el tramo de la pantalla) a la vista */
+  const [col, setCol] = useState(0)
+  const compact = useCompact()
+  const wipes = compact ? COMPACT_COLS : WIPES_PER_PAIR
 
   useEffect(() => {
     const root = rootRef.current
@@ -160,17 +167,20 @@ export function SellUpSketches() {
         return
       }
       const k = (now - Math.max(start, heldUntil)) / WIPE_MS
-      if (k >= WIPES_PER_PAIR) {
+      if (k >= wipes - (compact ? col : 0)) {
         setActive((a) => (a + 1) % PAIRS.length)
+        setCol(0)
         return
       }
+      // En teléfono cada vuelta enfoca la columna siguiente del tablero
+      if (compact) setCol((c) => Math.min(COMPACT_COLS - 1, Math.max(c, col + Math.floor(k))))
       // Seno: empieza a media cortina, abre el boceto entero, cruza al producto y vuelve al medio
       setPos(MID + (WIPE_MAX - MID) * Math.sin(k * 2 * Math.PI))
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [inView, reducedMotion, dragging, active, heldUntil])
+  }, [inView, reducedMotion, dragging, active, heldUntil, wipes, compact, col])
 
   const moveTo = useCallback((clientX: number) => {
     const r = stageRef.current?.getBoundingClientRect()
@@ -180,6 +190,7 @@ export function SellUpSketches() {
 
   const pick = (i: number) => {
     setActive(i)
+    setCol(0)
     setPos(MID)
     setHeldUntil(performance.now() + RESUME_MS / 3)
   }
@@ -205,7 +216,7 @@ export function SellUpSketches() {
       <div
         ref={stageRef}
         key={pair.id}
-        className="su-fade relative aspect-[0.85] w-full sm:aspect-[1.5] touch-pan-y select-none overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-[0_40px_100px_-50px_rgb(var(--signal)/0.6)]"
+        className="su-fade relative aspect-[0.56] w-full sm:aspect-[0.95] lg:aspect-[1.5] touch-pan-y select-none overflow-hidden rounded-2xl border border-white/10 bg-[#0a0a0a] shadow-[0_40px_100px_-50px_rgb(var(--signal)/0.6)]"
         onPointerDown={(e) => {
           setDragging(true)
           ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId)
@@ -218,16 +229,19 @@ export function SellUpSketches() {
         }}
         onPointerCancel={() => setDragging(false)}
       >
-        <Image src={pair.shot} alt={t(pair.shotName)} fill sizes="(min-width: 1024px) 1100px, 100vw" className="pointer-events-none object-cover object-top" />
+        <Image src={pair.shot} alt={t(pair.shotName)} fill sizes="(min-width: 1024px) 1100px, 100vw" className="pointer-events-none object-cover transition-[object-position] duration-1000 ease-out" style={{ objectPosition: compact ? `${(col / (COMPACT_COLS - 1)) * 100}% top` : 'center top' }} />
         <div className="pointer-events-none absolute inset-0 overflow-hidden bg-[#f6f1e6]" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} aria-hidden="true">
-          <div className="w-full">
-            <Sketch />
+          {/* En teléfono el tablero va a tamaño legible y la cortina enfoca una columna por vuelta; sin sus controles de deslizar */}
+          <div className="w-full [&_.swipe-board>div:last-child]:hidden">
+            <SwipeFocusContext.Provider value={compact ? col : undefined}>
+              <Sketch />
+            </SwipeFocusContext.Provider>
           </div>
         </div>
 
         {/* Qué es cada lado */}
-        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#2a2d33] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[#f6f1e6] transition-opacity duration-300" style={{ opacity: pos > 18 ? 1 : 0 }}>{t({ es: 'Boceto', en: 'Sketch' })}</span>
-        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-signal px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-on-signal transition-opacity duration-300" style={{ opacity: pos < 82 ? 1 : 0 }}>{t({ es: 'Pantalla real', en: 'Real screen' })}</span>
+        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#2a2d33] px-3 py-1 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-[#f6f1e6] transition-opacity duration-300" style={{ opacity: pos > 18 ? 1 : 0 }}>{t({ es: 'Boceto', en: 'Sketch' })}</span>
+        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-signal px-3 py-1 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-on-signal transition-opacity duration-300" style={{ opacity: pos < 82 ? 1 : 0 }}>{t({ es: 'Pantalla real', en: 'Real screen' })}</span>
 
         {/* La cortina: una fibra con su nodo para arrastrar */}
         <div className="absolute inset-y-0 w-0" style={{ left: `${pos}%` }}>
@@ -247,8 +261,30 @@ export function SellUpSketches() {
         </div>
       </div>
 
-      <p key={`cap-${pair.id}`} aria-live="polite" className="su-fade mt-8 text-center">
-        <span className="mono-label text-signal">{t(pair.label)} → {t(pair.shotName)}</span>
+      {/* En teléfono, qué columna del tablero está a la vista */}
+      {compact && (
+        <div className="mt-4 flex justify-center gap-1.5">
+          {Array.from({ length: COMPACT_COLS }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => {
+                setCol(i)
+                setPos(MID)
+                setHeldUntil(performance.now() + RESUME_MS)
+              }}
+              aria-label={t({ es: `Ver la parte ${i + 1} del boceto`, en: `See part ${i + 1} of the sketch` })}
+              aria-current={col === i}
+              className="grid h-7 w-7 place-items-center"
+            >
+              <span className={`block h-2 rounded-full transition-all duration-300 ${col === i ? 'w-5 bg-signal' : 'w-2 bg-white/30'}`} />
+            </button>
+          ))}
+        </div>
+      )}
+
+      <p key={`cap-${pair.id}`} aria-live="polite" className="su-fade mt-6 text-center lg:mt-8">
+        <span className="mono-label max-md:text-[12px] text-signal">{t(pair.label)} → {t(pair.shotName)}</span>
         <span className="mt-2 block text-balance text-sm text-paper/65 md:text-base">{t(pair.caption)}</span>
       </p>
     </div>
