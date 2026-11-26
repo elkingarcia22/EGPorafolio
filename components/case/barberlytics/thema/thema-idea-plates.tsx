@@ -50,7 +50,7 @@ export function DeriveDemo({ index }: ThemeDemoProps) {
       </ul>
       <div className="flex items-center gap-3">
         <span className="h-1 flex-1 rounded-full transition-[background] duration-700" style={{ background: `linear-gradient(90deg, ${a}, ${b} 35%, ${c} 70%, ${d})` }} />
-        <span className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] opacity-50">{t({ es: 'gradiente de la IA', en: 'AI gradient' })}</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] opacity-50">{t({ es: 'gradiente de la IA', en: 'AI gradient' })}</span>
       </div>
     </div>
   )
@@ -73,7 +73,7 @@ export function MeaningDemo({ index }: ThemeDemoProps) {
         <span className="flex items-center gap-2 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors duration-700" style={{ background: primary, color: inkOn(primary) }}>
           {t({ es: 'Tema', en: 'Theme' })} · {name}
         </span>
-        <span className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] opacity-50">{t({ es: 'cambia', en: 'changes' })}</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] opacity-50">{t({ es: 'cambia', en: 'changes' })}</span>
       </div>
       <span className="h-px bg-fg/15" aria-hidden="true" />
       <div className="flex items-center justify-between gap-3">
@@ -84,7 +84,7 @@ export function MeaningDemo({ index }: ThemeDemoProps) {
             </li>
           ))}
         </ul>
-        <span className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] opacity-50">{t({ es: 'no cambia', en: 'stays' })}</span>
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] opacity-50">{t({ es: 'no cambia', en: 'stays' })}</span>
       </div>
     </div>
   )
@@ -101,7 +101,7 @@ export function PiecesDemo({ index }: ThemeDemoProps) {
   return (
     <div className="grid h-full grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] items-center gap-5">
       <div className="rounded-lg border border-fg/15 bg-bg p-3">
-        <p className="text-[11px] md:text-[10px] opacity-55">Ingresos del día</p>
+        <p className="text-[11px] opacity-55">Ingresos del día</p>
         <p className="mt-0.5 text-lg font-medium tabular-nums">$ 2.676</p>
         <div className="mt-2 flex h-9 items-end gap-1">
           {[40, 65, 50, 80, 60, 95, 75].map((h, i) => (

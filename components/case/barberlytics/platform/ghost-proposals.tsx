@@ -91,7 +91,7 @@ export function GhostProposals() {
             </li>
           ))}
         </ol>
-        <p className="mx-auto mt-6 max-w-[40ch] text-balance text-center text-[13px] leading-relaxed text-paper/50">
+        <p className="mx-auto mt-6 max-w-[40ch] text-balance text-center text-[13px] leading-relaxed text-paper/60">
           {t({ es: 'Casi todo lo «inteligente» son reglas y una estimación, no un modelo: por eso se llama «Sugerencia» y no lleva la marca de IA.', en: 'Almost everything “smart” is rules and an estimate, not a model: that’s why it’s called “Suggestion” and doesn’t carry the AI mark.' })}
         </p>
       </div>
@@ -127,7 +127,7 @@ export function GhostProposals() {
                 </>
               )}
               <span className={`relative text-[15px] leading-snug ${on ? 'pl-fade' : ''}`} style={{ animationDelay: '250ms' }}>{t(feat.name)}</span>
-              <span className={`relative mt-3 inline-flex w-fit items-center rounded-full border px-2 py-[2px] font-mono text-[10px] uppercase tracking-[0.12em] ${badge.tone} ${on ? 'pl-pop' : ''}`} style={{ animationDelay: '650ms' }}>{t(badge.label)}</span>
+              <span className={`relative mt-3 inline-flex w-fit items-center rounded-full border px-2 py-[2px] font-mono text-[11px] uppercase tracking-[0.12em] ${badge.tone} ${on ? 'pl-pop' : ''}`} style={{ animationDelay: '650ms' }}>{t(badge.label)}</span>
               {feat.kind === 'assistant' && <span data-fiber-from="pl-impacto" className="absolute bottom-0 left-1/2 h-px w-px" />}
             </button>
           )

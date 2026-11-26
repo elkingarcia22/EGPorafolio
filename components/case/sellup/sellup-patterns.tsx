@@ -134,7 +134,7 @@ export function SellUpPatterns() {
           )
         })}
       </div>
-      <p key={`goal-${agentIndex}`} className="su-fade mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">{t(cascade.goal)}</p>
+      <p key={`goal-${agentIndex}`} className="su-fade mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">{t(cascade.goal)}</p>
 
       {phone ? (
         <PhoneStairs
@@ -192,7 +192,7 @@ export function SellUpPatterns() {
               </span>
               <span className={compact ? '' : 'mt-3'}>
                 <span className={`block text-balance text-[13px] leading-snug transition-opacity duration-500 ${off ? 'line-through decoration-white/40 opacity-45' : on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(s.name)}</span>
-                <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.16em]" style={{ color, opacity: off ? 0.45 : 0.8 }}>{t(COST[s.cost].label)}</span>
+                <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.16em]" style={{ color, opacity: off ? 0.45 : 0.8 }}>{t(COST[s.cost].label)}</span>
               </span>
             </button>
           )

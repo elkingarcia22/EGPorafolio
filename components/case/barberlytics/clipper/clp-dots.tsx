@@ -126,7 +126,7 @@ export function ClipperDotsScene() {
             <dt className="sr-only">{t(s.label)}</dt>
             <dd>
               <span className="block bg-gradient-to-br from-[#f0ce86] to-[#2e9cb0] bg-clip-text text-[clamp(1.8rem,1.3rem+1.6vw,2.8rem)] font-light leading-none text-transparent tabular-nums">{s.value}</span>
-              <span className="mx-auto mt-2 block max-w-[16ch] text-[11px] leading-snug text-paper/50">{t(s.label)}</span>
+              <span className="mx-auto mt-2 block max-w-[18ch] text-balance text-[14px] leading-snug text-paper/70 md:text-[15px]">{t(s.label)}</span>
             </dd>
           </div>
         ))}

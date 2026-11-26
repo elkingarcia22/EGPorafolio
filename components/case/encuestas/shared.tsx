@@ -74,7 +74,7 @@ export function Screen({ shot, route, className = '', sizes = '(min-width: 1024p
           <span className="h-2 w-2 rounded-full bg-black/15" />
           <span className="h-2 w-2 rounded-full bg-black/15" />
         </span>
-        {route && <span className="truncate font-mono text-[10px] text-black/45">{route}</span>}
+        {route && <span className="truncate font-mono text-[11px] text-black/45">{route}</span>}
       </div>
       <Image src={shot.src} width={shot.width} height={shot.height} alt={t(shot.alt)} sizes={sizes} priority={priority} className="block h-auto w-full" />
     </figure>
@@ -85,7 +85,7 @@ export function Screen({ shot, route, className = '', sizes = '(min-width: 1024p
 export function ReferenceTag() {
   const { t } = useLocale()
   return (
-    <span className="ml-2 inline-flex items-center rounded-full border border-current px-1.5 py-px align-middle font-mono text-[9px] uppercase tracking-wider opacity-60 max-lg:text-[11px]">
+    <span className="ml-2 inline-flex items-center rounded-full border border-current px-1.5 py-px align-middle font-mono text-[11px] uppercase tracking-wider opacity-60 max-lg:text-[11px]">
       {t({ es: 'referencia', en: 'reference' })}
     </span>
   )

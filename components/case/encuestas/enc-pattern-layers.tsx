@@ -178,7 +178,7 @@ export function EncPatternLayers() {
           </ul>
         )}
         {pick?.kind === 'insight' && <p className="text-balance text-center text-[clamp(1.1rem,0.95rem+0.6vw,1.45rem)] font-light leading-snug">{t(INSIGHTS[pick.j])}</p>}
-        {pick === null && <p className="text-center font-mono text-[11px] uppercase tracking-[0.14em] text-paper/40">{t({ es: 'Toca una parte o una idea', en: 'Tap an area or an idea' })}</p>}
+        {pick === null && <p className="case-hint text-center">{t({ es: 'Toca una parte o una idea', en: 'Tap an area or an idea' })}</p>}
       </div>
     </div>
   )

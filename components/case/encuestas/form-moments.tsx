@@ -51,7 +51,7 @@ export function BrowserFrame({ route, children, className = '' }: { route: strin
           <span className="h-2 w-2 rounded-full bg-[#febc2e]" />
           <span className="h-2 w-2 rounded-full bg-[#28c840]" />
         </span>
-        <span className="ml-2 truncate rounded-md bg-[#f1f3f8] px-2 py-0.5 font-mono text-[10px] text-black/45">{route}</span>
+        <span className="ml-2 truncate rounded-md bg-[#f1f3f8] px-2 py-0.5 font-mono text-[11px] text-black/45">{route}</span>
       </div>
       {children}
     </div>

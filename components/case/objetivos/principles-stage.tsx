@@ -211,7 +211,7 @@ function CountScene() {
             <div key={c.area} className={`min-w-0 rounded-xl p-2 md:p-3 ${reserved ? 'border border-dashed border-fg/30' : 'bg-[var(--obj-card)] ring-1 ring-fg/10'}`}>
               <span className="block truncate text-[11px] opacity-60">{c.area}</span>
               <span className="mt-1 block text-lg font-light leading-none">{reserved ? '🔒' : c.n}</span>
-              <span className="mt-1 block truncate font-mono text-[11px] opacity-50 md:text-[10px]">{reserved ? 'reservado' : 'personas'}</span>
+              <span className="mt-1 block truncate font-mono text-[11px] opacity-50">{reserved ? 'reservado' : 'personas'}</span>
             </div>
           )
         })}

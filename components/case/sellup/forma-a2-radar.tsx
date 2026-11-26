@@ -71,7 +71,7 @@ export function PeopleRadar({ t }: { t: number }) {
   return (
     <div className="relative overflow-hidden rounded-[22px] text-white" style={{ width: RADAR_W, height: RADAR_H, background: 'radial-gradient(ellipse at 50% 55%,#151a2e 0%,#0b0c10 70%)', fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}>
       <div className="pointer-events-none absolute inset-0 opacity-[0.18]" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.5) 1px,transparent 1px)', backgroundSize: '22px 22px' }} />
-      <p className="absolute left-6 top-5 text-[12px] uppercase tracking-[0.18em] text-white/45">Agente 2 · radar de decisores</p>
+      <p className="absolute left-6 top-5 text-[12px] uppercase tracking-[0.18em] text-white/60">Agente 2 · radar de decisores</p>
       <p className="absolute left-6 top-10 text-[15px] font-medium">{fly ? 'Decisores listos para revisar →' : rise ? 'Quien decide sube con su cargo' : scanning ? `Barriendo ${RINGS[Math.min(3, Math.max(0, Math.floor((t - 2) / 2)))].name}…` : 'Abriendo Clínica Andina…'}</p>
 
       {/* Anillos y líneas */}
@@ -190,7 +190,7 @@ export function PeopleRadar({ t }: { t: number }) {
       <div className="absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-[400ms]" style={{ left: CX, top: CY, opacity: t >= 0 ? 1 : 0, transform: `translate(-50%,-50%) scale(${rise ? 0.85 : 1})` }}>
         <div className="flex items-center gap-2 rounded-2xl border border-white/15 bg-[#14161d] px-3 py-2 shadow-[0_10px_40px_-10px_rgba(40,94,230,0.6)]">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#6b8cff]/20 text-[#9db0ff]"><Building2 className="h-4 w-4" /></span>
-          <span><span className="block text-[13.5px] font-semibold leading-tight">Clínica Andina</span><span className="block text-[11px] text-white/50">1.240 empleados</span></span>
+          <span><span className="block text-[13.5px] font-semibold leading-tight">Clínica Andina</span><span className="block text-[11px] text-white/60">1.240 empleados</span></span>
         </div>
       </div>
 

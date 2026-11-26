@@ -358,3 +358,19 @@ main a img[src*='cases'] {
     font-size: 16px;
   }
 }
+
+/* Pistas de los casos («toca uno», «desliza»…): frase corta, legible y sin mayúsculas forzadas */
+.case-hint {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgb(241 240 236 / 0.66);
+  text-wrap: balance;
+}
+/* Rótulos que avisan algo del dato («Escenario de referencia», «Capturas reales»): mono, pero legibles */
+.case-tag {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(241 240 236 / 0.62);
+}

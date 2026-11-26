@@ -46,7 +46,7 @@ function NodeLabel({ node, x, y, below, on, active, onPick }: { node: HubNode; x
       style={{ left: pct(x, W), top: pct(y, H), opacity: on ? 1 : 0.3 }}
     >
       <span className={`text-[15px] leading-tight ${active ? 'text-[#d9b36a]' : ''}`}>{t(node.name)}</span>
-      <span className={`font-mono text-[11px] uppercase leading-snug tracking-[0.08em] text-paper/50 ${below ? 'mt-1' : 'mb-1'}`}>{t(node.sub)}</span>
+      <span className={`font-mono text-[11px] uppercase leading-snug tracking-[0.08em] text-paper/60 ${below ? 'mt-1' : 'mb-1'}`}>{t(node.sub)}</span>
     </button>
   )
 }

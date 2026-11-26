@@ -57,7 +57,7 @@ export function BehaviorPhone({ items }: { items: readonly PhoneBehavior[] }) {
             </span>
           </span>
 
-          <span className="mt-5 block font-mono text-[11px] uppercase tracking-[0.12em] text-paper/45">{t({ es: 'Lo que hace el cliente', en: 'What the client does' })}</span>
+          <span className="case-tag mt-5 block">{t({ es: 'Lo que hace el cliente', en: 'What the client does' })}</span>
           <span key={`does-${index}`} className="bk-fade mt-1.5 block text-[1.45rem] font-light leading-tight text-paper">{t(b.does)}</span>
 
           {/* La fibra: los datos bajan de lo que hace a lo que responde */}
@@ -69,7 +69,7 @@ export function BehaviorPhone({ items }: { items: readonly PhoneBehavior[] }) {
               ))}
           </span>
 
-          <span className="block font-mono text-[11px] uppercase tracking-[0.12em] text-paper/45">{t({ es: 'Lo que responde la reserva', en: 'What the booking answers' })}</span>
+          <span className="case-tag block">{t({ es: 'Lo que responde la reserva', en: 'What the booking answers' })}</span>
           <span key={`ans-${index}`} className="bk-fade mt-1.5 flex items-start gap-3 text-[15px] leading-snug text-paper/80">
             <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: `rgb(${tone})`, boxShadow: `0 0 10px rgb(${tone} / 0.7)` }} />
             {t(b.answer)}
@@ -79,7 +79,7 @@ export function BehaviorPhone({ items }: { items: readonly PhoneBehavior[] }) {
           <span className="grid transition-[grid-template-rows,opacity] duration-500 ease-expo" style={{ gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0 }}>
             <span className="overflow-hidden">
               <span className="mt-4 block border-t border-white/10 pt-4 text-[14px] leading-relaxed text-paper/65">
-                <span className="mb-1 block font-mono text-[11px] uppercase tracking-[0.12em] text-paper/40">{t({ es: 'Lo que se vio', en: 'What we saw' })}</span>
+                <span className="mb-1 block font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{t({ es: 'Lo que se vio', en: 'What we saw' })}</span>
                 {t(b.seen)}
               </span>
             </span>

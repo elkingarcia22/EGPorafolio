@@ -37,7 +37,7 @@ function Highlights({ callouts = [], active, setActive }: Highlightable) {
           className={`pointer-events-auto absolute rounded-[10px] transition-[background-color,box-shadow] duration-300 ${active === i ? 'bg-signal/15 ring-2 ring-signal' : 'ring-[1.5px] ring-signal/70'}`}
           style={{ left: `${c.x - PAD}%`, top: `${c.y - PAD / 2}%`, width: `${c.w + PAD * 2}%`, height: `${c.h + PAD}%` }}
         >
-          <span className="absolute -left-2.5 -top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-signal font-mono text-[10px] text-on-signal shadow-[0_0_0_3px_rgba(64,96,255,0.25)]">
+          <span className="absolute -left-2.5 -top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-signal font-mono text-[11px] text-on-signal shadow-[0_0_0_3px_rgba(64,96,255,0.25)]">
             {i + 1}
           </span>
         </span>

@@ -77,7 +77,7 @@ export function CaseDemo({ title, lead, url, image, preview, accent, tryIt, onOp
               <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-              <span className="ml-3 flex h-5 min-w-0 flex-1 items-center gap-2 truncate rounded-md bg-white/[0.06] px-2 font-mono text-[10px] text-white/45">
+              <span className="ml-3 flex h-5 min-w-0 flex-1 items-center gap-2 truncate rounded-md bg-white/[0.06] px-2 font-mono text-[11px] text-white/60">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} />
                 {url}
               </span>

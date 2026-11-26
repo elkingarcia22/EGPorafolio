@@ -35,7 +35,7 @@ export function PatternsPhone({ areas, insights, area, areaOpen, insightOpen, li
       <button type="button" onClick={() => onArea(area)} aria-expanded={areaOpen} className="flex w-full items-center gap-4 text-left outline-none">
         <PhoneNode on />
         <span key={a.id} className="obj-fade min-w-0">
-          <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">
+          <span className="block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">
             {t({ es: 'Parte', en: 'Area' })} {area + 1}/{areas.length} · {a.findings.length} {t({ es: 'hallazgos', en: 'findings' })}
           </span>
           <span className="mt-1 block text-[26px] font-light leading-tight">{t(a.name)}</span>

@@ -48,7 +48,7 @@ export function HeroChainPhone({ step, travelling }: HeroChainPhoneProps) {
                 </span>
                 <span className="min-w-0">
                   <span className={`block text-[21px] font-light leading-tight transition-opacity duration-700 ${lit ? 'opacity-100' : 'opacity-45'}`}>{t(n.q)}</span>
-                  <span key={String(done)} className={`su-fade mt-1 block font-mono text-[11px] uppercase tracking-[0.12em] ${done ? 'text-[#6ee7b7]' : 'text-paper/50'}`}>{done ? `✓ ${t(n.out)}` : t(n.agent)}</span>
+                  <span key={String(done)} className={`su-fade mt-1 block font-mono text-[11px] uppercase tracking-[0.12em] ${done ? 'text-[#6ee7b7]' : 'text-paper/60'}`}>{done ? `✓ ${t(n.out)}` : t(n.agent)}</span>
                 </span>
               </div>
 

@@ -30,7 +30,7 @@ export function FanPhone({ u }: { u: number }) {
     <div className="mx-auto max-w-[360px] text-white">
       {/* Decisor: a quién va el mensaje */}
       <div className="flex items-center gap-2">
-        <span className="text-[12px] text-white/50">Para</span>
+        <span className="text-[12px] text-white/60">Para</span>
         {PEOPLE.map((person, i) => (
           <button key={person.name} type="button" onClick={() => setPick((s) => ({ ...s, p: i }))} className={`rounded-full border px-3 py-1 text-[13px] transition-colors duration-300 ${p === i ? 'border-[#7e2be0] bg-[#7e2be0]/25 text-white' : 'border-white/10 text-white/55'}`}>
             {person.first}
@@ -64,7 +64,7 @@ export function FanPhone({ u }: { u: number }) {
       ) : (
         /* El mensaje base: cada frase aparece con su cita */
         <div className="mt-5 rounded-2xl border border-[#7e2be0]/50 bg-[#151320] p-4 shadow-[0_30px_70px_-30px_rgba(126,43,224,0.8)]">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">Mensaje base · {PEOPLE[p].name}</p>
+          <p className="text-[11px] uppercase tracking-[0.12em] text-white/60">Mensaje base · {PEOPLE[p].name}</p>
           <p className="mt-3 text-[16px] leading-relaxed">
             {BASE[p].map((s, i) => (
               <span key={s} className="inline transition-[opacity,filter] duration-300" style={{ opacity: i < sentences ? 1 : 0.08, filter: i < sentences ? 'none' : 'blur(3px)' }}>
@@ -76,7 +76,7 @@ export function FanPhone({ u }: { u: number }) {
         </div>
       )}
 
-      <p className="mt-5 text-center text-[13px] leading-snug text-white/50">No se envía nada solo: el vendedor lo usa o lo ajusta.</p>
+      <p className="case-hint mt-5 text-center">No se envía nada solo: el vendedor lo usa o lo ajusta.</p>
     </div>
   )
 }

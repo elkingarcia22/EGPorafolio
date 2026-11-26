@@ -63,7 +63,7 @@ export function ResultsFolder() {
               role="tab"
               aria-selected={on}
               onClick={() => setActive(i)}
-              className={`truncate rounded-t-xl border border-b-0 px-1.5 pb-2 pt-2 text-center font-mono text-[10px] uppercase tracking-[0.08em] transition-all duration-500 ease-expo md:px-2 md:text-[11px] ${on ? 'translate-y-0 border-white/20 bg-white text-[#0b0d16]' : 'translate-y-1.5 border-white/10 bg-white/[0.06] text-paper/60 hover:translate-y-0.5 hover:text-paper'}`}
+              className={`truncate rounded-t-xl border border-b-0 px-1.5 pb-2 pt-2 text-center font-mono text-[11px] uppercase tracking-[0.08em] transition-all duration-500 ease-expo md:px-2 md:text-[11px] ${on ? 'translate-y-0 border-white/20 bg-white text-[#0b0d16]' : 'translate-y-1.5 border-white/10 bg-white/[0.06] text-paper/60 hover:translate-y-0.5 hover:text-paper'}`}
             >
               <span className="md:hidden">0{i + 1}</span>
               <span className="hidden md:inline">{t(tab.label)}</span>

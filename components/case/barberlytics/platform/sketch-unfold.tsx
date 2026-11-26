@@ -114,7 +114,7 @@ export function SketchUnfold() {
                   </span>
                   <span className="pl-creases absolute inset-0" />
                 </span>
-                <span className={`mt-3 max-w-[16ch] text-balance text-center text-[12px] leading-snug transition-colors duration-300 ${isOpen ? 'text-[#d9b36a]' : 'text-paper/55 group-hover:text-paper/85'}`}>{t(s.name)}</span>
+                <span className={`mt-3 max-w-[18ch] text-balance text-center text-[14px] leading-snug transition-colors duration-300 ${isOpen ? 'text-[#d9b36a]' : 'text-paper/55 group-hover:text-paper/85'}`}>{t(s.name)}</span>
               </button>
             </li>
           )

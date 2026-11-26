@@ -104,7 +104,7 @@ export function DotsScene() {
           {caption.roles && (
             <p className="mt-3 flex justify-center gap-2">
               {caption.roles.map((r) => (
-                <span key={r} className="rounded-full border border-white/15 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/70">{t(ROLE_NAME[r])}</span>
+                <span key={r} className="rounded-full border border-white/15 px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/70">{t(ROLE_NAME[r])}</span>
               ))}
             </p>
           )}
@@ -218,7 +218,7 @@ export function DotsScene() {
               <dt className="sr-only">{t(f.label)}</dt>
               <dd>
                 <span className="block text-[clamp(1.6rem,1.2rem+1.4vw,2.6rem)] font-light leading-none text-signal tabular-nums">{f.value}</span>
-                <span className="mt-2 block text-[11px] leading-snug text-paper/50">{t(f.label as L)}</span>
+                <span className="mt-2 block text-balance text-[14px] leading-snug text-paper/70 md:text-[15px]">{t(f.label as L)}</span>
               </dd>
             </div>
           ))}
@@ -252,7 +252,7 @@ function DotsTrail({ covered, current, picked, onPick, count, connected }: DotsT
       <p className="mb-4 flex items-baseline justify-end gap-2" aria-live="polite">
         <span key={count} className="ms-value text-5xl font-light tabular-nums">{count}</span>
         <span className="text-lg text-paper/40">/7</span>
-        <span className="ml-1 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/50">{current === null && !connected ? t({ es: 'cubiertos antes', en: 'covered before' }) : t({ es: 'en el rediseño', en: 'in the redesign' })}</span>
+        <span className="ml-1 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{current === null && !connected ? t({ es: 'cubiertos antes', en: 'covered before' }) : t({ es: 'en el rediseño', en: 'in the redesign' })}</span>
       </p>
       <ol className="relative">
         {/* La fibra: tenue entera y, encima, lo ya recorrido */}
@@ -277,7 +277,7 @@ function DotsTrail({ covered, current, picked, onPick, count, connected }: DotsT
                   {i === MOMENTS.length - 1 && <span data-fiber-from="obj-patrones" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
                 <span className={`flex-1 text-base transition-all duration-500 ease-expo ${on ? 'opacity-100' : 'translate-x-3 opacity-45'}`}>{t(m.name)}</span>
-                <span className={`font-mono text-[11px] uppercase tracking-[0.12em] ${m.before ? 'text-paper/40' : 'text-signal'}`}>
+                <span className={`font-mono text-[11px] uppercase tracking-[0.12em] ${m.before ? 'text-paper/60' : 'text-signal'}`}>
                   {m.before ? t({ es: 'ya existía', en: 'existed' }) : t({ es: 'nuevo', en: 'new' })}
                 </span>
               </button>

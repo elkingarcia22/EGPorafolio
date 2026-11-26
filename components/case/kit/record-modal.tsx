@@ -116,7 +116,7 @@ export function RecordModal({ ids, openId, onOpenChange, title, titleLeading, de
             {titleLeading}
             <div className="flex min-w-0 flex-col gap-1">
               <h2 id="record-modal-title" className="truncate text-lg leading-tight">{title}</h2>
-              {description && <p className="truncate font-mono text-[11px] text-white/50">{description}</p>}
+              {description && <p className="truncate font-mono text-[11px] text-white/60">{description}</p>}
             </div>
           </div>
           <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-2 md:justify-end">

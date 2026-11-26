@@ -71,7 +71,7 @@ export function LinkedInCard({ p }: { p: number }) {
     <div className="w-[260px] rounded-xl border border-white/15 bg-[#1b1f23] p-3 text-[12px] shadow-2xl">
       <div className="flex items-center gap-2">
         <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#0a66c2] to-[#5b9bd5] text-[13px] font-semibold">{person.first[0]}</span>
-        <span className="min-w-0"><span className="block truncate font-semibold">{person.name}</span><span className="block truncate text-[11px] text-white/50">{person.role} · Clínica Andina</span></span>
+        <span className="min-w-0"><span className="block truncate font-semibold">{person.name}</span><span className="block truncate text-[11px] text-white/60">{person.role} · Clínica Andina</span></span>
         <Linkedin className="ml-auto h-4 w-4 text-[#5b9bd5]" />
       </div>
       <p className="mt-2.5 rounded-lg bg-white/[0.05] p-2.5 leading-snug text-white/85">
@@ -86,7 +86,7 @@ export function CallTablet({ p }: { p: number }) {
   const person = PEOPLE[p]
   return (
     <div className="w-[300px] rounded-[22px] border-[7px] border-[#2a2a2e] bg-[#111] p-3 text-[12px] shadow-2xl">
-      <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/45"><Phone className="h-3.5 w-3.5" />Guion de llamada · {person.first}</p>
+      <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/60"><Phone className="h-3.5 w-3.5" />Guion de llamada · {person.first}</p>
       <ol className="mt-2 space-y-1.5 leading-snug">
         <li><span className="text-[#c9b3ff]">Apertura · </span><Cited text={strip(BASE[p][1]) + (p === 0 ? ' [Noticias]' : ' [Sitio oficial]')} /></li>
         <li><span className="text-[#c9b3ff]">Pregunta · </span>{strip(BASE[p][3])}</li>
@@ -102,14 +102,14 @@ export function WhatsAppPhone({ p }: { p: number }) {
     <div className="w-[176px] rounded-[30px] border-[6px] border-[#2a2a2e] bg-[#0b141a] p-1.5 shadow-2xl">
       <span className="mx-auto mb-1 block h-1.5 w-12 rounded-full bg-black/60" />
       <div className="flex items-center gap-1.5 rounded-t-[18px] bg-[#1f2c34] px-2 py-1.5 text-[11px]">
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-[#25d366]/30 text-[10px]">{person.first[0]}</span>
+        <span className="grid h-6 w-6 place-items-center rounded-full bg-[#25d366]/30 text-[11px]">{person.first[0]}</span>
         <span className="truncate font-semibold">{person.first}</span>
         <MessageCircle className="ml-auto h-3.5 w-3.5 text-[#25d366]" />
       </div>
       <div className="h-[190px] space-y-1.5 bg-[#0b141a] p-2 text-[11px] leading-snug">
         <p className="ml-auto w-[92%] rounded-lg rounded-tr-none bg-[#005c4b] p-2 text-white/90">
           <Cited text={`Hola ${person.first} 👋 Soy de UBITS. ${p === 0 ? 'Vi lo de las 120 enfermeras [Empleo].' : 'Vi lo de las clínicas nuevas [Noticias].'} ¿Le escribo por correo una idea corta?`} />
-          <span className="mt-1 block text-right text-[9px] text-white/50">9:41 ✓✓</span>
+          <span className="mt-1 block text-right text-[11px] text-white/60">9:41 ✓✓</span>
         </p>
       </div>
     </div>

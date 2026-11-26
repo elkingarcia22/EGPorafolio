@@ -44,7 +44,7 @@ export function CyclePhone({ stations, onRing, current, picked, onPick, closed, 
         <p className="shrink-0 text-right">
           <span key={count} className="ms-value inline-block text-[52px] font-light leading-none tabular-nums">{count}</span>
           <span className="text-[22px] font-light text-paper/40">/{stations.length}</span>
-          <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/50">{countLabel}</span>
+          <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">{countLabel}</span>
         </p>
       </div>
 
@@ -80,11 +80,11 @@ export function CyclePhone({ stations, onRing, current, picked, onPick, closed, 
                   <PhoneNode on={isPicked || isCurrent} loose={!on} tone={isPicked ? '#ff54aa' : undefined} fiberFrom={i === stations.length - 1 ? 'enc-patrones' : undefined} />
                 </span>
                 <span className={`font-mono text-[13px] uppercase tracking-[0.1em] transition-opacity duration-500 ${on ? 'opacity-90' : 'opacity-45'}`}>{t(s.name)}</span>
-                {!on && <span className="rounded-full border border-dashed border-white/30 px-2 py-0.5 font-mono text-[11px] text-paper/50">{t({ es: 'no existía', en: 'didn’t exist' })}</span>}
+                {!on && <span className="rounded-full border border-dashed border-white/30 px-2 py-0.5 font-mono text-[11px] text-paper/60">{t({ es: 'no existía', en: 'didn’t exist' })}</span>}
               </button>
               {isPicked && (
                 <div className="obj-fade mb-3 ml-10 border-l border-signal/50 pl-4">
-                  <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/50">{t(s.who)}</p>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">{t(s.who)}</p>
                   <p className="mt-2 text-[14px] leading-relaxed text-paper/55"><span className="mr-2 font-mono text-[11px] uppercase tracking-[0.12em]">{t({ es: 'Antes', en: 'Before' })}</span>{t(s.before)}</p>
                   <p className="mt-1.5 text-[16px] font-light leading-snug"><span className="mr-2 font-mono text-[11px] uppercase tracking-[0.12em] text-signal">{t({ es: 'Ahora', en: 'Now' })}</span>{t(s.after)}</p>
                 </div>
@@ -93,7 +93,7 @@ export function CyclePhone({ stations, onRing, current, picked, onPick, closed, 
           )
         })}
       </ol>
-      <p className="mt-5 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-paper/40">{t({ es: 'Toca un momento', en: 'Tap a moment' })}</p>
+      <p className="mt-5 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">{t({ es: 'Toca un momento', en: 'Tap a moment' })}</p>
     </div>
   )
 }

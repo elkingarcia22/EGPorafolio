@@ -76,10 +76,10 @@ export function VisitLine({ running, reducedMotion }: VisitLineProps) {
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: SERVICE[visit.services[0]].hue }} />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[12px] font-medium leading-tight">{visit.client}</span>
-            <span className="block truncate text-[10.5px] leading-tight text-white/55">{SERVICE[visit.services[0]].name} · US$ {visit.price}</span>
+            <span className="block truncate text-[11px] leading-tight text-white/55">{SERVICE[visit.services[0]].name} · US$ {visit.price}</span>
           </span>
           {s.next ? (
-            <span key={s.next} className="pl-pop shrink-0 rounded-md bg-[#d9b36a] px-2 py-1 text-[10.5px] font-semibold text-[#16130f]">{s.next}</span>
+            <span key={s.next} className="pl-pop shrink-0 rounded-md bg-[#d9b36a] px-2 py-1 text-[11px] font-semibold text-[#16130f]">{s.next}</span>
           ) : (
             <span className="pl-pop shrink-0 text-[12px] text-[#4cc98d]">✓</span>
           )}

@@ -110,7 +110,7 @@ export function EncSketchSheets() {
                 aria-pressed={on}
                 className={`rounded-full border px-3.5 py-1.5 text-[13px] transition-colors duration-300 ${on ? 'border-signal bg-signal/15 text-paper' : 'border-white/15 text-paper/55 hover:border-white/35 hover:text-paper'}`}
               >
-                <span className="mr-1.5 font-mono text-[11px] md:text-[10px] text-signal">V{i + 1}</span>
+                <span className="mr-1.5 font-mono text-[11px] text-signal">V{i + 1}</span>
                 {t(SHORT[x.shape])}
               </button>
             </li>
@@ -121,11 +121,11 @@ export function EncSketchSheets() {
       <div key={`${index}-${picked}`} className="obj-fade mx-auto mt-6 min-h-[4.5rem] w-full max-w-[820px]" aria-live="polite">
         {picked ? (
           <div className="grid gap-5 md:grid-cols-2">
-            <p className="border-l border-white/15 pl-4 text-sm leading-relaxed text-paper/60"><span className="mb-1 block font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em]">{t({ es: 'Se descartó', en: 'Dropped' })}</span>{t(it.dropped)}</p>
-            <p className="border-l border-signal/60 pl-4 text-sm leading-relaxed text-paper/85"><span className="mb-1 block font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-signal">{t({ es: 'Quedó', en: 'Kept' })}</span>{t(it.kept)}</p>
+            <p className="border-l border-white/15 pl-4 text-sm leading-relaxed text-paper/60"><span className="mb-1 block font-mono text-[11px] uppercase tracking-[0.14em]">{t({ es: 'Se descartó', en: 'Dropped' })}</span>{t(it.dropped)}</p>
+            <p className="border-l border-signal/60 pl-4 text-sm leading-relaxed text-paper/85"><span className="mb-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-signal">{t({ es: 'Quedó', en: 'Kept' })}</span>{t(it.kept)}</p>
           </div>
         ) : (
-          <p className="text-center font-mono text-[11px] uppercase tracking-[0.12em] text-paper/50">{it.name} · {t(it.when)}</p>
+          <p className="text-center font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{it.name} · {t(it.when)}</p>
         )}
       </div>
     </div>

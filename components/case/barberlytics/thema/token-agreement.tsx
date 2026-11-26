@@ -95,7 +95,7 @@ export function TokenAgreement() {
 
       <div className="mx-auto max-w-[760px]">
         <div role="table" aria-label={t({ es: 'Matriz de decisión de tokens', en: 'Token decision matrix' })} className="text-sm">
-          <div role="row" className="grid grid-cols-[minmax(0,6.5rem)_repeat(4,minmax(0,1fr))_1.25rem_minmax(0,1fr)] items-end gap-x-1 pb-3 font-mono text-[9px] uppercase tracking-[0.12em] text-paper/45 md:grid-cols-[minmax(0,10rem)_repeat(4,minmax(0,1fr))_2rem_minmax(0,1fr)] md:gap-x-2 md:text-[10px]">
+          <div role="row" className="grid grid-cols-[minmax(0,6.5rem)_repeat(4,minmax(0,1fr))_1.25rem_minmax(0,1fr)] items-end gap-x-1 pb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60 md:grid-cols-[minmax(0,10rem)_repeat(4,minmax(0,1fr))_2rem_minmax(0,1fr)] md:gap-x-2">
             <span role="columnheader">Token</span>
             {SOURCES.map((s) => (
               <span key={s} role="columnheader" className="truncate text-center">{s}</span>
@@ -135,7 +135,7 @@ export function TokenAgreement() {
         <div className="mt-5 min-h-[4.5rem]" aria-live="polite">
           {row ? (
             <div key={row.token} className="th-fade grid grid-cols-[auto_1fr] items-start gap-x-5 gap-y-1 border-l border-[#D9B36A]/60 pl-4">
-              <p className="col-span-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[#D9B36A]">{row.token} · {row.decision}</p>
+              <p className="col-span-2 font-mono text-[11px] uppercase tracking-[0.16em] text-[#D9B36A]">{row.token} · {row.decision}</p>
               <p className="col-span-2 text-base leading-snug text-paper/85">{t(row.why)}</p>
               <p className="col-span-2 text-sm text-paper/55">
                 {row.premium
@@ -198,7 +198,7 @@ function TokenStepper() {
       <div className="rounded-[22px] border border-white/12 bg-white/[0.03] p-5">
         <div className="flex items-baseline justify-between">
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">Token</span>
-          <span className="font-mono text-[11px] tabular-nums text-paper/40">{String(index + 1).padStart(2, '0')} / {String(ROWS.length).padStart(2, '0')}</span>
+          <span className="font-mono text-[11px] tabular-nums text-paper/60">{String(index + 1).padStart(2, '0')} / {String(ROWS.length).padStart(2, '0')}</span>
         </div>
         <p key={r.token} className="th-fade mt-1 text-[24px] font-light leading-tight tracking-tight">{r.token}</p>
 
@@ -213,7 +213,7 @@ function TokenStepper() {
                 <span className="shrink-0"><Swatch value={v} kind={r.kind} state={!settled ? 'idle' : agree ? 'agree' : 'lose'} /></span>
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate text-[13px] text-paper/85">{source}</span>
-                  <span className="font-mono text-[11px] uppercase text-paper/45">{v ?? '—'}</span>
+                  <span className="font-mono text-[11px] uppercase text-paper/60">{v ?? '—'}</span>
                 </span>
               </li>
             )
@@ -230,7 +230,7 @@ function TokenStepper() {
           <span className="flex min-w-0 flex-col">
             <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#D9B36A]">{t({ es: 'Decisión', en: 'Decision' })} · {r.decision}</span>
             <span className="mt-0.5 text-[15px] leading-snug text-paper/90">{t(r.why)}</span>
-            <span className="mt-1 text-[13px] leading-snug text-paper/50">
+            <span className="mt-1 text-[13px] leading-snug text-paper/60">
               {r.premium
                 ? t({ es: `En el tema Premium: ${r.premium}`, en: `In the Premium theme: ${r.premium}` })
                 : t({ es: 'Fijo en todos los temas', en: 'Fixed in every theme' })}

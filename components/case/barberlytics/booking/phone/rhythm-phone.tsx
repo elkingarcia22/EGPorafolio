@@ -59,7 +59,7 @@ export function RhythmPhone({ rows, visits, visitsOn, newOn, remindersOn, stepMs
       </div>
 
       <div className="relative mt-3">
-        <p aria-hidden="true" className="absolute -left-1 top-0 -translate-y-1/2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper/40">{t({ es: 'Hoy', en: 'Today' })}</p>
+        <p aria-hidden="true" className="absolute -left-1 top-0 -translate-y-1/2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper/60">{t({ es: 'Hoy', en: 'Today' })}</p>
         <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" role="img" aria-label={t({ es: 'Doce semanas de una barbería, de arriba abajo', en: 'Twelve weeks at a barbershop, top to bottom' })}>
           {/* El carril elegido se ilumina */}
           {picked !== null && <rect x={LANE_X[picked] - 50} y={4} width={100} height={H - 8} rx={50} fill="rgb(var(--bk) / 0.06)" />}
@@ -102,7 +102,7 @@ export function RhythmPhone({ rows, visits, visitsOn, newOn, remindersOn, stepMs
           {/* Del final del último carril sale la fibra hacia «Patrones» */}
           <circle cx={LANE_X[2]} cy={H - TOP} r={1} fill="none" data-fiber-from="bk-patrones" />
         </svg>
-        <p aria-hidden="true" className="absolute -left-1 bottom-0 translate-y-1/2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper/40">{t({ es: '12 sem.', en: '12 wk' })}</p>
+        <p aria-hidden="true" className="absolute -left-1 bottom-0 translate-y-1/2 font-mono text-[11px] uppercase tracking-[0.1em] text-paper/60">{t({ es: '12 sem.', en: '12 wk' })}</p>
       </div>
 
       {/* Lo que dice cada carril, debajo de él */}

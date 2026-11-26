@@ -73,7 +73,7 @@ function BigCard({ now, look }: { now: number; look: Look }) {
           {[fields.service ? FEATURED.services.map((sv) => SERVICE[sv].name).join(' + ') : null, fields.price ? `US$ ${FEATURED.price}` : null].filter(Boolean).join(' · ')}
         </p>
       )}
-      {fields.time && <p className="pl-fade mt-1 font-mono text-xs text-white/45">{fmt(FEATURED.start)} – {fmt(FEATURED.start + FEATURED.len)}</p>}
+      {fields.time && <p className="pl-fade mt-1 font-mono text-xs text-white/60">{fmt(FEATURED.start)} – {fmt(FEATURED.start + FEATURED.len)}</p>}
       <div className="mt-auto flex items-center justify-between pt-6">
         {fields.status ? (
           <span key={stage} className="pl-fade inline-flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-sm" style={{ color: s.hue }}>

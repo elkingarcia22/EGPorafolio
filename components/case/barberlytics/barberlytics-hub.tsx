@@ -131,9 +131,9 @@ function ProjectNode({ project, lit, nodeRef }: { project: HubProject; lit: bool
       </div>
       <div className="mt-4 flex items-end justify-between gap-4">
         <div>
-          <p className={`font-mono text-[10px] uppercase tracking-[0.16em] transition-colors duration-500 ${lit ? 'text-signal' : 'text-paper/45'}`}>{project.index} · {t(project.what)}</p>
+          <p className={`font-mono text-[11px] uppercase tracking-[0.16em] transition-colors duration-500 ${lit ? 'text-signal' : 'text-paper/60'}`}>{project.index} · {t(project.what)}</p>
           <p className="mt-1.5 text-[clamp(1.5rem,1.1rem+1.2vw,2.2rem)] font-light leading-tight tracking-tight">{t(project.title)}</p>
-          <p className="mt-1 text-[12px] text-paper/55">{t(project.stat)}</p>
+          <p className="mt-1 text-[14px] text-paper/70">{t(project.stat)}</p>
         </div>
         <span aria-hidden="true" className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border transition-[transform,border-color,background-color] duration-500 ease-expo group-hover:rotate-45 ${lit ? 'border-signal/60 bg-signal/10' : 'border-white/15'}`}>↗</span>
       </div>
@@ -272,7 +272,7 @@ export function BarberlyticsHub({ next }: { next: Project }) {
               <span aria-hidden="true" className="absolute inset-[-35%] rounded-full bg-[radial-gradient(circle,rgb(var(--signal)/0.4),transparent_70%)] blur-xl" />
               <span aria-hidden="true" className="absolute inset-0 rounded-full border border-signal/50 animate-[nav-node-ping_2.6s_cubic-bezier(0,0,.2,1)_infinite]" />
               <span className="relative grid h-24 w-24 place-items-center rounded-full border border-white/15 bg-[rgb(var(--void))] shadow-[0_0_0_6px_rgb(var(--signal)/0.12),0_0_40px_6px_rgb(var(--signal)/0.35)]">
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/80">{t({ es: 'Producto', en: 'Product' })}</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/80">{t({ es: 'Producto', en: 'Product' })}</span>
               </span>
             </div>
             <div className="flex flex-col gap-14">

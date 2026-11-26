@@ -188,7 +188,7 @@ function BranchColumn({ values, step, reducedMotion }: BranchColumnProps) {
               </span>
               <span className="flex min-w-0 flex-col text-left">
                 <span className="text-[17px] leading-tight">{n.name}</span>
-                <span className="mt-1 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/50">{t(n.role)}</span>
+                <span className="mt-1 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{t(n.role)}</span>
               </span>
             </li>
           )

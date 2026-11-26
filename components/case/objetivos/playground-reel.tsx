@@ -179,7 +179,7 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
           <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-3 h-5 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[10px] leading-5 text-black/45">ubits · {page.path}</span>
+          <span className="ml-3 h-5 flex-1 truncate rounded-md bg-black/[0.05] px-2 font-mono text-[11px] leading-5 text-black/45">ubits · {page.path}</span>
         </div>
         <div
           ref={viewRef}
@@ -217,7 +217,7 @@ function PageViewer({ page, motion, seconds }: { page: Page; motion: boolean; se
               style={{ width: `${Math.max(visible, 0.06) * 100}%`, left: `${pos * (1 - Math.max(visible, 0.06)) * 100}%` }}
             />
           </div>
-          <p className="mt-1.5 font-mono text-[10px] tabular-nums text-white/40">{Math.round(pos * 100)} %</p>
+          <p className="mt-1.5 font-mono text-[11px] tabular-nums text-white/60">{Math.round(pos * 100)} %</p>
         </div>
         <div className="flex shrink-0 items-center rounded-full border border-white/15 bg-white/[0.04] p-1 backdrop-blur">
           <button type="button" onClick={() => step(-1)} disabled={atTop} aria-label={t({ es: 'Subir', en: 'Scroll up' })} className={round}>
@@ -310,7 +310,7 @@ export function PlaygroundReel() {
 
       <p key={page.id} className="obj-fade relative mt-5 max-w-[62ch] text-sm leading-relaxed text-white/70">
         <b className="font-medium text-white">{t(page.label)}.</b> {t(page.note)}
-        <span className="mt-1 block text-[11px] text-white/40">
+        <span className="mt-1 block text-[11px] text-white/60">
           {t({ es: 'Captura de página completa del producto, 19 nov 2026. Recórrela a mano o amplíala para moverte por ella.', en: 'Full-page product capture, Nov 19, 2026. Scroll through it or enlarge it to move around.' })}
         </span>
       </p>

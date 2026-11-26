@@ -44,7 +44,7 @@ export function OrbitPhone({ step, steps, go, style, size, perSub, process, redu
         </span>
         <span>
           <span className="block text-[18px]">Orbit</span>
-          <span key={thinking ? 'r' : 'o'} className="obj-fade mt-0.5 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/50">{thinking ? BUILDER.reasoned : t({ es: 'Agente de UBITS', en: 'UBITS agent' })}</span>
+          <span key={thinking ? 'r' : 'o'} className="obj-fade mt-0.5 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">{thinking ? BUILDER.reasoned : t({ es: 'Agente de UBITS', en: 'UBITS agent' })}</span>
         </span>
       </div>
 

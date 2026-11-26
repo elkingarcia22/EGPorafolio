@@ -22,7 +22,7 @@ function Blocker({ className, style, label }: { className: string; style?: React
   return (
     <div className={`absolute z-10 flex cursor-not-allowed items-center justify-center bg-[#0d0b09]/70 backdrop-blur-[2px] ${className}`} style={style} aria-hidden="true">
       {label && (
-        <span className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-white/55">
+        <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-white/55">
           <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5" /><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" /></svg>
           {label}
         </span>
@@ -121,7 +121,7 @@ export function PlatformDemo() {
         {t({ es: 'Abrir el calendario', en: 'Open the calendar' })}
       </button>
 
-      <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-[11px] text-paper/45">
+      <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[14px] text-paper/70">
         {demo.tryIt.map((tip) => (
           <li key={tip.label.es}>
             {t(tip.label)} <span className="text-[#d9b36a]">→</span> {t(tip.value)}

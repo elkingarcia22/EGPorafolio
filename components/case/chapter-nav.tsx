@@ -148,7 +148,7 @@ export function ChapterNav({ chapters, label, back = TO_PROJECTS }: ChapterNavPr
               />
             ))}
           </span>
-          <span className="brand-title max-w-[9rem] truncate text-[10px]">{current?.title}</span>
+          <span className="brand-title max-w-[9rem] truncate text-[11px]">{current?.title}</span>
         </div>
       </nav>
     </>

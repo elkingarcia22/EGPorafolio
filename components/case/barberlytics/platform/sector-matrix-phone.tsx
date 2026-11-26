@@ -59,7 +59,7 @@ export function SectorMatrixPhone() {
       <div key={row} aria-live="polite" className="mt-6 rounded-2xl border border-white/10 bg-white/[0.025] p-5">
         <div className="flex items-baseline justify-between gap-4">
           <span className="pl-fade text-balance text-[20px] font-light leading-tight tracking-tight">{t(r.fn)}</span>
-          <span className="shrink-0 font-mono text-[11px] text-paper/40">{row + 1} / {n}</span>
+          <span className="shrink-0 font-mono text-[11px] text-paper/60">{row + 1} / {n}</span>
         </div>
         <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
           {matrix.products.map((p, c) => (

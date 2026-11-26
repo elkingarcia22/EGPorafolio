@@ -194,7 +194,7 @@ export function PeopleRadarMobile({ t }: { t: number }) {
   return (
     <div className="grid gap-2 text-white md:grid-cols-[minmax(0,1fr)_300px] md:items-start" style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}>
       <div className="overflow-hidden rounded-[22px] p-4 ring-1 ring-white/10" style={{ background: 'radial-gradient(ellipse at 50% 60%,#151a2e 0%,#0b0c10 70%)' }}>
-        <p className="text-[11px] uppercase tracking-[0.16em] text-white/45">Agente 2 · Clínica Andina · 1.240 empleados</p>
+        <p className="text-[11px] uppercase tracking-[0.16em] text-white/60">Agente 2 · Clínica Andina · 1.240 empleados</p>
         <p className="mt-1 text-[15px] font-medium" aria-live="polite">{statusAt(t)}</p>
         <div className="mt-3"><Radar t={t} /></div>
       </div>

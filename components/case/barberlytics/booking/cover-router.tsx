@@ -86,7 +86,7 @@ export function CoverRouter() {
           {[0, 1].map((side) => {
             const on = decided && route.side === side
             const chip = (
-              <span key={`chip-${side}`} className={`rounded-full border px-3 py-1.5 text-center text-[13px] transition-colors duration-300 ${side ? 'order-3' : 'order-1'} ${on ? 'border-[rgb(var(--bk))] bg-[rgb(var(--bk)/0.12)] text-paper' : 'border-white/12 text-paper/50'}`}>
+              <span key={`chip-${side}`} className={`rounded-full border px-3 py-1.5 text-center text-[13px] transition-colors duration-300 ${side ? 'order-3' : 'order-1'} ${on ? 'border-[rgb(var(--bk))] bg-[rgb(var(--bk)/0.12)] text-paper' : 'border-white/12 text-paper/60'}`}>
                 {t(SIDES[side].name)}
               </span>
             )
@@ -133,7 +133,7 @@ export function CoverRouter() {
               <PhoneBody className="mx-auto w-full max-w-[220px]">
                 <Image src={`${IMG}/${s.src}.webp`} width={780} height={1688} alt={t(s.alt)} sizes="(min-width: 768px) 220px, 28vw" className="block h-auto w-full" />
               </PhoneBody>
-              <figcaption className="mt-3 text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.12em] text-paper/60">{t(s.name)}</figcaption>
+              <figcaption className="mt-3 text-center font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{t(s.name)}</figcaption>
             </figure>
           )
         })}

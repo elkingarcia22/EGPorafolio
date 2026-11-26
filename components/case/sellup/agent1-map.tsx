@@ -182,11 +182,11 @@ export function Agent1Map() {
       </svg>
 
       <div className="text-center md:text-left">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/55 md:text-[10px] md:text-paper/45">{t({ es: 'Empresas encontradas', en: 'Companies found' })}</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/55">{t({ es: 'Empresas encontradas', en: 'Companies found' })}</p>
         <p className="mt-3 text-[clamp(3rem,2rem+4vw,5.5rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 24px rgb(var(--signal) / 0.45))' }}>{fmt(shown)}</p>
         <div className="mt-5 flex items-center justify-center gap-3 md:justify-start">
           <span className="font-mono text-[12px] tabular-nums text-signal">{String(Math.min(lit, COUNTRIES.length)).padStart(2, '0')} / {COUNTRIES.length}</span>
-          <span className="text-[12px] text-paper/50">{t({ es: 'países', en: 'countries' })}</span>
+          <span className="text-[12px] text-paper/60">{t({ es: 'países', en: 'countries' })}</span>
           {current && !phone && <span key={current.code} className="su-fade rounded-full border border-white/15 px-2.5 py-0.5 text-[12px] text-paper/80">{t(current.name)}</span>}
         </div>
         <span aria-hidden="true" className="mt-5 block h-1 w-full max-w-[320px] overflow-hidden rounded-full bg-white/10 max-md:mx-auto">
@@ -198,7 +198,7 @@ export function Agent1Map() {
               const on = i < lit
               const fresh = i === lit - 1
               return (
-                <li key={name.es} className={`rounded-full border px-2.5 py-1 text-[12px] transition-all duration-500 ${fresh ? 'border-white bg-signal text-on-signal shadow-[0_0_14px_rgb(var(--signal)/0.7)]' : on ? 'border-signal/50 bg-signal/10 text-paper/90' : 'border-white/10 text-paper/35'}`}>
+                <li key={name.es} className={`rounded-full border px-2.5 py-1 text-[12px] transition-all duration-500 ${fresh ? 'border-white bg-signal text-on-signal shadow-[0_0_14px_rgb(var(--signal)/0.7)]' : on ? 'border-signal/50 bg-signal/10 text-paper/90' : 'border-white/10 text-paper/60'}`}>
                   {t(name)}
                 </li>
               )

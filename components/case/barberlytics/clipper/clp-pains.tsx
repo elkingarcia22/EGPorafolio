@@ -37,7 +37,7 @@ function Lane({ lane, shown, collapsed }: LaneProps) {
             <span className="w-16 shrink-0 sm:w-[6.5rem]" />
             <span className="mx-5 flex flex-1 justify-between">
               {pain.steps.map((s, k) => (
-                <span key={k} className="w-0 whitespace-nowrap text-center font-mono text-[8px] uppercase tracking-normal text-paper/45 sm:text-[10px] sm:tracking-[0.08em]">
+                <span key={k} className="w-0 whitespace-nowrap text-center font-mono text-[8px] uppercase tracking-normal text-paper/60 sm:tracking-[0.08em]">
                   <span className="inline-block -translate-x-1/2">{t(s)}</span>
                 </span>
               ))}
@@ -154,7 +154,7 @@ function PainsColumn({ step, reducedMotion }: { step: number; reducedMotion: boo
       {/* Los dos carriles: se ve uno a la vez */}
       <div className="flex gap-2" aria-hidden="true">
         {PAINS.map((p, i) => (
-          <span key={i} className={`grid flex-1 place-items-center rounded-xl border px-2 py-2 text-center font-mono text-[11px] uppercase leading-tight tracking-[0.08em] transition-colors duration-500 ${!collapsed && lane === i ? 'text-paper' : 'border-white/10 text-paper/40'}`} style={!collapsed && lane === i ? { borderColor: i === 0 ? AI[1] : AI[2] } : undefined}>
+          <span key={i} className={`grid flex-1 place-items-center rounded-xl border px-2 py-2 text-center font-mono text-[11px] uppercase leading-tight tracking-[0.08em] transition-colors duration-500 ${!collapsed && lane === i ? 'text-paper' : 'border-white/10 text-paper/60'}`} style={!collapsed && lane === i ? { borderColor: i === 0 ? AI[1] : AI[2] } : undefined}>
             {t(p.who)}
           </span>
         ))}
@@ -175,7 +175,7 @@ function PainsColumn({ step, reducedMotion }: { step: number; reducedMotion: boo
           <div key={lane} className="clp-fade">
             <div className="flex items-baseline justify-between gap-3">
               <span key={row} className="clp-fade text-[20px] font-light">{started ? rowLabel(pain.rows[row], t) : '…'}</span>
-              <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-paper/45">
+              <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-paper/60">
                 {row + 1} {t({ es: 'de', en: 'of' })} {ROWS}
               </span>
             </div>

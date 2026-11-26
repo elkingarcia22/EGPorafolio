@@ -114,7 +114,7 @@ export function Pill({ tone = 'blue', children }: { tone?: 'blue' | 'amber' | 'g
     red: 'bg-red-400/10 text-red-300 ring-red-400/30',
     gray: 'bg-white/5 text-white/60 ring-white/15',
   }[tone]
-  return <span className={`inline-flex items-center whitespace-nowrap rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ${cls}`}>{children}</span>
+  return <span className={`inline-flex items-center whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-medium ring-1 ${cls}`}>{children}</span>
 }
 
 /** Trazos de la marca de Rumbo (SellUp, src/icons): la aguja es una flecha que sube; la cola, más tenue. */

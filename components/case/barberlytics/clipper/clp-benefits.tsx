@@ -119,7 +119,7 @@ export function ClipperBenefits() {
                 [top ? 'bottom' : 'top']: `${((top ? H - n.y : n.y) / H) * 100 + 8}%`,
               }}
             >
-              <span className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#f0ce86] sm:text-[11px]">{t(PRINCIPLES[i].role)}</span>
+              <span className="block font-mono text-[11px] uppercase tracking-[0.12em] text-[#f0ce86] sm:text-[11px]">{t(PRINCIPLES[i].role)}</span>
               <span className="mt-1 block">{t(PRINCIPLES[i].gain)}</span>
             </p>
           )
@@ -193,7 +193,7 @@ function BenefitsColumn({ current, done, focus, orbState, onPick, reducedMotion 
                   {open && (
                     <span className="clp-fade mt-3 block rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
                       <span className="block text-[15px] leading-snug text-paper/85">«{t(p.q)}»</span>
-                      <span className="mt-1.5 block font-mono text-[11px] uppercase tracking-[0.1em] text-paper/45">→ {t(p.tool)}</span>
+                      <span className="mt-1.5 block font-mono text-[11px] uppercase tracking-[0.1em] text-paper/60">→ {t(p.tool)}</span>
                     </span>
                   )}
                 </span>

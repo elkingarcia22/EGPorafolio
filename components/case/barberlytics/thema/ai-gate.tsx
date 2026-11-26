@@ -144,8 +144,8 @@ export function AiGate() {
                     />
                   </span>
                   <span className="flex flex-col">
-                    <span className={`whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] transition-colors md:text-[11px] ${isPicked || passing || hit ? 'text-paper' : 'text-paper/50 group-hover:text-paper/85'}`}>{t(s.name)}</span>
-                    <span className="hidden font-mono text-[11px] md:text-[9px] tracking-[0.08em] text-paper/30 md:block">0{i + 1}</span>
+                    <span className={`whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.14em] transition-colors md:text-[11px] ${isPicked || passing || hit ? 'text-paper' : 'text-paper/60 group-hover:text-paper/85'}`}>{t(s.name)}</span>
+                    <span className="hidden font-mono text-[11px] tracking-[0.08em] text-paper/60 md:block">0{i + 1}</span>
                   </span>
                 </button>
               </li>
@@ -155,7 +155,7 @@ export function AiGate() {
 
         {/* La pantalla que la IA escribe */}
         <div className="min-w-0">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/45">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">
             <span className="flex items-center gap-2">
               <span aria-hidden="true" className="inline-block h-3 w-3 rounded-full" style={{ background: 'conic-gradient(from 180deg, #f0ce86, #3f72d8, #8f5bd8, #f0ce86)' }} />
               agenda.tsx
@@ -184,7 +184,7 @@ export function AiGate() {
                       </span>
                     )}
                   </span>
-                  <span className="pt-px text-[10px] uppercase tracking-[0.12em] transition-colors duration-300" style={{ color: tone }}>
+                  <span className="pt-px text-[11px] uppercase tracking-[0.12em] transition-colors duration-300" style={{ color: tone }}>
                     {settled ? (stop ? '✕' : '✓') : run.at < 0 ? '' : '…'}
                   </span>
                 </li>
@@ -199,7 +199,7 @@ export function AiGate() {
       <div className="mx-auto mt-8 min-h-[4rem] max-w-[640px]" aria-live="polite">
         {station ? (
           <div key={picked} className="th-fade border-l border-signal/60 pl-4">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal md:text-[10px]">{t(station.detail.title)}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t(station.detail.title)}</p>
             {Array.isArray(station.detail.body) ? (
               <ul className="mt-3 grid gap-x-6 gap-y-1.5 text-sm text-paper/75 sm:grid-cols-2">
                 {(station.detail.body as readonly L[]).map((line) => (
@@ -214,7 +214,7 @@ export function AiGate() {
             )}
           </div>
         ) : (
-          <p className="text-center text-[13px] text-paper/40 md:font-mono md:text-[10px] md:uppercase md:tracking-[0.16em] md:text-paper/35">{t({ es: 'Toca una estación', en: 'Tap a station' })}</p>
+          <p className="case-hint text-center">{t({ es: 'Toca una estación', en: 'Tap a station' })}</p>
         )}
       </div>
 
@@ -256,7 +256,7 @@ function GateTall({ run, picked, onPick, passed, stopped, reducedMotion }: GateT
     <div className="mx-auto max-w-[420px]">
       {/* La pantalla que la IA escribe: solo la línea actual */}
       <div className="rounded-[20px] border border-white/12 bg-[#141210]/80 p-4">
-        <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.12em] text-paper/45">
+        <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">
           <span className="flex items-center gap-2">
             <span aria-hidden="true" className="inline-block h-3 w-3 rounded-full" style={{ background: 'conic-gradient(from 180deg, #f0ce86, #3f72d8, #8f5bd8, #f0ce86)' }} />
             agenda.tsx
@@ -305,7 +305,7 @@ function GateTall({ run, picked, onPick, passed, stopped, reducedMotion }: GateT
 
       {/* Dónde va y cómo termina */}
       <div className="mt-5 min-h-[5.5rem] text-center">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/45">0{(run.done ? target : at) + 1} · {t(now.name)}</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/60">0{(run.done ? target : at) + 1} · {t(now.name)}</p>
         {run.done ? (
           <p key={`v-${run.k}`} className="th-fade mt-2 text-[16px] leading-snug" style={{ color: verdict ?? undefined }}>
             {blocked ? `✕ ${t({ es: 'Frenada', en: 'Stopped' })}` : `✓ ${t({ es: 'Llega al código', en: 'Reaches the code' })}`}

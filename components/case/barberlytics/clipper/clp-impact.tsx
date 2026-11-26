@@ -136,7 +136,7 @@ export function ClipperImpact() {
         {/* Bajo cada cresta, qué mide en una palabra (lo completo, al tocarla) */}
         <div className="absolute inset-x-0 bottom-0 hidden sm:block">
           {METRICS.map((m, i) => (
-            <p key={m.value} className={`absolute max-w-[12rem] -translate-x-1/2 text-center text-[12px] leading-snug text-paper/45 transition-opacity duration-700 ${seen ? 'opacity-100' : 'opacity-0'}`} style={{ left: `${(PEAKS[i] / W) * 100}%`, transitionDelay: `${1000 + i * STAGGER_MS}ms` }}>
+            <p key={m.value} className={`absolute max-w-[13rem] -translate-x-1/2 text-balance text-center text-[14px] leading-snug text-paper/70 transition-opacity duration-700 ${seen ? 'opacity-100' : 'opacity-0'}`} style={{ left: `${(PEAKS[i] / W) * 100}%`, transitionDelay: `${1000 + i * STAGGER_MS}ms` }}>
               {t(m.label)}
             </p>
           ))}

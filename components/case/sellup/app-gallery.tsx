@@ -144,7 +144,7 @@ export function AppGallery() {
       {/* Qué pantalla está al frente, cuál de cuántas, y un punto por pantalla */}
       <p key={active} aria-live="polite" className="su-fade mt-6 text-center text-sm text-paper/75">
         {t(SHOTS[active].name)}
-        <span className="ml-2 font-mono text-[11px] text-paper/35 tabular-nums">{String(active + 1).padStart(2, '0')} / {N}</span>
+        <span className="ml-2 font-mono text-[11px] text-paper/60 tabular-nums">{String(active + 1).padStart(2, '0')} / {N}</span>
       </p>
       <div className="mx-auto mt-4 flex max-w-[90%] flex-wrap justify-center gap-1">
         {SHOTS.map((shot, i) => (
@@ -153,7 +153,7 @@ export function AppGallery() {
           </button>
         ))}
       </div>
-      <p className="mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-white/40 md:text-[10px] md:tracking-[0.16em] md:text-white/35">{t({ es: 'Capturas reales · nombres de personas desenfocados', en: 'Real screenshots · people’s names blurred' })}</p>
+      <p className="case-tag mt-4 text-center">{t({ es: 'Capturas reales · nombres de personas desenfocados', en: 'Real screenshots · people’s names blurred' })}</p>
     </div>
   )
 }

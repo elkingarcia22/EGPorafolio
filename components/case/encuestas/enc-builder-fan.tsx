@@ -138,7 +138,7 @@ export function EncBuilderFan() {
       {/* La plantilla en lectura: para qué sirve y cuánto toma */}
       <div key={active} className="obj-fade mx-auto mt-6 flex min-h-[4.5rem] max-w-[62ch] flex-col items-center text-center" aria-live="polite">
         <p className="text-balance text-[clamp(1.1rem,0.95rem+0.6vw,1.45rem)] font-light leading-snug">{t(tpl.use)}</p>
-        <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/50">
+        <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">
           {t(TIER_LABEL[tpl.tier])} · {q} {t({ es: 'preguntas', en: 'questions' })} · {tpl.sections.length} {t({ es: 'secciones', en: 'sections' })} · ~{Math.round(q * MINUTES_PER_QUESTION)} min
           {NORMATIVE_OUTPUT[tpl.id] ? ` · ${t(NORMATIVE_OUTPUT[tpl.id])}` : ''}
         </p>
@@ -148,7 +148,7 @@ export function EncBuilderFan() {
       <ol className="mx-auto mt-14 grid max-w-[980px] gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
         {ENCUESTAS_CASE.idea.principles.map((p, i) => (
           <li key={p.title.es} data-reveal className="flex items-start gap-3">
-            <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/25 font-mono text-[10px]">{i + 1}</span>
+            <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/25 font-mono text-[11px]">{i + 1}</span>
             <span className="text-[15px] leading-snug text-paper/85">{t(p.title)}</span>
           </li>
         ))}

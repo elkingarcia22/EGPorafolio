@@ -72,7 +72,7 @@ export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel)
         style={{ opacity: fanned ? 0 : 1, transform: `translateX(-50%) scale(${fanned ? 0.55 : 1}) translateY(${fanned ? 120 : 0}px)`, filter: fanned ? 'blur(8px)' : 'none' }}
         aria-hidden={fanned}
       >
-        <p className="text-[12px] uppercase tracking-wide text-white/45">Mensaje base · {PEOPLE[p].name}</p>
+        <p className="text-[12px] uppercase tracking-wide text-white/60">Mensaje base · {PEOPLE[p].name}</p>
         <p className="mt-3 text-[18px] leading-relaxed">
           {BASE[p].map((s, i) => (
             <span key={s} className="inline transition-[opacity,filter] duration-300" style={{ opacity: i < sentences ? 1 : 0.08, filter: i < sentences ? 'none' : 'blur(3px)' }}>
@@ -109,12 +109,12 @@ export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel)
             <span className={`block rounded-2xl transition-shadow duration-300 ${active ? 'shadow-[0_0_0_3px_rgba(210,45,106,0.55),0_30px_80px_-20px_rgba(126,43,224,0.9)]' : ''}`}>
               <Device channel={id} p={p} />
             </span>
-            <span className={`mt-3 block text-center text-[12px] font-medium transition-colors duration-200 ${active ? 'text-white' : 'text-white/45'}`}>{label}</span>
+            <span className={`mt-3 block text-center text-[12px] font-medium transition-colors duration-200 ${active ? 'text-white' : 'text-white/60'}`}>{label}</span>
           </button>
         )
       })}
 
-      <p className="absolute inset-x-0 bottom-3 text-center text-[11.5px] text-white/45">No se envía nada solo: el vendedor lo usa o lo ajusta. Toca otro decisor o canal.</p>
+      <p className="case-hint absolute inset-x-0 bottom-3 text-center">No se envía nada solo: el vendedor lo usa o lo ajusta. Toca otro decisor o canal.</p>
     </div>
   )
 }

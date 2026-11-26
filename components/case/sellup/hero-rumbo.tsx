@@ -54,7 +54,7 @@ function Tag({ f, on, align }: { f: Feature; on: boolean; align: 'left' | 'right
       }`}
     >
       <p className="text-[13px] font-medium leading-snug">{t(f.title)}</p>
-      <p className="mt-0.5 text-[11px] leading-snug text-white/50">{t(f.body)}</p>
+      <p className="mt-0.5 text-[11px] leading-snug text-white/60">{t(f.body)}</p>
       <span
         className={`absolute top-1/2 hidden h-px w-10 -translate-y-1/2 transition-opacity duration-500 lg:block ${align === 'left' ? '-right-10' : '-left-10'} ${on ? 'opacity-100' : 'opacity-0'}`}
         style={{ background: `linear-gradient(${align === 'left' ? '90deg' : '270deg'},#5b7eff,transparent)` }}
@@ -107,7 +107,7 @@ export function Orbit({ phase, still, markSize, compact = false }: { phase: numb
           return (
             <span
               key={o.name}
-              className={`absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full ${compact ? 'px-1.5 py-0.5 text-[8px]' : 'px-2.5 py-1 text-[11px]'} ring-1 transition-all duration-500 ${on ? 'bg-[#5b7eff]/20 text-white ring-[#5b7eff]/60 shadow-[0_0_24px_rgba(91,126,255,0.45)]' : 'scale-90 bg-[#0d0e10] text-white/35 opacity-0 ring-white/10'}`}
+              className={`absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full ${compact ? 'px-1.5 py-0.5 text-[8px]' : 'px-2.5 py-1 text-[11px]'} ring-1 transition-all duration-500 ${on ? 'bg-[#5b7eff]/20 text-white ring-[#5b7eff]/60 shadow-[0_0_24px_rgba(91,126,255,0.45)]' : 'scale-90 bg-[#0d0e10] text-white/60 opacity-0 ring-white/10'}`}
               style={{ left: `${o.x}%`, top: `${o.y}%` }}
             >
               {o.name}
@@ -116,8 +116,8 @@ export function Orbit({ phase, still, markSize, compact = false }: { phase: numb
         })}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
           <RumboMark size={markSize} motion={still ? 'still' : 'breathing'} glow />
-          <p className={`${compact ? 'mt-1.5 text-[10px]' : 'mt-3 text-sm'} font-medium`}>Rumbo</p>
-          <p className={`${compact ? 'text-[8px]' : 'text-[11px]'} whitespace-nowrap text-white/50`} aria-live="polite">{t(p.agent)}</p>
+          <p className={`${compact ? 'mt-1.5 text-[11px]' : 'mt-3 text-sm'} font-medium`}>Rumbo</p>
+          <p className={`${compact ? 'text-[8px]' : 'text-[11px]'} whitespace-nowrap text-white/60`} aria-live="polite">{t(p.agent)}</p>
         </div>
     </>
   )
@@ -175,7 +175,7 @@ export function HeroRumboCard() {
         <Orbit phase={phase} still={reducedMotion} markSize={54} compact />
       </div>
       <p key={active.title.es} className="absolute right-[4%] top-1/2 w-[34%] -translate-y-1/2 animate-[fadeSlide_.3s_ease-out] rounded-[10px] bg-[#5b7eff]/[0.14] px-2.5 py-2 ring-1 ring-[#5b7eff]/60">
-        <span className="block text-[10px] font-medium leading-snug">{t(active.title)}</span>
+        <span className="block text-[11px] font-medium leading-snug">{t(active.title)}</span>
         <span className="mt-0.5 block text-[8px] leading-snug text-white/55">{t(active.body)}</span>
       </p>
       <style>{'@keyframes fadeSlide{from{opacity:0;transform:translate(8px,-50%)}to{opacity:1;transform:translate(0,-50%)}}'}</style>

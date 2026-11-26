@@ -96,14 +96,14 @@ function ShopApp({ shop, primary }: { shop: Shop; primary: string }) {
   return (
     <div className="space-y-3 px-4 pb-6 pt-3 text-[11px] transition-colors duration-700" style={{ background: app, color: text }}>
       <div className="flex items-center gap-2.5">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg text-[11px] md:text-[10px] font-bold transition-colors duration-700" style={{ background: primary, color: ink }}>{shop.initials}</span>
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg text-[11px] font-bold transition-colors duration-700" style={{ background: primary, color: ink }}>{shop.initials}</span>
         <span className="text-[13px] font-semibold">{shop.name}</span>
       </div>
       <p className="pt-1 text-[17px] font-semibold leading-tight">Hola, Andrés</p>
       <div className="rounded-xl border p-3 transition-colors duration-700" style={card}>
         <p style={{ color: muted }}>Te toca el jueves 19</p>
         <p className="mt-0.5 text-[13px] font-semibold">Fade · con Emilio</p>
-        <span className="mt-2 inline-block rounded-full px-2 py-0.5 text-[11px] md:text-[10px] font-medium" style={{ background: withAlpha(primary, dark ? 0.2 : 0.12), color: dark ? primary : shade(primary, -0.1) }}>Lo de siempre</span>
+        <span className="mt-2 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: withAlpha(primary, dark ? 0.2 : 0.12), color: dark ? primary : shade(primary, -0.1) }}>Lo de siempre</span>
       </div>
       <div className="grid grid-cols-5 gap-1.5 text-center">
         {['L 16', 'M 17', 'M 18', 'J 19', 'V 20'].map((d, i) => (
@@ -189,7 +189,7 @@ export function LogoToApp() {
             {palette.map((c, i) => (
               <li key={`${c}-${i}`} className="animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: `${0.9 + i * 0.12}s` }}>
                 <span className={`block h-9 w-9 rounded-lg md:h-12 md:w-12 md:rounded-xl ring-1 ring-white/15 ${i === 0 ? 'ring-2 ring-white' : ''}`} style={{ background: c }} />
-                <span className="mt-1.5 block font-mono text-[11px] md:text-[9px] text-white/45">{i === 0 ? t({ es: 'primario', en: 'primary' }) : c.startsWith('#') ? c.toUpperCase() : ''}</span>
+                <span className="mt-1.5 block font-mono text-[11px] text-white/60">{i === 0 ? t({ es: 'primario', en: 'primary' }) : c.startsWith('#') ? c.toUpperCase() : ''}</span>
               </li>
             ))}
           </ul>
@@ -199,7 +199,7 @@ export function LogoToApp() {
         <div className="-my-4 flex flex-col items-center gap-2 md:hidden" aria-hidden="true">
           <span className="h-10 w-px bg-gradient-to-b from-white/0 to-white/40" />
           <span className="h-2.5 w-2.5 rounded-full border border-white/60 transition-colors duration-700" style={{ background: primary, boxShadow: `0 0 12px 2px ${primary}99` }} />
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/45">{t({ es: '1 color', en: '1 color' })}</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/60">{t({ es: '1 color', en: '1 color' })}</span>
           <span className="h-10 w-px bg-gradient-to-b from-white/40 to-white/0" />
         </div>
 
@@ -319,20 +319,20 @@ function LogoToAppTall({ shop, primary, palette, custom, onPick, onCustom }: Log
       {/* Los dos juntos, centrados bajo el logo: la fibra cae entre la app y los colores */}
       <div className="relative mx-auto mt-2 flex w-fit max-w-full items-start justify-center gap-4">
         <div className="flex flex-col items-center">
-          <p className="mb-3 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.1em] text-white/50">{t({ es: '3 · Su app', en: '3 · Their app' })}</p>
+          <p className="mb-3 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.1em] text-white/60">{t({ es: '3 · Su app', en: '3 · Their app' })}</p>
           <PhoneBody className="w-[min(250px,calc(100vw-8.5rem))]">
             <StatusBar />
             <ShopApp shop={shop} primary={primary} />
           </PhoneBody>
         </div>
         <div className="flex w-[64px] shrink-0 flex-col items-center">
-          <p className="mb-3 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.1em] text-white/50">2 · {t({ es: 'Colores', en: 'Colors' })}</p>
+          <p className="mb-3 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.1em] text-white/60">2 · {t({ es: 'Colores', en: 'Colors' })}</p>
           <ul className="relative flex flex-col items-center gap-4">
             <span aria-hidden="true" className="absolute bottom-6 top-6 left-1/2 w-px -translate-x-1/2 bg-white/12" />
             {palette.map((c, i) => (
               <li key={`${c}-${i}`} className="relative flex animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] flex-col items-center" style={{ animationDelay: `${0.6 + i * 0.12}s` }}>
                 <span className={`block h-11 w-11 rounded-xl ${i === 0 ? 'ring-2 ring-white' : 'ring-1 ring-white/15'}`} style={{ background: c }} />
-                <span className="mt-1 font-mono text-[11px] text-white/50">{i === 0 ? t({ es: 'primario', en: 'primary' }) : c.toUpperCase().slice(0, 7)}</span>
+                <span className="mt-1 font-mono text-[11px] text-white/60">{i === 0 ? t({ es: 'primario', en: 'primary' }) : c.toUpperCase().slice(0, 7)}</span>
               </li>
             ))}
           </ul>

@@ -38,7 +38,7 @@ export function ImpactPhone({ metrics, active, risen, onPick, reducedMotion }: I
 
   return (
     <div className="mx-auto mt-6 max-w-[360px]">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t({ es: 'partida → meta', en: 'start → target' })}</p>
+      <p className="case-tag">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t({ es: 'partida → meta', en: 'start → target' })}</p>
 
       <div className="mt-6 flex items-stretch gap-6">
         {/* La columna grande: el nivel sube del punto de partida a la meta */}
@@ -70,14 +70,14 @@ export function ImpactPhone({ metrics, active, risen, onPick, reducedMotion }: I
       </div>
 
       <p key={`m-${active}`} className="obj-fade mt-6 text-[15px] leading-relaxed text-paper/80">{t(m.moves)}</p>
-      <button type="button" onClick={() => setHowOpen((o) => !o)} aria-expanded={howOpen} className="mt-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-paper/50">
+      <button type="button" onClick={() => setHowOpen((o) => !o)} aria-expanded={howOpen} className="mt-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">
         <span aria-hidden="true" className={`transition-transform duration-300 ${howOpen ? 'rotate-45' : ''}`}>+</span>
         {t({ es: 'Qué es y cómo se mide', en: 'What it is and how it’s measured' })}
       </button>
       {howOpen && (
         <dl key={`h-${active}`} className="obj-fade mt-3 space-y-2 border-l border-white/15 pl-4 text-[14px] leading-relaxed text-paper/65">
-          <div><dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-paper/45">{t({ es: 'Qué es', en: 'What it is' })}</dt><dd>{t(m.what)}</dd></div>
-          <div><dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-paper/45">{t({ es: 'Cómo se mide', en: 'How it’s measured' })}</dt><dd>{t(m.how)}</dd></div>
+          <div><dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{t({ es: 'Qué es', en: 'What it is' })}</dt><dd>{t(m.what)}</dd></div>
+          <div><dt className="font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{t({ es: 'Cómo se mide', en: 'How it’s measured' })}</dt><dd>{t(m.how)}</dd></div>
         </dl>
       )}
 

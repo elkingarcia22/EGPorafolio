@@ -62,13 +62,13 @@ export function CoverTapPhone({ nodes, lit, hopMs, reducedMotion }: CoverTapPhon
               </span>
               <span className="min-w-0">
                 <span className="block text-[1.2rem] font-light leading-tight transition-opacity duration-500" style={{ opacity: on ? 1 : 0.35 }}>{t(n.value)}</span>
-                <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/50">{t(n.label)}</span>
+                <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">{t(n.label)}</span>
               </span>
             </li>
           )
         })}
       </ol>
-      <figcaption className="mt-4 text-center text-[13px] leading-snug text-paper/50">
+      <figcaption className="mt-4 text-center text-[13px] leading-snug text-paper/60">
         {t({ es: 'De su celular a la cita, sin volver a decidir nada', en: 'From phone to booking, deciding nothing again' })}
       </figcaption>
     </figure>

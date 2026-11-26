@@ -110,7 +110,7 @@ export function SellUpImpact() {
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[960px]">
-      <p className="text-center font-mono text-[11px] uppercase tracking-[0.16em] text-paper/50 md:text-[10px] md:tracking-[0.18em] md:text-paper/45">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
+      <p className="case-tag text-center">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
 
       {/* Antes / Con SellUp: cambia solo; tocar uno lo fija un rato */}
       <div role="tablist" aria-label={t({ es: 'Escenario', en: 'Scenario' })} className="mx-auto mt-6 flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
@@ -166,7 +166,7 @@ export function SellUpImpact() {
       {/* Leads y éxito del primer contacto */}
       <div className={phone ? 'mt-12 space-y-10' : 'mt-14 grid gap-12 md:grid-cols-2'}>
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal md:text-[10px]">{t({ es: 'Métrica norte', en: 'North star' })}</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
           <p className="mt-2 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
           <div className={`mt-5 grid grid-cols-5 ${phone ? 'max-w-[190px] gap-2.5' : 'max-w-[230px] gap-2'}`} aria-hidden="true">
             {Array.from({ length: LEAD_SLOTS }, (_, i) => {
@@ -260,7 +260,7 @@ function PhoneWeek({ segments, selling, after, num }: { segments: readonly Segme
           )
         })}
       </div>
-      <p className="mt-2 font-mono text-[11px] text-paper/45">{t({ es: '1 celda = 1 hora · 40 h a la semana', en: '1 cell = 1 hour · 40 h a week' })}</p>
+      <p className="mt-2 font-mono text-[11px] text-paper/60">{t({ es: '1 celda = 1 hora · 40 h a la semana', en: '1 cell = 1 hour · 40 h a week' })}</p>
       <ul className="mt-5 space-y-2.5 text-[15px]">
         {segments.map((seg) => (
           <li key={seg.key} className="flex items-center gap-3">

@@ -111,7 +111,7 @@ export function ThemaImpact() {
                   <span className="flex flex-col">
                     <span className="text-[17px] leading-snug text-paper/90 md:text-base md:text-paper/85">{t(row.title)}</span>
                     <span className="mt-2 max-w-[42ch] text-pretty text-[14px] leading-relaxed text-paper/60 md:text-sm md:text-paper/55">{t(row.plain)}</span>
-                    {row.reference && <span className="mt-2 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/40 md:mt-1 md:text-[9px] md:tracking-[0.14em] md:text-paper/35">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
+                    {row.reference && <span className="case-tag mt-2 md:mt-1">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
                   </span>
                 </span>
 
@@ -119,7 +119,7 @@ export function ThemaImpact() {
                 <span className="flex flex-col gap-4 md:gap-2.5">
                   {row.bars.map((b, k) => (
                     <span key={b.label.es} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 text-[13px] md:gap-y-0 md:text-xs md:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_minmax(0,8rem)]">
-                      <span className={b.now ? 'text-paper/80' : 'text-paper/45'}>{t(b.label)}</span>
+                      <span className={`text-[13px] ${b.now ? 'text-paper/85' : 'text-paper/65'}`}>{t(b.label)}</span>
                       <span className="relative order-last col-span-2 flex h-3 items-center md:order-none md:col-span-1 md:h-6">
                         <span
                           aria-hidden="true"
@@ -136,7 +136,7 @@ export function ThemaImpact() {
                         {b.size === 0 && <span aria-hidden="true" className="absolute left-0 h-3 w-3 rounded-full border border-dashed" style={{ borderColor: GOLD }} />}
                       </span>
                       <span
-                        className={`font-mono text-[12px] uppercase tracking-[0.06em] md:text-[10px] md:tracking-[0.1em] transition-opacity duration-500 ${b.now ? 'text-paper' : 'text-paper/55'}`}
+                        className={`font-mono text-[12px] uppercase tracking-[0.06em] md:tracking-[0.1em] transition-opacity duration-500 ${b.now ? 'text-paper' : 'text-paper/55'}`}
                         style={{ opacity: drawn ? 1 : 0, transitionDelay: `${i * ROW_DELAY_MS + 500}ms` }}
                       >
                         {t(b.value)}
@@ -151,7 +151,7 @@ export function ThemaImpact() {
       </ol>
 
       {/* La calidad que respalda las piezas */}
-      <ul className="relative mx-auto mt-12 grid max-w-[860px] grid-cols-2 gap-x-6 gap-y-5 text-[13px] leading-snug text-paper/55 md:mt-14 md:flex md:flex-wrap md:justify-center md:gap-x-8 md:gap-y-3 md:font-mono md:text-[11px] md:uppercase md:tracking-[0.12em] md:text-paper/45">
+      <ul className="relative mx-auto mt-12 grid max-w-[860px] grid-cols-2 gap-x-6 gap-y-5 text-[13px] leading-snug text-paper/55 md:mt-14 md:flex md:flex-wrap md:justify-center md:gap-x-8 md:gap-y-3 md:font-mono md:text-[11px] md:uppercase md:tracking-[0.12em]">
         <span data-fiber-from="th-demo" aria-hidden="true" className="absolute -bottom-6 left-1/2 h-px w-px" />
         {impact.quality.map((q) => (
           <li key={q.label.es}>

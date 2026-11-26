@@ -171,7 +171,7 @@ function HeroColumn({ running, reducedMotion }: HeroLineProps) {
             children: (
               <span className="block pt-1.5">
                 <span key={`t${ex}`} className="clp-fade block text-[15px] text-paper/85">{t(x.toolLabel)}</span>
-                <span className="mt-0.5 block font-mono text-[12px] text-paper/45">{x.tool}</span>
+                <span className="mt-0.5 block font-mono text-[12px] text-paper/60">{x.tool}</span>
               </span>
             ),
           },

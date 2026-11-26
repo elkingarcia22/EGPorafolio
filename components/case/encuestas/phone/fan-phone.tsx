@@ -90,7 +90,7 @@ export function FanPhone({ rows, active, picked, onPick, detail, principles, red
 
       <div key={active} className="obj-fade mt-6 border-l border-signal/50 pl-4" aria-live="polite">
         <p className="text-[17px] font-light leading-snug">{detail.use}</p>
-        <p className="mt-2 font-mono text-[11px] uppercase leading-relaxed tracking-[0.12em] text-paper/50">{detail.meta}</p>
+        <p className="mt-2 font-mono text-[11px] uppercase leading-relaxed tracking-[0.12em] text-paper/60">{detail.meta}</p>
       </div>
 
       {/* Los cuatro principios: se pasan de lado */}

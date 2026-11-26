@@ -48,7 +48,7 @@ export function NeuronQuotes({ label, items: rules, tag }: NeuronQuotesProps) {
               <span className={`relative block h-[15px] w-[15px] rounded-full border transition-all duration-500 ease-expo ${i === active ? 'border-white bg-signal shadow-[0_0_0_6px_rgb(var(--signal)/0.18),0_0_18px_3px_rgb(var(--signal)/0.7)]' : i < active ? 'border-white/60 bg-white/50' : 'border-white/35 bg-void group-hover:border-white'}`}>
                 {i === active && <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.4s_cubic-bezier(0,0,.2,1)_infinite]" />}
               </span>
-              <span className={`font-mono text-[10px] tracking-[0.12em] transition-opacity duration-300 ${i === active ? 'text-signal opacity-100' : 'opacity-40 group-hover:opacity-80'}`}>{tag}{String(i + 1).padStart(2, '0')}</span>
+              <span className={`font-mono text-[11px] tracking-[0.12em] transition-opacity duration-300 ${i === active ? 'text-signal opacity-100' : 'opacity-40 group-hover:opacity-80'}`}>{tag}{String(i + 1).padStart(2, '0')}</span>
             </button>
           </li>
         ))}

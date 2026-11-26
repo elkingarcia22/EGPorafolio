@@ -66,9 +66,9 @@ function FragmentCard({ f, state }: { f: Fragment; state: 'idle' | 'pull' | 'gon
             boxShadow: state === 'pull' ? `0 0 0 3px ${f.fake ? 'rgba(248,113,113,0.25)' : 'rgba(126,43,224,0.3)'}, 0 20px 50px -18px rgba(126,43,224,0.7)` : undefined,
           }}
         >
-          <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/45"><f.Icon className="h-3.5 w-3.5" />{f.kind}</p>
+          <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/60"><f.Icon className="h-3.5 w-3.5" />{f.kind}</p>
           <p className={`mt-1 text-[13px] font-medium leading-snug ${state === 'struck' ? 'line-through decoration-red-400 decoration-2' : ''}`}>{f.title}</p>
-          <p className="mt-1 text-[11px] text-white/45">{f.meta}</p>
+          <p className="mt-1 text-[11px] text-white/60">{f.meta}</p>
           {state === 'struck' && (
             <span className="absolute -right-3 -top-3 flex items-center gap-1 rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-semibold text-white shadow-lg">
               <X className="h-3 w-3" />No está en la fuente
@@ -137,7 +137,7 @@ export function MagnetScene({ time }: { time: number }) {
           <RumboMark size={88} motion="thinking" glow />
         </div>
         <p className="mt-3 whitespace-nowrap text-[13px] font-semibold">Rumbo investiga</p>
-        <p className="whitespace-nowrap text-[11px] text-white/50">Clínica Andina · Valeria Ortiz</p>
+        <p className="whitespace-nowrap text-[11px] text-white/60">Clínica Andina · Valeria Ortiz</p>
       </div>
 
       {/* Hechos citados */}

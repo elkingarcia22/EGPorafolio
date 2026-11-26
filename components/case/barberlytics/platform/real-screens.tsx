@@ -50,7 +50,7 @@ export function RealScreens() {
                   <span className={`relative mt-4 block h-20 w-32 overflow-hidden rounded-lg border transition-all duration-500 ${on ? 'border-[#d9b36a] opacity-100' : 'border-white/10 opacity-60 group-hover:opacity-90'}`}>
                     <Image src={p.image.src} alt="" fill sizes="128px" className={`object-cover ${p.tall ? 'object-top' : 'object-left-top'}`} />
                   </span>
-                  <span className={`mt-3 max-w-[18ch] text-balance text-[13px] leading-snug transition-opacity duration-300 ${on ? 'opacity-100' : 'opacity-65 group-hover:opacity-95'}`}>{t(p.name)}</span>
+                  <span className={`mt-3 max-w-[20ch] text-balance text-[14px] leading-snug transition-opacity duration-300 ${on ? 'opacity-100' : 'opacity-65 group-hover:opacity-95'}`}>{t(p.name)}</span>
                 </button>
               </li>
             )

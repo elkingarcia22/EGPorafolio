@@ -92,7 +92,7 @@ function BarrasArea() {
         ))}
       </ul>
       <span className="pointer-events-none absolute -bottom-2 -top-5 border-l border-dashed border-black/50" style={{ left: `calc(7.5rem + 0.5rem + (100% - 7.5rem - 3rem - 1rem) * ${cal / tope})` }}>
-        <span className="absolute -top-0.5 left-1 whitespace-nowrap text-[9px] max-lg:text-[11px] text-black/50">Calendario {cal} %</span>
+        <span className="absolute -top-0.5 left-1 whitespace-nowrap text-[11px] max-lg:text-[11px] text-black/50">Calendario {cal} %</span>
       </span>
     </div>
   )
@@ -118,7 +118,7 @@ function DondeSeJuega() {
             <span key={p.id} className="obj-bar h-full border-r border-white" style={{ width: `${p.v}%`, background: colors[i], animationDelay: `${i * 120}ms` }} />
           ))}
         </div>
-        <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] max-lg:text-[11px]">
+        <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] max-lg:text-[11px]">
           {PESO_EMPRESA.map((p, i) => (
             <li key={p.id} className="flex items-center gap-1.5"><span className="h-2 w-2 shrink-0 rounded-sm" style={{ background: colors[i] }} /><span className="truncate text-black/60">{p.label}</span><b className="ml-auto whitespace-nowrap font-medium">{`${p.v}\u00a0%`}</b></li>
           ))}
@@ -135,7 +135,7 @@ function DondeSeJuega() {
             return <circle key={a.area} cx={px} cy={py} r={2.5} fill={PRIMARY} />
           })}
         </svg>
-        <div className="text-[10px] max-lg:text-[11px]">
+        <div className="text-[11px] max-lg:text-[11px]">
           <p className="text-black/50">Alineación por área</p>
           <p className="text-[11px]">Promedio del ciclo: <b className="font-medium">{fmt(ALINEACION_PROMEDIO)}</b></p>
           <ul className="mt-1.5 space-y-0.5">
@@ -165,7 +165,7 @@ function QueHacer() {
             </div>
           ))}
         </div>
-        <div className="mt-1 flex gap-3 px-2 text-center text-[10px] max-lg:text-[11px] text-black/55">
+        <div className="mt-1 flex gap-3 px-2 text-center text-[11px] max-lg:text-[11px] text-black/55">
           {APROBACION.map((a) => <span key={a.id} className="flex-1">{a.label}</span>)}
         </div>
       </div>
@@ -178,7 +178,7 @@ function QueHacer() {
               <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
                 <span className="obj-bar block h-full rounded-full" style={{ width: `${d.v}%`, background: PRIMARY, animationDelay: `${200 + i * 100}ms` }} />
               </span>
-              <span className="text-[10px] max-lg:text-[11px] text-black/45">{d.objetivos} objetivos</span>
+              <span className="text-[11px] max-lg:text-[11px] text-black/45">{d.objetivos} objetivos</span>
             </li>
           ))}
         </ul>
@@ -196,7 +196,7 @@ function QuienReporta() {
         <div className="flex h-28 items-end gap-1.5 border-b border-black/10">
           {PARTICIPACION.map((p, i) => (
             <div key={p.semana} className="flex flex-1 flex-col items-center justify-end">
-              {p.v > 0 && <span className="mb-1 text-[9px] max-lg:text-[11px] tabular-nums text-black/60">{p.v} %</span>}
+              {p.v > 0 && <span className="mb-1 text-[11px] max-lg:text-[11px] tabular-nums text-black/60">{p.v} %</span>}
               <span className="w-full origin-bottom rounded-t animate-[ramp-in_0.8s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ height: `${Math.max(2, (p.v / 80) * 96)}px`, background: p.semana === 'Esta' ? PRIMARY : p.v ? '#6b8cff' : 'rgba(22,26,44,0.1)', animationDelay: `${i * 70}ms` }} />
             </div>
           ))}
@@ -213,7 +213,7 @@ function QuienReporta() {
         <p className="mb-1.5 text-[11px] text-black/50">Top por área</p>
         <div className="flex items-end justify-center gap-1.5">
           {PODIO.map((p, i) => (
-            <div key={p.area} className="w-[30%] text-center text-[10px] max-lg:text-[11px]">
+            <div key={p.area} className="w-[30%] text-center text-[11px] max-lg:text-[11px]">
               <p className="truncate font-medium">{p.area}</p>
               <p className="text-black/50">{fmt(p.v)}</p>
               <div className="mt-1 grid origin-bottom place-items-center rounded-t-md text-white animate-[ramp-in_0.8s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ height: [52, 72, 38][i], background: p.lugar === 1 ? PRIMARY : '#6b8cff', animationDelay: `${300 + i * 100}ms` }}>{p.lugar}</div>
@@ -265,7 +265,7 @@ export function CycleReading() {
       {/* La pregunta, grande: es lo que guía la lectura. */}
       <div className="relative grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/45">{CICLO.nombre} · {t({ es: 'corte al', en: 'as of' })} {CICLO.corte}</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/60">{CICLO.nombre} · {t({ es: 'corte al', en: 'as of' })} {CICLO.corte}</p>
           <p key={active.id} className="mt-3 text-[clamp(2rem,1.2rem+2.6vw,3.6rem)] font-light leading-none tracking-tight animate-[spot-in_0.7s_cubic-bezier(0.16,1,0.3,1)_both]">{t(active.ask)}</p>
           <p key={`s-${active.id}`} className={`${rise} mt-3 max-w-[52ch] text-sm leading-relaxed text-white/65`}>{active.says}</p>
         </div>
@@ -296,7 +296,7 @@ export function CycleReading() {
           <li key={p.id} className={`rounded-xl px-3 py-2.5 ${p.estado === 'En curso' ? 'bg-white/[0.12] ring-1 ring-white/30' : 'bg-white/[0.05]'}`}>
             <p className="flex items-center justify-between text-[11px]"><b className="font-medium">{p.id}</b><span className="text-white/50">{p.estado}</span></p>
             <p className="mt-1 text-lg font-light tabular-nums">{p.avance === null ? '—' : fmt(p.avance)}</p>
-            <p className="truncate text-[10px] text-white/40">{'nota' in p ? p.nota : ' '}</p>
+            <p className="truncate text-[11px] text-white/60">{'nota' in p ? p.nota : ' '}</p>
           </li>
         ))}
       </ol>
@@ -316,7 +316,7 @@ export function CycleReading() {
             >
               <p className="mb-3 flex items-center justify-between text-[12px] font-medium">
                 {q.block}
-                <span className="font-mono text-[10px] text-black/35">0{i + 1}</span>
+                <span className="font-mono text-[11px] text-black/35">0{i + 1}</span>
               </p>
               {/* Al encenderse, el bloque se monta de nuevo y su gráfico se redibuja. */}
               <div key={on ? `on-${step}` : 'off'}>
@@ -327,7 +327,7 @@ export function CycleReading() {
         })}
       </div>
 
-      <p className="relative mt-5 text-[11px] text-white/45">
+      <p className="relative mt-5 text-[11px] text-white/60">
         {t({
           es: `Bloques y textos de la pestaña Resultados del producto; cifras de un ciclo de prueba (${CICLO.personas} personas · ${CICLO.objetivos} objetivos · ${CICLO.reportaron} reportaron). Son datos sembrados, no de un cliente.`,
           en: `Blocks and copy from the product’s Results tab; figures from a test cycle (${CICLO.personas} people · ${CICLO.objetivos} goals · ${CICLO.reportaron} reported). Seeded data, not a client’s.`,

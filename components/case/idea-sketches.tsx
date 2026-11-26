@@ -87,7 +87,7 @@ export function Sketches({ project }: { project: Project }) {
             <figure key={variant} data-sheet className="relative bg-[#f7f5ef] p-4 text-ink shadow-[0_1px_0_rgba(0,0,0,.08),0_12px_30px_-12px_rgba(0,0,0,.25)]" style={{ rotate: `${(i - 1) * 1.2}deg` }}>
               <MockSketch kind={project.mock} variant={variant} className="w-full" />
               <figcaption className="mt-3 flex items-center justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-ink/50">
+                <span className="font-mono text-[11px] uppercase tracking-widest text-ink/50">
                   {locale === 'es' ? 'Exploración' : 'Exploration'} {String.fromCharCode(65 + i)}
                 </span>
                 <span className="text-xs italic text-signal">{t(project.sketches.notes[i] ?? project.sketches.notes[0])}</span>
@@ -95,7 +95,7 @@ export function Sketches({ project }: { project: Project }) {
               {chosen && (
                 <span
                   data-stamp
-                  className="absolute -right-3 -top-3 rotate-[-8deg] border-2 border-signal bg-[#f7f5ef] px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-widest text-signal"
+                  className="absolute -right-3 -top-3 rotate-[-8deg] border-2 border-signal bg-[#f7f5ef] px-2 py-1 font-mono text-[11px] font-medium uppercase tracking-widest text-signal"
                 >
                   ✓ {locale === 'es' ? 'Elegida' : 'Chosen'}
                 </span>

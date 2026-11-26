@@ -106,9 +106,9 @@ export function ChapterRail({ chapters, label, back = TO_PROJECTS }: ChapterRail
                       <span className="absolute inset-0 rounded-full border border-white/30 bg-void transition-all duration-500 ease-expo group-hover/node:border-white/80 group-data-[state=past]/node:border-white/50 group-data-[state=past]/node:bg-white/50 group-data-[state=active]/node:scale-125 group-data-[state=active]/node:border-white group-data-[state=active]/node:bg-[#fffaf0] group-data-[state=active]/node:shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_3px_rgb(var(--signal)/0.75)]" />
                       <span className="absolute inset-[-6px] rounded-full border border-signal/60 opacity-0 group-data-[state=active]/node:animate-[nav-node-ping_2.4s_cubic-bezier(0,0,.2,1)_infinite]" />
                     </span>
-                    <span className="mt-2 font-mono text-[11px] tabular-nums md:text-[10px] opacity-40 transition-opacity duration-300 group-hover/node:opacity-80 group-data-[state=active]/node:opacity-100">{c.index}</span>
+                    <span className="mt-2 font-mono text-[11px] tabular-nums opacity-40 transition-opacity duration-300 group-hover/node:opacity-80 group-data-[state=active]/node:opacity-100">{c.index}</span>
                     {/* El nombre: solo el capítulo en lectura (y al pasar el cursor en escritorio) */}
-                    <span className="brand-title pointer-events-none absolute top-[38px] whitespace-nowrap text-[11px] md:text-[10px] opacity-0 transition-all duration-500 ease-expo group-hover/node:opacity-60 group-data-[state=active]/node:opacity-100 max-md:group-hover/node:opacity-0 max-md:group-data-[state=active]/node:opacity-100">
+                    <span className="brand-title pointer-events-none absolute top-[38px] whitespace-nowrap text-[11px] opacity-0 transition-all duration-500 ease-expo group-hover/node:opacity-60 group-data-[state=active]/node:opacity-100 max-md:group-hover/node:opacity-0 max-md:group-data-[state=active]/node:opacity-100">
                       {c.title}
                     </span>
                   </a>

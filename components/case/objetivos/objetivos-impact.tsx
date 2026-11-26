@@ -140,7 +140,7 @@ export function ObjetivosImpact() {
                   {isActive && <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.2s_cubic-bezier(0,0,.2,1)_infinite]" />}
                   {i === METRICS.length - 1 && <span data-fiber-from="obj-demo" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
-                {m.north && <span className="mt-4 font-mono text-[11px] md:text-[9px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</span>}
+                {m.north && <span className="mt-4 font-mono text-[11px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</span>}
                 <span className={`mt-3 bg-gradient-to-b from-white to-white/60 bg-clip-text text-[clamp(1.9rem,1.2rem+2.2vw,3.4rem)] font-light leading-none text-transparent tabular-nums transition-opacity duration-500 ${isActive ? 'opacity-100' : on ? 'opacity-60 group-hover:opacity-90' : 'opacity-20'}`} style={{ filter: isActive ? 'drop-shadow(0 0 18px rgb(var(--signal) / 0.55))' : 'none' }}>
                   {m.delta}
                 </span>
@@ -157,10 +157,10 @@ export function ObjetivosImpact() {
 
       {/* La métrica en lectura: de dónde parte, a dónde llega y cuánto cambia */}
       <div key={`band-${active}`} className="obj-fade relative mx-auto mt-12 max-w-[880px] overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(ellipse_at_70%_0%,rgb(var(--signal)/0.18),transparent_60%)] px-6 py-8 md:px-10">
-        <p className="text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t(current.unit)}</p>
+        <p className="case-tag text-center">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t(current.unit)}</p>
         <div className="mt-6 grid grid-cols-1 items-center justify-items-center gap-4 md:grid-cols-[1fr_auto_1fr] md:justify-items-stretch md:gap-8">
           <div className="text-center md:text-right">
-            <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: 'Punto de partida', en: 'Starting point' })}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/60">{t({ es: 'Punto de partida', en: 'Starting point' })}</p>
             <p className="mt-2 text-[clamp(2rem,1.2rem+2.6vw,3.8rem)] font-light leading-none text-paper/45 tabular-nums">{current.from}</p>
           </div>
           {/* La fibra entre el antes y la meta, con la señal que la recorre */}
@@ -173,7 +173,7 @@ export function ObjetivosImpact() {
             </span>
           </div>
           <div className="text-center md:text-left">
-            <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Meta', en: 'Target' })}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Meta', en: 'Target' })}</p>
             <p className="mt-2 text-[clamp(2.4rem,1.4rem+3.2vw,4.6rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 22px rgb(var(--signal) / 0.45))' }}>{current.to}</p>
           </div>
         </div>
@@ -187,7 +187,7 @@ export function ObjetivosImpact() {
           { tag: t({ es: 'Cómo se mide', en: 'How it’s measured' }), text: t(current.how) },
         ].map((col) => (
           <div key={col.tag} className="border-l border-white/12 pl-4">
-            <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-signal">{col.tag}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{col.tag}</p>
             <p className="mt-2 text-sm leading-relaxed text-paper/75">{col.text}</p>
           </div>
         ))}

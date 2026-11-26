@@ -46,7 +46,7 @@ function BrandVisual() {
             <span className="absolute inset-0 rounded-full" style={{ background: shop.colors[1], boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12)' }} />
             <span className="absolute inset-2.5 rounded-full" style={{ background: shop.colors[0] }} />
           </span>
-          <span className="font-mono text-[11px] md:text-[9px] uppercase tracking-[0.12em] text-paper/50">{t(shop)}</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-paper/60">{t(shop)}</span>
         </div>
       ))}
     </div>
@@ -62,14 +62,14 @@ function SafeVisual() {
   return (
     <div className="flex flex-col items-center gap-3">
       <span className="flex h-12 items-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors duration-700" style={{ background: theme.primary, color: inkOn(theme.primary) }}>
-        Aa <span className="text-[11px] md:text-[10px] opacity-80">✓ {t({ es: 'contraste', en: 'contrast' })}</span>
+        Aa <span className="text-[11px] opacity-80">✓ {t({ es: 'contraste', en: 'contrast' })}</span>
       </span>
       <span className="flex gap-1.5">
         {[
           { es: 'Éxito', en: 'Success', color: OK },
           { es: 'Error', en: 'Error', color: NO },
         ].map((m) => (
-          <span key={m.en} className="rounded-full px-2 py-0.5 text-[11px] md:text-[10px] font-medium" style={{ background: withAlpha(m.color, 0.16), color: m.color }}>{t(m)}</span>
+          <span key={m.en} className="rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: withAlpha(m.color, 0.16), color: m.color }}>{t(m)}</span>
         ))}
       </span>
     </div>
@@ -135,13 +135,13 @@ export function ThemaDots() {
                 onClick={() => setOpen(isOpen ? null : i)}
                 className={`group flex h-full w-full flex-col rounded-[22px] border p-6 text-left outline-none transition-[border-color,background-color,box-shadow] duration-500 focus-visible:ring-2 focus-visible:ring-signal ${isOpen ? 'border-white/30 bg-white/[0.06] shadow-[0_30px_80px_-30px_rgb(var(--signal)/0.6)]' : 'border-white/10 bg-white/[0.025] hover:border-white/25'}`}
               >
-                <span className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.18em] text-signal">0{i + 1}</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-signal">0{i + 1}</span>
                 <span className="mt-6 flex min-h-[86px] items-center justify-center"><Visual /></span>
                 <span className="mt-6 text-balance text-[clamp(1.15rem,1rem+0.5vw,1.4rem)] font-light leading-tight tracking-tight">{t(card.title)}</span>
                 {isOpen ? (
                   <span className="th-fade mt-3 text-sm leading-relaxed text-paper/70">{t(card.body)}</span>
                 ) : (
-                  <span className="mt-3 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/35 transition-colors group-hover:text-paper/60">{t({ es: 'Ver el porqué', en: 'See why' })} +</span>
+                  <span className="mt-3 font-mono text-[11px] uppercase tracking-[0.16em] text-paper/60 transition-colors group-hover:text-paper/60">{t({ es: 'Ver el porqué', en: 'See why' })} +</span>
                 )}
               </button>
             </li>

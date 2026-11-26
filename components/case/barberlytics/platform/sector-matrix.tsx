@@ -28,7 +28,7 @@ function MarkDot({ mark, gold, delay, on }: { mark: Mark; gold: boolean; delay: 
   if (mark === 'yes') return <span className={`${base} ${on ? 'pl-pop' : ''}`} style={{ ...style, background: fill, boxShadow: gold ? '0 0 12px rgba(217,179,106,0.7)' : undefined }} />
   if (mark === 'half') return <span className={`${base} border ${on ? 'pl-pop' : ''}`} style={{ ...style, borderColor: fill, background: `linear-gradient(90deg, ${fill} 50%, transparent 50%)` }} />
   if (mark === 'no') return <span className={`${base} border border-white/30 ${on ? 'pl-pop' : ''}`} style={style} />
-  return <span className={`${base} font-mono text-[9px] text-white/30 ${on ? 'pl-pop' : ''}`} style={style}>?</span>
+  return <span className={`${base} font-mono text-[11px] text-white/60 ${on ? 'pl-pop' : ''}`} style={style}>?</span>
 }
 
 /**
@@ -112,7 +112,7 @@ export function SectorMatrix() {
         })}
       </div>
       <p className="mt-4 min-h-[1.5rem] text-center text-sm" aria-live="polite">
-        {rowCaption ? <span key={row} className="pl-fade inline-block text-paper/85">{rowCaption}</span> : <span className="font-mono text-[11px] text-paper/40">{t({ es: 'Lleno: sí · Medio: a medias · Anillo: no · ?: sin verificar', en: 'Full: yes · Half: partly · Ring: no · ?: unverified' })}</span>}
+        {rowCaption ? <span key={row} className="pl-fade inline-block text-paper/85">{rowCaption}</span> : <span className="text-[14px] text-paper/70">{t({ es: 'Lleno: sí · Medio: a medias · Anillo: no · ?: sin verificar', en: 'Full: yes · Half: partly · Ring: no · ?: unverified' })}</span>}
       </p>
 
       </>)}

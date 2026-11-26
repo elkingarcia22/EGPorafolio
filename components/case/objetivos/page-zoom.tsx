@@ -100,7 +100,7 @@ export function PageZoom({ src, w, h, label, path, onClose }: PageZoomProps) {
       <header className="flex items-center gap-3 border-b border-white/10 px-4 py-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{label}</p>
-          <p className="truncate font-mono text-[11px] text-white/45">ubits · {path}</p>
+          <p className="truncate font-mono text-[11px] text-white/60">ubits · {path}</p>
         </div>
         <button type="button" onClick={() => zoomBy(-1)} disabled={zi === 0} aria-label={t({ es: 'Alejar', en: 'Zoom out' })} className={btn}>−</button>
         <span className="w-12 text-center font-mono text-xs tabular-nums text-white/70" aria-live="polite">{Math.round(zoom * 100)} %</span>
@@ -124,7 +124,7 @@ export function PageZoom({ src, w, h, label, path, onClose }: PageZoomProps) {
         </div>
       </div>
 
-      <p className="border-t border-white/10 px-4 py-2 text-center text-[11px] text-white/45">
+      <p className="border-t border-white/10 px-4 py-2 text-center text-[11px] text-white/60">
         {t({ es: 'Desliza para moverte · − / + para ampliar · Esc para cerrar', en: 'Swipe to move · − / + to zoom · Esc to close' })}
       </p>
     </div>,

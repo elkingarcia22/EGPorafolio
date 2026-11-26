@@ -57,7 +57,7 @@ function Card({ a, now, colorBy, style, fields, px, introAt, dim, lit, narrow = 
   return (
     <div
       data-slot-in={introAt !== undefined ? '' : undefined}
-      className="absolute inset-x-[3px] overflow-hidden rounded-[7px] px-2 py-1.5 text-[10.5px] leading-tight text-[#efe9dd] max-sm:text-[11.5px] transition-[background-color,box-shadow,top,height,opacity] duration-700 ease-expo"
+      className="absolute inset-x-[3px] overflow-hidden rounded-[7px] px-2 py-1.5 text-[11px] leading-tight text-[#efe9dd] max-sm:text-[11.5px] transition-[background-color,box-shadow,top,height,opacity] duration-700 ease-expo"
       style={{
         ...(introAt !== undefined ? { animationDelay: `${introAt}s` } : {}),
         top: a.start * px + 1,
@@ -72,7 +72,7 @@ function Card({ a, now, colorBy, style, fields, px, introAt, dim, lit, narrow = 
         <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: SERVICE[a.services[0]].hue }} />
         <span className="min-w-0 truncate font-medium">{a.client}</span>
         {fields.hints && (a.requested || a.note) && (
-          <span className="shrink-0 text-[9px] text-white/60 max-sm:hidden" aria-hidden="true">{a.requested ? '☆' : ''}{a.note ? '✎' : ''}</span>
+          <span className="shrink-0 text-[11px] text-white/60 max-sm:hidden" aria-hidden="true">{a.requested ? '☆' : ''}{a.note ? '✎' : ''}</span>
         )}
         {fields.type && (
           <span className="ml-auto shrink-0 rounded-full bg-black/35 px-1.5 py-[1px] text-[8.5px] font-semibold tracking-wide max-sm:text-[10px]" style={{ color: CLIENT[a.type] }}>
@@ -81,11 +81,11 @@ function Card({ a, now, colorBy, style, fields, px, introAt, dim, lit, narrow = 
         )}
       </div>
       {medium && detail && <p className="mt-1 truncate text-white/60">{detail}</p>}
-      {roomy && fields.time && <p className="mt-0.5 font-mono text-[9px] text-white/45 max-sm:text-[10.5px]">{time}</p>}
+      {roomy && fields.time && <p className="mt-0.5 font-mono text-[11px] text-white/60 max-sm:text-[10.5px]">{time}</p>}
       {(fields.status || fields.next) && (medium || !detail) && (
         <div className={`flex items-center justify-between gap-1 ${medium ? 'absolute inset-x-2 bottom-1.5' : 'mt-1'}`}>
           {fields.status ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-black/30 px-1.5 py-[1px] text-[9px] max-sm:text-[10.5px]" style={{ color: s.hue }}>
+            <span className="inline-flex items-center gap-1 rounded-full bg-black/30 px-1.5 py-[1px] text-[11px] max-sm:text-[10.5px]" style={{ color: s.hue }}>
               {stage === 'paid' ? '✓' : <span className="h-1 w-1 rounded-full" style={{ background: s.hue }} />}
               {s.label}
               {stage === 'paid' && fields.price ? ` US$ ${a.price}` : ''}
@@ -140,7 +140,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
         {cols.map((b, c) => (
           <div key={b} className="relative border-l border-white/[0.06] px-2 py-2.5">
             <p className="truncate text-xs font-medium">{b}</p>
-            <p className="truncate text-[10px] text-white/45 max-sm:text-[11px]">{counts[c] ? `${counts[c]} por atender` : 'Sin pendientes'}</p>
+            <p className="truncate text-[11px] text-white/60 max-sm:text-[11px]">{counts[c] ? `${counts[c]} por atender` : 'Sin pendientes'}</p>
             <span key={lap.n} className="absolute inset-x-0 bottom-0 h-[2px] bg-[#d9b36a]/70 transition-[width] duration-700" style={{ width: `${Math.min(100, (now / HALF_HOURS) * 100)}%`, animation: lap.n ? 'bl-fade-in 0.7s ease both' : undefined }} />
           </div>
         ))}
@@ -148,7 +148,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
       <div className="relative grid transition-[height] duration-700 ease-expo" style={{ ...grid, height: HALF_HOURS * px }}>
         <div className="relative">
           {Array.from({ length: HALF_HOURS }, (_, i) => (
-            <span key={i} className="absolute right-2 -translate-y-1/2 font-mono text-[9px] text-white/35 transition-[top] duration-700 max-sm:text-[10.5px]" style={{ top: i * px + (i === 0 ? 8 : 0) }}>
+            <span key={i} className="absolute right-2 -translate-y-1/2 font-mono text-[11px] text-white/60 transition-[top] duration-700 max-sm:text-[10.5px]" style={{ top: i * px + (i === 0 ? 8 : 0) }}>
               {i % 2 === 0 || density === 'amplia' ? fmt(i) : ''}
             </span>
           ))}
@@ -161,7 +161,7 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
             {BLOCKS.filter((bl) => bl.col === c).map((bl) => (
               <div
                 key={bl.start}
-                className="absolute inset-x-[3px] rounded-[7px] px-2 py-1.5 text-[10px] text-white/55 transition-[top,height] max-sm:text-[11px] duration-700 ease-expo"
+                className="absolute inset-x-[3px] rounded-[7px] px-2 py-1.5 text-[11px] text-white/55 transition-[top,height] max-sm:text-[11px] duration-700 ease-expo"
                 style={{ top: bl.start * px, height: bl.len * px, backgroundImage: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 6px, transparent 6px 12px)' }}
               >
                 {bl.label}
@@ -186,12 +186,12 @@ export function LiveCalendar({ now, colorBy = 'estado', density = 'normal', styl
         ))}
         {lap.n > 0 && (
           <div key={`out-${lap.n}`} className="pointer-events-none absolute inset-x-0 z-10 flex items-center" style={{ top: lap.from * px, animation: 'bl-fade-out 0.6s ease both' }} aria-hidden="true">
-            <span className="ml-0.5 rounded-full bg-[#e5484d] px-1.5 py-[1px] font-mono text-[9px] text-white max-sm:text-[10.5px]">{fmt(lap.from)}</span>
+            <span className="ml-0.5 rounded-full bg-[#e5484d] px-1.5 py-[1px] font-mono text-[11px] text-white max-sm:text-[10.5px]">{fmt(lap.from)}</span>
             <span className="h-px flex-1 bg-[#e5484d]" />
           </div>
         )}
         <div key={`now-${lap.n}`} className="pointer-events-none absolute inset-x-0 z-10 flex items-center transition-[top] duration-500 ease-linear" style={{ top: now * px, animation: lap.n ? 'bl-fade-in 0.7s ease 0.15s both' : undefined }}>
-          <span className="ml-0.5 rounded-full bg-[#e5484d] px-1.5 py-[1px] font-mono text-[9px] text-white max-sm:text-[10.5px]">{fmt(now)}</span>
+          <span className="ml-0.5 rounded-full bg-[#e5484d] px-1.5 py-[1px] font-mono text-[11px] text-white max-sm:text-[10.5px]">{fmt(now)}</span>
           <span className="h-px flex-1 bg-[#e5484d]" />
         </div>
       </div>

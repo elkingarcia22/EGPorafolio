@@ -51,7 +51,7 @@ export function TemplatesFan() {
                   <img src={tp.icon} alt="" width={64} height={64} className="h-12 w-12 select-none sm:h-14 sm:w-14" draggable={false} />
                 </span>
                 <span className="mt-2 block text-[11px] font-semibold leading-tight sm:text-xs">{t({ es: 'Crear', en: 'Create' })} {tp.name}</span>
-                <span className="block text-[10px] leading-tight text-[#5c646f]">{t(tp.hint)}</span>
+                <span className="block text-[11px] leading-tight text-[#5c646f]">{t(tp.hint)}</span>
               </button>
             )
           })}

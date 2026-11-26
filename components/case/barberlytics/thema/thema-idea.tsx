@@ -79,7 +79,7 @@ export function ThemaIdea() {
                   aria-expanded={isActive && open}
                   className={`flex w-full flex-col rounded-[22px] border p-5 text-left outline-none transition-[opacity,transform,border-color] duration-700 ease-expo focus-visible:ring-2 focus-visible:ring-signal md:p-6 ${isActive ? 'scale-100 border-white/20 bg-white/[0.04] opacity-100' : 'scale-[0.92] border-white/[0.08] bg-white/[0.02] opacity-40 hover:opacity-70'}`}
                 >
-                  <span className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Principio', en: 'Principle' })} 0{i + 1}</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Principio', en: 'Principle' })} 0{i + 1}</span>
                   <span className="mt-2 text-balance text-[clamp(1.25rem,1rem+0.9vw,1.75rem)] font-light leading-tight tracking-tight">{t(p.title)}</span>
                   <span className="mt-5 block min-h-[150px]">{Demo && <Demo index={reducedMotion ? 0 : themeIndex} />}</span>
                 </button>

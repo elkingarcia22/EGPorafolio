@@ -148,7 +148,7 @@ export function RhythmScene() {
             <dt className="sr-only">{t(s.label)}</dt>
             <dd>
               <span className="block text-[clamp(1.8rem,1.3rem+1.6vw,2.8rem)] font-light leading-none text-[rgb(var(--bk))] tabular-nums">{s.value}</span>
-              <span className="mt-2 block text-balance text-[11px] leading-snug text-paper/50">{t(s.label)}</span>
+              <span className="mt-2 block text-balance text-[14px] leading-snug text-paper/70 md:text-[15px]">{t(s.label)}</span>
             </dd>
           </div>
         ))}

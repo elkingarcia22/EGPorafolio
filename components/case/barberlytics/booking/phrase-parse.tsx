@@ -67,7 +67,7 @@ export function PhraseParse() {
 
       {/* 1 · En el producto: una conversación */}
       <div ref={ref} className="mt-12 w-full max-w-[680px]">
-        <p className="mb-5 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/50">
+        <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.16em] text-paper/60">
           <span className="text-[rgb(var(--bk))]">01</span> · {t(ai.product.title)}
         </p>
 
@@ -85,7 +85,7 @@ export function PhraseParse() {
                     {/* Lo que Clipper entendió, debajo de la palabra */}
                     <span aria-hidden={!on} className="absolute inset-x-0 top-full mt-0.5 flex flex-col items-center transition-[opacity,transform] duration-300" style={{ opacity: on ? 1 : 0, transform: `translateY(${on ? 0 : -4}px)` }}>
                       <span className="h-[2px] w-full rounded-full" style={{ background: `rgb(${TONE[i]})` }} />
-                      <span className="mt-1 font-mono text-[11px] uppercase leading-none tracking-[0.04em] md:text-[10px] md:tracking-[0.14em]" style={{ color: `rgb(${TONE[i]})` }}>{t(ai.product.parsed[i].key)}</span>
+                      <span className="mt-1 font-mono text-[11px] uppercase leading-none tracking-[0.04em] md:tracking-[0.14em]" style={{ color: `rgb(${TONE[i]})` }}>{t(ai.product.parsed[i].key)}</span>
                     </span>
                   </span>
                   {i < TOKENS.length - 1 && typed > before + t(tok).length ? ' ' : ''}
@@ -114,7 +114,7 @@ export function PhraseParse() {
       {/* 2 · En cómo lo construí: los pasos, con su detalle a la vista */}
       <div className="mt-20 grid w-full max-w-[860px] gap-8 md:grid-cols-[200px_1fr] md:gap-12">
         <div className="text-center md:text-left">
-          <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/50">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/60">
             <span className="text-[rgb(var(--bk))]">02</span> · {t(ai.build.title)}
           </p>
           <p className="mt-4 text-[clamp(3.5rem,2.5rem+3vw,5.5rem)] font-light leading-none text-[rgb(var(--bk))] tabular-nums">{ai.build.days.value}</p>

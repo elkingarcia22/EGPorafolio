@@ -240,8 +240,8 @@ export function SellUpSketches() {
         </div>
 
         {/* Qué es cada lado */}
-        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#2a2d33] px-3 py-1 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-[#f6f1e6] transition-opacity duration-300" style={{ opacity: pos > 18 ? 1 : 0 }}>{t({ es: 'Boceto', en: 'Sketch' })}</span>
-        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-signal px-3 py-1 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-on-signal transition-opacity duration-300" style={{ opacity: pos < 82 ? 1 : 0 }}>{t({ es: 'Pantalla real', en: 'Real screen' })}</span>
+        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-[#2a2d33] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-[#f6f1e6] transition-opacity duration-300" style={{ opacity: pos > 18 ? 1 : 0 }}>{t({ es: 'Boceto', en: 'Sketch' })}</span>
+        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-signal px-3 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-on-signal transition-opacity duration-300" style={{ opacity: pos < 82 ? 1 : 0 }}>{t({ es: 'Pantalla real', en: 'Real screen' })}</span>
 
         {/* La cortina: una fibra con su nodo para arrastrar */}
         <div className="absolute inset-y-0 w-0" style={{ left: `${pos}%` }}>

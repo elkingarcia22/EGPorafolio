@@ -45,7 +45,7 @@ export function ReturnPhone({ months, values, launch, launchLabel, step, stepMs,
         </div>
 
         {/* Los meses */}
-        <ol className="font-mono text-[12px] uppercase tracking-[0.08em] text-paper/50">
+        <ol className="font-mono text-[12px] uppercase tracking-[0.08em] text-paper/60">
           {months.map((m, i) => (
             <li key={m} className="flex items-center" style={{ height: ROW }}>
               <button type="button" onClick={() => setPicked((p) => (p === i ? null : i))} className={`outline-none ${picked === i ? 'text-paper' : ''}`} aria-pressed={picked === i}>

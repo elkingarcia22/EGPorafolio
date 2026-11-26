@@ -68,7 +68,7 @@ export function HeroBranchPhone({ stages, pulseKey, stopsHalfway, reducedMotion 
             </span>
             <span key={s.name} className="obj-fade min-w-0">
               <span className="block text-[18px] leading-tight">{s.name}</span>
-              <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/50">{s.role}</span>
+              <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] text-paper/60">{s.role}</span>
             </span>
           </li>
         ))}
