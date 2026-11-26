@@ -22,6 +22,12 @@ const REMEASURE_LIVE_MS = 350
 const REMEASURE_MS = 200
 /** Pantallas angostas: la fibra no cruza el contenido, sale por debajo de la sección de origen */
 const NARROW_QUERY = '(max-width: 767px)'
+/** Lo que la fibra no debe cruzar en el teléfono: textos, pantallas, gráficos, botones */
+const CONTENT_SELECTOR = 'p, h1, h2, h3, h4, h5, li, img, figure, video, iframe, button, blockquote, [role="img"]'
+/** Puntos de la curva que se revisan contra el contenido */
+const CROSS_SAMPLES = 48
+/** Cerca de sus dos nodos la fibra sí puede tocar su propia etiqueta (px) */
+const NODE_CLEARANCE = 36
 
 interface Point {
   x: number
@@ -161,21 +167,30 @@ export function SectionFiber({ id, side = 'left', narrowFromBelow = true, childr
       return section.getBoundingClientRect().bottom - wrap.getBoundingClientRect().top
     }
 
+    /** ¿La curva pasa por encima de un texto, una pantalla o un gráfico? (coordenadas del contenedor) */
+    const crossesContent = (d: string, a: Point, b: Point): boolean => {
+      drawn.setAttribute('d', d)
+      const length = drawn.getTotalLength()
+      const box = wrap.getBoundingClientRect()
+      const source = wrap.querySelector(`[data-fiber-from="${id}"]`)
+      const target = wrap.querySelector(`[data-fiber-to="${id}"]`)
+      const rects = Array.from(wrap.querySelectorAll(CONTENT_SELECTOR))
+        .filter((el) => !svg.contains(el) && !(source && el.contains(source)) && !(target && el.contains(target)))
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => r.width > 0 && r.height > 0)
+        .map((r) => ({ left: r.left - box.left, right: r.right - box.left, top: r.top - box.top, bottom: r.bottom - box.top }))
+      for (let i = 1; i < CROSS_SAMPLES; i++) {
+        const pt = drawn.getPointAtLength((length * i) / CROSS_SAMPLES)
+        if (Math.hypot(pt.x - a.x, pt.y - a.y) < NODE_CLEARANCE || Math.hypot(pt.x - b.x, pt.y - b.y) < NODE_CLEARANCE) continue
+        if (rects.some((r) => pt.x >= r.left && pt.x <= r.right && pt.y >= r.top && pt.y <= r.bottom)) return true
+      }
+      return false
+    }
+
     const measure = () => {
       const a = centerOf(`[data-fiber-from="${id}"]`, true)
       const b = centerOf(`[data-fiber-to="${id}"]`)
       if (!a || !b) return
-      const below = belowSource()
-      if (below !== null && below < b.y) {
-        // Sale por debajo de la sección de origen, a la altura del nodo de destino, y baja recta.
-        from = { x: b.x, y: below }
-        to = b
-        svg.setAttribute('viewBox', `0 0 ${wrap.clientWidth} ${wrap.clientHeight}`)
-        const d = `M${from.x},${from.y} L${to.x},${to.y}`
-        ;[base, drawn, pulse, glowRef.current].forEach((path) => path?.setAttribute('d', d))
-        total = drawn.getTotalLength()
-        return
-      }
       from = a
       to = b
       svg.setAttribute('viewBox', `0 0 ${wrap.clientWidth} ${wrap.clientHeight}`)
@@ -186,7 +201,14 @@ export function SectionFiber({ id, side = 'left', narrowFromBelow = true, childr
       const text: TextBox = r
         ? { left: r.left - box.left, right: r.right - box.left, bottom: r.bottom - box.top }
         : { left: from.x - wrap.clientWidth / 3, right: from.x + wrap.clientWidth / 3, bottom: (from.y + to.y) / 2 }
-      const d = fiberPath(from, to, text, wrap.clientWidth, side)
+      let d = fiberPath(from, to, text, wrap.clientWidth, side)
+      // En el teléfono, solo si la curva pisa contenido: sale por debajo del capítulo de origen y
+      // baja recta hasta el nodo de destino.
+      const below = belowSource()
+      if (below !== null && below < b.y && crossesContent(d, a, b)) {
+        from = { x: b.x, y: below }
+        d = `M${from.x},${from.y} L${to.x},${to.y}`
+      }
       ;[base, drawn, pulse, glowRef.current].forEach((path) => path?.setAttribute('d', d))
       total = drawn.getTotalLength()
     }
