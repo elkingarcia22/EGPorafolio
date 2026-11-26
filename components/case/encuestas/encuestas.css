@@ -37,17 +37,8 @@ html[data-motion='reduced'] .enc-pop { animation: none; }
   .enc-fan-sub { font-size: 15px; letter-spacing: 0.04em; }
 }
 
-/* Bocetos en papel calco: hoja cuadriculada y translúcida; el lápiz dibuja al llegar arriba */
-.enc-tracing {
-  background-color: rgb(246 244 236 / 0.86);
-  background-image:
-    linear-gradient(rgb(59 63 70 / 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(59 63 70 / 0.08) 1px, transparent 1px);
-  background-size: 4% 6%;
-  box-shadow: 0 30px 70px -35px rgb(0 0 0 / 0.7);
-  will-change: transform;
-}
-@keyframes enc-pencil { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-.enc-pencil { animation: enc-pencil 0.9s cubic-bezier(0.65, 0, 0.35, 1) both; }
-html[data-motion='reduced'] .enc-pencil { animation: none; }
-@media (prefers-reduced-motion: reduce) { .enc-pencil { animation: none; } }
+/* Bocetos en hojas apiladas: cada hoja es un tablero del kit, al ancho de la pila (sin título, mínimo ni desliz) */
+.enc-sheets figure { overflow: visible; }
+.enc-sheets figure > p,
+.enc-sheets figure > div > p { display: none; }
+.enc-sheets figure > div { min-width: 0; }

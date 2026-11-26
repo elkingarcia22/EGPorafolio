@@ -1,12 +1,13 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 import type { Iteration } from '@/lib/content/cases/encuestas/types'
 import { useAutoplay } from '../objetivos/use-autoplay'
-import { SketchDrawing } from './enc-sketch-drawings'
+import { SKETCH_BOARDS } from './enc-sketch-boards'
 
 const ITERATIONS = ENCUESTAS_CASE.iterations
 const STEP_MS = 4200
@@ -26,9 +27,9 @@ const SHORT: Record<Iteration['shape'], L> = {
 }
 
 /**
- * Los bocetos como hojas de papel calco: cada iteración se dibuja a lápiz
- * sobre una hoja cuadriculada y translúcida que se posa encima de la anterior,
- * así que lo que se descartó todavía se ve por debajo. Avanza solo; tocar una
+ * Los bocetos como una pila de hojas: cada iteración es un tablero a mano (el
+ * mismo kit de bocetos de los otros casos) que se posa encima de la anterior;
+ * las ya pasadas quedan debajo, corridas y giradas. Avanza solo; tocar una
  * pestaña trae esa hoja y dice qué se descartó y qué quedó.
  */
 export function EncSketchSheets() {
@@ -38,12 +39,26 @@ export function EncSketchSheets() {
   const [picked, setPicked] = useState(false)
   const { index, go } = useAutoplay(rootRef, { count: ITERATIONS.length, ms: STEP_MS, loop: true, disabled: reducedMotion, hold: picked })
   const it = ITERATIONS[index]
+  const sheetRefs = useRef<(HTMLDivElement | null)[]>([])
+
+  // Al posarse una hoja, sus notas se pegan y sus trazos se dibujan.
+  useEffect(() => {
+    const sheet = sheetRefs.current[index]
+    if (!sheet || reducedMotion) return
+    const ctx = gsap.context(() => {
+      gsap.fromTo(sheet.querySelectorAll('[data-reveal="pop"]'), { scale: 0.6, autoAlpha: 0, rotate: () => gsap.utils.random(-7, 7) }, { scale: 1, autoAlpha: 1, rotate: 0, duration: 0.7, ease: 'back.out(1.8)', stagger: 0.07, delay: 0.5 })
+      gsap.fromTo(sheet.querySelectorAll('[data-draw]'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut', delay: 0.5 })
+    }, sheet)
+    return () => ctx.revert()
+  }, [index, reducedMotion])
 
   return (
     <div ref={rootRef} className="flex flex-col items-center">
-      {/* La pila de hojas: las ya pasadas quedan debajo, la actual se posa encima */}
-      <div className="relative w-full max-w-[min(760px,calc((100svh-18rem)*1.5))]" style={{ aspectRatio: '600 / 400', perspective: '1600px' }}>
+      {/* La pila de hojas: las ya pasadas quedan debajo, la actual se posa encima (en teléfono se desliza para leerla) */}
+      <div className="w-full overflow-x-auto overscroll-x-contain px-2 py-6 md:overflow-visible md:p-0">
+      <div data-reveal-off className="enc-sheets relative mx-auto w-full min-w-[640px] md:min-w-0 max-w-[min(820px,calc((100svh-18rem)*1.76))]" style={{ aspectRatio: '1200 / 680', perspective: '1600px' }}>
         {ITERATIONS.map((x, i) => {
+          const { Board } = SKETCH_BOARDS[i]
           const on = i === index
           const under = i < index
           const p = UNDER[i]
@@ -55,8 +70,12 @@ export function EncSketchSheets() {
           return (
             <div
               key={x.id}
+              ref={(el) => {
+                sheetRefs.current[i] = el
+              }}
               aria-hidden={!on}
-              className="enc-tracing absolute inset-0 rounded-[6px]"
+              inert={!on ? true : undefined}
+              className="absolute inset-0"
               style={{
                 transform,
                 opacity: on ? 1 : under ? 0.55 - (index - i - 1) * 0.15 : 0,
@@ -64,14 +83,12 @@ export function EncSketchSheets() {
                 transition: reducedMotion ? 'none' : 'transform 900ms cubic-bezier(.16,1,.3,1), opacity 700ms',
               }}
             >
-              {/* Al llegar arriba, el lápiz vuelve a dibujar la hoja */}
-              <svg key={on ? `on-${index}` : 'idle'} viewBox="0 0 600 400" role={on ? 'img' : undefined} aria-label={on ? `${x.name}: ${t(x.tried)}` : undefined} className="h-full w-full">
-                <SketchDrawing shape={x.shape} />
-                <text x={566} y={28} textAnchor="end" className="font-hand" fontSize={16} fill="#3b3f46" opacity={0.7}>V{i + 1}</text>
-              </svg>
+              <Board />
             </div>
           )
         })}
+      </div>
+
       </div>
 
       {/* Pestañas: una por hoja */}
