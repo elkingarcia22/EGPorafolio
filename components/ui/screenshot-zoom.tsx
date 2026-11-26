@@ -50,6 +50,8 @@ function originalSrc(img: HTMLImageElement): string {
 /** ¿Es una pantalla de producto? (de la carpeta de casos y de buen tamaño) */
 function isScreenshot(img: HTMLImageElement): boolean {
   if (img.getBoundingClientRect().width < MIN_WIDTH) return false
+  // Dentro de un enlace (la tarjeta de un proyecto) el toque abre ese proyecto, no el visor.
+  if (img.closest('a')) return false
   return decodeURIComponent(img.currentSrc || img.src).includes(SCREENS_PATH)
 }
 
