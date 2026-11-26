@@ -158,6 +158,10 @@ export function ProcessFlow() {
     else window.scrollTo({ top: y, behavior: 'smooth' })
   }, [reducedMotion, narrow])
   const onBuilt = useCallback(() => setBuilt(true), [])
+  // En el teléfono no hay fibra horizontal que armar: la columna está lista al llegar.
+  useEffect(() => {
+    if (narrow && build) setBuilt(true)
+  }, [narrow, build])
 
   // El nombre de la etapa entra enfocándose, rápido.
   useEffect(() => {
@@ -186,6 +190,10 @@ export function ProcessFlow() {
           <SectionLabel index="02" thread={false} fiberTo="proyectos" riser={pinned}>{t(COPY.process.label)}</SectionLabel>
         </div>
 
+        {narrow ? (
+          <ProcessColumn active={active} built={built} onSelect={select} />
+        ) : (
+          <>
         {/* La etapa en foco: solo su nombre y su frase, sobre la neurona (visible desde el comienzo) */}
         <div
           ref={stageRef}
@@ -215,8 +223,67 @@ export function ProcessFlow() {
             reducedMotion={reducedMotion}
           />
         </div>
+          </>
+        )}
       </div>
       </div>
     </ToneSection>
+  )
+}
+
+interface ProcessColumnProps {
+  active: number
+  built: boolean
+  onSelect: (index: number) => void
+}
+
+/**
+ * Proceso en el teléfono: las seis etapas de pie, sobre una fibra vertical que
+ * se enciende de arriba abajo mientras avanza sola. La etapa en curso se abre y
+ * muestra su frase; tocar otra la abre. De la última sale la fibra a Trayectoria.
+ */
+function ProcessColumn({ active, built, onSelect }: ProcessColumnProps) {
+  const { t } = useLocale()
+  const last = PROCESS_STAGES.length - 1
+  return (
+    <ol className="relative mt-10 w-full max-w-[360px] text-left">
+      {/* La fibra: tenue entera y, encima, lo ya recorrido */}
+      <span aria-hidden="true" className="absolute bottom-6 left-[11px] top-6 w-px bg-white/12" />
+      <span
+        aria-hidden="true"
+        className="absolute left-[11px] top-6 w-px origin-top bg-gradient-to-b from-[rgb(var(--signal))] via-[rgb(var(--ice))] to-[rgb(var(--spark))] shadow-[0_0_8px_rgb(var(--signal)/0.7)] transition-transform duration-500 ease-out"
+        style={{ bottom: 24, transform: `scaleY(${built ? active / last : 0})` }}
+      />
+      {PROCESS_STAGES.map((s, i) => {
+        const on = built && i <= active
+        const current = i === active
+        return (
+          <li key={s.title.es}>
+            <button type="button" onClick={() => onSelect(i)} aria-current={current ? 'step' : undefined} className="relative flex w-full items-start gap-4 py-3 text-left outline-none">
+              <span className="relative mt-1 grid h-[23px] w-[23px] shrink-0 place-items-center">
+                {current && <span aria-hidden="true" className="absolute inset-[-8px] rounded-full bg-[rgb(var(--signal)/0.22)]" />}
+                <span
+                  aria-hidden="true"
+                  className={`relative rounded-full border transition-all duration-500 ${current ? 'h-3.5 w-3.5 border-white bg-white shadow-[0_0_14px_3px_rgb(var(--signal)/0.8)]' : on ? 'h-2.5 w-2.5 border-white/80 bg-[rgb(var(--signal))]' : 'h-2.5 w-2.5 border-white/40 bg-[rgb(var(--void))]'}`}
+                />
+                {i === last && <span data-fiber-from="proceso" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-baseline gap-3">
+                  <span className={`text-[1.35rem] font-light leading-tight transition-opacity duration-500 ${current ? 'opacity-100' : on ? 'opacity-85' : 'opacity-45'}`}>{t(s.title)}</span>
+                  <span className="font-mono text-[11px] tabular-nums text-paper/40">{pad(i + 1)}</span>
+                </span>
+                {/* La frase de la etapa en curso: se abre bajo su nombre */}
+                <span className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out ${current ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                  <span className="overflow-hidden">
+                    <span className="block pt-2 text-[15px] leading-relaxed text-paper/70">{t(s.body)}</span>
+                  </span>
+                </span>
+              </span>
+            </button>
+          </li>
+        )
+      })}
+    </ol>
   )
 }
