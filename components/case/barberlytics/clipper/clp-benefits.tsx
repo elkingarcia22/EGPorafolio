@@ -6,6 +6,7 @@ import { useLocale } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { ClipperOrb, type ClipperOrbState } from '../clipper-orb'
 import { AI, AiGradient, Caption, Lead, onActivate, useAutoSteps, useInView } from './clp-kit'
+import { Spine, usePhone } from './clp-phone-kit'
 
 const W = 900
 const H = 420
@@ -43,13 +44,14 @@ export function ClipperBenefits() {
   const inView = useInView(rootRef)
   const [step] = useAutoSteps({ last: LAST, ms: msFor, run: inView, reducedMotion, loopAfter: 4500 })
   const [picked, setPicked] = useState<number | null>(null)
+  const phone = usePhone()
   const done = step === LAST
   const current = step >= 1 && step <= PRINCIPLES.length ? step - 1 : null
   const focus = picked ?? current
   const orbState: ClipperOrbState = current !== null ? ORB_STATE[current] : 'idle'
 
   const caption =
-    focus !== null
+    focus !== null && !phone
       ? { id: `p${focus}`, tag: `${t(PRINCIPLES[focus].role)} · ${t(PRINCIPLES[focus].gain)}`, title: `«${t(PRINCIPLES[focus].q)}»`, sub: t(PRINCIPLES[focus].tool) }
       : done
         ? { id: 'done', tag: t({ es: 'La idea', en: 'The idea' }), title: t({ es: 'Uno solo para todos: cada quien pregunta lo suyo y recibe sus datos.', en: 'One for everyone: each asks their own and gets their data.' }) }
@@ -60,6 +62,9 @@ export function ClipperBenefits() {
       <Caption {...caption} />
       <Lead>{t({ es: 'Métricas para el dueño, clientes para recepción, su día para el barbero y reservar hablando para el cliente.', en: 'Metrics for the owner, clients for the front desk, their day for the barber and booking by talking for the client.' })}</Lead>
 
+      {phone ? (
+        <BenefitsColumn current={current} done={done} focus={focus} orbState={orbState} onPick={(i) => setPicked(picked === i ? null : i)} reducedMotion={reducedMotion} />
+      ) : (
       <div className="relative mx-auto mt-8 w-full max-w-[860px]">
         <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
           <defs>
@@ -114,7 +119,7 @@ export function ClipperBenefits() {
                 [top ? 'bottom' : 'top']: `${((top ? H - n.y : n.y) / H) * 100 + 8}%`,
               }}
             >
-              <span className="block font-mono text-[11px] uppercase tracking-[0.12em] text-[#f0ce86]">{t(PRINCIPLES[i].role)}</span>
+              <span className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#f0ce86] sm:text-[11px]">{t(PRINCIPLES[i].role)}</span>
               <span className="mt-1 block">{t(PRINCIPLES[i].gain)}</span>
             </p>
           )
@@ -127,6 +132,76 @@ export function ClipperBenefits() {
           <span data-fiber-from="clp-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />
         </span>
       </div>
+      )}
+    </div>
+  )
+}
+
+interface BenefitsColumnProps {
+  current: number | null
+  done: boolean
+  focus: number | null
+  orbState: ClipperOrbState
+  onPick: (i: number) => void
+  reducedMotion: boolean
+}
+
+/**
+ * La idea en el teléfono: el orbe arriba y, de él, la fibra baja por los
+ * cuatro de la barbería. El que está atendiendo abre su pregunta y con qué
+ * la responde; tocar otro lo abre.
+ */
+function BenefitsColumn({ current, done, focus, orbState, onPick, reducedMotion }: BenefitsColumnProps) {
+  const { t } = useLocale()
+  return (
+    <div className="mx-auto mt-10 w-full max-w-[420px]">
+      <Spine
+        reducedMotion={reducedMotion}
+        pulseAt={current}
+        gap="pb-5"
+        items={[
+          {
+            id: 'orb',
+            color: AI[0],
+            lit: true,
+            node: (
+              <span className="relative grid h-full w-full place-items-center">
+                <ClipperOrb size={56} state={reducedMotion ? 'idle' : orbState} />
+                <span data-fiber-from="clp-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />
+              </span>
+            ),
+            children: (
+              <span className="block pt-2">
+                <span className="mono-label block text-[#f0ce86]">Clipper</span>
+                <span className="mt-1 block text-[15px] text-paper/70">{t({ es: 'Uno solo para toda la barbería', en: 'One for the whole shop' })}</span>
+              </span>
+            ),
+          },
+          ...PRINCIPLES.map((p, i) => {
+            const on = done || (current !== null && i <= current)
+            const open = focus === i
+            return {
+              id: p.role.es,
+              color: AI[i],
+              lit: on,
+              hot: open,
+              onPick: () => onPick(i),
+              children: (
+                <span className={`block transition-opacity duration-500 ${on ? 'opacity-100' : 'opacity-40'}`}>
+                  <span className="mono-label block" style={{ color: AI[i] }}>{t(p.role)}</span>
+                  <span className="mt-1 block text-[17px] leading-snug text-paper/90">{t(p.gain)}</span>
+                  {open && (
+                    <span className="clp-fade mt-3 block rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                      <span className="block text-[15px] leading-snug text-paper/85">«{t(p.q)}»</span>
+                      <span className="mt-1.5 block font-mono text-[11px] uppercase tracking-[0.1em] text-paper/45">→ {t(p.tool)}</span>
+                    </span>
+                  )}
+                </span>
+              ),
+            }
+          }),
+        ]}
+      />
     </div>
   )
 }

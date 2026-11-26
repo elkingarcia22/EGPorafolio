@@ -5,6 +5,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { AI, AiGradient, Caption, Lead, useInView } from './clp-kit'
+import { usePhone } from './clp-phone-kit'
 
 const METRICS = CLIPPER_CASE.impact.metrics
 const W = 900
@@ -84,6 +85,7 @@ export function ClipperImpact() {
   const inView = useInView(rootRef)
   const [seen, setSeen] = useState(reducedMotion)
   const [picked, setPicked] = useState<number | null>(null)
+  const phone = usePhone()
   useEffect(() => {
     if (inView) setSeen(true)
   }, [inView])
@@ -98,6 +100,9 @@ export function ClipperImpact() {
       <Caption {...caption} />
       <Lead>{t({ es: 'Ya no hay que abrir tres pantallas para saber cuánto se lleva cobrado o cuándo vuelve un cliente.', en: 'No more opening three screens to know what’s been collected or when a client is due back.' })}</Lead>
 
+      {phone ? (
+        <ImpactColumn seen={seen} reducedMotion={reducedMotion} />
+      ) : (
       <div className="relative mx-auto mt-10 w-full max-w-[900px]">
         <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
           <defs>
@@ -137,6 +142,72 @@ export function ClipperImpact() {
           ))}
         </div>
       </div>
+      )}
+    </div>
+  )
+}
+
+/** Teléfono: alto de cada cifra y medidas de la onda, que ahora baja */
+const ROW = 116
+const PW = 64
+const PAMP = 20
+const PCX = 30
+const PH = ROW * METRICS.length
+const phoneWave = (() => {
+  const pts: string[] = []
+  for (let y = 0; y <= PH; y += 4) {
+    const fade = Math.min(1, y / 40, (PH - y) / 40)
+    const x = PCX + PAMP * Math.cos(((y - ROW / 2) / ROW) * 2 * Math.PI) * fade
+    pts.push(`${x.toFixed(1)} ${y}`)
+  }
+  return `M${pts.join(' L')}`
+})()
+
+function PhoneMetric({ i, start }: { i: number; start: boolean }) {
+  const { reducedMotion } = useA11y()
+  const { t } = useLocale()
+  const m = METRICS[i]
+  const shown = useCount(m.value, start, DRAW_MS * ((i + 0.5) / METRICS.length) + i * STAGGER_MS, reducedMotion)
+  return (
+    <li className={`flex flex-col justify-center transition-all duration-700 ease-expo ${start ? 'translate-x-0 opacity-100' : 'translate-x-3 opacity-0'}`} style={{ height: ROW, transitionDelay: `${300 + i * STAGGER_MS}ms` }}>
+      <span className="text-[2.6rem] font-light leading-none tabular-nums" style={{ color: AI[i] }}>{shown}</span>
+      <span className="mt-2 max-w-[24ch] text-[15px] leading-snug text-paper/65">{t(m.label)}</span>
+    </li>
+  )
+}
+
+/**
+ * Impacto en el teléfono: la onda de voz baja en vertical y cada cresta
+ * sostiene una cifra, con lo que mide al lado, completo y legible.
+ */
+function ImpactColumn({ seen, reducedMotion }: { seen: boolean; reducedMotion: boolean }) {
+  return (
+    <div className="relative mx-auto mt-10 flex w-full max-w-[420px] gap-4">
+      <div className="relative shrink-0" style={{ width: PW, height: PH }}>
+        <svg viewBox={`0 0 ${PW} ${PH}`} width={PW} height={PH} className="block overflow-visible" aria-hidden="true">
+          <defs>
+            <AiGradient id="clp-impact-wave-v" vertical />
+          </defs>
+          <path d={phoneWave} fill="none" stroke="white" strokeOpacity={0.06} />
+          <path d={phoneWave} pathLength={1} fill="none" stroke="url(#clp-impact-wave-v)" strokeWidth={2.2} strokeLinecap="round" strokeDasharray="1" strokeDashoffset={seen ? 0 : 1} style={{ transition: `stroke-dashoffset ${DRAW_MS}ms cubic-bezier(.45,0,.25,1)`, filter: `drop-shadow(0 0 6px ${AI[1]})` }} />
+          {seen && !reducedMotion && (
+            <path d={phoneWave} pathLength={1} fill="none" stroke="white" strokeWidth={2.4} strokeLinecap="round" strokeDasharray="0.04 0.96" className="clp-flow" style={{ animationDelay: `${DRAW_MS}ms`, filter: 'drop-shadow(0 0 5px white)' }} />
+          )}
+          {METRICS.map((m, i) => (
+            <g key={m.value} transform={`translate(${PCX + PAMP} ${ROW * i + ROW / 2})`}>
+              <circle r={18} fill={AI[i]} opacity={seen ? 0.14 : 0} style={{ transition: `opacity .5s ${i * STAGGER_MS + 400}ms` }} />
+              <circle r={6} fill={AI[i]} stroke="white" strokeWidth={1.3} style={{ opacity: seen ? 1 : 0, transition: `opacity .5s ${i * STAGGER_MS + 400}ms` }} />
+            </g>
+          ))}
+        </svg>
+        {/* La fibra hacia «Demo» sale de la punta de abajo de la onda */}
+        <span data-fiber-from="clp-demo" className="pointer-events-none absolute h-px w-px" style={{ left: PCX, top: PH }} />
+      </div>
+      <ol className="min-w-0 flex-1">
+        {METRICS.map((m, i) => (
+          <PhoneMetric key={m.value} i={i} start={seen} />
+        ))}
+      </ol>
     </div>
   )
 }

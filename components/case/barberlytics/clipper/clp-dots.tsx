@@ -6,6 +6,7 @@ import { useLocale } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { ClipperOrb } from '../clipper-orb'
 import { Caption, Lead, RED, onActivate, useAutoSteps, useInView } from './clp-kit'
+import { Spine, usePhone } from './clp-phone-kit'
 
 const W = 900
 const H = 380
@@ -41,12 +42,13 @@ export function ClipperDotsScene() {
   const inView = useInView(rootRef)
   const [step] = useAutoSteps({ last: LAST, ms: msFor, run: inView, reducedMotion })
   const [picked, setPicked] = useState<number | null>(null)
+  const phone = usePhone()
   const done = step === LAST
   const shown = Math.min(SEEN.length, step)
   const focus = picked ?? (step >= 1 && step <= SEEN.length ? step - 1 : null)
 
   const caption =
-    focus !== null
+    focus !== null && !phone
       ? { id: `f${focus}`, tag: `0${focus + 1} · ${t({ es: 'Hallazgo', en: 'Finding' })}`, title: t(SEEN[focus].title), sub: picked !== null ? t(SEEN[focus].body) : undefined }
       : done
         ? { id: 'done', tag: t({ es: 'El hueco', en: 'The gap' }), title: t({ es: 'Nadie le respondía a la barbería con sus propios datos.', en: 'Nobody answered the shop with its own data.' }) }
@@ -57,6 +59,9 @@ export function ClipperDotsScene() {
       <Caption {...caption} />
       <Lead>{t({ es: 'Había panel, historial y voz, pero ningún modelo respondía. En recepción, saber cuánto se llevaba cobrado era abrir tres pantallas.', en: 'There was a panel, history and voice, but no model answered. At the front desk, knowing what had been collected meant opening three screens.' })}</Lead>
 
+      {phone ? (
+        <DotsColumn shown={shown} focus={focus} picked={picked} onPick={(i) => setPicked(picked === i ? null : i)} reducedMotion={reducedMotion} />
+      ) : (
       <div className="relative mx-auto mt-8 w-full max-w-[900px]">
         <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full overflow-visible" aria-hidden="true">
           {NODES.map((n, i) => {
@@ -98,7 +103,7 @@ export function ClipperDotsScene() {
                   <circle r={30} fill={RED} opacity={on ? (hot ? 0.28 : 0.12) : 0} style={{ transition: 'opacity .5s' }} />
                   {hot && !reducedMotion && <circle r={14} fill="none" stroke={RED} strokeWidth={1.5} className="clp-ping" />}
                   <circle r={9} fill={on ? (hot ? 'white' : RED) : 'rgb(var(--void))'} stroke="white" strokeOpacity={on ? 0.9 : 0.35} strokeWidth={1.4} style={{ transition: 'fill .5s' }} />
-                  <text y={-26} textAnchor="middle" className="clp-svg-role fill-paper font-mono max-sm:hidden" style={{ opacity: on ? 0.8 : 0.3 }}>0{i + 1}</text>
+                  <text y={-26} textAnchor="middle" className="clp-svg-role fill-paper font-mono" style={{ opacity: on ? 0.8 : 0.3 }}>0{i + 1}</text>
                 </g>
               </g>
             )
@@ -112,6 +117,7 @@ export function ClipperDotsScene() {
           <span data-fiber-from="clp-patrones" className="absolute left-1/2 top-1/2 h-px w-px" />
         </span>
       </div>
+      )}
 
       {/* Al terminar, el punto de partida en cifras */}
       <dl className={`mx-auto mt-10 grid w-full max-w-[760px] grid-cols-2 gap-6 transition-all duration-700 ease-expo sm:grid-cols-4 ${done ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'}`}>
@@ -125,6 +131,60 @@ export function ClipperDotsScene() {
           </div>
         ))}
       </dl>
+    </div>
+  )
+}
+
+interface DotsColumnProps {
+  shown: number
+  focus: number | null
+  picked: number | null
+  onPick: (i: number) => void
+  reducedMotion: boolean
+}
+
+/**
+ * Los puntos en el teléfono: el orbe apagado arriba y, debajo, los hallazgos
+ * en columna. La fibra baja hacia cada uno pero llega rota. Tocar un hallazgo
+ * muestra qué se vio.
+ */
+function DotsColumn({ shown, focus, picked, onPick, reducedMotion }: DotsColumnProps) {
+  const { t } = useLocale()
+  return (
+    <div className="mx-auto mt-10 w-full max-w-[420px]">
+      <div className="relative flex items-center gap-4">
+        <span className="relative grid h-12 w-12 shrink-0 place-items-center">
+          <span className="block opacity-40 grayscale">
+            <ClipperOrb size={48} />
+          </span>
+          <span data-fiber-from="clp-patrones" className="absolute left-1/2 top-1/2 h-px w-px" />
+        </span>
+        <span className="mono-label text-paper/45">{t({ es: 'Un orbe sin modelo', en: 'An orb without a model' })}</span>
+      </div>
+      <span aria-hidden="true" className={`ml-6 block h-8 w-px transition-opacity duration-500 ${shown > 0 ? 'opacity-80' : 'opacity-0'} ${shown > 0 && !reducedMotion ? 'clp-flicker' : ''}`} style={{ backgroundImage: `repeating-linear-gradient(180deg, ${RED} 0 5px, transparent 5px 10px)` }} />
+      <Spine
+        broken
+        reducedMotion={reducedMotion}
+        gap="pb-6"
+        items={SEEN.map((s, i) => ({
+          id: s.title.es,
+          color: RED,
+          lit: i < shown,
+          hot: focus === i,
+          onPick: () => onPick(i),
+          children: (
+            <span className={`block transition-opacity duration-500 ${i < shown ? 'opacity-100' : 'opacity-30'}`}>
+              <span className="mono-label block text-paper/45">0{i + 1} · {t({ es: 'Hallazgo', en: 'Finding' })}</span>
+              <span className="mt-1 block text-[16px] leading-snug text-paper/90">{t(s.title)}</span>
+              {picked === i ? (
+                <span className="clp-fade mt-2 block text-[14px] leading-relaxed text-paper/60">{t(s.body)}</span>
+              ) : (
+                <span className="mt-1.5 block font-mono text-[11px] uppercase tracking-[0.1em] text-[#f0ce86]/70">{t({ es: 'Tocar para ver', en: 'Tap to see' })} +</span>
+              )}
+            </span>
+          ),
+        }))}
+      />
     </div>
   )
 }

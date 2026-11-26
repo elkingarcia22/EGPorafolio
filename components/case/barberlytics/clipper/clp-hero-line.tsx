@@ -5,6 +5,7 @@ import { useLocale } from '@/lib/i18n'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { ClipperOrb, type ClipperOrbState } from '../clipper-orb'
 import { AI, AiGradient, RED } from './clp-kit'
+import { Spine, usePhone } from './clp-phone-kit'
 
 const EXCHANGES = CLIPPER_CASE.exchanges
 /** Cada intercambio: pregunta (viaja al orbe), consulta (viaja a la herramienta) y respuesta (se queda) — ms */
@@ -27,8 +28,8 @@ interface HeroLineProps {
  * orbe, que consulta una herramienta de su rol, y la respuesta vuelve con sus
  * cifras. Recorre los cuatro intercambios reales de las pruebas del agente.
  */
-export function HeroLine({ running, reducedMotion }: HeroLineProps) {
-  const { t } = useLocale()
+/** El ritmo de la portada: pregunta → consulta → respuesta, y el siguiente intercambio */
+function useHeroBeats(running: boolean, reducedMotion: boolean) {
   const [ex, setEx] = useState(0)
   const [beat, setBeat] = useState(reducedMotion ? 2 : 0)
 
@@ -43,6 +44,18 @@ export function HeroLine({ running, reducedMotion }: HeroLineProps) {
     }, BEATS[beat])
     return () => window.clearTimeout(id)
   }, [running, reducedMotion, beat])
+  return { ex, beat }
+}
+
+/** En el teléfono la portada se elige a sí misma: la línea de escritorio o la columna */
+export function HeroLine(props: HeroLineProps) {
+  const phone = usePhone()
+  return phone ? <HeroColumn {...props} /> : <HeroWide {...props} />
+}
+
+function HeroWide({ running, reducedMotion }: HeroLineProps) {
+  const { t } = useLocale()
+  const { ex, beat } = useHeroBeats(running, reducedMotion)
 
   const x = EXCHANGES[ex]
   const denied = x.tool === 'nomina'
@@ -89,6 +102,87 @@ export function HeroLine({ running, reducedMotion }: HeroLineProps) {
         <span key={`a${ex}-${answered}`} className={`clp-fade mt-2 text-[13px] leading-snug ${answered ? (denied ? 'text-[#ff9aa0]' : 'text-paper/60') : 'text-transparent'}`}>
           {t(x.a)}
         </span>
+      </figcaption>
+    </figure>
+  )
+}
+
+/**
+ * La portada en el teléfono: la misma conversación, de arriba abajo. Quien
+ * pregunta, el orbe que consulta y la herramienta, unidos por la fibra; la
+ * señal baja tramo a tramo y la respuesta aparece al final.
+ */
+function HeroColumn({ running, reducedMotion }: HeroLineProps) {
+  const { t } = useLocale()
+  const { ex, beat } = useHeroBeats(running, reducedMotion)
+  const x = EXCHANGES[ex]
+  const denied = x.tool === 'nomina'
+  const answered = beat === 2
+  const toolColor = denied ? RED : AI[2]
+  const glyph = (text: string, color: string, lit: boolean) => (
+    <span className="relative grid h-full w-full place-items-center">
+      <span className="absolute h-11 w-11 rounded-full transition-opacity duration-500" style={{ background: color, opacity: lit ? 0.14 : 0.04 }} />
+      <span className="relative grid h-9 w-9 place-items-center rounded-full border-2 bg-[rgb(var(--void))] text-[17px] transition-colors duration-500" style={{ borderColor: lit ? color : 'rgb(255 255 255 / 0.15)', color: lit ? color : 'rgb(255 255 255 / 0.3)' }}>
+        {text}
+      </span>
+    </span>
+  )
+
+  return (
+    <figure className="mx-auto w-full max-w-[420px]" aria-label={t({ es: 'Una pregunta llega a Clipper, que consulta una herramienta y responde', en: 'A question reaches Clipper, which looks up a tool and answers' })}>
+      <Spine
+        reducedMotion={reducedMotion}
+        pulseAt={answered ? null : beat}
+        gap="pb-7"
+        items={[
+          {
+            id: 'ask',
+            color: AI[0],
+            lit: true,
+            node: glyph('?', AI[0], true),
+            children: (
+              <span key={`q${ex}`} className="clp-fade block">
+                <span className="mono-label block text-paper/50">{t(x.role)}</span>
+                <span className="mt-1.5 block text-[16px] leading-snug text-paper/90">«{t(x.q)}»</span>
+              </span>
+            ),
+          },
+          {
+            id: 'orb',
+            color: AI[1],
+            lit: beat >= 1 || answered,
+            node: (
+              <span className="grid h-full w-full place-items-center">
+                <ClipperOrb size={48} state={reducedMotion ? 'idle' : ORB_STATE[beat]} />
+              </span>
+            ),
+            children: (
+              <span className="block pt-2">
+                <span className="mono-label block text-paper/50">Clipper</span>
+                <span className="mt-1 block text-[14px] text-paper/70">{t({ es: 'Consulta, no adivina', en: 'Looks it up, never guesses' })}</span>
+              </span>
+            ),
+          },
+          {
+            id: 'tool',
+            color: toolColor,
+            lit: beat >= 1,
+            node: glyph(denied ? '✕' : '✓', toolColor, beat >= 1),
+            children: (
+              <span className="block pt-1.5">
+                <span key={`t${ex}`} className="clp-fade block text-[15px] text-paper/85">{t(x.toolLabel)}</span>
+                <span className="mt-0.5 block font-mono text-[12px] text-paper/45">{x.tool}</span>
+              </span>
+            ),
+          },
+        ]}
+      />
+      <figcaption className="relative mt-6 min-h-[5.5rem] rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5">
+        <span key={`a${ex}-${answered}`} className={`clp-fade block text-[15px] leading-snug ${answered ? (denied ? 'text-[#ff9aa0]' : 'text-paper/80') : 'text-paper/30'}`}>
+          {answered ? t(x.a) : t({ es: 'Consultando…', en: 'Looking it up…' })}
+        </span>
+        {/* Bajo la respuesta sale la fibra hacia «Los puntos», en la línea de los nodos */}
+        <span data-fiber-from="clp-puntos" className="absolute left-6 top-full h-px w-px" />
       </figcaption>
     </figure>
   )
