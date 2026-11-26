@@ -33,14 +33,6 @@ const WIDE: Layout = {
   font: { name: 17, role: 11, button: 14 },
 }
 
-/** Teléfono: los tres nodos en columna y cada texto a su lado, a tamaño de lectura */
-const TALL: Layout = {
-  viewBox: '0 0 360 450',
-  nodes: [[62, 70], [62, 225], [62, 380]],
-  fiber: 'M62 70 C 107 120, 17 175, 62 225 S 107 330, 62 380',
-  label: { anchor: 'start', dx: 110, top: -4, bottom: 18 },
-  font: { name: 17, role: 12, button: 16 },
-}
 /** La escala que el sistema deriva del primario: de claro (50) a oscuro (800) */
 const RAMP = [0.86, 0.7, 0.5, 0.3, 0.14, 0, -0.25, -0.45, -0.65] as const
 /** Los nueve pasos se abren en abanico alrededor del nodo del medio */
@@ -71,7 +63,7 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
   const [shown, setShown] = useState<[number, number, number]>([0, 0, 0])
   const timers = useRef<number[]>([])
   const narrow = useNarrow()
-  const lay = narrow ? TALL : WIDE
+  const lay = WIDE
   const FIBER = lay.fiber
   const at = (i: number) => `translate(${lay.nodes[i][0]} ${lay.nodes[i][1]})`
 
@@ -94,6 +86,8 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
   const input = THEMES[shown[0]]
   const tokens = THEMES[shown[1]]
   const out = THEMES[shown[2]]
+
+  if (narrow) return <RibbonTall input={input} tokens={tokens} out={out} step={step} reducedMotion={reducedMotion} />
 
   return (
     <figure className="mx-auto w-full max-w-[980px]">
@@ -166,5 +160,90 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
         {t({ es: 'Los seis temas reales de Thema · el gradiente de la IA también se deriva', en: 'Thema’s six real themes · the AI gradient is derived too' })}
       </figcaption>
     </figure>
+  )
+}
+
+type Theme = (typeof THEMES)[number]
+
+interface RibbonTallProps {
+  input: Theme
+  tokens: Theme
+  out: Theme
+  step: number
+  reducedMotion: boolean
+}
+
+/** Alto de cada parada de la cinta en teléfono (px) */
+const STOP_H = 132
+
+/**
+ * La cinta en el teléfono: los tres pasos en columna, con la fibra bajando por
+ * la izquierda y cada texto en HTML a su lado, a tamaño de lectura.
+ */
+function RibbonTall({ input, tokens, out, step, reducedMotion }: RibbonTallProps) {
+  const { t } = useLocale()
+  const stops = [
+    { label: LABELS[0], value: input.primary, halo: input.primary },
+    { label: LABELS[1], value: t(LABELS[1].bottom(0)), halo: tokens.primary },
+    { label: LABELS[2], value: out.name, halo: out.aiEnd },
+  ]
+  return (
+    <figure className="mx-auto w-full max-w-[360px]" aria-label={t({ es: 'Un color primario entra, el sistema deriva sus tokens y sale un tema completo', en: 'A primary color goes in, the system derives its tokens and a full theme comes out' })}>
+      <ol className="relative">
+        {/* La fibra baja de nodo en nodo; la señal la recorre con cada tema */}
+        <svg aria-hidden="true" className="absolute left-0 w-24 overflow-visible" style={{ top: STOP_H / 2, height: STOP_H * 2 }} viewBox="0 0 96 200" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="thema-ribbon-tall" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor={input.primary} style={{ transition: 'stop-color 700ms' }} />
+              <stop offset="1" stopColor={out.aiEnd} style={{ transition: 'stop-color 700ms' }} />
+            </linearGradient>
+          </defs>
+          <path d="M48 0 C 78 40, 18 60, 48 100 S 78 160, 48 200" fill="none" stroke="url(#thema-ribbon-tall)" strokeOpacity={0.6} strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+          {!reducedMotion && (
+            <path key={step} d="M48 0 C 78 40, 18 60, 48 100 S 78 160, 48 200" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" pathLength={1} vectorEffect="non-scaling-stroke" className="th-pulse" style={{ filter: `drop-shadow(0 0 6px ${input.primary})` }} />
+          )}
+        </svg>
+        {stops.map((stop, i) => (
+          <li key={i} className="relative flex items-center gap-5" style={{ height: STOP_H }}>
+            <span className="relative grid h-24 w-24 shrink-0 place-items-center">
+              <span aria-hidden="true" className="absolute inset-0 rounded-full transition-colors duration-700" style={{ background: stop.halo, opacity: 0.14 }} />
+              {i === 0 && <span className="h-14 w-14 rounded-full border-2 border-white/30 transition-colors duration-700" style={{ background: input.primary }} />}
+              {i === 1 && <TokenFan primary={tokens.primary} />}
+              {i === 2 && (
+                <span className="relative flex flex-col items-center gap-1.5">
+                  <span className="rounded-xl px-4 py-2 text-[15px] font-medium transition-colors duration-700" style={{ background: out.primary, color: inkOn(out.primary) }}>
+                    {t({ es: 'Reservar', en: 'Book' })}
+                    <span data-fiber-from="th-puntos" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />
+                  </span>
+                  <span aria-hidden="true" className="h-1 w-full rounded-full" style={{ background: `linear-gradient(90deg, ${out.primary}, ${out.aiEnd})` }} />
+                </span>
+              )}
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[17px] leading-tight text-paper">{t(stop.label.top)}</span>
+              <span key={stop.value} className="th-fade mt-1.5 font-mono text-[12px] uppercase tracking-[0.12em] text-paper/55">{stop.value}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <figcaption className="mt-4 text-center text-[13px] leading-snug text-white/50">
+        {t({ es: 'Los seis temas reales de Thema · el gradiente de la IA también se deriva', en: 'Thema’s six real themes · the AI gradient is derived too' })}
+      </figcaption>
+    </figure>
+  )
+}
+
+/** Los nueve pasos de la escala, en abanico alrededor del nodo */
+function TokenFan({ primary }: { primary: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="-60 -40 120 70" className="w-[88px] overflow-visible">
+      {RAMP.map((k, i) => {
+        const angle = Math.PI * (1 - i / (RAMP.length - 1))
+        const x = Math.round(Math.cos(angle) * FAN_R * 100) / 100
+        const y = Math.round(-Math.sin(angle) * FAN_R * 0.55 * 100) / 100
+        return <rect key={i} x={x - 8} y={y - 8} width={16} height={16} rx={4} fill={k === 0 ? primary : shade(primary, k)} stroke="white" strokeOpacity={k === 0 ? 0.8 : 0.12} style={{ transition: `fill 600ms ${i * 45}ms` }} />
+      })}
+      <circle r={7} fill="rgb(var(--void))" stroke="white" strokeOpacity={0.5} />
+    </svg>
   )
 }
