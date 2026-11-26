@@ -13,10 +13,7 @@
 .su-draw { animation: su-draw 900ms cubic-bezier(.65,0,.35,1) both; }
 @keyframes su-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 
-/* El radar del agente 1: la aguja gira y cada empresa se enciende cuando pasa */
 @keyframes su-spin { to { transform: rotate(360deg); } }
-.su-blip { opacity: 0; animation: su-blip linear infinite; }
-@keyframes su-blip { 0% { opacity: 1; } 55% { opacity: 0.15; } 100% { opacity: 0; } }
 
 /* La IA: el halo de Rumbo gira; la señal sale de la columna hacia cada rama; las reglas sellan */
 .su-halo { animation: su-spin 7s linear infinite; }
@@ -40,7 +37,7 @@
 @keyframes su-drip { from { transform: translateY(-100%); } to { transform: translateY(400%); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .su-fade, .su-pulse, .su-ping, .su-print, .su-drip, .su-draw, .su-halo, .su-blip, .su-stamp { animation: none; }
+  .su-fade, .su-pulse, .su-ping, .su-print, .su-drip, .su-draw, .su-halo, .su-stamp { animation: none; }
   .su-shoot-left, .su-shoot-right { display: none; }
   .su-pulse { opacity: 0; }
 }
