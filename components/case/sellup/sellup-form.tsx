@@ -6,7 +6,9 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
 import { useCompact } from './camera'
-import { DetailScene, Scaled } from './forma-stage'
+import { DetailScene, SceneStage, Scaled } from './forma-stage'
+import { MAGNET_H, MAGNET_W, MagnetScene } from './forma-a3-magnet'
+import { MagnetMobile } from './forma-a3-magnet-mobile'
 import { A2_LOOP, PeopleRadar, RADAR_H, RADAR_W } from './forma-a2-radar'
 import { PeopleRadarMobile } from './forma-a2-radar-mobile'
 import { FAN_H, FAN_W, FanScene, fanView } from './forma-a3-fan'
@@ -16,8 +18,6 @@ import { AppGallery } from './app-gallery'
 
 /** Los ticks de las réplicas: 0,56 s, como en el resto del caso */
 const TICK_MS = 560
-/** Vueltas de la escena del agente 3 (el mensaje que se abre en abanico) */
-const A3_LOOP = 24
 
 /** Un reloj en ticks que solo corre mientras la pieza está a la vista, en bucle de `loop` */
 function useSceneClock(ref: React.RefObject<HTMLElement | null>, loop: number, still: number): number {
@@ -47,15 +47,47 @@ function Agent2() {
   return <div ref={ref}>{compact ? <PeopleRadarMobile t={time} /> : <Scaled width={RADAR_W} height={RADAR_H}><PeopleRadar t={time} /></Scaled>}</div>
 }
 
-/** Agente 3 · Primer contacto: el mensaje con citas que se abre en abanico por canal */
+/** Agente 3 · Primer contacto: dos escenas seguidas, como en la plataforma */
+const A3_STEPS: readonly { label: L; from: number }[] = [
+  { label: { es: 'Rumbo atrae las fuentes y cita cada dato', en: 'Rumbo pulls in sources and cites every fact' }, from: 0 },
+  { label: { es: 'El mensaje se abre a cada canal', en: 'The message fans out to every channel' }, from: 14 },
+]
+/** Largo del bucle completo (ticks): el imán y luego el abanico */
+const A3_FULL = 37
+/** Ticks del fundido entre escenas */
+const A3_FADE = 2
+
 function Agent3() {
+  const { t } = useLocale()
   const ref = useRef<HTMLDivElement>(null)
-  const time = useSceneClock(ref, A3_LOOP, 12)
+  const time = useSceneClock(ref, A3_FULL, 25)
   const compact = useCompact()
   const [channel, setChannel] = useState<Channel>('email')
+  const fanFrom = A3_STEPS[1].from
+  const scene = time >= fanFrom ? 1 : 0
+  // Cada escena se reinicia solo mientras está oculta: el imán vuelve al principio cuando el
+  // abanico ya lo cubrió, y el abanico conserva su último estado mientras se desvanece.
+  const magnetTime = time < fanFrom + A3_FADE ? time + 5 : 5
+  const u = time >= fanFrom ? time - fanFrom : time < A3_FADE ? A3_FULL - 1 - fanFrom : 0
   return (
     <div ref={ref}>
-      <DetailScene width={FAN_W} height={FAN_H} view={compact ? fanView(time, channel) : undefined}><FanScene u={time} onChannel={setChannel} /></DetailScene>
+      {/* Las dos escenas como dos nodos: la que corre, encendida */}
+      <ol className="mx-auto mb-6 flex max-w-[640px] items-center justify-center gap-3">
+        {A3_STEPS.map((step, i) => (
+          <li key={step.from} className="flex items-center gap-3">
+            {i > 0 && <span aria-hidden="true" className="h-px w-8 bg-white/20 md:w-14" />}
+            <span className={`h-2.5 w-2.5 shrink-0 rounded-full border transition-all duration-500 ${scene === i ? 'border-white bg-signal shadow-[0_0_12px_rgb(var(--signal))]' : 'border-white/40'}`} />
+            <span className={`text-balance text-[13px] leading-snug transition-opacity duration-500 ${scene === i ? 'opacity-100' : 'opacity-45'}`}>{t(step.label)}</span>
+          </li>
+        ))}
+      </ol>
+      <SceneStage
+        active={scene}
+        scenes={[
+          compact ? <MagnetMobile key="magnet" time={magnetTime} /> : <DetailScene key="magnet" width={MAGNET_W} height={MAGNET_H}><MagnetScene time={magnetTime} /></DetailScene>,
+          <DetailScene key="fan" width={FAN_W} height={FAN_H} view={compact ? fanView(u, channel) : undefined}><FanScene u={u} onChannel={setChannel} /></DetailScene>,
+        ]}
+      />
     </div>
   )
 }
@@ -126,7 +158,7 @@ export function SellUpForm() {
         <Agent2 />
       </Station>
 
-      <Station index="4.3" title={{ es: 'Agente 3 · Primer contacto', en: 'Agent 3 · First contact' }} lead={{ es: 'Cita cada dato y escribe un mensaje por canal.', en: 'Cites every fact and writes one message per channel.' }}>
+      <Station index="4.3" title={{ es: 'Agente 3 · Primer contacto', en: 'Agent 3 · First contact' }} lead={{ es: 'Investiga la empresa, cita cada dato y escribe un mensaje por canal.', en: 'Researches the company, cites every fact and writes one message per channel.' }}>
         <Agent3 />
       </Station>
 
