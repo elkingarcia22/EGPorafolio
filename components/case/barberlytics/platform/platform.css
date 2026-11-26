@@ -37,7 +37,9 @@
 .pl-hub-name { font-size: 15px; }
 .pl-hub-sub { font-size: 11px; }
 @media (max-width: 640px) {
-  .pl-hero-stage { font-size: 27px; letter-spacing: 0.02em; }
+  /* En teléfono solo se lee la etapa en curso, grande; las demás quedan en el punto */
+  .pl-hero-stage { font-size: 40px; letter-spacing: 0.02em; }
+  .pl-hero-stage[data-here='false'] { opacity: 0 !important; }
   .pl-hero-next { font-size: 20px; }
   .pl-hub-name { font-size: 34px; }
   .pl-hub-sub { display: none; }
