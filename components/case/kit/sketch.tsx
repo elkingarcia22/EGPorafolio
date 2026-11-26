@@ -36,7 +36,8 @@ export function Board({ title, w = 1200, h = 700, children, label }: BoardProps)
   return (
     <figure data-reveal className="overflow-x-auto overscroll-x-contain" aria-label={label}>
       <p className="mono-label mb-2 opacity-50 lg:hidden [.swipe-board_&]:hidden" aria-hidden="true">Desliza →</p>
-      <div className="min-w-[820px]">
+      {/* Un clic (o toque) abre el tablero en grande: ver ScreenshotZoom */}
+      <div data-zoomable aria-label={label} className="min-w-[820px] cursor-zoom-in">
         <p className="mb-2 flex items-center gap-2 font-mono text-[11px] text-fg/60">
           <span className="inline-block h-2.5 w-2.5 rounded-sm bg-signal" aria-hidden="true" />
           {title}

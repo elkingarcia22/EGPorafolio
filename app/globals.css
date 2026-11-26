@@ -334,3 +334,12 @@ html[data-motion='reduced'] [style*='node-link'], html[data-motion='reduced'] [s
     scroll-snap-align: start;
   }
 }
+
+/* Las pantallas de los productos se amplían con un clic (ver ScreenshotZoom) */
+main img[src*='cases'] {
+  cursor: zoom-in;
+}
+main button img[src*='cases'],
+main a img[src*='cases'] {
+  cursor: inherit;
+}
