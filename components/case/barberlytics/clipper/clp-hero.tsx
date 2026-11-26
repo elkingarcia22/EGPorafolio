@@ -6,9 +6,9 @@ import { TransitionLink, onPageReveal, type PageRevealInfo } from '@/components/
 import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
-import { COPY } from '@/lib/content/copy'
 import { CLIPPER_CASE } from '@/lib/content/cases/barberlytics/clipper-case'
 import { HeroLine } from './clp-hero-line'
+import { CaseMeta } from '@/components/case/case-meta'
 
 /** La frase de la portada: la primera idea del agente, corta */
 const TAGLINE = {
@@ -75,22 +75,12 @@ export function ClipperCover() {
         </div>
 
         <div className="relative grid gap-12 lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,13rem)] lg:items-center">
-          <dl className="order-last grid grid-cols-2 gap-x-6 gap-y-5 border-t border-fg/15 pt-8 sm:grid-cols-3 lg:order-first lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-            {CLIPPER_CASE.meta.map((m) => (
-              <div key={m.label.es} data-hero-fade>
-                <dt className="mono-label mb-1 opacity-50">{t(m.label)}</dt>
-                <dd className="text-[13px] leading-snug">{t(m.value)}</dd>
-              </div>
-            ))}
-            <div data-hero-fade className="col-span-2 sm:col-span-1">
-              <dt className="mono-label mb-2 opacity-50">{t(COPY.case.tools)}</dt>
-              <dd className="flex flex-wrap gap-1.5">
-                {CLIPPER_CASE.tools.map((tool) => (
-                  <span key={tool} className="rounded-full border border-fg/20 px-2 py-0.5 text-[11px]">{tool}</span>
-                ))}
-              </dd>
-            </div>
-          </dl>
+          <CaseMeta
+            className="order-last lg:order-first"
+            items={CLIPPER_CASE.meta.map((m) => ({ label: t(m.label), value: t(m.value) }))}
+            tools={CLIPPER_CASE.tools}
+            fullClassName="grid-cols-1 gap-y-5 border-l border-fg/15 pl-5"
+          />
           <div className="min-w-0">
             <div className="relative flex flex-col items-center text-center">
               <h1 className="text-[clamp(3.4rem,1rem+9vw,11rem)] font-light leading-[0.88] tracking-tight">

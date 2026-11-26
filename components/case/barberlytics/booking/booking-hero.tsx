@@ -6,9 +6,9 @@ import { TransitionLink, onPageReveal } from '@/components/transition/page-trans
 import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
-import { COPY } from '@/lib/content/copy'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { CoverTap } from './cover-tap'
+import { CaseMeta } from '@/components/case/case-meta'
 
 /** Portada del caso Reserva: título centrado, la frase debajo, los datos a un lado y el recorrido de un toque. */
 export function BookingHero() {
@@ -61,22 +61,12 @@ export function BookingHero() {
         </div>
 
         <div className="relative grid gap-12 lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,13rem)] lg:items-center">
-          <dl className="order-last grid grid-cols-2 gap-x-6 gap-y-5 border-t border-fg/15 pt-8 sm:grid-cols-3 lg:order-first lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-            {BOOKING_CASE.meta.map((m) => (
-              <div key={m.label.es} data-hero-fade>
-                <dt className="mono-label mb-1 opacity-50">{t(m.label)}</dt>
-                <dd className="text-[13px] leading-snug">{t(m.value)}</dd>
-              </div>
-            ))}
-            <div data-hero-fade className="col-span-2 sm:col-span-1">
-              <dt className="mono-label mb-2 opacity-50">{t(COPY.case.tools)}</dt>
-              <dd className="flex flex-wrap gap-1.5">
-                {BOOKING_CASE.tools.map((tool) => (
-                  <span key={tool} className="rounded-full border border-fg/20 px-2 py-0.5 text-[11px]">{tool}</span>
-                ))}
-              </dd>
-            </div>
-          </dl>
+          <CaseMeta
+            className="order-last lg:order-first"
+            items={BOOKING_CASE.meta.map((m) => ({ label: t(m.label), value: t(m.value) }))}
+            tools={BOOKING_CASE.tools}
+            fullClassName="grid-cols-1 gap-y-5 border-l border-fg/15 pl-5"
+          />
 
           <div className="min-w-0">
             <div className="relative flex flex-col items-center text-center">

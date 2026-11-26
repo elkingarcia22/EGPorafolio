@@ -9,6 +9,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { COPY } from '@/lib/content/copy'
 import type { Project } from '@/lib/content/projects'
+import { CaseMeta } from '@/components/case/case-meta'
 
 export function CaseHero({ project }: { project: Project }) {
   const { t } = useLocale()
@@ -63,22 +64,15 @@ export function CaseHero({ project }: { project: Project }) {
           <p data-hero-fade className="text-xl leading-relaxed opacity-80 md:col-span-6">
             {t(project.tagline)}
           </p>
-          <dl className="grid grid-cols-2 gap-6 md:col-span-5 md:col-start-8">
-            {meta.map((m) => (
-              <div key={m.label.es} data-hero-fade>
-                <dt className="mono-label mb-1 opacity-50">{t(m.label)}</dt>
-                <dd className="text-sm leading-relaxed">{m.value}</dd>
-              </div>
-            ))}
-            <div className="col-span-2" data-hero-fade>
-              <dt className="mono-label mb-2 opacity-50">{t(COPY.case.tools)}</dt>
-              <dd className="flex flex-wrap gap-2">
-                {project.tools.map((tool) => (
-                  <span key={tool} className="border border-fg/25 px-2.5 py-1 text-xs">{tool}</span>
-                ))}
-              </dd>
-            </div>
-          </dl>
+          <CaseMeta
+            className="md:col-span-5 md:col-start-8"
+            breakpoint="md"
+            items={meta.map((m) => ({ label: t(m.label), value: m.value }))}
+            tools={project.tools}
+            fullClassName="grid-cols-2 gap-6"
+            toolsClassName="col-span-2"
+            chipClassName="border border-fg/25 px-2.5 py-1 text-xs"
+          />
         </div>
 
         <p data-hero-fade className="mono-label mt-10 flex items-center gap-2 text-signal">
