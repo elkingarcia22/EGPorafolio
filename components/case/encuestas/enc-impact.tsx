@@ -178,17 +178,27 @@ export function EncImpact() {
       </ol>
 
       {/* La métrica elegida: de dónde parte, a dónde llega, qué la mueve */}
-      <div key={active} aria-live="polite" className="obj-fade mx-auto mt-12 max-w-[760px] text-center">
-        <p className="text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-light tabular-nums">
+      <div key={active} aria-live="polite" className="obj-fade mx-auto mt-12 max-w-[820px] text-center">
+        {/* Antes → ahora, grande; debajo, qué es la cifra */}
+        <p className="flex items-baseline justify-center gap-3 text-[clamp(2rem,1.4rem+2.2vw,3rem)] font-light leading-none tabular-nums">
           <span className="text-paper/45">{current.from}</span>
-          <span className="mx-3 text-signal">→</span>
+          <span className="text-signal">→</span>
           <span>{current.to}</span>
-          <span className="ml-3 text-sm text-paper/55">{t(current.unit)}</span>
         </p>
-        <p className="mx-auto mt-4 max-w-[60ch] text-balance text-sm leading-relaxed text-paper/75 md:text-base">{t(current.moves)}</p>
-        <p className="case-note mt-3">
-          {t({ es: 'Qué es', en: 'What it is' })}: {t(current.what)} · {t({ es: 'Cómo se mide', en: 'How it’s measured' })}: {t(current.how)}
-        </p>
+        <p className="mt-2 text-[15px] text-paper/65">{t(current.unit)}</p>
+        <p className="mx-auto mt-6 max-w-[56ch] text-balance text-base leading-relaxed text-paper/80">{t(current.moves)}</p>
+        {/* Qué es y cómo se mide, en dos columnas ordenadas */}
+        <dl className="mx-auto mt-8 grid max-w-[760px] gap-6 text-left md:grid-cols-2">
+          {[
+            { tag: t({ es: 'Qué es', en: 'What it is' }), text: t(current.what) },
+            { tag: t({ es: 'Cómo se mide', en: 'How it’s measured' }), text: t(current.how) },
+          ].map((item) => (
+            <div key={item.tag} className="border-l border-signal/50 pl-4">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{item.tag}</dt>
+              <dd className="mt-2 text-[15px] leading-relaxed text-paper/75">{item.text}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </div>
   )
