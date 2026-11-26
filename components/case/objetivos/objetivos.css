@@ -76,11 +76,10 @@ html[data-motion='reduced'] .branch-pulse { animation: none; opacity: 0; }
 .branch-value { font-size: 20px; }
 .branch-name { font-size: 17px; }
 .branch-role { font-size: 11px; }
-@media (max-width: 640px) {
-  .branch-value { font-size: 34px; }
-  .branch-name { font-size: 34px; }
-  .branch-role { font-size: 31px; letter-spacing: 0; }
-}
+/* Teléfono: la rama va de pie (ver BranchColumn); la señal baja de la persona a la empresa */
+.branch-drop { top: 0; opacity: 0; animation: branch-drop 1.6s cubic-bezier(.45,0,.55,1) both; }
+@keyframes branch-drop { 0% { top: 0; opacity: 1; } 92% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+html[data-motion='reduced'] .branch-drop { animation: none; opacity: 0; }
 
 /* El orbe de la IA: respira despacio; al pensar, late un poco más rápido */
 @keyframes orb-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
@@ -89,3 +88,6 @@ html[data-motion='reduced'] [class*='orb-breathe'] { animation: none !important;
 
 /* Impacto: la señal que va del punto de partida a la meta */
 @keyframes impact-flow { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+
+/* Impacto en el teléfono: la señal baja del punto de partida a la meta */
+@keyframes impact-drop { from { transform: translateY(-100%); } to { transform: translateY(200%); } }

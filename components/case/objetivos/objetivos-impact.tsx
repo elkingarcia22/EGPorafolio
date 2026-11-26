@@ -158,19 +158,21 @@ export function ObjetivosImpact() {
       {/* La métrica en lectura: de dónde parte, a dónde llega y cuánto cambia */}
       <div key={`band-${active}`} className="obj-fade relative mx-auto mt-12 max-w-[880px] overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(ellipse_at_70%_0%,rgb(var(--signal)/0.18),transparent_60%)] px-6 py-8 md:px-10">
         <p className="text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t(current.unit)}</p>
-        <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
-          <div className="text-right">
+        <div className="mt-6 grid grid-cols-1 items-center justify-items-center gap-4 md:grid-cols-[1fr_auto_1fr] md:justify-items-stretch md:gap-8">
+          <div className="text-center md:text-right">
             <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: 'Punto de partida', en: 'Starting point' })}</p>
             <p className="mt-2 text-[clamp(2rem,1.2rem+2.6vw,3.8rem)] font-light leading-none text-paper/45 tabular-nums">{current.from}</p>
           </div>
           {/* La fibra entre el antes y la meta, con la señal que la recorre */}
-          <div className="relative flex w-[clamp(4rem,10vw,9rem)] flex-col items-center">
+          {/* En el teléfono va de pie: la señal baja del antes a la meta */}
+          <div className="relative flex flex-col items-center gap-2 md:w-[clamp(4rem,10vw,9rem)] md:gap-0">
             <span className="rounded-full bg-signal px-3 py-1 text-sm font-medium text-on-signal shadow-[0_0_24px_-4px_rgb(var(--signal)/0.9)] tabular-nums">{current.delta}</span>
-            <span className="relative mt-3 h-px w-full overflow-hidden bg-white/15">
-              <span className="absolute inset-y-0 left-0 w-1/3 animate-[impact-flow_1.6s_cubic-bezier(.65,0,.35,1)_infinite] bg-gradient-to-r from-transparent via-white to-transparent" />
+            <span className="relative order-first h-10 w-px overflow-hidden bg-white/15 md:order-none md:mt-3 md:h-px md:w-full">
+              <span className="absolute inset-y-0 left-0 hidden w-1/3 animate-[impact-flow_1.6s_cubic-bezier(.65,0,.35,1)_infinite] bg-gradient-to-r from-transparent via-white to-transparent md:block" />
+              <span className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-transparent via-white to-transparent animate-[impact-drop_1.6s_cubic-bezier(.65,0,.35,1)_infinite] md:hidden" />
             </span>
           </div>
-          <div className="text-left">
+          <div className="text-center md:text-left">
             <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Meta', en: 'Target' })}</p>
             <p className="mt-2 text-[clamp(2.4rem,1.4rem+3.2vw,4.6rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 22px rgb(var(--signal) / 0.45))' }}>{current.to}</p>
           </div>
