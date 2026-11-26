@@ -58,10 +58,10 @@ export function SellUpHero() {
         <div className="pointer-events-none absolute left-1/2 top-[30%] h-[44vw] max-h-[640px] w-[70vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(91,126,255,0.12),transparent)]" aria-hidden="true" />
 
         <div className="relative mb-14 flex flex-wrap items-center justify-between gap-x-6 gap-y-2" data-hero-fade>
-          <TransitionLink href="/#work" transitionLabel={t({ es: 'Trabajo', en: 'Work' })} className="mono-label max-md:text-[12px] opacity-60 hover:opacity-100">
+          <TransitionLink href="/#work" transitionLabel={t({ es: 'Trabajo', en: 'Work' })} className="mono-label opacity-60 hover:opacity-100">
             ← {t({ es: 'Proyectos', en: 'Projects' })}
           </TransitionLink>
-          <span className="mono-label max-md:text-[12px] opacity-60">{t(SELLUP_CASE.eyebrow)}</span>
+          <span className="mono-label opacity-60">{t(SELLUP_CASE.eyebrow)}</span>
         </div>
 
         {/* Centro: nombre, frase y la rama. A un lado, los datos del proyecto en columna */}
@@ -69,12 +69,12 @@ export function SellUpHero() {
           <dl className="order-last grid grid-cols-2 gap-x-6 gap-y-5 border-t border-fg/15 pt-8 sm:grid-cols-3 lg:order-first lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
             {SELLUP_CASE.meta.map((m) => (
               <div key={m.label.es} data-hero-fade>
-                <dt className="mono-label max-md:text-[12px] mb-1 opacity-50">{t(m.label)}</dt>
+                <dt className="mono-label mb-1 opacity-50">{t(m.label)}</dt>
                 <dd className="text-[13px] leading-snug">{t(m.value)}</dd>
               </div>
             ))}
             <div data-hero-fade className="col-span-2 sm:col-span-1">
-              <dt className="mono-label max-md:text-[12px] mb-2 opacity-50">{t(COPY.case.tools)}</dt>
+              <dt className="mono-label mb-2 opacity-50">{t(COPY.case.tools)}</dt>
               <dd className="flex flex-wrap gap-1.5">
                 {SELLUP_CASE.tools.map((tool) => (
                   <span key={tool} className="rounded-full border border-fg/20 px-2 py-0.5 text-[11px]">{tool}</span>

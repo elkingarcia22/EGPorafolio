@@ -120,3 +120,16 @@ export function Camera({ width, height, view, children, className = '' }: Camera
     </div>
   )
 }
+
+/** Verdadero en teléfono (< 768 px): ahí cada capítulo usa su propia composición, vertical y con texto HTML. */
+export function usePhone(): boolean {
+  const [phone, setPhone] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const update = () => setPhone(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+  return phone
+}

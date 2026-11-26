@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { SELLUP_CASE } from '@/lib/content/cases/sellup/sellup-case'
+import { usePhone } from './camera'
 
 /** Cada cuánto pasa a la frase siguiente (ms) */
 const STEP_MS = 3600
@@ -53,6 +54,7 @@ export function SellUpIdea() {
   /** Posición (en ORDER) de la frase encendida */
   const [at, setAt] = useState(0)
   const [picked, setPicked] = useState(false)
+  const phone = usePhone()
 
   // Las fibras se miden sobre el texto real: de la frase (abajo, al centro) al nodo.
   const measure = useCallback(() => {
@@ -114,7 +116,7 @@ export function SellUpIdea() {
   return (
     <div ref={rootRef} className="relative">
       {/* Las fibras de cada frase a su principio: tenues todas, la encendida se tiende */}
-      <svg viewBox={`0 0 ${box.w || 1} ${box.h || 1}`} className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
+      <svg viewBox={`0 0 ${box.w || 1} ${box.h || 1}`} className={`pointer-events-none absolute inset-0 h-full w-full overflow-visible ${phone ? 'hidden' : ''}`} aria-hidden="true">
         <defs>
           <linearGradient id="su-idea-fiber" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#7e2be0" />
@@ -145,7 +147,7 @@ export function SellUpIdea() {
         ))}
       </svg>
 
-      <p data-reveal className="mono-label max-md:text-[12px] mb-5 text-center text-signal">{t({ es: '¿Cómo podríamos…?', en: 'How might we…?' })}</p>
+      <p data-reveal className="mono-label mb-5 text-center text-signal">{t({ es: '¿Cómo podríamos…?', en: 'How might we…?' })}</p>
       <p ref={questionRef} className="relative mx-auto max-w-[30ch] text-balance text-center text-[clamp(1.5rem,1rem+2vw,2.8rem)] font-light leading-[1.3] tracking-tight">
         {QUESTION.map((q, i) => {
           if (q.p === undefined) return <span key={i} className="text-paper/55">{t(q.text)}</span>
@@ -176,6 +178,10 @@ export function SellUpIdea() {
       </p>
 
       {/* Los principios: un nodo por frase, en el mismo orden */}
+      {phone ? (
+        <PhonePrinciples activeP={activeP} picked={picked} onPick={pick} />
+      ) : (
+      <>
       <ol className="relative mx-auto mt-[clamp(5rem,4rem+5vw,8rem)] grid max-w-[880px] grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
         {ORDER.map((p, i) => {
           const on = p === activeP
@@ -193,7 +199,7 @@ export function SellUpIdea() {
                   <span className={`h-full w-full rounded-full border transition-all duration-500 ${on ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_4px_rgb(var(--signal)/0.7)]' : 'border-white/50 bg-void group-hover:border-white'}`} />
                   {i === ORDER.length - 1 && <span data-fiber-from="su-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
-                <span className="mt-4 font-mono text-[12px] md:text-[10px] uppercase tracking-[0.14em] text-paper/40">0{i + 1}</span>
+                <span className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/40">0{i + 1}</span>
                 <span className={`mt-1.5 text-balance text-[15px] leading-tight transition-opacity duration-500 ${on ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`}>{t(SHORT[p])}</span>
               </button>
             </li>
@@ -206,6 +212,55 @@ export function SellUpIdea() {
         <p className="text-balance text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light leading-snug">{t(principle.title)}</p>
         {picked && <p className="mt-2 text-balance text-sm leading-relaxed text-paper/60">{t(principle.body)}</p>}
       </div>
+      </>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Los principios en teléfono: de debajo de la pregunta baja una fibra y de
+ * ella cuelgan los cuatro, de pie. El encendido se abre ahí mismo con su
+ * frase; tocarlo da el detalle. Del último sale la fibra hacia «Bocetos».
+ */
+function PhonePrinciples({ activeP, picked, onPick }: { activeP: number; picked: boolean; onPick: (p: number) => void }) {
+  const { t } = useLocale()
+  const { idea } = SELLUP_CASE
+  return (
+    <div className="relative mx-auto mt-8 max-w-[360px]">
+      {/* El punto del que nace la fibra, bajo la pregunta */}
+      <span aria-hidden="true" className="mx-auto block h-2 w-2 rounded-full bg-[#fffaf0] shadow-[0_0_10px_rgb(var(--signal))]" />
+      <span aria-hidden="true" className="mx-auto block h-8 w-px bg-gradient-to-b from-[#7e2be0] to-signal/60" />
+      <ol className="relative rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-2">
+        {/* La fibra que recorre los principios */}
+        <span aria-hidden="true" className="absolute bottom-8 left-[27px] top-8 w-px bg-gradient-to-b from-[#7e2be0] via-signal/60 to-signal/30" />
+        {ORDER.map((p, i) => {
+          const on = p === activeP
+          const pr = idea.principles[p]
+          return (
+            <li key={p}>
+              <button type="button" aria-pressed={on && picked} onClick={() => onPick(p)} className="flex w-full gap-4 py-3.5 text-left outline-none">
+                <span className="relative mt-1 grid h-6 w-6 shrink-0 place-items-center" aria-hidden="true">
+                  {on && <span className="absolute inset-[-4px] rounded-full border border-signal/60 animate-[nav-node-ping_2.2s_cubic-bezier(0,0,.2,1)_infinite]" />}
+                  <span className={`h-3.5 w-3.5 rounded-full border transition-all duration-500 ${on ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_16px_3px_rgb(var(--signal)/0.7)]' : 'border-white/50 bg-void'}`} />
+                  {i === ORDER.length - 1 && <span data-fiber-from="su-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-baseline gap-2.5">
+                    <span className="font-mono text-[11px] tabular-nums text-paper/40">0{i + 1}</span>
+                    <span className={`text-[17px] leading-tight transition-opacity duration-500 ${on ? 'opacity-100' : 'opacity-55'}`}>{t(SHORT[p])}</span>
+                  </span>
+                  {on && (
+                    <span key={p} className="su-fade mt-2 block text-[14px] leading-relaxed text-paper/65">
+                      {t(pr.body)}
+                    </span>
+                  )}
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
     </div>
   )
 }

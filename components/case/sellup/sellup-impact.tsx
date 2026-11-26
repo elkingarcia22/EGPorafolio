@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { usePhone } from './camera'
 import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /**
@@ -64,6 +65,7 @@ export function SellUpImpact() {
   const [inView, setInView] = useState(false)
   const [phase, setPhase] = useState<Phase>(reducedMotion ? 'after' : 'before')
   const [heldUntil, setHeldUntil] = useState(0)
+  const phone = usePhone()
 
   useEffect(() => {
     const root = rootRef.current
@@ -108,7 +110,7 @@ export function SellUpImpact() {
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[960px]">
-      <p className="text-center font-mono text-[12px] md:text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
+      <p className="text-center font-mono text-[11px] uppercase tracking-[0.16em] text-paper/50 md:text-[10px] md:tracking-[0.18em] md:text-paper/45">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
 
       {/* Antes / Con SellUp: cambia solo; tocar uno lo fija un rato */}
       <div role="tablist" aria-label={t({ es: 'Escenario', en: 'Scenario' })} className="mx-auto mt-6 flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
@@ -129,7 +131,8 @@ export function SellUpImpact() {
         ))}
       </div>
 
-      {/* La semana: 40 horas en una barra; los tramos cambian de ancho */}
+      {/* La semana: 40 horas en una barra; los tramos cambian de ancho. En teléfono, 40 celdas de una hora */}
+      {phone ? <PhoneWeek segments={segments} selling={selling} after={after} num={num} /> : (
       <div className="mt-12">
         <div className="flex items-end justify-between gap-4">
           <p className="text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'La semana del vendedor', en: 'The rep’s week' })}</p>
@@ -158,13 +161,14 @@ export function SellUpImpact() {
           ))}
         </ul>
       </div>
+      )}
 
       {/* Leads y éxito del primer contacto */}
-      <div className="mt-14 grid gap-12 md:grid-cols-2">
+      <div className={phone ? 'mt-12 space-y-10' : 'mt-14 grid gap-12 md:grid-cols-2'}>
         <div>
-          <p className="font-mono text-[12px] md:text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal md:text-[10px]">{t({ es: 'Métrica norte', en: 'North star' })}</p>
           <p className="mt-2 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
-          <div className="mt-5 grid max-w-[230px] grid-cols-5 gap-2" aria-hidden="true">
+          <div className={`mt-5 grid grid-cols-5 ${phone ? 'max-w-[190px] gap-2.5' : 'max-w-[230px] gap-2'}`} aria-hidden="true">
             {Array.from({ length: LEAD_SLOTS }, (_, i) => {
               const on = i < s.leads
               const fresh = on && i >= SCENARIO.before.leads
@@ -188,8 +192,8 @@ export function SellUpImpact() {
           </p>
         </div>
 
-        <div className="flex items-center gap-8">
-          <svg viewBox="0 0 140 140" className="h-[150px] w-[150px] shrink-0 -rotate-90" aria-hidden="true">
+        <div className={`flex items-center ${phone ? 'gap-5' : 'gap-8'}`}>
+          <svg viewBox="0 0 140 140" className={`shrink-0 -rotate-90 ${phone ? 'h-[118px] w-[118px]' : 'h-[150px] w-[150px]'}`} aria-hidden="true">
             <circle cx={70} cy={70} r={R} fill="none" stroke="white" strokeOpacity={0.1} strokeWidth={10} />
             <circle cx={70} cy={70} r={R} fill="none" stroke="rgb(var(--signal))" strokeWidth={10} strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC * (1 - success / 100)} style={{ filter: 'drop-shadow(0 0 8px rgb(var(--signal) / 0.6))' }} />
           </svg>
@@ -205,6 +209,67 @@ export function SellUpImpact() {
       <span aria-hidden="true" className="relative mx-auto mt-14 block h-2.5 w-2.5 rounded-full border border-white/70 bg-signal shadow-[0_0_14px_rgb(var(--signal))]">
         <span data-fiber-from="su-demo" className="absolute left-1/2 top-1/2 h-px w-px" />
       </span>
+    </div>
+  )
+}
+
+interface Segment {
+  key: string
+  label: L
+  hours: number
+  color: string
+}
+
+/** Columnas de la cuadrícula de la semana en teléfono (40 h = 8 × 5) */
+const WEEK_COLS = 8
+
+/**
+ * La semana en teléfono: 40 celdas, una por hora. Se pintan en orden, ámbar
+ * para buscar empresas, rojo para buscar contactos y el resto para vender;
+ * al pasar a «Con SellUp» las búsquedas se encogen y casi toda la semana
+ * queda para vender.
+ */
+function PhoneWeek({ segments, selling, after, num }: { segments: readonly Segment[]; selling: number; after: boolean; num: (n: number, d?: number) => string }) {
+  const { t } = useLocale()
+  // Hasta qué hora llega cada tramo
+  const ends = segments.reduce<number[]>((acc, seg) => [...acc, (acc[acc.length - 1] ?? 0) + seg.hours], [])
+  const colorAt = (h: number) => segments[ends.findIndex((e) => h < e)] ?? segments[segments.length - 1]
+  return (
+    <div className="mt-10">
+      <p className="text-[17px] font-light">{t({ es: 'La semana del vendedor', en: 'The rep’s week' })}</p>
+      <p className="mt-1">
+        <span className="text-[3.2rem] font-light leading-none tabular-nums" style={{ filter: after ? 'drop-shadow(0 0 22px rgb(var(--signal) / 0.5))' : 'none' }}>{num(selling)} h</span>
+        <span className="ml-2 text-[14px] text-paper/60">{t({ es: 'para vender', en: 'to sell' })}</span>
+      </p>
+      <div className="mt-5 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${WEEK_COLS}, minmax(0, 1fr))` }} aria-hidden="true">
+        {Array.from({ length: WEEK_H }, (_, h) => {
+          // Celda partida: la hora donde cambia de tramo se pinta en dos colores
+          const seg = colorAt(h)
+          const next = colorAt(h + 0.5)
+          const bg = (c: Segment) => (c.key === 'sell' ? 'rgb(var(--signal) / 0.7)' : c.color)
+          return (
+            <span
+              key={h}
+              className="aspect-square rounded-[5px] transition-[background] duration-700"
+              style={{
+                background: seg.key === next.key ? bg(seg) : `linear-gradient(90deg, ${bg(seg)} 50%, ${bg(next)} 50%)`,
+                boxShadow: seg.key === 'sell' && after ? '0 0 10px rgb(var(--signal) / 0.45)' : 'none',
+                transitionDelay: `${h * 12}ms`,
+              }}
+            />
+          )
+        })}
+      </div>
+      <p className="mt-2 font-mono text-[11px] text-paper/45">{t({ es: '1 celda = 1 hora · 40 h a la semana', en: '1 cell = 1 hour · 40 h a week' })}</p>
+      <ul className="mt-5 space-y-2.5 text-[15px]">
+        {segments.map((seg) => (
+          <li key={seg.key} className="flex items-center gap-3">
+            <span className="h-3 w-3 shrink-0 rounded-[3px]" style={{ background: seg.color }} />
+            <span className="text-paper/75">{t(seg.label)}</span>
+            <span className="ml-auto tabular-nums">{num(seg.hours)} h</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

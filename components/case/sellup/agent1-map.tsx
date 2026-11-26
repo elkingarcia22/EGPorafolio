@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
-import { useNarrow } from './camera'
+import { usePhone } from './camera'
 import { useLocale, type L } from '@/lib/i18n'
 
 /** Cada cuánto se enciende el país siguiente (ms) */
@@ -105,8 +105,8 @@ export function Agent1Map() {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const dots = useMemo(buildDots, [])
-  /** En teléfono el mapa se dibuja a ~0,6×: la etiqueta de España se dobla para seguir leyéndose */
-  const narrow = useNarrow()
+  /** En teléfono: el mapa sin letras y los países como fichas HTML que se encienden */
+  const phone = usePhone()
   const [inView, setInView] = useState(false)
   /** Cuántos países van encendidos */
   const [lit, setLit] = useState(reducedMotion ? COUNTRIES.length : 0)
@@ -155,7 +155,7 @@ export function Agent1Map() {
 
   return (
     <div ref={rootRef} className="mx-auto grid max-w-[940px] items-center gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <svg viewBox="20 10 580 550" className="mx-auto w-full max-w-[460px] overflow-visible" role="img" aria-label={t({ es: 'Mapa de los 20 países donde vende UBITS, que se llena a medida que el agente encuentra empresas', en: 'Map of the 20 countries where UBITS sells, filling up as the agent finds companies' })}>
+      <svg viewBox="20 10 580 550" className={`mx-auto w-full overflow-visible ${phone ? "max-w-[300px]" : "max-w-[460px]"}`} role="img" aria-label={t({ es: 'Mapa de los 20 países donde vende UBITS, que se llena a medida que el agente encuentra empresas', en: 'Map of the 20 countries where UBITS sells, filling up as the agent finds companies' })}>
         {dots.map((d, i) => {
           const on = d.c >= 0 && d.c < lit
           const fresh = on && d.c === lit - 1
@@ -175,10 +175,10 @@ export function Agent1Map() {
           )
         })}
         {/* España, fuera del mapa: un nodo aparte que se enciende de último */}
-        <g transform="translate(560 120)">
+        {!phone && <g transform="translate(560 120)">
           <circle r={7} fill={lit >= COUNTRIES.length ? 'rgb(var(--signal))' : 'rgb(var(--void))'} stroke="white" strokeOpacity={lit >= COUNTRIES.length ? 1 : 0.4} style={{ transition: 'fill .5s' }} />
-          <text y={narrow ? -18 : -14} textAnchor="middle" className="fill-paper font-mono uppercase" fontSize={narrow ? 20 : 10} letterSpacing="0.12em" opacity={narrow ? 0.75 : 0.55}>{t({ es: 'España', en: 'Spain' })}</text>
-        </g>
+          <text y={-14} textAnchor="middle" className="fill-paper font-mono uppercase" fontSize={10} letterSpacing="0.12em" opacity={0.55}>{t({ es: 'España', en: 'Spain' })}</text>
+        </g>}
       </svg>
 
       <div className="text-center md:text-left">
@@ -187,12 +187,25 @@ export function Agent1Map() {
         <div className="mt-5 flex items-center justify-center gap-3 md:justify-start">
           <span className="font-mono text-[12px] tabular-nums text-signal">{String(Math.min(lit, COUNTRIES.length)).padStart(2, '0')} / {COUNTRIES.length}</span>
           <span className="text-[12px] text-paper/50">{t({ es: 'países', en: 'countries' })}</span>
-          {current && <span key={current.code} className="su-fade rounded-full border border-white/15 px-2.5 py-0.5 text-[12px] text-paper/80">{t(current.name)}</span>}
+          {current && !phone && <span key={current.code} className="su-fade rounded-full border border-white/15 px-2.5 py-0.5 text-[12px] text-paper/80">{t(current.name)}</span>}
         </div>
         <span aria-hidden="true" className="mt-5 block h-1 w-full max-w-[320px] overflow-hidden rounded-full bg-white/10 max-md:mx-auto">
           <span className="block h-full origin-left rounded-full bg-gradient-to-r from-[#285ee6] via-[#7e2be0] to-[#d22d6a] transition-transform duration-500 ease-out" style={{ transform: `scaleX(${Math.min(lit, COUNTRIES.length) / COUNTRIES.length})` }} />
         </span>
-        <p className="mt-5 text-[12px] leading-relaxed text-paper/45">{t({ es: 'Total real en Producción, del 11 al 25 de nov. de 2026.', en: 'Real total in Production, Nov 11–25, 2026.' })}</p>
+        {phone && (
+          <ul className="mt-6 flex flex-wrap justify-center gap-1.5" aria-label={t({ es: 'Países recorridos', en: 'Countries covered' })}>
+            {COUNTRIES.map((c) => c.name).map((name, i) => {
+              const on = i < lit
+              const fresh = i === lit - 1
+              return (
+                <li key={name.es} className={`rounded-full border px-2.5 py-1 text-[12px] transition-all duration-500 ${fresh ? 'border-white bg-signal text-on-signal shadow-[0_0_14px_rgb(var(--signal)/0.7)]' : on ? 'border-signal/50 bg-signal/10 text-paper/90' : 'border-white/10 text-paper/35'}`}>
+                  {t(name)}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+        <p className={`mt-5 text-[12px] leading-relaxed ${phone ? "text-paper/55" : "text-paper/45"}`}>{t({ es: 'Total real en Producción, del 11 al 25 de nov. de 2026.', en: 'Real total in Production, Nov 11–25, 2026.' })}</p>
       </div>
     </div>
   )
