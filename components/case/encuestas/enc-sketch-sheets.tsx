@@ -8,6 +8,8 @@ import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 import type { Iteration } from '@/lib/content/cases/encuestas/types'
 import { useAutoplay } from '../objetivos/use-autoplay'
 import { SKETCH_BOARDS } from './enc-sketch-boards'
+import { PHONE_BOARD_RATIO, SKETCH_BOARDS_PHONE } from './enc-sketch-boards-phone'
+import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
 
 const ITERATIONS = ENCUESTAS_CASE.iterations
 const STEP_MS = 4200
@@ -40,6 +42,8 @@ export function EncSketchSheets() {
   const { index, go } = useAutoplay(rootRef, { count: ITERATIONS.length, ms: STEP_MS, loop: true, disabled: reducedMotion, hold: picked })
   const it = ITERATIONS[index]
   const sheetRefs = useRef<(HTMLDivElement | null)[]>([])
+  // En el teléfono, cada hoja es un tablero vertical con letra grande (no el ancho encogido)
+  const wide = useMedia(TABLET_QUERY)
 
   // Al posarse una hoja, sus notas se pegan y sus trazos se dibujan.
   useEffect(() => {
@@ -54,11 +58,11 @@ export function EncSketchSheets() {
 
   return (
     <div ref={rootRef} className="flex flex-col items-center">
-      {/* La pila de hojas: las ya pasadas quedan debajo, la actual se posa encima (en teléfono se desliza para leerla) */}
-      <div className="w-full overflow-x-auto overscroll-x-contain px-2 py-6 md:overflow-visible md:p-0">
-      <div data-reveal-off className="enc-sheets relative mx-auto w-full min-w-[640px] md:min-w-0 max-w-[min(820px,calc((100svh-18rem)*1.76))]" style={{ aspectRatio: '1200 / 680', perspective: '1600px' }}>
+      {/* La pila de hojas: las ya pasadas quedan debajo, la actual se posa encima */}
+      <div className="w-full px-3 py-4 md:p-0">
+      <div data-reveal-off className={`enc-sheets relative mx-auto w-full ${wide ? 'max-w-[min(820px,calc((100svh-18rem)*1.76))]' : 'max-w-[400px]'}`} style={{ aspectRatio: wide ? '1200 / 680' : PHONE_BOARD_RATIO, perspective: '1600px' }}>
         {ITERATIONS.map((x, i) => {
-          const { Board } = SKETCH_BOARDS[i]
+          const Board = wide ? SKETCH_BOARDS[i].Board : SKETCH_BOARDS_PHONE[i]
           const on = i === index
           const under = i < index
           const p = UNDER[i]
@@ -106,7 +110,7 @@ export function EncSketchSheets() {
                 aria-pressed={on}
                 className={`rounded-full border px-3.5 py-1.5 text-[13px] transition-colors duration-300 ${on ? 'border-signal bg-signal/15 text-paper' : 'border-white/15 text-paper/55 hover:border-white/35 hover:text-paper'}`}
               >
-                <span className="mr-1.5 font-mono text-[10px] text-signal">V{i + 1}</span>
+                <span className="mr-1.5 font-mono text-[11px] md:text-[10px] text-signal">V{i + 1}</span>
                 {t(SHORT[x.shape])}
               </button>
             </li>
@@ -117,8 +121,8 @@ export function EncSketchSheets() {
       <div key={`${index}-${picked}`} className="obj-fade mx-auto mt-6 min-h-[4.5rem] w-full max-w-[820px]" aria-live="polite">
         {picked ? (
           <div className="grid gap-5 md:grid-cols-2">
-            <p className="border-l border-white/15 pl-4 text-sm leading-relaxed text-paper/60"><span className="mb-1 block font-mono text-[10px] uppercase tracking-[0.14em]">{t({ es: 'Se descartó', en: 'Dropped' })}</span>{t(it.dropped)}</p>
-            <p className="border-l border-signal/60 pl-4 text-sm leading-relaxed text-paper/85"><span className="mb-1 block font-mono text-[10px] uppercase tracking-[0.14em] text-signal">{t({ es: 'Quedó', en: 'Kept' })}</span>{t(it.kept)}</p>
+            <p className="border-l border-white/15 pl-4 text-sm leading-relaxed text-paper/60"><span className="mb-1 block font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em]">{t({ es: 'Se descartó', en: 'Dropped' })}</span>{t(it.dropped)}</p>
+            <p className="border-l border-signal/60 pl-4 text-sm leading-relaxed text-paper/85"><span className="mb-1 block font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-signal">{t({ es: 'Quedó', en: 'Kept' })}</span>{t(it.kept)}</p>
           </div>
         ) : (
           <p className="text-center font-mono text-[11px] uppercase tracking-[0.12em] text-paper/50">{it.name} · {t(it.when)}</p>

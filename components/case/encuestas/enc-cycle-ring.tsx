@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
+import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
 
 const STATIONS = ENCUESTAS_CASE.dots.stations
 /** Los momentos que no existían: sin importación y sin experiencia para responder */
@@ -30,6 +31,21 @@ const LAST = STATIONS.length + 1
 const AUTO = { intro: 900, step: 520 }
 
 /**
+ * En el teléfono el anillo encogido dejaba los nombres en 7 px: ahí el ciclo
+ * se dibuja como una columna (de crear a actuar) con un arco que vuelve al
+ * principio. Medidas casi 1:1 con la pantalla, así que la letra es la real.
+ */
+const PH = { w: 340, h: 470, x: 46, looseX: 104, top: 130, row: 62, label: 15, sub: 13 } as const
+const phonePoint = (i: number, on: boolean) => ({ x: on ? PH.x : PH.looseX, y: PH.top + i * PH.row })
+const phoneSeg = (i: number) => {
+  const last = i === STATIONS.length - 1
+  const a = phonePoint(i, true)
+  const b = phonePoint(last ? 0 : i + 1, true)
+  // El último tramo vuelve de «Actuar» a «Crear» por la izquierda: el ciclo se cierra
+  return last ? `M${a.x} ${a.y} C 6 ${a.y}, 6 ${b.y}, ${b.x} ${b.y}` : `M${a.x} ${a.y} L${b.x} ${b.y}`
+}
+
+/**
  * 01 · Los puntos: el ciclo de una medición como un anillo de seis momentos.
  * Antes, dos no existían (traer el histórico y responder) y caían hacia dentro.
  * Al entrar, el anillo se recorre momento a momento hasta cerrarse y una señal
@@ -42,6 +58,7 @@ export function EncCycleRing() {
   const [step, setStep] = useState(reducedMotion ? LAST : 0)
   const [inView, setInView] = useState(false)
   const [picked, setPicked] = useState<number | null>(null)
+  const wide = useMedia(TABLET_QUERY)
   const closed = step === LAST
   const current = step >= 1 && step <= STATIONS.length ? step - 1 : null
   const onRing = (i: number) => closed || !MISSING.has(STATIONS[i].id) || (current !== null && i <= current)
@@ -73,8 +90,8 @@ export function EncCycleRing() {
         {picked !== null && st ? (
           <>
             <p className="mono-label text-signal">0{picked + 1} · {t(st.name)} · {t(st.who)}</p>
-            <p className="mt-3 text-sm leading-relaxed text-paper/50 md:text-base"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.14em]">{t({ es: 'Antes', en: 'Before' })}</span>{t(st.before)}</p>
-            <p className="mt-1.5 text-balance text-[clamp(1.05rem,0.95rem+0.5vw,1.35rem)] font-light leading-snug"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.14em] text-signal">{t({ es: 'Ahora', en: 'Now' })}</span>{t(st.after)}</p>
+            <p className="mt-3 text-sm leading-relaxed text-paper/50 md:text-base"><span className="mr-2 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em]">{t({ es: 'Antes', en: 'Before' })}</span>{t(st.before)}</p>
+            <p className="mt-1.5 text-balance text-[clamp(1.05rem,0.95rem+0.5vw,1.35rem)] font-light leading-snug"><span className="mr-2 font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-signal">{t({ es: 'Ahora', en: 'Now' })}</span>{t(st.after)}</p>
           </>
         ) : (
           <>
@@ -88,21 +105,21 @@ export function EncCycleRing() {
         )}
       </div>
 
-      <div className="relative mx-auto mt-4 w-full max-w-[760px]">
-        <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto max-h-[56vh] w-full overflow-visible" role="group" aria-label={t({ es: 'Los seis momentos de una medición', en: 'The six moments of a measurement' })}>
+      <div className="relative mx-auto mt-4 w-full max-w-[340px] md:max-w-[760px]">
+        <svg viewBox={wide ? `0 0 ${W} ${H}` : `0 0 ${PH.w} ${PH.h}`} className="block h-auto w-full overflow-visible md:max-h-[56vh]" role="group" aria-label={t({ es: 'Los seis momentos de una medición', en: 'The six moments of a measurement' })}>
           <defs>
             <linearGradient id="enc-ring" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0" stopColor="rgb(var(--signal))" />
               <stop offset="1" stopColor="rgb(var(--spark))" />
             </linearGradient>
           </defs>
-          <circle cx={C.x} cy={C.y} r={R} fill="none" stroke="white" strokeOpacity={0.07} />
+          {wide && <circle cx={C.x} cy={C.y} r={R} fill="none" stroke="white" strokeOpacity={0.07} />}
           {STATIONS.map((s, i) => {
             const lit = onRing(i) && onRing((i + 1) % STATIONS.length)
             return (
               <path
                 key={s.id}
-                d={arc(i)}
+                d={wide ? arc(i) : phoneSeg(i)}
                 pathLength={1}
                 fill="none"
                 stroke="url(#enc-ring)"
@@ -115,22 +132,22 @@ export function EncCycleRing() {
             )
           })}
           {/* La señal que rodea el anillo cuando ya está cerrado */}
-          <circle cx={C.x} cy={C.y} r={R} fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" pathLength={1} strokeDasharray="0.04 0.96" transform={`rotate(-90 ${C.x} ${C.y})`} className="dots-signal" style={{ opacity: closed ? 1 : 0, transition: 'opacity .6s .3s', filter: 'drop-shadow(0 0 6px white)' }} />
+          {wide && <circle cx={C.x} cy={C.y} r={R} fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" pathLength={1} strokeDasharray="0.04 0.96" transform={`rotate(-90 ${C.x} ${C.y})`} className="dots-signal" style={{ opacity: closed ? 1 : 0, transition: 'opacity .6s .3s', filter: 'drop-shadow(0 0 6px white)' }} />}
 
           {/* En el centro: cuántos momentos cubre el producto */}
-          <text x={C.x} y={C.y + 14} textAnchor="middle" className="fill-current" fontSize={84} fontWeight={300}>
+          <text x={wide ? C.x : PH.w / 2} y={wide ? C.y + 14 : 58} textAnchor="middle" className="fill-current" fontSize={wide ? 84 : 58} fontWeight={300}>
             <tspan key={STATIONS.filter((_, i) => onRing(i)).length} className="ms-value">{STATIONS.filter((_, i) => onRing(i)).length}</tspan>
-            <tspan fontSize={30} className="opacity-40">/6</tspan>
+            <tspan fontSize={wide ? 30 : 24} className="opacity-40">/6</tspan>
           </text>
-          <text x={C.x} y={C.y + 50} textAnchor="middle" className="enc-ring-sub fill-current font-mono uppercase opacity-50" letterSpacing="0.14em">
+          <text x={wide ? C.x : PH.w / 2} y={wide ? C.y + 50 : 86} textAnchor="middle" className="enc-ring-sub fill-current font-mono uppercase opacity-50" letterSpacing="0.14em" style={wide ? undefined : { fontSize: PH.sub }}>
             {step === 0 ? t({ es: 'existían antes', en: 'existed before' }) : t({ es: 'en el rediseño', en: 'in the redesign' })}
           </text>
 
           {STATIONS.map((s, i) => {
             const on = onRing(i)
-            const p = on ? pointAt(i) : pointAt(i, LOOSE_R)
-            // En el anillo, el nombre va por fuera; suelto, debajo del punto
-            const label = on ? pointAt(i, R + 46) : { x: p.x, y: p.y + 34 }
+            const p = !wide ? phonePoint(i, on) : on ? pointAt(i) : pointAt(i, LOOSE_R)
+            // En el anillo, el nombre va por fuera; suelto, debajo del punto; en la columna del teléfono, a la derecha
+            const label = !wide ? { x: p.x + 28, y: p.y } : on ? pointAt(i, R + 46) : { x: p.x, y: p.y + 34 }
             const isPicked = picked === i
             const isCurrent = current === i && picked === null
             const choose = () => setPicked(isPicked ? null : i)
@@ -162,10 +179,10 @@ export function EncCycleRing() {
                   x={label.x}
                   y={label.y}
                   dy="0.35em"
-                  textAnchor={!on || Math.abs(label.x - C.x) < 10 ? 'middle' : label.x > C.x ? 'start' : 'end'}
+                  textAnchor={!wide ? 'start' : !on || Math.abs(label.x - C.x) < 10 ? 'middle' : label.x > C.x ? 'start' : 'end'}
                   className="enc-ring-label pointer-events-none fill-current font-mono uppercase"
                   letterSpacing="0.12em"
-                  style={{ opacity: isPicked ? 1 : on ? 0.85 : 0.4, transition: 'opacity .6s, x .6s cubic-bezier(.16,1,.3,1), y .6s cubic-bezier(.16,1,.3,1)' }}
+                  style={{ fontSize: wide ? undefined : PH.label, opacity: isPicked ? 1 : on ? 0.85 : 0.5, transition: 'opacity .6s, x .6s cubic-bezier(.16,1,.3,1), y .6s cubic-bezier(.16,1,.3,1)' }}
                 >
                   {t(s.name)}
                 </text>

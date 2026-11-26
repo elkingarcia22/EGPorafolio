@@ -31,10 +31,10 @@ html[data-motion='reduced'] .enc-pop { animation: none; }
   .enc-ring-label { font-size: 22px; letter-spacing: 0.04em; }
   .enc-ring-sub { font-size: 18px; }
   .enc-layer-label { font-size: 26px; }
-  .enc-layer-sub { font-size: 16px; }
+  .enc-layer-sub { font-size: 17px; }
   .enc-layer-insight { font-size: 24px; }
   .enc-fan-name { font-size: 22px; }
-  .enc-fan-sub { font-size: 15px; letter-spacing: 0.04em; }
+  .enc-fan-sub { font-size: 17px; letter-spacing: 0.04em; }
 }
 
 /* Bocetos en hojas apiladas: cada hoja es un tablero del kit, al ancho de la pila (sin título, mínimo ni desliz) */
