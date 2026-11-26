@@ -164,72 +164,54 @@ export function SellUpImpact() {
       )}
 
       {/* Leads y éxito del primer contacto */}
-      <div className={phone ? 'mt-12 space-y-10' : 'mt-14 grid gap-12 md:grid-cols-2'}>
-        {/* En el teléfono, la cuadrícula a un lado y los textos al otro (como el anillo de abajo): sin hueco a la derecha */}
-        <div className={phone ? 'flex items-center gap-5' : ''}>
-          {phone && (
-            <div className={`grid w-[118px] shrink-0 grid-cols-5 gap-1.5`} aria-hidden="true">
-              {Array.from({ length: LEAD_SLOTS }, (_, i) => {
-                const on = i < s.leads
-                const fresh = on && i >= SCENARIO.before.leads
-                return (
-                  <span
-                    key={i}
-                    className="aspect-square rounded-full border transition-all duration-500"
-                    style={{
-                      background: on ? (fresh ? 'rgb(var(--signal))' : 'rgb(255 255 255 / 0.75)') : 'transparent',
-                      borderColor: on ? 'transparent' : 'rgb(255 255 255 / 0.15)',
-                      transform: on ? 'scale(1)' : 'scale(0.7)',
-                      boxShadow: fresh ? '0 0 12px rgb(var(--signal) / 0.7)' : 'none',
-                      transitionDelay: `${(on ? i - SCENARIO.before.leads : LEAD_SLOTS - i) * 30}ms`,
-                    }}
-                  />
-                )
-              })}
-            </div>
-          )}
-          <div className="min-w-0">
+      {phone ? (
+        // Teléfono: dos tarjetas a lo ancho. Arriba, la cifra grande; abajo, su gráfico ocupando todo el ancho.
+        <div className="mt-12 space-y-4">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
+            <p className="mt-1.5 text-[17px] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
+            <p className="mt-4 flex items-baseline gap-2">
+              <span className="shrink-0 text-[3rem] font-light leading-none tabular-nums text-paper">{s.leads}</span>
+              <span className="text-[14px] text-paper/70">{t({ es: 'empresas listas para trabajar', en: 'companies ready to work' })}</span>
+            </p>
+            <LeadDots leads={s.leads} className="mt-5 grid-cols-[repeat(13,minmax(0,1fr))] gap-1.5" />
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-[17px] font-light">{t({ es: 'Éxito del primer contacto', en: 'First-contact success' })}</p>
+            <p className="mt-4 flex items-baseline gap-2">
+              <span className="shrink-0 whitespace-nowrap text-[3rem] font-light leading-none tabular-nums">{num(success, 0)} %</span>
+              <span className="text-[14px] text-paper/70">{t({ es: 'de los primeros contactos logran respuesta', en: 'of first contacts get a reply' })}</span>
+            </p>
+            {/* La misma proporción, como una barra que se llena a lo ancho */}
+            <span aria-hidden="true" className="relative mt-5 block h-2.5 overflow-hidden rounded-full bg-white/10">
+              <span className="absolute inset-y-0 left-0 rounded-full bg-signal shadow-[0_0_12px_rgb(var(--signal)/0.7)] transition-[width] duration-700 ease-out" style={{ width: `${success}%` }} />
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-14 grid gap-12 md:grid-cols-2">
+          <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
             <p className="mt-2 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
-            {!phone && (
-          <div className={`mt-5 grid max-w-[230px] grid-cols-5 gap-2`} aria-hidden="true">
-            {Array.from({ length: LEAD_SLOTS }, (_, i) => {
-              const on = i < s.leads
-              const fresh = on && i >= SCENARIO.before.leads
-              return (
-                <span
-                  key={i}
-                  className="aspect-square rounded-full border transition-all duration-500"
-                  style={{
-                    background: on ? (fresh ? 'rgb(var(--signal))' : 'rgb(255 255 255 / 0.75)') : 'transparent',
-                    borderColor: on ? 'transparent' : 'rgb(255 255 255 / 0.15)',
-                    transform: on ? 'scale(1)' : 'scale(0.7)',
-                    boxShadow: fresh ? '0 0 12px rgb(var(--signal) / 0.7)' : 'none',
-                    transitionDelay: `${(on ? i - SCENARIO.before.leads : LEAD_SLOTS - i) * 30}ms`,
-                  }}
-                />
-              )
-            })}
-          </div>
-            )}
+            <LeadDots leads={s.leads} className="mt-5 max-w-[230px] grid-cols-5 gap-2" />
             <p className="mt-4 text-[13px] text-paper/60">
               <span className="text-[1.6rem] font-light tabular-nums text-paper">{s.leads}</span> {t({ es: 'empresas listas para trabajar', en: 'companies ready to work' })}
             </p>
           </div>
-        </div>
 
-        <div className={`flex items-center ${phone ? 'gap-5' : 'gap-8'}`}>
-          <svg viewBox="0 0 140 140" className={`shrink-0 -rotate-90 ${phone ? 'h-[118px] w-[118px]' : 'h-[150px] w-[150px]'}`} aria-hidden="true">
-            <circle cx={70} cy={70} r={R} fill="none" stroke="white" strokeOpacity={0.1} strokeWidth={10} />
-            <circle cx={70} cy={70} r={R} fill="none" stroke="rgb(var(--signal))" strokeWidth={10} strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC * (1 - success / 100)} style={{ filter: 'drop-shadow(0 0 8px rgb(var(--signal) / 0.6))' }} />
-          </svg>
-          <div>
-            <p className="text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Éxito del primer contacto', en: 'First-contact success' })}</p>
-            <p className="mt-2 text-[clamp(2.2rem,1.4rem+3vw,3.6rem)] font-light leading-none tabular-nums">{num(success, 0)} %</p>
-            <p className="mt-2 text-[13px] text-paper/60">{t({ es: 'de los primeros contactos logran respuesta', en: 'of first contacts get a reply' })}</p>
+          <div className="flex items-center gap-8">
+            <svg viewBox="0 0 140 140" className="h-[150px] w-[150px] shrink-0 -rotate-90" aria-hidden="true">
+              <circle cx={70} cy={70} r={R} fill="none" stroke="white" strokeOpacity={0.1} strokeWidth={10} />
+              <circle cx={70} cy={70} r={R} fill="none" stroke="rgb(var(--signal))" strokeWidth={10} strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC * (1 - success / 100)} style={{ filter: 'drop-shadow(0 0 8px rgb(var(--signal) / 0.6))' }} />
+            </svg>
+            <div>
+              <p className="text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Éxito del primer contacto', en: 'First-contact success' })}</p>
+              <p className="mt-2 text-[clamp(2.2rem,1.4rem+3vw,3.6rem)] font-light leading-none tabular-nums">{num(success, 0)} %</p>
+              <p className="mt-2 text-[13px] text-paper/60">{t({ es: 'de los primeros contactos logran respuesta', en: 'of first contacts get a reply' })}</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* De aquí baja la fibra hacia «Demo» */}
       <span aria-hidden="true" className="relative mx-auto mt-14 block h-2.5 w-2.5 rounded-full border border-white/70 bg-signal shadow-[0_0_14px_rgb(var(--signal))]">
@@ -296,6 +278,31 @@ function PhoneWeek({ segments, selling, after, num }: { segments: readonly Segme
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+/** Los cupos de leads de la semana: los de antes en blanco, los que suma SellUp encendidos. */
+function LeadDots({ leads, className }: { leads: number; className: string }) {
+  return (
+    <div className={`grid ${className}`} aria-hidden="true">
+      {Array.from({ length: LEAD_SLOTS }, (_, i) => {
+        const on = i < leads
+        const fresh = on && i >= SCENARIO.before.leads
+        return (
+          <span
+            key={i}
+            className="aspect-square rounded-full border transition-all duration-500"
+            style={{
+              background: on ? (fresh ? 'rgb(var(--signal))' : 'rgb(255 255 255 / 0.75)') : 'transparent',
+              borderColor: on ? 'transparent' : 'rgb(255 255 255 / 0.15)',
+              transform: on ? 'scale(1)' : 'scale(0.7)',
+              boxShadow: fresh ? '0 0 12px rgb(var(--signal) / 0.7)' : 'none',
+              transitionDelay: `${(on ? i - SCENARIO.before.leads : LEAD_SLOTS - i) * 30}ms`,
+            }}
+          />
+        )
+      })}
     </div>
   )
 }
