@@ -13,8 +13,6 @@ const ZOOMABLE = '[data-zoomable]'
 const BOARD_MARGIN = { x: 24, y: 160 }
 /** Sensibilidad de la rueda del ratón al acercar */
 const WHEEL_ZOOM = 0.0015
-/** Cada cuánto, como mucho, se mira qué pantalla queda bajo el cursor (ms) */
-const HOVER_THROTTLE_MS = 60
 /** Las pantallas de los productos viven en esta carpeta */
 const SCREENS_PATH = '/cases/'
 /** Imágenes más angostas que esto (px) son íconos o adornos, no pantallas */
@@ -63,12 +61,31 @@ function isThumbnail(img: HTMLImageElement): boolean {
   return img.getBoundingClientRect().width < THUMB_MAX_WIDTH && !!img.closest('button, [role="tab"], [role="button"]')
 }
 
-/** ¿Es la lámina que está al frente en un carrusel? (marcada como actual, elegida o activa) */
-function isFrontControl(control: Element | null): boolean {
-  return !!control && ['aria-current', 'aria-selected', 'aria-pressed'].some((k) => {
-    const v = control.getAttribute(k)
-    return v !== null && v !== 'false'
+/** Opacidad mínima para considerar que una pantalla se está viendo */
+const VISIBLE_OPACITY = 0.3
+
+/** ¿Se ve? (ni oculta ni casi transparente, sumando la opacidad de lo que la contiene) */
+function isShown(el: Element): boolean {
+  let opacity = 1
+  for (let node: Element | null = el; node && node !== document.body; node = node.parentElement) {
+    const style = getComputedStyle(node)
+    if (style.visibility === 'hidden' || style.display === 'none') return false
+    opacity *= Number(style.opacity)
+  }
+  return opacity >= VISIBLE_OPACITY
+}
+
+/**
+ * Pantallas que no reciben clics (`pointer-events: none`, para no estorbar a la animación que tienen
+ * encima): la última visible bajo el punto, que es la que queda al frente.
+ */
+function hiddenScreenshotAt(x: number, y: number): HTMLImageElement | null {
+  const found = Array.from(document.querySelectorAll<HTMLImageElement>('main img')).filter((img) => {
+    if (getComputedStyle(img).pointerEvents !== 'none' || !isScreenshot(img)) return false
+    const r = img.getBoundingClientRect()
+    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom && isShown(img)
   })
+  return found.at(-1) ?? null
 }
 
 /** Lo que se puede tocar encima de una pantalla (flechas, botones): esos toques no la abren */
@@ -78,23 +95,18 @@ const INTERACTIVE = 'button, a, input, select, textarea, [role="tab"], [role="bu
  * La pantalla que quedó bajo el dedo, aunque encima haya una capa decorativa (un velo, un
  * marco). Si lo tocado es un botón o un enlace que no la contiene, el toque es de ese control.
  */
-function screenshotAt(e: MouseEvent, narrow: boolean): HTMLImageElement | null {
+function screenshotAt(e: MouseEvent): HTMLImageElement | null {
   const target = e.target instanceof Element ? e.target : null
   if (!target) return null
   const img =
-    target instanceof HTMLImageElement
-      ? isScreenshot(target)
-        ? target
-        : null
-      : (document.elementsFromPoint(e.clientX, e.clientY).find((el): el is HTMLImageElement => el instanceof HTMLImageElement && isScreenshot(el)) ?? null)
+    (target instanceof HTMLImageElement && isScreenshot(target) ? target : null) ??
+    document.elementsFromPoint(e.clientX, e.clientY).find((el): el is HTMLImageElement => el instanceof HTMLImageElement && isScreenshot(el)) ??
+    hiddenScreenshotAt(e.clientX, e.clientY)
   if (!img) return null
   const control = target.closest(INTERACTIVE)
-  // Un botón o enlace que no la contiene se queda con el clic. Uno que la contiene (una lámina
-  // que se elige, por ejemplo) solo cede el toque en el teléfono.
-  // La lámina que ya está al frente (aria-current / -selected / -pressed) se amplía al tocarla, también
-  // en escritorio; las de los lados se eligen.
-  const isFront = isFrontControl(control)
-  if (control && (!control.contains(img) || isThumbnail(img) || (!narrow && !isFront))) return null
+  // Un botón que no la contiene se queda con el clic; una lámina que la contiene se amplía (las
+  // miniaturas de un selector, no: esas eligen).
+  if (control && (!control.contains(img) || isThumbnail(img))) return null
   return img
 }
 
@@ -116,7 +128,7 @@ function boardCopy(board: HTMLElement): HTMLElement {
 }
 
 /** Lo que hay que ampliar bajo el clic: un tablero de bocetos o una pantalla del producto */
-function zoomTarget(e: MouseEvent, narrow: boolean): Shot | null {
+function zoomTarget(e: MouseEvent): Shot | null {
   const target = e.target instanceof Element ? e.target : null
   if (!target) return null
   // Una pieza que, al tocarla, amplía otra (p. ej. la tarjeta del teléfono abre el boceto completo)
@@ -135,7 +147,7 @@ function zoomTarget(e: MouseEvent, narrow: boolean): Shot | null {
       alt: board.getAttribute('aria-label') ?? '',
     }
   }
-  const img = screenshotAt(e, narrow)
+  const img = screenshotAt(e)
   return img ? { kind: 'img', src: originalSrc(img), alt: img.alt } : null
 }
 
@@ -148,45 +160,10 @@ export function ScreenshotZoom() {
   const { t } = useLocale()
   const [shot, setShot] = useState<Shot | null>(null)
   const [narrow, setNarrow] = useState(false)
-  /** Escritorio: la pantalla bajo el cursor que vive dentro de un botón (su clic es del botón) */
-  const [hovered, setHovered] = useState<{
-    img: HTMLImageElement
-    top: number
-    right: number
-  } | null>(null)
-
-  // Escritorio: sobre una pantalla que está dentro de un botón (una lámina que se elige, una
-  // tarjeta que lleva a otro lado) aparece un botón «Ampliar» en su esquina.
-  useEffect(() => {
-    const canHover = window.matchMedia('(hover: hover) and (min-width: 768px)')
-    let last = 0
-    const onMove = (e: PointerEvent) => {
-      if (!canHover.matches || e.pointerType !== 'mouse') return
-      const now = performance.now()
-      if (now - last < HOVER_THROTTLE_MS) return
-      last = now
-      if (e.target instanceof Element && e.target.closest('[data-zoom-hint]')) return
-      const img = document.elementsFromPoint(e.clientX, e.clientY).find((el): el is HTMLImageElement => el instanceof HTMLImageElement && isScreenshot(el))
-      if (!img || !img.closest(INTERACTIVE) || isThumbnail(img) || isFrontControl(img.closest(INTERACTIVE))) {
-        setHovered(null)
-        return
-      }
-      const r = img.getBoundingClientRect()
-      setHovered((prev) => (prev?.img === img && prev.top === r.top && prev.right === r.right ? prev : { img, top: r.top, right: r.right }))
-    }
-    const onScroll = () => setHovered(null)
-    window.addEventListener('pointermove', onMove, { passive: true })
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('scroll', onScroll)
-    }
-  }, [])
-
   useEffect(() => {
     const query = window.matchMedia(NARROW_QUERY)
     const onClick = (e: MouseEvent) => {
-      const next = zoomTarget(e, query.matches)
+      const next = zoomTarget(e)
       if (!next) return
       // Se abre en lugar de lo que haría el toque (pasar de lámina, abrir un enlace).
       e.preventDefault()
@@ -217,30 +194,7 @@ export function ScreenshotZoom() {
     }
   }, [shot, close])
 
-  if (!shot) {
-    if (!hovered) return null
-    return createPortal(
-      <button
-        type="button"
-        data-zoom-hint
-        onClick={() => {
-          setNarrow(false)
-          setShot({
-            kind: 'img',
-            src: originalSrc(hovered.img),
-            alt: hovered.img.alt,
-          })
-          setHovered(null)
-        }}
-        className="fixed z-[90] flex -translate-x-full items-center gap-1.5 rounded-full border border-white/20 bg-[#0b0d16]/80 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-white backdrop-blur transition-colors hover:border-white/50"
-        style={{ top: hovered.top + 10, left: hovered.right - 10 }}
-      >
-        <span aria-hidden="true">⤢</span>
-        {t({ es: 'Ampliar', en: 'Enlarge' })}
-      </button>,
-      document.body,
-    )
-  }
+  if (!shot) return null
   return createPortal(
     <div role="dialog" aria-modal="true" aria-label={shot.alt || t({ es: 'Pantalla ampliada', en: 'Enlarged screen' })} className="fixed inset-0 z-[220] bg-black/95">
       <ZoomStage shot={shot} />
