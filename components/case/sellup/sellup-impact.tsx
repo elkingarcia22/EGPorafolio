@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /**
  * Escenario de referencia por vendedor y por semana. Todavía no hay medición
@@ -79,6 +80,12 @@ export function SellUpImpact() {
     return () => window.clearTimeout(id)
   }, [inView, reducedMotion, phase, heldUntil])
 
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  const flip = () => {
+    setPhase((p) => (p === 'before' ? 'after' : 'before'))
+    setHeldUntil(Date.now() + RESUME_MS)
+  }
+  useSwipe(rootRef, { onNext: flip, onPrev: flip })
   const s = SCENARIO[phase]
   const sell = WEEK_H - s.companies - s.contacts
   const companies = useTween(s.companies)

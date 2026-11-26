@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { OBJ_CASE } from '@/lib/content/cases/objetivos/objetivos-case'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Tiempo en cada pestaña mientras pasan solas (ms) */
 const TAB_MS = 4200
@@ -43,6 +44,11 @@ export function ResultsFolder() {
   }, [inView, hover, reducedMotion, active, tabs.length])
 
   const current = tabs[active]
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(rootRef, {
+    onNext: () => setActive((a) => (a + 1) % tabs.length),
+    onPrev: () => setActive((a) => (a - 1 + tabs.length) % tabs.length),
+  })
 
   return (
     <div ref={rootRef} className="mx-auto w-full max-w-[980px]" onPointerEnter={() => setHover(true)} onPointerLeave={() => setHover(false)}>

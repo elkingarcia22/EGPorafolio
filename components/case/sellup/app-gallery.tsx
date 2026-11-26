@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Cada cuánto pasa a la pantalla siguiente (ms) */
 const STEP_MS = 3800
@@ -85,6 +86,9 @@ export function AppGallery() {
     setActive(((i % N) + N) % N)
     setPickedAt(Date.now())
   }
+
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(rootRef, { onNext: () => go(active + 1), onPrev: () => go(active - 1) })
 
   const narrow = width < 640
   const cardW = Math.min(680, width * (narrow ? 0.8 : 0.58))

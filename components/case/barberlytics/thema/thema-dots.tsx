@@ -112,7 +112,7 @@ export function ThemaDots() {
     <div ref={rootRef}>
       <ChapterHead phrase={t(chapters.puntos.phrase)} lead={t(chapters.puntos.lead)} />
 
-      <ol className="mx-auto grid max-w-[960px] gap-5 md:grid-cols-3 md:gap-4">
+      <ol className="swipe-row mx-auto max-w-[960px] md:grid md:grid-cols-3 md:gap-4">
         {dots.seen.map((card, i) => {
           const Visual = VISUALS[i]
           const isOpen = open === i

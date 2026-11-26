@@ -1,10 +1,11 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { THEMA_CASE } from '@/lib/content/cases/barberlytics/thema-case'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Cada cuánto cambia solo el tema en la portada */
 const AUTO_MS = 2600
@@ -32,6 +33,18 @@ export function ThemeShowcase({ auto = false, tilt, sizes = '(min-width: 1024px)
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
   const current = themes[active]
+  const rootRef = useRef<HTMLDivElement>(null)
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(rootRef, {
+    onNext: () => {
+      setPaused(true)
+      setActive((i) => (i + 1) % themes.length)
+    },
+    onPrev: () => {
+      setPaused(true)
+      setActive((i) => (i - 1 + themes.length) % themes.length)
+    },
+  })
 
   useEffect(() => {
     if (!auto || paused || reducedMotion) return
@@ -40,7 +53,7 @@ export function ThemeShowcase({ auto = false, tilt, sizes = '(min-width: 1024px)
   }, [auto, paused, reducedMotion, themes.length])
 
   return (
-    <div className={className}>
+    <div ref={rootRef} className={className}>
       <div style={tilt ? { transform: tilt } : undefined} className="transition-transform duration-700 ease-expo">
         <div className="overflow-hidden rounded-xl bg-[#0b0c0e] shadow-[0_60px_120px_-40px_rgba(0,0,0,0.85)] ring-1 ring-white/10">
           <div className="flex items-center gap-1.5 px-3 py-2.5" aria-hidden="true">

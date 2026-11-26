@@ -7,6 +7,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, Sticky } from '@/components/case/kit/sketch'
 import { PiecesBoard, ReportBoard } from './objetivos-sketches-more'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 type Writer = 'rrhh' | 'otros'
 
@@ -258,6 +259,11 @@ function SketchWall() {
   }, [active, overview, reducedMotion])
 
   const choose = (i: number) => setPos(i + 1)
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(rootRef, {
+    onNext: () => setPos((p) => (p + 1) % (BOARDS.length + 1)),
+    onPrev: () => setPos((p) => (p - 1 + BOARDS.length + 1) % (BOARDS.length + 1)),
+  })
   /** Fibra de un tablero al siguiente, de borde a borde por el muro (en fila: costado a costado; al bajar: de abajo a arriba) */
   const link = (i: number) => {
     const a = at(i)

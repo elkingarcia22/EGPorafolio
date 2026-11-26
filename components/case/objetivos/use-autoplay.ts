@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Si la persona elige un paso, la animación espera esto antes de seguir sola (ms) */
 const RESUME_AFTER_MS = 9000
@@ -20,6 +21,7 @@ interface AutoplayOptions {
 /**
  * Avance automático de una pieza animada: empieza al entrar en pantalla y pasa
  * de un paso al siguiente cada `ms`. `go(i)` lleva a un paso y pausa un momento.
+ * Deslizar el dedo de lado también pasa de paso.
  */
 export function useAutoplay(ref: React.RefObject<HTMLElement | null>, { count, ms, loop = false, disabled = false, hold = false }: AutoplayOptions) {
   const [index, setIndex] = useState(0)
@@ -59,6 +61,13 @@ export function useAutoplay(ref: React.RefObject<HTMLElement | null>, { count, m
     setPlaying(true)
     setPausedUntil(Date.now() + RESUME_AFTER_MS)
   }, [])
+
+  // En el teléfono también se pasa de paso deslizando el dedo de lado.
+  useSwipe(ref, {
+    onNext: () => go(loop ? (index + 1) % count : Math.min(count - 1, index + 1)),
+    onPrev: () => go(loop ? (index - 1 + count) % count : Math.max(0, index - 1)),
+    disabled: count < 2,
+  })
 
   return { index, go, playing }
 }

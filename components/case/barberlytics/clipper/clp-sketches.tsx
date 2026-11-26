@@ -6,6 +6,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { AI, Lead } from './clp-kit'
 import { CLIPPER_BOARDS } from './clp-boards'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 const BOARDS = CLIPPER_BOARDS
 /** Separación entre tableros en el muro (fracción del ancho) */
@@ -57,6 +58,12 @@ export function ClipperSketches() {
     const id = window.setTimeout(() => setPos((p) => (p + 1) % (BOARDS.length + 1)), overview ? WALL_MS : BOARD_MS)
     return () => window.clearTimeout(id)
   }, [inView, hover, reducedMotion, pos, overview])
+
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(rootRef, {
+    onNext: () => setPos((p) => (p + 1) % (BOARDS.length + 1)),
+    onPrev: () => setPos((p) => (p - 1 + BOARDS.length + 1) % (BOARDS.length + 1)),
+  })
 
   // Mide el ancho de la vista y el tablero más alto: con eso se arma el muro.
   useEffect(() => {

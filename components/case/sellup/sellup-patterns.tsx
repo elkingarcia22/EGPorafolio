@@ -6,6 +6,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
 import { SELLUP_CASE, type AgentId, type CascadeStep } from '@/lib/content/cases/sellup/sellup-case'
 import { useCompact } from './camera'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** En qué escalón se detuvo cada agente en la corrida contada (índice del paso) */
 const STOP_AT: Record<AgentId, number> = { a1: 0, a2: 0, a3: 3 }
@@ -104,6 +105,12 @@ export function SellUpPatterns() {
     setNote(note === i ? null : i)
     setHeldUntil(Date.now() + RESUME_MS)
   }
+
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(rootRef, {
+    onNext: () => pickAgent((agentIndex + 1) % patterns.cascades.length),
+    onPrev: () => pickAgent((agentIndex - 1 + patterns.cascades.length) % patterns.cascades.length),
+  })
 
   const reached = (i: number) => walker >= i && (i <= stop || i === last)
   const skipped = (i: number) => i > stop && i < last

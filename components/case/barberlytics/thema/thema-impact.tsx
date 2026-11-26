@@ -97,10 +97,10 @@ export function ThemaImpact() {
     <div ref={rootRef}>
       <ChapterHead phrase={t(chapters.impacto.phrase)} lead={t(chapters.impacto.lead)} />
 
-      <ol className="mx-auto max-w-[900px]">
+      <ol className="swipe-row mx-auto max-w-[900px] md:block">
         {ROWS.map((row, i) => {
           return (
-            <li key={row.title.es} className="border-t border-white/[0.08] first:border-t-0">
+            <li key={row.title.es} className="border-white/[0.08] max-md:rounded-2xl max-md:border max-md:bg-white/[0.02] max-md:px-5 md:border-t md:first:border-t-0">
               <div className="grid items-center gap-x-10 gap-y-5 py-8 md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                 {/* El número y qué es */}
                 <span className="flex items-start gap-4">
@@ -118,7 +118,7 @@ export function ThemaImpact() {
                 {/* Antes y ahora */}
                 <span className="flex flex-col gap-2.5">
                   {row.bars.map((b, k) => (
-                    <span key={b.label.es} className="grid grid-cols-[minmax(0,7.5rem)_minmax(0,1fr)_minmax(0,7rem)] items-center gap-3 text-xs md:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_minmax(0,8rem)]">
+                    <span key={b.label.es} className="grid grid-cols-[minmax(0,6.5rem)_minmax(0,1fr)_auto] items-center gap-3 text-xs md:grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_minmax(0,8rem)]">
                       <span className={b.now ? 'text-paper/80' : 'text-paper/45'}>{t(b.label)}</span>
                       <span className="relative flex h-6 items-center">
                         <span

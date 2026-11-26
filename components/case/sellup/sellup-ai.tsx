@@ -6,6 +6,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
 import { SPLIT } from '@/lib/content/cases/sellup/sellup-agents'
 import { RumboMark } from './platform'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Cada cuánto aparece la rama siguiente (ms) */
 const BEAT_MS = 900
@@ -82,6 +83,11 @@ export function SellUpAi() {
     setBeat(0)
     setHeldUntil(Date.now() + RESUME_MS)
   }
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(rootRef, {
+    onNext: () => pick((active + 1) % SPLIT.length),
+    onPrev: () => pick((active - 1 + SPLIT.length) % SPLIT.length),
+  })
 
   return (
     <div ref={rootRef}>

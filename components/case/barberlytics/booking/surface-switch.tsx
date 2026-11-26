@@ -6,6 +6,7 @@ import { useLocale } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps, useCycle } from './use-auto-steps'
+import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Tiempo en cada superficie mientras pasan solas (ms) */
 const SURFACE_MS = 2800
@@ -26,6 +27,17 @@ export function SurfaceSwitch() {
   const [picked, setPicked] = useState(false)
   const [active, setActive] = useCycle(devices.length, SURFACE_MS, inView && !picked && !reducedMotion)
   const current = devices[active]
+  // En el teléfono también se pasa deslizando el dedo de lado.
+  useSwipe(ref, {
+    onNext: () => {
+      setPicked(true)
+      setActive((active + 1) % devices.length)
+    },
+    onPrev: () => {
+      setPicked(true)
+      setActive((active - 1 + devices.length) % devices.length)
+    },
+  })
 
   return (
     <div ref={ref} className="flex flex-col items-center">
