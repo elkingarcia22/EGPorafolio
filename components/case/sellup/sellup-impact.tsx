@@ -5,80 +5,64 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 
 /**
- * Las métricas con que se mide SellUp, por vendedor y por semana. Todavía no
- * hay medición de antes y después: los valores son un escenario de referencia
- * (punto de partida estimado → meta). Con las cifras reales, solo cambian aquí.
+ * Escenario de referencia por vendedor y por semana. Todavía no hay medición
+ * de antes y después: con las cifras reales, solo cambian estos valores.
  */
-interface ImpactMetric {
-  name: L
-  from: string
-  to: string
-  delta: string
-  unit: L
-  moves: L
-  how: L
-  north?: boolean
-}
+const WEEK_H = 40
+const SCENARIO = {
+  before: { companies: 6, contacts: 5, leads: 10, success: 18 },
+  after: { companies: 1.5, contacts: 1, leads: 25, success: 30 },
+} as const
+type Phase = keyof typeof SCENARIO
 
-const METRICS: readonly ImpactMetric[] = [
-  {
-    name: { es: 'Leads calificados', en: 'Qualified leads' },
-    from: '10',
-    to: '25',
-    delta: '+150 %',
-    unit: { es: 'empresas listas para trabajar, por vendedor a la semana', en: 'companies ready to work, per rep per week' },
-    moves: { es: 'Los tres agentes en cadena: empresa libre, decisor y primer contacto, con una persona que aprueba cada paso.', en: 'The three chained agents: free company, decision-maker and first contact, with a person approving each step.' },
-    how: { es: 'Empresas aprobadas en «Por revisar» por vendedor y semana.', en: 'Companies approved in “To review” per rep per week.' },
-    north: true,
-  },
-  {
-    name: { es: 'Buscar empresas', en: 'Finding companies' },
-    from: '6 h',
-    to: '1,5 h',
-    delta: '−75 %',
-    unit: { es: 'horas de búsqueda a la semana, por vendedor', en: 'search hours a week, per rep' },
-    moves: { es: 'El agente 1 barre HubSpot, los registros oficiales y la web antes de pagar, y verifica que nadie la tenga.', en: 'Agent 1 sweeps HubSpot, official registries and the web before paying, and checks nobody owns it.' },
-    how: { es: 'Tiempo entre lanzar una búsqueda y aprobar sus empresas.', en: 'Time from launching a search to approving its companies.' },
-  },
-  {
-    name: { es: 'Buscar contactos', en: 'Finding contacts' },
-    from: '5 h',
-    to: '1 h',
-    delta: '−80 %',
-    unit: { es: 'horas buscando a quién decide, a la semana', en: 'hours finding who decides, per week' },
-    moves: { es: 'El agente 2 empieza por HubSpot y lo ya conocido, y solo paga un perfil o un teléfono cuando hace falta.', en: 'Agent 2 starts with HubSpot and what’s already known, and only pays for a profile or phone when needed.' },
-    how: { es: 'Tiempo entre pedir contactos y aprobarlos.', en: 'Time from requesting contacts to approving them.' },
-  },
-  {
-    name: { es: 'Éxito del primer contacto', en: 'First-contact success' },
-    from: '18 %',
-    to: '30 %',
-    delta: '+12 pp',
-    unit: { es: 'de los primeros contactos que logran respuesta', en: 'of first contacts that get a reply' },
-    moves: { es: 'El agente 3 llega con hechos citados de la empresa y del decisor, y un mensaje distinto por canal.', en: 'Agent 3 arrives with cited facts about the company and the decision-maker, and a different message per channel.' },
-    how: { es: 'Respuestas en HubSpot sobre primeros contactos preparados en SellUp.', en: 'HubSpot replies to first contacts prepared in SellUp.' },
-  },
+/** Cada cuánto cambia solo de «Antes» a «Con SellUp» y de vuelta (ms) */
+const SWITCH_MS = 4200
+/** Si la persona elige uno, se queda esto antes de seguir solo (ms) */
+const RESUME_MS = 9000
+/** Los espacios del pictograma de leads (el máximo del escenario) */
+const LEAD_SLOTS = 25
+
+const PHASES: readonly { id: Phase; label: L }[] = [
+  { id: 'before', label: { es: 'Antes', en: 'Before' } },
+  { id: 'after', label: { es: 'Con SellUp', en: 'With SellUp' } },
 ]
 
-/** Cada cuánto se enciende la siguiente métrica mientras pasan solas (ms) */
-const STEP_MS = 4600
-/** Al entrar, la fibra se tiende de una métrica a la siguiente (ms por tramo) */
-const DRAW_MS = 380
+/** Un número que corre suave hacia su valor nuevo */
+function useTween(value: number, ms = 900): number {
+  const [shown, setShown] = useState(value)
+  const from = useRef(value)
+  useEffect(() => {
+    const start = performance.now()
+    const a = from.current
+    let raf = 0
+    const tick = (now: number) => {
+      const k = Math.min(1, (now - start) / ms)
+      const eased = 1 - Math.pow(1 - k, 3)
+      const v = a + (value - a) * eased
+      from.current = v
+      setShown(v)
+      if (k < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, ms])
+  return shown
+}
 
 /**
- * 06 · Impacto: las cuatro métricas sobre una sola fibra, con la métrica norte
- * primero. Al entrar se encienden una tras otra; después se lee una a la vez:
- * de dónde parte, a dónde llega y qué la mueve en SellUp. Tocar una métrica
- * la elige.
+ * 06 · Impacto: la semana de un vendedor. Una barra de 40 horas que pasa sola
+ * de «Antes» a «Con SellUp»: buscar empresas y buscar contactos se encogen y
+ * crece el tiempo para vender. Debajo, los leads de la semana como puntos que
+ * se llenan y el éxito del primer contacto como un anillo. Escenario de
+ * referencia mientras llegan las cifras medidas.
  */
 export function SellUpImpact() {
-  const { t } = useLocale()
+  const { t, locale } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
-  const [lit, setLit] = useState(reducedMotion ? METRICS.length : 0)
-  const [active, setActive] = useState(0)
-  const [hold, setHold] = useState(false)
+  const [phase, setPhase] = useState<Phase>(reducedMotion ? 'after' : 'before')
+  const [heldUntil, setHeldUntil] = useState(0)
 
   useEffect(() => {
     const root = rootRef.current
@@ -89,97 +73,129 @@ export function SellUpImpact() {
   }, [])
 
   useEffect(() => {
-    if (!inView || reducedMotion || hold) return
-    const id = window.setTimeout(
-      () => (lit < METRICS.length ? setLit((n) => n + 1) : setActive((a) => (a + 1) % METRICS.length)),
-      lit < METRICS.length ? (lit === 0 ? 250 : DRAW_MS) : STEP_MS,
-    )
+    if (!inView || reducedMotion) return
+    const wait = Math.max(SWITCH_MS, heldUntil - Date.now())
+    const id = window.setTimeout(() => setPhase((p) => (p === 'before' ? 'after' : 'before')), wait)
     return () => window.clearTimeout(id)
-  }, [inView, reducedMotion, hold, lit, active])
+  }, [inView, reducedMotion, phase, heldUntil])
 
-  // Lo elegido se queda un rato y luego vuelve a pasar solo.
-  useEffect(() => {
-    if (!hold) return
-    const id = window.setTimeout(() => setHold(false), STEP_MS * 2)
-    return () => window.clearTimeout(id)
-  }, [hold, active])
+  const s = SCENARIO[phase]
+  const sell = WEEK_H - s.companies - s.contacts
+  const companies = useTween(s.companies)
+  const contacts = useTween(s.contacts)
+  const selling = useTween(sell)
+  const success = useTween(s.success)
+  const num = (n: number, d = 1) => n.toLocaleString(locale === 'en' ? 'en-US' : 'es-CO', { maximumFractionDigits: d })
+  const after = phase === 'after'
 
-  const fill = Math.max(0, lit - 1) / (METRICS.length - 1)
-  const current = METRICS[active]
+  /** Los tramos de la semana, en horas */
+  const segments: readonly { key: string; label: L; hours: number; color: string }[] = [
+    { key: 'companies', label: { es: 'Buscar empresas', en: 'Finding companies' }, hours: companies, color: '#f59e0b' },
+    { key: 'contacts', label: { es: 'Buscar contactos', en: 'Finding contacts' }, hours: contacts, color: '#f87171' },
+    { key: 'sell', label: { es: 'Vender', en: 'Selling' }, hours: selling, color: 'rgb(var(--signal))' },
+  ]
+
+  // Anillo del éxito del primer contacto
+  const R = 54
+  const CIRC = 2 * Math.PI * R
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-[1000px]">
-      <ol className="relative grid grid-cols-2 gap-y-10 md:grid-cols-4">
-        <span aria-hidden="true" className="absolute inset-x-[12.5%] top-[7px] hidden h-px bg-white/12 md:block" />
-        <span aria-hidden="true" className="absolute left-[12.5%] top-[7px] hidden h-px w-3/4 origin-left bg-gradient-to-r from-[#285ee6] via-[#7e2be0] to-[#d22d6a] shadow-[0_0_10px_rgb(var(--signal)/0.7)] transition-transform ease-out md:block" style={{ transform: `scaleX(${fill})`, transitionDuration: `${DRAW_MS}ms` }} />
-        {METRICS.map((m, i) => {
-          const on = i < lit
-          const isActive = i === active && lit > 0
-          return (
-            <li key={m.name.es} className="relative flex flex-col items-center">
-              <button
-                type="button"
-                onClick={() => {
-                  setHold(true)
-                  setLit(METRICS.length)
-                  setActive(i)
-                }}
-                aria-pressed={isActive}
-                className="group flex flex-col items-center outline-none"
-              >
-                <span className="relative grid h-3.5 w-3.5 place-items-center" aria-hidden="true">
-                  <span className={`absolute inset-0 rounded-full border transition-all duration-500 ${isActive ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_4px_rgb(var(--signal)/0.7)]' : on ? 'border-white/60 bg-signal' : 'border-white/35 bg-void'}`} />
-                  {isActive && <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.2s_cubic-bezier(0,0,.2,1)_infinite]" />}
-                </span>
-                {m.north && <span className="mt-4 font-mono text-[9px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</span>}
-                <span className={`mt-3 bg-gradient-to-b from-white to-white/60 bg-clip-text text-[clamp(1.9rem,1.2rem+2.2vw,3.4rem)] font-light leading-none text-transparent tabular-nums transition-opacity duration-500 ${isActive ? 'opacity-100' : on ? 'opacity-60 group-hover:opacity-90' : 'opacity-20'}`} style={{ filter: isActive ? 'drop-shadow(0 0 18px rgb(var(--signal) / 0.55))' : 'none' }}>
-                  {m.delta}
-                </span>
-                <span className={`${m.north ? 'mt-1.5' : 'mt-4'} text-balance text-center text-[clamp(1.05rem,0.9rem+0.6vw,1.45rem)] font-light leading-tight tracking-tight transition-opacity duration-500 ${isActive ? 'opacity-100' : on ? 'opacity-55 group-hover:opacity-85' : 'opacity-25'}`}>
-                  {t(m.name)}
-                </span>
-              </button>
-            </li>
-          )
-        })}
-      </ol>
+    <div ref={rootRef} className="mx-auto max-w-[960px]">
+      <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
 
-      {/* La métrica en lectura: de dónde parte, a dónde llega y cuánto cambia */}
-      <div key={`band-${active}`} className="su-fade relative mx-auto mt-12 max-w-[880px] overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(ellipse_at_70%_0%,rgb(var(--signal)/0.18),transparent_60%)] px-6 py-8 md:px-10">
-        <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t(current.unit)}</p>
-        <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
-          <div className="text-right">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: 'Antes', en: 'Before' })}</p>
-            <p className="mt-2 text-[clamp(2rem,1.2rem+2.6vw,3.8rem)] font-light leading-none text-paper/45 tabular-nums">{current.from}</p>
-          </div>
-          <div className="relative flex w-[clamp(4rem,10vw,9rem)] flex-col items-center">
-            <span className="rounded-full bg-signal px-3 py-1 text-sm font-medium text-on-signal shadow-[0_0_24px_-4px_rgb(var(--signal)/0.9)] tabular-nums">{current.delta}</span>
-            <span className="relative mt-3 h-px w-full overflow-hidden bg-white/15">
-              <span className="absolute inset-y-0 left-0 w-1/3 animate-[su-flow_1.6s_cubic-bezier(.65,0,.35,1)_infinite] bg-gradient-to-r from-transparent via-white to-transparent" />
+      {/* Antes / Con SellUp: cambia solo; tocar uno lo fija un rato */}
+      <div role="tablist" aria-label={t({ es: 'Escenario', en: 'Scenario' })} className="mx-auto mt-6 flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
+        {PHASES.map((p) => (
+          <button
+            key={p.id}
+            type="button"
+            role="tab"
+            aria-selected={phase === p.id}
+            onClick={() => {
+              setPhase(p.id)
+              setHeldUntil(Date.now() + RESUME_MS)
+            }}
+            className={`rounded-full px-4 py-1.5 text-[13px] transition-colors duration-500 ${phase === p.id ? (p.id === 'after' ? 'bg-signal text-on-signal' : 'bg-white text-[#0b0d16]') : 'text-paper/60 hover:text-paper'}`}
+          >
+            {t(p.label)}
+          </button>
+        ))}
+      </div>
+
+      {/* La semana: 40 horas en una barra; los tramos cambian de ancho */}
+      <div className="mt-12">
+        <div className="flex items-end justify-between gap-4">
+          <p className="text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'La semana del vendedor', en: 'The rep’s week' })}</p>
+          <p className="text-right">
+            <span className="text-[clamp(2.2rem,1.4rem+3vw,4rem)] font-light leading-none tabular-nums" style={{ filter: after ? 'drop-shadow(0 0 22px rgb(var(--signal) / 0.5))' : 'none' }}>{num(selling)} h</span>
+            <span className="ml-2 text-[13px] text-paper/55">{t({ es: 'para vender', en: 'to sell' })}</span>
+          </p>
+        </div>
+        <div className="mt-4 flex h-14 w-full overflow-hidden rounded-2xl border border-white/10" aria-hidden="true">
+          {segments.map((seg) => (
+            <span
+              key={seg.key}
+              className="relative flex items-center overflow-hidden px-3"
+              style={{ width: `${(seg.hours / WEEK_H) * 100}%`, background: seg.key === 'sell' ? 'linear-gradient(90deg, rgb(var(--signal) / 0.35), rgb(var(--signal) / 0.75))' : `${seg.color}33`, borderRight: seg.key !== 'sell' ? `2px solid ${seg.color}` : undefined }}
+            >
+              {seg.hours / WEEK_H > 0.08 && <span className="whitespace-nowrap font-mono text-[11px] tabular-nums text-paper/90">{num(seg.hours)} h</span>}
             </span>
+          ))}
+        </div>
+        <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-paper/65">
+          {segments.map((seg) => (
+            <li key={seg.key} className="flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: seg.color }} />
+              {t(seg.label)} · <span className="tabular-nums text-paper/90">{num(seg.hours)} h</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Leads y éxito del primer contacto */}
+      <div className="mt-14 grid gap-12 md:grid-cols-2">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
+          <p className="mt-2 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
+          <div className="mt-5 grid max-w-[230px] grid-cols-5 gap-2" aria-hidden="true">
+            {Array.from({ length: LEAD_SLOTS }, (_, i) => {
+              const on = i < s.leads
+              const fresh = on && i >= SCENARIO.before.leads
+              return (
+                <span
+                  key={i}
+                  className="aspect-square rounded-full border transition-all duration-500"
+                  style={{
+                    background: on ? (fresh ? 'rgb(var(--signal))' : 'rgb(255 255 255 / 0.75)') : 'transparent',
+                    borderColor: on ? 'transparent' : 'rgb(255 255 255 / 0.15)',
+                    transform: on ? 'scale(1)' : 'scale(0.7)',
+                    boxShadow: fresh ? '0 0 12px rgb(var(--signal) / 0.7)' : 'none',
+                    transitionDelay: `${(on ? i - SCENARIO.before.leads : LEAD_SLOTS - i) * 30}ms`,
+                  }}
+                />
+              )
+            })}
           </div>
-          <div className="text-left">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Con SellUp', en: 'With SellUp' })}</p>
-            <p className="mt-2 text-[clamp(2.4rem,1.4rem+3.2vw,4.6rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 22px rgb(var(--signal) / 0.45))' }}>{current.to}</p>
+          <p className="mt-4 text-[13px] text-paper/60">
+            <span className="text-[1.6rem] font-light tabular-nums text-paper">{s.leads}</span> {t({ es: 'empresas listas para trabajar', en: 'companies ready to work' })}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-8">
+          <svg viewBox="0 0 140 140" className="h-[150px] w-[150px] shrink-0 -rotate-90" aria-hidden="true">
+            <circle cx={70} cy={70} r={R} fill="none" stroke="white" strokeOpacity={0.1} strokeWidth={10} />
+            <circle cx={70} cy={70} r={R} fill="none" stroke="rgb(var(--signal))" strokeWidth={10} strokeLinecap="round" strokeDasharray={CIRC} strokeDashoffset={CIRC * (1 - success / 100)} style={{ filter: 'drop-shadow(0 0 8px rgb(var(--signal) / 0.6))' }} />
+          </svg>
+          <div>
+            <p className="text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Éxito del primer contacto', en: 'First-contact success' })}</p>
+            <p className="mt-2 text-[clamp(2.2rem,1.4rem+3vw,3.6rem)] font-light leading-none tabular-nums">{num(success, 0)} %</p>
+            <p className="mt-2 text-[13px] text-paper/60">{t({ es: 'de los primeros contactos logran respuesta', en: 'of first contacts get a reply' })}</p>
           </div>
         </div>
       </div>
 
-      {/* Qué la mueve y cómo se mide */}
-      <div key={active} aria-live="polite" className="su-fade mx-auto mt-8 grid max-w-[880px] gap-6 text-left md:grid-cols-2">
-        {[
-          { tag: t({ es: 'Qué la mueve en SellUp', en: 'What moves it in SellUp' }), text: t(current.moves) },
-          { tag: t({ es: 'Cómo se mide', en: 'How it’s measured' }), text: t(current.how) },
-        ].map((col) => (
-          <div key={col.tag} className="border-l border-white/12 pl-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{col.tag}</p>
-            <p className="mt-2 text-sm leading-relaxed text-paper/75">{col.text}</p>
-          </div>
-        ))}
-      </div>
-
       {/* De aquí baja la fibra hacia «Demo» */}
-      <span aria-hidden="true" className="relative mx-auto mt-12 block h-2.5 w-2.5 rounded-full border border-white/70 bg-signal shadow-[0_0_14px_rgb(var(--signal))]">
+      <span aria-hidden="true" className="relative mx-auto mt-14 block h-2.5 w-2.5 rounded-full border border-white/70 bg-signal shadow-[0_0_14px_rgb(var(--signal))]">
         <span data-fiber-from="su-demo" className="absolute left-1/2 top-1/2 h-px w-px" />
       </span>
     </div>
