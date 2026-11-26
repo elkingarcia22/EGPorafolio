@@ -7,8 +7,9 @@ import { ENCUESTAS_CASE } from '@/lib/content/cases/encuestas/case'
 import { SPECTRUM, TIER_LABEL, NORMATIVE_OUTPUT, MINUTES_PER_QUESTION, type Tier } from '@/lib/content/cases/encuestas/idea-spectrum'
 import { useAutoplay } from '../objetivos/use-autoplay'
 import { useMedia, TABLET_QUERY } from '../objetivos/use-media'
+import { FanPhone } from './phone/fan-phone'
 
-/** El abanico en escritorio (nombre y puntos en la misma fila) o en teléfono (los puntos bajo el nombre) */
+/** El abanico en escritorio: nombre y puntos en la misma fila (el teléfono tiene su propia composición) */
 interface FanLayout {
   w: number
   h: number
@@ -30,16 +31,6 @@ const DESKTOP: FanLayout = {
   dots: { x: 452, dy: 0, step: 8.6 },
   tier: true,
 }
-const PHONE: FanLayout = {
-  w: 500,
-  h: 540,
-  source: { x: 26, y: 270 },
-  rowY: (i) => 40 + i * 76,
-  start: 110,
-  name: { dx: 10, dy: -12 },
-  dots: { x: 120, dy: 16, step: 7.4 },
-  tier: false,
-}
 const fiberOf = (l: FanLayout, i: number) =>
   `M${l.source.x} ${l.source.y} C${l.source.x + (l.start - l.source.x) * 0.45} ${l.source.y} ${l.start - (l.start - l.source.x) * 0.45} ${l.rowY(i)} ${l.start - 14} ${l.rowY(i)}`
 const TIER_COLOR: Record<Tier, string> = { sencilla: 'rgb(var(--signal))', robusta: 'rgb(var(--glow))', normativa: '#ff54aa' }
@@ -57,11 +48,30 @@ export function EncBuilderFan() {
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const [picked, setPicked] = useState<number | null>(null)
-  const lay = useMedia(TABLET_QUERY) ? DESKTOP : PHONE
+  const wide = useMedia(TABLET_QUERY)
+  const lay = DESKTOP
   const { index } = useAutoplay(rootRef, { count: SPECTRUM.length, ms: STEP_MS, loop: true, disabled: reducedMotion, hold: picked !== null })
   const active = picked ?? index
   const tpl = SPECTRUM[active]
   const q = questionsOf(active)
+
+  const meta = `${t(TIER_LABEL[tpl.tier])} · ${q} ${t({ es: 'preguntas', en: 'questions' })} · ${tpl.sections.length} ${t({ es: 'secciones', en: 'sections' })} · ~${Math.round(q * MINUTES_PER_QUESTION)} min${NORMATIVE_OUTPUT[tpl.id] ? ` · ${t(NORMATIVE_OUTPUT[tpl.id])}` : ''}`
+
+  if (!wide) {
+    return (
+      <div ref={rootRef}>
+        <FanPhone
+          rows={SPECTRUM.map((s, i) => ({ id: s.id, name: s.name, tierLabel: TIER_LABEL[s.tier], color: TIER_COLOR[s.tier], questions: questionsOf(i) }))}
+          active={active}
+          picked={picked}
+          onPick={(i) => setPicked(picked === i ? null : i)}
+          detail={{ use: t(tpl.use), meta }}
+          principles={ENCUESTAS_CASE.idea.principles.map((p) => p.title)}
+          reducedMotion={reducedMotion}
+        />
+      </div>
+    )
+  }
 
   return (
     <div ref={rootRef} className="relative mt-6">
@@ -138,7 +148,7 @@ export function EncBuilderFan() {
       <ol className="mx-auto mt-14 grid max-w-[980px] gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
         {ENCUESTAS_CASE.idea.principles.map((p, i) => (
           <li key={p.title.es} data-reveal className="flex items-start gap-3">
-            <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/25 font-mono text-[11px] md:text-[10px]">{i + 1}</span>
+            <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/25 font-mono text-[10px]">{i + 1}</span>
             <span className="text-[15px] leading-snug text-paper/85">{t(p.title)}</span>
           </li>
         ))}
