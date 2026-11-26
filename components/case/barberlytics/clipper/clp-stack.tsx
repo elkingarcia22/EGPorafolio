@@ -20,7 +20,7 @@ const tech = (v: string | L, t: (l: L) => string) => (typeof v === 'string' ? v 
 const colorAt = (i: number) => AI[Math.round((i / (STACK.length - 1)) * (AI.length - 1))]
 
 /**
- * 06 · IA en el proceso: cómo está conectado Clipper. Una pregunta entra por
+ * 05 · IA en el proceso: cómo está conectado Clipper. Una pregunta entra por
  * voz o texto, pasa por el servidor (el rol), el modelo de Anthropic, las 18
  * herramientas y el filtro de cifras, y sale escrita o en voz. Tocar una pieza
  * dice qué hace y con qué está hecha.

@@ -53,7 +53,7 @@ function pickVoice(lang: 'es' | 'en'): SpeechSynthesisVoice | null {
 }
 
 /**
- * 05 · Forma: la voz de Clipper. El modo voz real (ondas con el gradiente de
+ * 04 · Bocetos y forma (la forma): la voz de Clipper. El modo voz real (ondas con el gradiente de
  * IA, lo dicho en grande y la píldora del micrófono) en una llamada de la
  * reserva. Se ve solo, en silencio; al tocar «Escuchar», Clipper habla.
  */

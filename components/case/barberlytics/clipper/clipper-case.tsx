@@ -24,7 +24,7 @@ import { ClipperImpact } from './clp-impact'
 import { ClipperLiveDemo } from './clp-demo'
 import './clipper-case.css'
 
-type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'forma' | 'ia' | 'impacto' | 'demo'
+type ChapterKey = 'puntos' | 'patrones' | 'idea' | 'bocetos' | 'ia' | 'impacto' | 'demo'
 
 /** La red de fondo, lo más quieta posible: en la portada y en los capítulos */
 const QUIET = 1
@@ -35,7 +35,6 @@ const FIBER_TO: Record<ChapterKey, string> = {
   patrones: 'clp-patrones',
   idea: 'clp-idea',
   bocetos: 'clp-bocetos',
-  forma: 'clp-forma',
   ia: 'clp-ia',
   impacto: 'clp-impacto',
   demo: 'clp-demo',
@@ -46,18 +45,28 @@ const CHAPTERS: readonly { id: ChapterKey; entry: ChapterEntry }[] = [
   { id: 'patrones', entry: 'thread' },
   { id: 'idea', entry: 'warp' },
   { id: 'bocetos', entry: 'bloom' },
-  { id: 'forma', entry: 'thread' },
   { id: 'ia', entry: 'warp' },
   { id: 'impacto', entry: 'bloom' },
   { id: 'demo', entry: 'thread' },
 ]
 
+/** 04 · Bocetos y forma: el muro de bocetos y, debajo, la voz de Clipper ya construida (un solo capítulo) */
+function ClipperSketchesAndForm() {
+  return (
+    <div>
+      <ClipperSketches />
+      <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
+        <ClipperVoice />
+      </div>
+    </div>
+  )
+}
+
 const CONTENT: Record<ChapterKey, React.ComponentType> = {
   puntos: ClipperDotsScene,
   patrones: ClipperPains,
   idea: ClipperBenefits,
-  bocetos: ClipperSketches,
-  forma: ClipperVoice,
+  bocetos: ClipperSketchesAndForm,
   ia: ClipperStack,
   impacto: ClipperImpact,
   demo: ClipperLiveDemo,
@@ -65,7 +74,7 @@ const CONTENT: Record<ChapterKey, React.ComponentType> = {
 
 const BACK = { href: '/proyectos/barberlytics', label: { es: 'Proyectos de Barberlytics', en: 'Barberlytics projects' } satisfies L }
 
-/** Caso Clipper: portada, índice fijo, ocho capítulos unidos por fibras y la vuelta a Barberlytics. */
+/** Caso Clipper: portada, índice fijo, siete capítulos unidos por fibras y la vuelta a Barberlytics. */
 export function ClipperCase() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
@@ -83,8 +92,7 @@ export function ClipperCase() {
       puntos: t(c.problem),
       patrones: t(c.research),
       idea: t(c.idea),
-      bocetos: t(c.sketches),
-      forma: t(c.form),
+      bocetos: t({ es: 'Bocetos y forma', en: 'Sketches and form' }),
       ia: t(c.ai),
       impacto: t(c.results),
       demo: t({ es: 'Demo', en: 'Demo' }),
@@ -104,11 +112,9 @@ export function ClipperCase() {
           <SectionFiber id="clp-patrones" side="left">
             {/* De la frase del dueño a Clipper, a «La idea» */}
             <SectionFiber id="clp-idea" side="right">
-              {/* Del centro del orbe de «La idea» baja a «Bocetos» */}
+              {/* Del centro del orbe de «La idea» baja a «Bocetos y forma» */}
               <SectionFiber id="clp-bocetos" side="down">
-                {/* Del carrusel de bocetos a «Forma» (la voz) */}
-                <SectionFiber id="clp-forma" side="right">
-                  {/* Del botón para escuchar a Clipper a «IA en el proceso» */}
+                  {/* Del botón para escuchar a Clipper (al final de «Bocetos y forma») a «IA en el proceso» */}
                   <SectionFiber id="clp-ia" side="right">
                     {/* De «Responde», la última pieza de la cadena, baja a «Impacto» */}
                     <SectionFiber id="clp-impacto" side="right">
@@ -127,7 +133,6 @@ export function ClipperCase() {
                       </SectionFiber>
                     </SectionFiber>
                   </SectionFiber>
-                </SectionFiber>
               </SectionFiber>
             </SectionFiber>
           </SectionFiber>
