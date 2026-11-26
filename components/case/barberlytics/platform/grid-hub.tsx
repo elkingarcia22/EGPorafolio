@@ -5,20 +5,22 @@ import { useLocale, type L } from '@/lib/i18n'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import { APPTS, BARBERS, STAGE, stageAt } from './calendar-model'
 import { useAutoSteps } from './use-auto-steps'
+import { useNarrow } from '../use-narrow'
+import { HubTall } from './grid-hub-tall'
 
-interface HubNode {
+export interface HubNode {
   name: L
   sub: L
   detail: L
 }
 
 /** Quién usa la rejilla (a la izquierda) y lo que se alimenta de ella (a la derecha), del contenido del caso */
-const ROLES: readonly HubNode[] = [
+export const ROLES: readonly HubNode[] = [
   { name: { es: 'Recepción', en: 'Front desk' }, sub: { es: 'agenda y cobra', en: 'books and charges' }, detail: { es: 'Agenda y cobra en el calendario: todo el día pasa por sus manos.', en: 'Books and charges in the calendar: the whole day goes through their hands.' } },
   { name: { es: 'Barbero', en: 'Barber' }, sub: { es: 'mira su día', en: 'checks their day' }, detail: { es: 'Mira ahí su día: quién sigue, qué pidió y si va tarde.', en: 'Checks their day there: who’s next, what they asked for and whether they’re late.' } },
   { name: { es: 'Dueño', en: 'Owner' }, sub: { es: 'busca los huecos', en: 'hunts for gaps' }, detail: { es: 'Busca los huecos: las horas libres que todavía se pueden vender.', en: 'Hunts for gaps: the free hours that can still be sold.' } },
 ]
-const FEEDS: readonly HubNode[] = [
+export const FEEDS: readonly HubNode[] = [
   { name: { es: 'Caja', en: 'Till' }, sub: { es: 'lo cobrado', en: 'what’s paid' }, detail: { es: 'Todo lo demás —clientes, nómina, caja— se alimenta de lo que pasa en la rejilla.', en: 'Everything else —clients, payroll, the till— feeds on what happens on the grid.' } },
   { name: { es: 'Clientes', en: 'Clients' }, sub: { es: 'sus visitas', en: 'their visits' }, detail: { es: 'Todo lo demás —clientes, nómina, caja— se alimenta de lo que pasa en la rejilla.', en: 'Everything else —clients, payroll, the till— feeds on what happens on the grid.' } },
   { name: { es: 'Nómina', en: 'Payroll' }, sub: { es: 'lo de cada barbero', en: 'each barber’s share' }, detail: { es: 'Todo lo demás —clientes, nómina, caja— se alimenta de lo que pasa en la rejilla.', en: 'Everything else —clients, payroll, the till— feeds on what happens on the grid.' } },
@@ -34,17 +36,17 @@ const ROW_Y = [70, 170, 270]
 const GRID = { w: 190, h: 150 }
 /** Pasos al entrar: 1–3 roles, 4 la rejilla se llena, 5–7 lo que se alimenta, 8 todo late */
 const LAST = 8
-const STEP_MS = 230
+export const STEP_MS = 230
 
 const inPath = (y: number) => `M${LEFT_X} ${y} C${LEFT_X + 70} ${y} ${CENTER.x - GRID.w / 2 - 70} ${CENTER.y} ${CENTER.x - GRID.w / 2} ${CENTER.y}`
 const outPath = (y: number) => `M${CENTER.x + GRID.w / 2} ${CENTER.y} C${CENTER.x + GRID.w / 2 + 70} ${CENTER.y} ${RIGHT_X - 70} ${y} ${RIGHT_X} ${y}`
 
 /** Mitad de la mañana del día de ejemplo: unas cobradas, otras en silla, otras por venir */
-const SNAPSHOT_NOW = 3.4
+export const SNAPSHOT_NOW = 3.4
 
-type Pick = { side: 'role' | 'feed'; i: number } | { side: 'grid' } | null
+export type Pick = { side: 'role' | 'feed'; i: number } | { side: 'grid' } | null
 
-function Branch({ d, on, active, delay }: { d: string; on: boolean; active: boolean; delay: number }) {
+export function Branch({ d, on, active, delay }: { d: string; on: boolean; active: boolean; delay: number }) {
   return (
     <>
       <path d={d} fill="none" stroke="white" strokeOpacity={0.07} />
@@ -104,6 +106,7 @@ export function GridHub() {
   const [pain, setPain] = useState<number | null>(null)
   const { dots } = PLATFORM_CASE
   const gridOn = step >= 4
+  const narrow = useNarrow('(max-width: 767px)')
 
   const toggle = (next: Pick) => setPick((p) => (JSON.stringify(p) === JSON.stringify(next) ? null : next))
   const caption = (() => {
@@ -128,6 +131,9 @@ export function GridHub() {
           {caption.sub && <span className="mt-2 max-w-[52ch] text-balance text-sm leading-relaxed text-paper/55">{caption.sub}</span>}
         </figcaption>
 
+        {narrow ? (
+          <HubTall step={step} pick={pick} toggle={toggle} />
+        ) : (
         <svg viewBox={`0 0 ${W} ${H}`} className="mt-6 block h-auto w-full overflow-visible" role="group" aria-label={t({ es: 'La rejilla al centro: quién la usa y lo que se alimenta de ella', en: 'The grid at the center: who uses it and what feeds on it' })}>
           {ROW_Y.map((y, i) => (
             <Branch key={`in-${y}`} d={inPath(y)} on={step > i} active={pick?.side === 'role' && pick.i === i} delay={i * 0.25} />
@@ -189,6 +195,7 @@ export function GridHub() {
             <HubDot key={f.name.es} x={RIGHT_X} y={ROW_Y[i]} on={step > 4 + i} active={pick?.side === 'feed' && pick.i === i} label={t(f.name)} sub={t(f.sub)} align="start" onPick={() => toggle({ side: 'feed', i })} />
           ))}
         </svg>
+        )}
       </figure>
 
       {/* Lo que fallaba: tres nudos en la misma línea; su porqué sale al tocarlos */}

@@ -5,6 +5,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { PLATFORM_CASE } from '@/lib/content/cases/barberlytics/platform-case'
 import { useAutoSteps, useInView } from './use-auto-steps'
+import { useNarrow } from '../use-narrow'
 
 const GOLD = '#d9b36a'
 const INK = 'rgba(255,255,255,0.35)'
@@ -164,9 +165,59 @@ export function NeedsTree() {
   const beat = useBeat(rootRef)
   const [picked, setPicked] = useState<number | null>(null)
   const detail = picked === null ? null : BRANCHES[picked].detail
+  const narrow = useNarrow('(max-width: 767px)')
+
+  const phone = narrow && (
+      <div className="mx-auto max-w-[420px]">
+        <ol className="relative">
+          {/* El tronco baja por la izquierda; cada rama es un nudo en él */}
+          <span aria-hidden="true" className="absolute bottom-0 left-[13px] top-0 w-px origin-top bg-gradient-to-b from-[#d9b36a]/80 via-[#d9b36a]/40 to-white/10 transition-transform duration-[1400ms] ease-[cubic-bezier(.65,0,.35,1)]" style={{ transform: `scaleY(${lit / BRANCHES.length})` }} />
+          <li aria-hidden="true" className="relative mb-6 flex h-7 items-center">
+            <span className="ml-[7px] h-3.5 w-3.5 rounded-full border border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgba(217,179,106,0.25),0_0_18px_4px_rgba(217,179,106,0.7)]" />
+          </li>
+          {BRANCHES.map((b, i) => {
+            const on = i < lit
+            const focus = picked === i
+            const Glyph = GLYPHS[i]
+            return (
+              <li key={b.id} className="relative pb-9 last:pb-2">
+                <button type="button" aria-pressed={focus} onClick={() => setPicked(focus ? null : i)} className="group grid w-full grid-cols-[28px_104px_minmax(0,1fr)] items-center gap-x-4 text-left outline-none">
+                  <span className="relative grid h-3.5 w-3.5 place-items-center justify-self-center" aria-hidden="true">
+                    <span className={`absolute inset-0 rounded-full border transition-all duration-500 ${on ? 'border-white bg-[#fffaf0] shadow-[0_0_14px_3px_rgba(217,179,106,0.6)]' : 'border-white/30 bg-void'} ${focus ? 'scale-125' : ''}`} />
+                    {focus && <span className="pl-hot absolute inset-0 rounded-full border border-[#d9b36a]" />}
+                  </span>
+                  <svg viewBox="0 0 120 84" className={`w-full transition-[opacity,transform] duration-700 ease-expo ${on ? 'opacity-100' : 'translate-x-2 opacity-0'}`} aria-hidden="true">
+                    <Glyph beat={beat + i} />
+                  </svg>
+                  <span className="flex flex-col">
+                    <span className={`text-[19px] font-light leading-tight tracking-tight transition-colors duration-500 ${focus ? 'text-[#d9b36a]' : on ? 'text-paper' : 'text-paper/40'}`}>{t(b.answer)}</span>
+                    {i === 0 && (
+                      <span className="mt-1 h-4 font-mono text-[11px] uppercase tracking-[0.12em] text-[#d9b36a]">
+                        <span key={beat % 4} className="pl-fade inline-block">{t(VIEWS[beat % 4])}</span>
+                      </span>
+                    )}
+                    {!focus && i === 0 && picked === null && on && <span className="mt-1 font-mono text-[11px] text-paper/40">{t({ es: 'Toca para ver qué se ajusta', en: 'Tap to see what adjusts' })}</span>}
+                  </span>
+                </button>
+                {/* Lo que se ajusta, bajo su rama */}
+                {focus && (
+                  <ul className="pl-fade ml-[44px] mt-4 space-y-1.5 border-l border-[#d9b36a]/30 pl-4 text-[14px] leading-snug text-paper/75">
+                    {b.detail.map((d) => <li key={d.es}>{t(d)}</li>)}
+                  </ul>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+        <span aria-hidden="true" className="relative mx-auto mt-10 block h-2 w-2 rounded-full bg-white/60 shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
+          <span data-fiber-from="pl-forma" className="absolute left-1/2 top-1/2 h-px w-px" />
+        </span>
+      </div>
+  )
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-[980px]">
+    <div ref={rootRef} className={narrow ? '' : 'mx-auto max-w-[980px]'}>
+      {phone || (<>
       {/* El tronco: un nodo del que salen las cuatro ramas */}
       <div className="relative hidden h-16 lg:block" aria-hidden="true">
         <svg viewBox="0 0 1000 64" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
@@ -231,6 +282,7 @@ export function NeedsTree() {
       <span aria-hidden="true" className="relative mx-auto mt-10 block h-2 w-2 rounded-full bg-white/60 shadow-[0_0_12px_2px_rgb(var(--signal)/0.6)]">
         <span data-fiber-from="pl-forma" className="absolute left-1/2 top-1/2 h-px w-px" />
       </span>
+      </>)}
     </div>
   )
 }

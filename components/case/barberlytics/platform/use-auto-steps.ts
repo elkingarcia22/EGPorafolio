@@ -6,13 +6,17 @@ import { useA11y } from '@/lib/a11y'
 /** Verdadero mientras el elemento está a la vista (con un margen abajo para que arranque ya visible). */
 export function useInView(ref: React.RefObject<Element | null>, rootMargin = '0px 0px -25% 0px'): boolean {
   const [inView, setInView] = useState(false)
+  // La pieza puede cambiar de elemento (en teléfono se arma otra composición): se sigue al que esté montado
+  const [el, setEl] = useState<Element | null>(null)
   useEffect(() => {
-    const el = ref.current
+    if (ref.current !== el) setEl(ref.current)
+  })
+  useEffect(() => {
     if (!el) return
     const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { rootMargin })
     io.observe(el)
     return () => io.disconnect()
-  }, [ref, rootMargin])
+  }, [el, rootMargin])
   return inView
 }
 
