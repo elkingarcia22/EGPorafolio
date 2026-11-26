@@ -165,10 +165,34 @@ export function SellUpImpact() {
 
       {/* Leads y éxito del primer contacto */}
       <div className={phone ? 'mt-12 space-y-10' : 'mt-14 grid gap-12 md:grid-cols-2'}>
-        <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
-          <p className="mt-2 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
-          <div className={`mt-5 grid grid-cols-5 ${phone ? 'max-w-[190px] gap-2.5' : 'max-w-[230px] gap-2'}`} aria-hidden="true">
+        {/* En el teléfono, la cuadrícula a un lado y los textos al otro (como el anillo de abajo): sin hueco a la derecha */}
+        <div className={phone ? 'flex items-center gap-5' : ''}>
+          {phone && (
+            <div className={`grid w-[118px] shrink-0 grid-cols-5 gap-1.5`} aria-hidden="true">
+              {Array.from({ length: LEAD_SLOTS }, (_, i) => {
+                const on = i < s.leads
+                const fresh = on && i >= SCENARIO.before.leads
+                return (
+                  <span
+                    key={i}
+                    className="aspect-square rounded-full border transition-all duration-500"
+                    style={{
+                      background: on ? (fresh ? 'rgb(var(--signal))' : 'rgb(255 255 255 / 0.75)') : 'transparent',
+                      borderColor: on ? 'transparent' : 'rgb(255 255 255 / 0.15)',
+                      transform: on ? 'scale(1)' : 'scale(0.7)',
+                      boxShadow: fresh ? '0 0 12px rgb(var(--signal) / 0.7)' : 'none',
+                      transitionDelay: `${(on ? i - SCENARIO.before.leads : LEAD_SLOTS - i) * 30}ms`,
+                    }}
+                  />
+                )
+              })}
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</p>
+            <p className="mt-2 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light">{t({ es: 'Leads calificados a la semana', en: 'Qualified leads per week' })}</p>
+            {!phone && (
+          <div className={`mt-5 grid max-w-[230px] grid-cols-5 gap-2`} aria-hidden="true">
             {Array.from({ length: LEAD_SLOTS }, (_, i) => {
               const on = i < s.leads
               const fresh = on && i >= SCENARIO.before.leads
@@ -187,9 +211,11 @@ export function SellUpImpact() {
               )
             })}
           </div>
-          <p className="mt-4 text-[13px] text-paper/60">
-            <span className="text-[1.6rem] font-light tabular-nums text-paper">{s.leads}</span> {t({ es: 'empresas listas para trabajar', en: 'companies ready to work' })}
-          </p>
+            )}
+            <p className="mt-4 text-[13px] text-paper/60">
+              <span className="text-[1.6rem] font-light tabular-nums text-paper">{s.leads}</span> {t({ es: 'empresas listas para trabajar', en: 'companies ready to work' })}
+            </p>
+          </div>
         </div>
 
         <div className={`flex items-center ${phone ? 'gap-5' : 'gap-8'}`}>
