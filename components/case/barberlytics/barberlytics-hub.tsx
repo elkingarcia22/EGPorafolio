@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ToneSection } from '@/components/ui/tone-section'
 import { TransitionLink } from '@/components/transition/page-transition'
 import { NextProject } from '@/components/case/next-project'
+import { CaseMeta } from '@/components/case/case-meta'
 import { NeuralBackdrop } from '@/components/home/neural-backdrop'
 import { backdropQuiet } from '@/components/home/backdrop-journey'
 import { useA11y } from '@/lib/a11y'
@@ -226,14 +227,13 @@ export function BarberlyticsHub({ next }: { next: Project }) {
 
         {/* Centro: el título y la frase; a un lado, los datos del producto en columna */}
         <div className="grid gap-12 lg:grid-cols-[minmax(0,13rem)_minmax(0,1fr)_minmax(0,13rem)] lg:items-center">
-          <dl className="order-last grid grid-cols-2 gap-x-6 gap-y-5 border-t border-fg/15 pt-8 lg:order-first lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
-            {OVERVIEW.meta.map((m) => (
-              <div key={m.label.es}>
-                <dt className="mono-label mb-1 opacity-50">{t(m.label)}</dt>
-                <dd className="text-[13px] leading-snug">{t(m.value)}</dd>
-              </div>
-            ))}
-          </dl>
+          {/* La ficha como en los demás casos: en el teléfono, el rol y «Ver más» */}
+          <CaseMeta
+            className="order-last lg:order-first"
+            items={OVERVIEW.meta.map((m) => ({ label: t(m.label), value: t(m.value) }))}
+            tools={OVERVIEW.tools}
+            fullClassName="grid-cols-1 gap-y-5 border-l border-fg/15 pl-5"
+          />
           <div className="flex flex-col items-center text-center">
             <h1 className="text-[clamp(3.2rem,1rem+8vw,10rem)] font-light leading-[0.9] tracking-tight">{t(OVERVIEW.title)}</h1>
             <p className="mt-6 max-w-[56ch] text-balance text-lg leading-relaxed opacity-80">{t(OVERVIEW.tagline)}</p>
