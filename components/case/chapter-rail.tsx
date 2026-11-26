@@ -75,7 +75,7 @@ export function ChapterRail({ chapters, label, back = TO_PROJECTS }: ChapterRail
     <>
     <ChapterRailVertical chapters={chapters} label={label} active={active} shown={shown} back={back} fillRef={columnFillRef} onGo={go} />
     {/* Alto cero: fija arriba sin ocupar lugar en la página, así no deja una franja antes del primer capítulo. */}
-    <nav aria-label={label} aria-hidden={!shown || undefined} className="sticky top-[72px] z-30 h-0 lg:hidden">
+    <nav aria-label={label} aria-hidden={!shown || undefined} className="sticky top-[72px] z-30 hidden h-0 md:block lg:hidden">
       <div className={`relative -mx-[var(--gutter)] px-[var(--gutter)] pb-10 pt-4 transition-[opacity,transform] duration-500 ease-expo ${shown ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-3 opacity-0'}`}>
       {/* Velo que se desvanece hacia abajo, sin borde, para que la línea se lea sobre el contenido */}
       <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-[72px] bottom-0 bg-gradient-to-b from-[rgb(var(--void)/0.9)] from-50% to-transparent" />
