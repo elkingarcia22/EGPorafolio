@@ -20,7 +20,7 @@ import { EncHero } from './enc-hero'
 import { EncCycleRing } from './enc-cycle-ring'
 import { EncPatternLayers } from './enc-pattern-layers'
 import { EncBuilderFan } from './enc-builder-fan'
-import { EncSketchGrid } from './enc-sketch-grid'
+import { EncSketchSheets } from './enc-sketch-sheets'
 import { EncSurfaces } from './enc-surfaces'
 import { EncOrbitChain } from './enc-orbit-chain'
 import { EncImpact } from './enc-impact'
@@ -73,7 +73,7 @@ function EncSketchesAndForm() {
   return (
     <div>
       <CaseLead className="mb-10">{t(ENC.leads.bocetos)}</CaseLead>
-      <EncSketchGrid />
+      <EncSketchSheets />
       <div className="mt-[clamp(4rem,3rem+4vw,7rem)]">
         <CaseLead>{t(ENC.leads.forma)}</CaseLead>
         <EncSurfaces />
