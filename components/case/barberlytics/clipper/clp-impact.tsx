@@ -75,7 +75,7 @@ function Metric({ i, start, hot, onPick }: { i: number; start: boolean; hot: boo
 }
 
 /**
- * 07 · Impacto: una onda de voz con el gradiente de IA se dibuja al entrar y
+ * 06 · Impacto: una onda de voz con el gradiente de IA se dibuja al entrar y
  * en cada cresta sube una cifra contando. Tocar una cifra dice qué mide.
  */
 export function ClipperImpact() {

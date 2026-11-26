@@ -13,7 +13,7 @@ const GOLD = AI[0]
 const PUBLIC_URL = demo.url.replace('embed=1&', '')
 
 /**
- * 08 · Demo: con la forma de la demo de Objetivos (un nodo que late, una frase
+ * 07 · Demo: con la forma de la demo de Objetivos (un nodo que late, una frase
  * y dos botones). Aquí la reserva usa datos de prueba, así que el botón
  * principal abre a Clipper vivo en el modal; el otro, en una pestaña nueva.
  */

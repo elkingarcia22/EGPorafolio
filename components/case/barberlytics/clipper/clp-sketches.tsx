@@ -243,8 +243,6 @@ export function ClipperSketches() {
           >
             {t({ es: 'El muro', en: 'The wall' })}
           </button>
-          {/* Del recorrido de tableros baja la fibra hacia «Forma» */}
-          <span data-fiber-from="clp-forma" className="h-px w-px" />
         </div>
       </div>
     </div>
