@@ -156,7 +156,7 @@ export function HeroRibbon({ running, reducedMotion }: HeroRibbonProps) {
           </g>
         ))}
       </svg>
-      <figcaption className="mt-4 text-center font-mono text-[11px] text-white/45">
+      <figcaption className="mt-5 mx-auto max-w-[46ch] text-balance text-center text-[15px] leading-relaxed md:text-base text-white/60">
         {t({ es: 'Los seis temas reales de Thema · el gradiente de la IA también se deriva', en: 'Thema’s six real themes · the AI gradient is derived too' })}
       </figcaption>
     </figure>
@@ -226,7 +226,7 @@ function RibbonTall({ input, tokens, out, step, reducedMotion }: RibbonTallProps
           </li>
         ))}
       </ol>
-      <figcaption className="mt-4 text-center text-[13px] leading-snug text-white/50">
+      <figcaption className="mt-5 mx-auto max-w-[46ch] text-balance text-center text-[15px] leading-relaxed md:text-base text-white/60">
         {t({ es: 'Los seis temas reales de Thema · el gradiente de la IA también se deriva', en: 'Thema’s six real themes · the AI gradient is derived too' })}
       </figcaption>
     </figure>

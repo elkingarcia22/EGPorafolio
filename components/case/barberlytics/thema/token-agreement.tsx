@@ -144,7 +144,7 @@ export function TokenAgreement() {
               </p>
             </div>
           ) : (
-            <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-paper/35">
+            <p className="mx-auto max-w-[46ch] text-balance text-center text-[15px] leading-relaxed md:text-base text-paper/60">
               {t({ es: 'Anillo dorado: las fuentes que coincidían · toca un token para ver el motivo', en: 'Gold ring: the sources that agreed · tap a token to see why' })}
             </p>
           )}
@@ -242,7 +242,7 @@ function TokenStepper() {
       <div className="mt-6">
         <StepNodes count={ROWS.length} active={index} onPick={go} labels={ROWS.map((x) => x.token)} />
       </div>
-      <p className="mt-3 text-center text-[13px] text-paper/45">{t({ es: 'Anillo dorado: las fuentes que coincidían · desliza para ver otro token', en: 'Gold ring: the sources that agreed · swipe for another token' })}</p>
+      <p className="mt-3 mx-auto max-w-[46ch] text-balance text-center text-[15px] leading-relaxed md:text-base text-paper/60">{t({ es: 'Anillo dorado: las fuentes que coincidían · desliza para ver otro token', en: 'Gold ring: the sources that agreed · swipe for another token' })}</p>
     </div>
   )
 }
