@@ -284,7 +284,7 @@ export function SellUpSketches() {
       )}
 
       <p key={`cap-${pair.id}`} aria-live="polite" className="su-fade mt-6 text-center lg:mt-8">
-        <span className="mono-label max-md:text-[12px] text-signal">{t(pair.label)} → {t(pair.shotName)}</span>
+        <span className="mono-label text-signal">{t(pair.label)} → {t(pair.shotName)}</span>
         <span className="mt-2 block text-balance text-sm text-paper/65 md:text-base">{t(pair.caption)}</span>
       </p>
     </div>

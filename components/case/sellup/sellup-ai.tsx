@@ -6,6 +6,7 @@ import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
 import { SPLIT } from '@/lib/content/cases/sellup/sellup-agents'
 import { RumboMark } from './platform'
+import { usePhone } from './camera'
 import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Cada cuánto aparece la rama siguiente (ms) */
@@ -47,6 +48,7 @@ export function SellUpAi() {
   const [active, setActive] = useState(0)
   const [beat, setBeat] = useState(0)
   const [heldUntil, setHeldUntil] = useState(0)
+  const phone = usePhone()
 
   const split = SPLIT[active]
   const m = split.model.length
@@ -105,7 +107,7 @@ export function SellUpAi() {
           )}
           <RumboMark size={84} motion={thinking ? 'thinking' : 'breathing'} />
         </div>
-        <p className="mt-3 font-mono text-[12px] md:text-[10px] uppercase tracking-[0.18em] text-paper/50">Rumbo · {thinking ? t({ es: 'pensando', en: 'thinking' }) : t({ es: 'listo', en: 'done' })}</p>
+        <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-paper/50 md:text-[10px]">Rumbo · {thinking ? t({ es: 'pensando', en: 'thinking' }) : t({ es: 'listo', en: 'done' })}</p>
 
         {/* Los tres agentes */}
         <div className="mt-4 flex flex-wrap justify-center gap-2" role="tablist" aria-label={t({ es: 'Agentes', en: 'Agents' })}>
@@ -123,14 +125,18 @@ export function SellUpAi() {
           ))}
         </div>
 
+        {phone ? (
+          <PhoneColumn key={active} split={split} shownBeat={shownBeat} approved={approved} reducedMotion={reducedMotion} />
+        ) : (
+        <>
         {/* La columna: la fibra baja por el centro y de ella salen las ramas */}
         <div key={active} className="relative mt-8 grid w-full grid-cols-[minmax(0,1fr)_2px_minmax(0,1fr)]">
           <span aria-hidden="true" className="relative col-start-2 row-span-2 row-start-1 overflow-hidden bg-gradient-to-b from-[#7e2be0] via-signal/60 to-signal/30">
             {!reducedMotion && <span className="su-drip absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-transparent via-white to-transparent" />}
             <span className="absolute inset-x-0 bottom-0 bg-signal transition-[height] duration-700 ease-out" style={{ height: approved ? '100%' : '0%', boxShadow: '0 0 12px rgb(var(--signal))' }} />
           </span>
-          <p className="col-start-1 row-start-1 pb-5 pr-[clamp(1.2rem,5vw,3.5rem)] text-right font-mono text-[12px] md:text-[10px] uppercase tracking-[0.16em] text-[#c4b5fd]">{t({ es: 'El modelo propone', en: 'The model proposes' })}</p>
-          <p className="col-start-3 row-start-1 pb-5 pl-[clamp(1.2rem,5vw,3.5rem)] font-mono text-[12px] md:text-[10px] uppercase tracking-[0.16em] text-[#6ee7b7]">{t({ es: 'Las reglas verifican', en: 'Rules verify' })}</p>
+          <p className="col-start-1 row-start-1 pb-5 pr-[clamp(1.2rem,5vw,3.5rem)] text-right font-mono text-[10px] uppercase tracking-[0.16em] text-[#c4b5fd]">{t({ es: 'El modelo propone', en: 'The model proposes' })}</p>
+          <p className="col-start-3 row-start-1 pb-5 pl-[clamp(1.2rem,5vw,3.5rem)] font-mono text-[10px] uppercase tracking-[0.16em] text-[#6ee7b7]">{t({ es: 'Las reglas verifican', en: 'Rules verify' })}</p>
           <ul className="col-start-1 row-start-2 space-y-4 pb-10">
             {split.model.map((item, i) => <Branch key={item.es} text={item} side="left" shown={shownBeat > i} />)}
           </ul>
@@ -146,6 +152,59 @@ export function SellUpAi() {
           <span data-fiber-from="su-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />
         </span>
         <p className={`mt-4 text-[clamp(1.05rem,0.9rem+0.6vw,1.4rem)] font-light transition-opacity duration-500 ${approved ? 'opacity-100' : 'opacity-50'}`}>{approved ? t({ es: 'La persona aprueba', en: 'The person approves' }) : t({ es: 'La persona decide', en: 'The person decides' })}</p>
+        </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+interface PhoneColumnProps {
+  split: (typeof SPLIT)[number]
+  shownBeat: number
+  approved: boolean
+  reducedMotion: boolean
+}
+
+/**
+ * La columna en teléfono: una sola fibra baja por la izquierda. De ella cuelgan
+ * primero las propuestas del modelo y después las reglas que las sellan; al
+ * pie, la persona aprueba y la fibra se enciende. De ahí sale la fibra a «Impacto».
+ */
+function PhoneColumn({ split, shownBeat, approved, reducedMotion }: PhoneColumnProps) {
+  const { t } = useLocale()
+  const m = split.model.length
+  const row = (text: L, kind: 'model' | 'rule', shown: boolean) => (
+    <li key={text.es} className={`relative flex items-start gap-3 pl-9 transition-all duration-700 ease-expo ${shown ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'}`}>
+      {/* El tramo que une la fibra con la rama, y la señal que lo cruza al aparecer */}
+      <span aria-hidden="true" className={`absolute left-[11px] top-[17px] h-px w-5 ${kind === 'model' ? 'bg-[#a78bfa]/60' : 'bg-[#34d399]/60'}`}>
+        {shown && <span className="su-shoot-right absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white shadow-[0_0_8px_white]" />}
+      </span>
+      <span className={`rounded-2xl border px-3.5 py-2 text-[15px] leading-snug ${kind === 'model' ? 'border-[#a78bfa]/40 bg-[#7e2be0]/10' : 'border-[#34d399]/40 bg-[#34d399]/10'}`}>
+        {kind === 'rule' && shown && <span className="su-stamp mr-1.5 inline-block text-[#34d399]">✓</span>}
+        {t(text)}
+      </span>
+    </li>
+  )
+  return (
+    <div className="relative mt-8 w-full max-w-[380px]">
+      {/* La fibra: violeta mientras el modelo propone, verde al aprobar */}
+      <span aria-hidden="true" className="absolute bottom-[10px] left-[11px] top-1 w-[2px] overflow-hidden rounded-full bg-gradient-to-b from-[#7e2be0] via-signal/60 to-signal/30">
+        {!reducedMotion && <span className="su-drip absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-transparent via-white to-transparent" />}
+        <span className="absolute inset-x-0 top-0 bg-[#34d399] transition-[height] duration-700 ease-out" style={{ height: approved ? '100%' : '0%', boxShadow: '0 0 12px rgb(52 211 153)' }} />
+      </span>
+      <p className="pl-9 font-mono text-[11px] uppercase tracking-[0.14em] text-[#c4b5fd]">{t({ es: 'El modelo propone', en: 'The model proposes' })}</p>
+      <ul className="mt-3 space-y-3">{split.model.map((item, i) => row(item, 'model', shownBeat > i))}</ul>
+      <p className="mt-7 pl-9 font-mono text-[11px] uppercase tracking-[0.14em] text-[#6ee7b7]">{t({ es: 'Las reglas verifican', en: 'Rules verify' })}</p>
+      <ul className="mt-3 space-y-3">{split.rules.map((item, i) => row(item, 'rule', shownBeat > m + i))}</ul>
+      {/* Al pie de la fibra, la persona */}
+      <div className="mt-7 flex items-center gap-4">
+        <span aria-hidden="true" className="relative grid h-6 w-6 shrink-0 place-items-center">
+          {approved && <span className="absolute inset-[-8px] rounded-full border-2 border-[#34d399]/70 animate-[nav-node-ping_1.6s_cubic-bezier(0,0,.2,1)_infinite]" />}
+          <span className={`grid h-full w-full place-items-center rounded-full border text-[12px] font-bold transition-all duration-500 ${approved ? 'border-white bg-[#34d399] text-[#06281c] shadow-[0_0_20px_5px_rgb(52_211_153/0.5)]' : 'border-white/50 bg-void text-transparent'}`}>✓</span>
+          <span data-fiber-from="su-impacto" className="absolute left-1/2 top-1/2 h-px w-px" />
+        </span>
+        <p className={`text-[18px] font-light transition-opacity duration-500 ${approved ? 'opacity-100' : 'opacity-55'}`}>{approved ? t({ es: 'La persona aprueba', en: 'The person approves' }) : t({ es: 'La persona decide', en: 'The person decides' })}</p>
       </div>
     </div>
   )

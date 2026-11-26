@@ -5,7 +5,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
 import { SELLUP_CASE, type AgentId, type CascadeStep } from '@/lib/content/cases/sellup/sellup-case'
-import { useCompact } from './camera'
+import { useCompact, usePhone } from './camera'
 import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** En qué escalón se detuvo cada agente en la corrida contada (índice del paso) */
@@ -48,6 +48,7 @@ export function SellUpPatterns() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const compact = useCompact()
+  const phone = usePhone()
   const { patterns } = SELLUP_CASE
   const rootRef = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
@@ -133,8 +134,22 @@ export function SellUpPatterns() {
           )
         })}
       </div>
-      <p key={`goal-${agentIndex}`} className="su-fade mt-4 text-center font-mono text-[12px] uppercase tracking-[0.14em] text-paper/55 md:text-[11px] md:text-paper/45">{t(cascade.goal)}</p>
+      <p key={`goal-${agentIndex}`} className="su-fade mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">{t(cascade.goal)}</p>
 
+      {phone ? (
+        <PhoneStairs
+          steps={cascade.steps}
+          id={cascade.id}
+          stop={stop}
+          last={last}
+          walker={walker}
+          note={note}
+          onPick={pickNote}
+          reached={reached}
+          skipped={skipped}
+          done={done}
+        />
+      ) : (
       <div className="relative mx-auto mt-8 w-full" style={{ maxWidth: L_.w, aspectRatio: `${L_.w} / ${L_.h}` }}>
         <svg viewBox={`0 0 ${L_.w} ${L_.h}`} className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
           {pts.slice(0, -1).map((a, i) => {
@@ -176,13 +191,14 @@ export function SellUpPatterns() {
                 />
               </span>
               <span className={compact ? '' : 'mt-3'}>
-                <span className={`block text-balance leading-snug transition-opacity ${compact ? 'text-[15px]' : 'text-[13px]'} duration-500 ${off ? 'line-through decoration-white/40 opacity-45' : on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(s.name)}</span>
-                <span className={`mt-1 block font-mono uppercase tracking-[0.14em] ${compact ? 'text-[11px]' : 'text-[9px]'}`} style={{ color, opacity: off ? 0.55 : 0.9 }}>{t(COST[s.cost].label)}</span>
+                <span className={`block text-balance text-[13px] leading-snug transition-opacity duration-500 ${off ? 'line-through decoration-white/40 opacity-45' : on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(s.name)}</span>
+                <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.16em]" style={{ color, opacity: off ? 0.45 : 0.8 }}>{t(COST[s.cost].label)}</span>
               </span>
             </button>
           )
         })}
       </div>
+      )}
 
       {/* Dónde se detuvo (o qué es el escalón tocado): una o dos líneas */}
       <p key={`${agentIndex}-${note ?? (done ? 'stop' : 'run')}`} aria-live="polite" className={`su-fade mx-auto mt-10 min-h-[3.2em] max-w-[60ch] text-balance text-center leading-relaxed text-paper/75 transition-opacity ${shown || done ? 'opacity-100' : 'opacity-0'}`}>
@@ -192,6 +208,69 @@ export function SellUpPatterns() {
       <span aria-hidden="true" className="relative mx-auto mt-8 block h-2.5 w-2.5 rounded-full border border-white/70 bg-signal shadow-[0_0_14px_rgb(var(--signal))]">
         <span data-fiber-from="su-idea" className="absolute left-1/2 top-1/2 h-px w-px" />
       </span>
+    </div>
+  )
+}
+
+/** Alto de cada escalón en teléfono (px) */
+const ROW = 64
+/** Dónde corre la fibra en teléfono (px desde la izquierda) */
+const RAIL_X = 15
+
+interface PhoneStairsProps {
+  steps: readonly CascadeStep[]
+  id: string
+  stop: number
+  last: number
+  walker: number
+  note: number | null
+  onPick: (i: number) => void
+  reached: (i: number) => boolean
+  skipped: (i: number) => boolean
+  done: boolean
+}
+
+/**
+ * La escalera en teléfono: los escalones en una lista de pie, colgados de una
+ * fibra que se enciende tramo por tramo. Al cumplir la meta, un arco por
+ * fuera salta hasta la persona y lo que no hizo falta queda tachado.
+ */
+function PhoneStairs({ steps, id, stop, last, walker, note, onPick, reached, skipped, done }: PhoneStairsProps) {
+  const { t } = useLocale()
+  const y = (i: number) => i * ROW + ROW / 2
+  const h = steps.length * ROW
+  return (
+    <div className="relative mx-auto mt-8 w-full max-w-[360px]" style={{ height: h }}>
+      <svg viewBox={`0 0 40 ${h}`} width={40} height={h} className="absolute left-0 top-0 overflow-visible" aria-hidden="true">
+        <line x1={RAIL_X} x2={RAIL_X} y1={y(0)} y2={y(last)} stroke="white" strokeOpacity={0.14} strokeWidth={1.5} />
+        {steps.slice(0, -1).map((_, i) => {
+          const lit = reached(i) && reached(i + 1) && !skipped(i + 1)
+          return <line key={`${id}-${i}`} x1={RAIL_X} x2={RAIL_X} y1={y(i)} y2={y(i + 1)} stroke="rgb(var(--signal))" strokeWidth={2} pathLength={1} strokeDasharray="1" strokeDashoffset={lit ? 0 : 1} style={{ transition: `stroke-dashoffset ${STEP_MS}ms linear`, filter: 'drop-shadow(0 0 4px rgb(var(--signal) / 0.7))' }} />
+        })}
+        {stop < last - 1 && (
+          <path key={`jump-${id}`} d={`M${RAIL_X} ${y(stop)} C${RAIL_X - 34} ${y(stop) + 60}, ${RAIL_X - 34} ${y(last) - 60}, ${RAIL_X} ${y(last)}`} fill="none" stroke="rgb(var(--signal))" strokeWidth={1.6} pathLength={1} strokeDasharray="1" strokeDashoffset={done ? 0 : 1} style={{ transition: `stroke-dashoffset ${STEP_MS}ms ease-out`, filter: 'drop-shadow(0 0 4px rgb(var(--signal) / 0.7))' }} />
+        )}
+      </svg>
+      <ol>
+        {steps.map((s, i) => {
+          const on = reached(i)
+          const off = skipped(i) && done
+          const isHere = walker === i
+          const color = COST[s.cost].color
+          return (
+            <li key={`${id}-${s.name.es}`} style={{ height: ROW }}>
+              <button type="button" onClick={() => onPick(i)} aria-pressed={note === i} className="flex h-full w-full items-center gap-4 text-left outline-none">
+                <span className="relative grid h-[30px] w-[30px] shrink-0 place-items-center" aria-hidden="true">
+                  {isHere && <span className="absolute inset-[-4px] rounded-full border animate-[nav-node-ping_1.8s_cubic-bezier(0,0,.2,1)_infinite]" style={{ borderColor: color }} />}
+                  <span className="h-[18px] w-[18px] rounded-full border transition-all duration-500" style={{ background: on ? color : 'rgb(var(--void))', borderColor: on ? 'white' : 'rgb(255 255 255 / 0.35)', boxShadow: on ? `0 0 14px ${color}` : 'none', opacity: off ? 0.5 : 1, transform: isHere ? 'scale(1.2)' : 'scale(1)' }} />
+                </span>
+                <span className={`min-w-0 flex-1 text-[16px] leading-snug transition-opacity duration-500 ${off ? 'line-through decoration-white/40 opacity-40' : on ? 'opacity-100' : 'opacity-60'}`}>{t(s.name)}</span>
+                <span className="shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-[0.08em] transition-opacity duration-500" style={{ color, borderColor: `${color}55`, opacity: off ? 0.35 : on ? 1 : 0.7 }}>{t(COST[s.cost].label)}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
     </div>
   )
 }

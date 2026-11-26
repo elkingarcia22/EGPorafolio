@@ -153,7 +153,7 @@ export function AppGallery() {
           </button>
         ))}
       </div>
-      <p className="mt-4 text-center font-mono text-[12px] md:text-[10px] uppercase tracking-[0.16em] text-white/35">{t({ es: 'Capturas reales · nombres de personas desenfocados', en: 'Real screenshots · people’s names blurred' })}</p>
+      <p className="mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-white/40 md:text-[10px] md:tracking-[0.16em] md:text-white/35">{t({ es: 'Capturas reales · nombres de personas desenfocados', en: 'Real screenshots · people’s names blurred' })}</p>
     </div>
   )
 }

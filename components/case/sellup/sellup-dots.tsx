@@ -5,7 +5,7 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
 import { SELLUP_CASE } from '@/lib/content/cases/sellup/sellup-case'
-import { useNarrow } from './camera'
+import { usePhone } from './camera'
 
 /** Lienzo del campo (unidades del SVG): ancho en escritorio, alto en teléfono (puntos a tamaño legible) */
 interface Grid {
@@ -85,7 +85,8 @@ export function SellUpDots() {
   const { reducedMotion } = useA11y()
   const { dots } = SELLUP_CASE
   const rootRef = useRef<HTMLDivElement>(null)
-  const grid = useNarrow() ? TALL : WIDE
+  const phone = usePhone()
+  const grid = phone ? TALL : WIDE
   const field = useMemo(() => buildField(grid), [grid])
   const pick = useMemo(() => pickOf(field, grid), [field, grid])
   const [step, setStep] = useState(reducedMotion ? LAST : 0)
@@ -128,7 +129,7 @@ export function SellUpDots() {
 
       {/* Lo que dice el paso: una frase sobre el campo */}
       <div key={view} className="su-fade mx-auto flex min-h-[6.5rem] max-w-[62ch] flex-col items-center justify-end text-center">
-        <p className="mono-label max-md:text-[12px] text-signal">{t(copy.tag)}</p>
+        <p className="mono-label text-signal">{t(copy.tag)}</p>
         <p className="mt-3 text-balance text-[clamp(1.2rem,0.95rem+1vw,1.75rem)] font-light leading-[1.2] tracking-tight">{t(copy.title)}</p>
         {picked !== null && copy.body && <p className="mt-3 max-w-[56ch] text-balance text-sm leading-relaxed text-paper/60">{t(copy.body)}</p>}
       </div>
@@ -167,7 +168,7 @@ export function SellUpDots() {
       </div>
 
       {/* Los tres problemas como nodos de una línea: se encienden solos; tocar uno lo explica */}
-      <ol className="mx-auto mt-8 grid max-w-[760px] grid-cols-3 gap-3">
+      <ol className={phone ? 'mx-auto mt-8 max-w-[340px] space-y-1' : 'mx-auto mt-8 grid max-w-[760px] grid-cols-3 gap-3'}>
         {dots.seen.map((s, i) => {
           const at = i + 1
           const kind = (['paid', 'noise', 'free'] as const)[i]
@@ -178,10 +179,10 @@ export function SellUpDots() {
                 type="button"
                 aria-pressed={picked === at}
                 onClick={() => setPicked(picked === at ? null : at)}
-                className="group flex w-full flex-col items-center gap-2 text-center outline-none"
+                className={`group flex w-full outline-none ${phone ? 'items-center gap-4 rounded-xl px-3 py-3 text-left transition-colors duration-500 ' + (on ? 'bg-white/[0.05]' : '') : 'flex-col items-center gap-2 text-center'}`}
               >
-                <span className="h-2.5 w-2.5 rounded-full transition-transform duration-500" style={{ background: KIND_COLOR[kind], transform: on ? 'scale(1.5)' : 'scale(1)', boxShadow: on ? `0 0 14px ${KIND_COLOR[kind]}` : 'none' }} />
-                <span className={`text-balance text-[13px] leading-snug transition-opacity duration-500 ${on ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`}>{t(s.title)}</span>
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full transition-transform duration-500" style={{ background: KIND_COLOR[kind], transform: on ? 'scale(1.5)' : 'scale(1)', boxShadow: on ? `0 0 14px ${KIND_COLOR[kind]}` : 'none' }} />
+                <span className={`text-balance leading-snug transition-opacity duration-500 ${phone ? 'text-[15px]' : 'text-[13px]'} ${on ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`}>{t(s.title)}</span>
               </button>
             </li>
           )

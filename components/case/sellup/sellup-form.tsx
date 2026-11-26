@@ -5,7 +5,8 @@ import { gsap } from '@/lib/motion'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { CaseLead } from '@/components/case/case-lead'
-import { useCompact } from './camera'
+import { useCompact, usePhone } from './camera'
+import { FanPhone } from './fan-phone'
 import { DetailScene, SceneStage, Scaled } from './forma-stage'
 import { MAGNET_H, MAGNET_W, MagnetScene } from './forma-a3-magnet'
 import { MagnetMobile } from './forma-a3-magnet-mobile'
@@ -62,6 +63,7 @@ function Agent3() {
   const ref = useRef<HTMLDivElement>(null)
   const time = useSceneClock(ref, A3_FULL, 25)
   const compact = useCompact()
+  const phone = usePhone()
   const [channel, setChannel] = useState<Channel>('email')
   const fanFrom = A3_STEPS[1].from
   const scene = time >= fanFrom ? 1 : 0
@@ -85,7 +87,7 @@ function Agent3() {
         active={scene}
         scenes={[
           compact ? <MagnetMobile key="magnet" time={magnetTime} /> : <DetailScene key="magnet" width={MAGNET_W} height={MAGNET_H}><MagnetScene time={magnetTime} /></DetailScene>,
-          <DetailScene key="fan" width={FAN_W} height={FAN_H} view={compact ? fanView(u, channel) : undefined}><FanScene u={u} onChannel={setChannel} /></DetailScene>,
+          phone ? <FanPhone key="fan" u={u} /> : <DetailScene key="fan" width={FAN_W} height={FAN_H} view={compact ? fanView(u, channel) : undefined}><FanScene u={u} onChannel={setChannel} /></DetailScene>,
         ]}
       />
     </div>
@@ -127,7 +129,7 @@ function Station({ index, title, lead, fiberFrom, children }: StationProps) {
         <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.6s_cubic-bezier(0,0,.2,1)_infinite]" />
       </span>
       <h3 data-reveal className="mt-5 text-center">
-        <span className="mono-label max-md:text-[12px] text-signal">{index}</span>
+        <span className="mono-label text-signal">{index}</span>
         <span className="mt-2 block text-[clamp(1.4rem,1rem+1.4vw,2.2rem)] font-light leading-tight tracking-tight">{t(title)}</span>
       </h3>
       <CaseLead className="mt-4">{t(lead)}</CaseLead>

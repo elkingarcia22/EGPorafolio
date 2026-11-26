@@ -64,10 +64,3 @@ html[data-motion='reduced'] .su-shoot-right { display: none; }
 
 /* Impacto: la señal que va del antes a la meta */
 @keyframes su-flow { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
-
-/* Teléfono: el aparato del canal activo (agente 3) con letra más grande, para que se lea dentro de la cámara */
-.su-dev-lg .text-\[12px\] { font-size: 15px; }
-.su-dev-lg .text-\[11px\] { font-size: 14px; }
-.su-dev-lg .text-\[10px\] { font-size: 13px; }
-.su-dev-lg .text-\[9px\] { font-size: 12px; }
-.su-dev-lg .text-\[0\.85em\] { font-size: 0.95em; }
