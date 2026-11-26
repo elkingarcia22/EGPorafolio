@@ -6,6 +6,7 @@ import { useLocale } from '@/lib/i18n'
 import { PhoneBody, StatusBar } from '@/components/case/kit/device'
 import { ClipperOrb } from '../clipper-orb'
 import { aiEndFrom, aiStops, inkOn, shade, withAlpha } from './color-utils'
+import { useNarrow } from './use-narrow'
 
 /* ── Barberías de ejemplo y sus emblemas ──────────────────────────────── */
 
@@ -147,6 +148,26 @@ export function LogoToApp() {
   }, [pinned, reducedMotion])
 
   const palette = [primary, shop.secondary, shade(primary, -0.45), shade(primary, 0.7)]
+  const narrow = useNarrow()
+
+  if (narrow)
+    return (
+      <LogoToAppTall
+        shop={shop}
+        primary={primary}
+        palette={palette}
+        custom={custom}
+        onPick={(i) => {
+          setIndex(i)
+          setCustom(null)
+          setPinned(true)
+        }}
+        onCustom={(c) => {
+          setCustom(c)
+          setPinned(true)
+        }}
+      />
+    )
 
   return (
     <div className="relative text-white">
@@ -229,6 +250,94 @@ export function LogoToApp() {
         </label>
       </div>
       <p className="relative mt-4 text-center text-[13px] leading-snug text-white/45 md:text-xs md:text-white/40">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
+    </div>
+  )
+}
+
+interface LogoToAppTallProps {
+  shop: Shop
+  primary: string
+  palette: readonly string[]
+  custom: string | null
+  onPick: (i: number) => void
+  onCustom: (color: string) => void
+}
+
+/**
+ * Del logo a la app, en el teléfono: arriba, en una sola fila, las barberías y
+ * «tu color»; debajo, el logo, del que baja la fibra hasta la app; y al lado
+ * del celular, en columna, los colores que el sistema saca del logo.
+ */
+function LogoToAppTall({ shop, primary, palette, custom, onPick, onCustom }: LogoToAppTallProps) {
+  const { t } = useLocale()
+  return (
+    <div className="relative text-white">
+      <span className="pointer-events-none absolute -left-24 top-40 h-[340px] w-[340px] rounded-full opacity-20 blur-3xl transition-[background] duration-1000" style={{ background: primary }} aria-hidden="true" />
+
+      {/* Los selectores, en una sola fila */}
+      <div className="relative flex items-center justify-center gap-3" role="group" aria-label={t({ es: 'Barberías de ejemplo', en: 'Sample shops' })}>
+        {SHOPS.map((s, i) => {
+          const on = s.id === shop.id && !custom
+          return (
+            <button
+              key={s.id}
+              type="button"
+              aria-pressed={on}
+              aria-label={s.name}
+              onClick={() => onPick(i)}
+              className={`grid h-11 w-11 place-items-center rounded-full outline-none ring-offset-2 ring-offset-[rgb(var(--void))] transition-[box-shadow,transform] duration-300 focus-visible:ring-2 focus-visible:ring-signal ${on ? 'scale-110 ring-2 ring-white' : 'ring-1 ring-white/20'}`}
+            >
+              <span className="h-7 w-7 rounded-full" style={{ background: s.primary, boxShadow: `inset 0 0 0 5px ${s.secondary}55` }} />
+            </button>
+          )
+        })}
+        <span aria-hidden="true" className="h-6 w-px bg-white/15" />
+        <label className={`relative grid h-11 w-11 cursor-pointer place-items-center rounded-full ring-offset-2 ring-offset-[rgb(var(--void))] ${custom ? 'scale-110 ring-2 ring-white' : 'ring-1 ring-white/30'}`} style={{ background: custom ? custom : 'conic-gradient(#e5484d, #f0ce86, #2e9c78, #3f72d8, #8f5bd8, #e5484d)' }}>
+          <input type="color" value={custom ?? shop.primary} onChange={(e) => onCustom(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" aria-label={t({ es: 'Prueba tu color', en: 'Try your color' })} />
+          <span aria-hidden="true" className="text-base font-semibold text-white mix-blend-difference">+</span>
+        </label>
+      </div>
+      <p className="mt-3 text-center text-[13px] text-white/55">
+        {custom ? t({ es: 'Tu color', en: 'Your color' }) : shop.name} <span className="text-white/35">· {t({ es: 'toca otra o prueba tu color', en: 'tap another or try your color' })}</span>
+      </p>
+
+      {/* El logo, y de él baja la fibra a la app */}
+      <div className="relative mt-8 flex flex-col items-center">
+        <p className="mono-label mb-3 text-white/50">{t({ es: '1 · El logo', en: '1 · The logo' })}</p>
+        <div key={`${shop.id}-${custom ?? ''}`} className="relative aspect-square w-[120px]">
+          <div className="animate-[ramp-in_0.8s_cubic-bezier(0.16,1,0.3,1)_both] drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]">
+            <shop.Emblem primary={primary} secondary={shop.secondary} />
+          </div>
+          <span className="pointer-events-none absolute inset-x-0 h-1 animate-[logo-scan_1.6s_cubic-bezier(0.65,0,0.35,1)_both] rounded-full bg-white/80 shadow-[0_0_24px_6px_rgba(255,255,255,0.6)]" aria-hidden="true" />
+        </div>
+        <span aria-hidden="true" className="mt-3 h-8 w-px bg-gradient-to-b from-white/0 to-white/45" />
+        <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full border border-white/60 transition-colors duration-700" style={{ background: primary, boxShadow: `0 0 12px 2px ${primary}99` }} />
+        <span aria-hidden="true" className="h-6 w-px bg-gradient-to-b from-white/45 to-white/10" />
+      </div>
+
+      {/* La app y, al lado, los colores que salen del logo */}
+      <div className="relative mt-2 grid grid-cols-[minmax(0,1fr)_76px] items-start gap-3">
+        <div>
+          <p className="mb-3 whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.1em] text-white/50">{t({ es: '3 · Su app', en: '3 · Their app' })}</p>
+          <PhoneBody className="ml-auto w-full max-w-[250px]">
+            <StatusBar />
+            <ShopApp shop={shop} primary={primary} />
+          </PhoneBody>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="mb-3 whitespace-nowrap text-center font-mono text-[11px] uppercase tracking-[0.1em] text-white/50">2 · {t({ es: 'Colores', en: 'Colors' })}</p>
+          <ul className="relative flex flex-col items-center gap-4">
+            <span aria-hidden="true" className="absolute bottom-6 top-6 left-1/2 w-px -translate-x-1/2 bg-white/12" />
+            {palette.map((c, i) => (
+              <li key={`${c}-${i}`} className="relative flex animate-[ramp-in_0.6s_cubic-bezier(0.16,1,0.3,1)_both] flex-col items-center" style={{ animationDelay: `${0.6 + i * 0.12}s` }}>
+                <span className={`block h-11 w-11 rounded-xl ${i === 0 ? 'ring-2 ring-white' : 'ring-1 ring-white/15'}`} style={{ background: c }} />
+                <span className="mt-1 font-mono text-[11px] text-white/50">{i === 0 ? t({ es: 'primario', en: 'primary' }) : c.toUpperCase().slice(0, 7)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <p className="relative mt-6 text-center text-[13px] leading-snug text-white/45">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
     </div>
   )
 }
