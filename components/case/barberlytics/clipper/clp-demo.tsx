@@ -61,10 +61,10 @@ export function ClipperLiveDemo() {
       </div>
 
       {/* Para probar: lo que hay que escribir o dictar */}
-      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.1em] text-paper/40">
+      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[11px] uppercase sm:text-[10px] tracking-[0.1em] text-paper/40">
         {demo.tryIt.map((item) => (
           <span key={item.label.es}>
-            {t(item.label)} · <span className="normal-case tracking-normal text-paper/70">{typeof item.value === 'string' ? item.value : t(item.value)}</span>
+            {t(item.label)} · <span className="normal-case tracking-normal text-paper/70 max-sm:text-[13px]">{typeof item.value === 'string' ? item.value : t(item.value)}</span>
           </span>
         ))}
       </p>

@@ -98,7 +98,7 @@ export function ClipperDotsScene() {
                   <circle r={30} fill={RED} opacity={on ? (hot ? 0.28 : 0.12) : 0} style={{ transition: 'opacity .5s' }} />
                   {hot && !reducedMotion && <circle r={14} fill="none" stroke={RED} strokeWidth={1.5} className="clp-ping" />}
                   <circle r={9} fill={on ? (hot ? 'white' : RED) : 'rgb(var(--void))'} stroke="white" strokeOpacity={on ? 0.9 : 0.35} strokeWidth={1.4} style={{ transition: 'fill .5s' }} />
-                  <text y={-26} textAnchor="middle" className="clp-svg-role fill-paper font-mono" style={{ opacity: on ? 0.8 : 0.3 }}>0{i + 1}</text>
+                  <text y={-26} textAnchor="middle" className="clp-svg-role fill-paper font-mono max-sm:hidden" style={{ opacity: on ? 0.8 : 0.3 }}>0{i + 1}</text>
                 </g>
               </g>
             )

@@ -32,11 +32,20 @@ function Lane({ lane, shown, collapsed }: LaneProps) {
       <div className="relative mt-4">
         <div className={`transition-all duration-700 ease-expo ${collapsed ? 'scale-[0.97] opacity-20 blur-[1px]' : ''}`}>
           {/* Los pasos, una sola vez arriba */}
-          <div className="flex items-end gap-2 pb-3">
+          {/* En el teléfono, los pasos se leen de corrido: no caben uno sobre cada columna */}
+          <p className="mb-4 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-paper/70 sm:hidden">
+            {pain.steps.map((s, k) => (
+              <span key={k} className="inline-flex items-center gap-1.5">
+                {k > 0 && <span aria-hidden="true" style={{ color }}>→</span>}
+                {t(s)}
+              </span>
+            ))}
+          </p>
+          <div className="hidden items-end gap-2 pb-3 sm:flex">
             <span className="w-16 shrink-0 sm:w-[6.5rem]" />
             <span className="mx-5 flex flex-1 justify-between">
               {pain.steps.map((s, k) => (
-                <span key={k} className="w-0 whitespace-nowrap text-center font-mono text-[8px] uppercase tracking-normal text-paper/45 sm:text-[10px] sm:tracking-[0.08em]">
+                <span key={k} className="w-0 whitespace-nowrap text-center font-mono text-[10px] uppercase tracking-[0.08em] text-paper/45">
                   <span className="inline-block -translate-x-1/2">{t(s)}</span>
                 </span>
               ))}
@@ -46,7 +55,7 @@ function Lane({ lane, shown, collapsed }: LaneProps) {
           <ul className="space-y-4">
             {pain.rows.map((r, i) => (
               <li key={i} className={`flex items-center gap-2 transition-all duration-500 ease-expo ${i < shown ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'}`}>
-                <span className="w-16 shrink-0 sm:w-[6.5rem] truncate text-[12px] text-paper/70 sm:text-[13px]">{rowLabel(r, t)}</span>
+                <span className="w-20 shrink-0 truncate text-[13px] text-paper/70 sm:w-[6.5rem]">{rowLabel(r, t)}</span>
                 <span className="relative mx-5 flex flex-1 items-center justify-between">
                   <span className="absolute inset-x-0 top-1/2 h-px origin-left transition-transform duration-700 ease-expo" style={{ background: `${color}66`, transform: i < shown ? 'scaleX(1)' : 'scaleX(0)' }} />
                   {pain.steps.map((_, k) => (

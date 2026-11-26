@@ -6,6 +6,8 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { AI, Lead } from './clp-kit'
 import { CLIPPER_BOARDS } from './clp-boards'
+import { ClipperFlowCard } from './clp-flow-card'
+import { useNarrow } from '../use-narrow'
 import { useSwipe } from '@/components/case/kit/use-swipe'
 
 const BOARDS = CLIPPER_BOARDS
@@ -39,6 +41,8 @@ export function ClipperSketches() {
   const [inView, setInView] = useState(false)
   /** Dónde va el ciclo: 0 = el muro entero; 1–4 = cada tablero */
   const [pos, setPos] = useState(0)
+  /** En el teléfono no hay muro: un tablero a la vez, a tamaño de lectura, y se pasa a mano */
+  const narrow = useNarrow('(max-width: 767px)')
   const overview = pos === 0
   const lastBoard = useRef(0)
   if (pos > 0) lastBoard.current = pos - 1
@@ -54,15 +58,19 @@ export function ClipperSketches() {
 
   // El ciclo: muro → tablero 1 → … → tablero 4 → muro → …
   useEffect(() => {
-    if (!inView || hover || reducedMotion) return
+    if (!inView || hover || reducedMotion || narrow) return
     const id = window.setTimeout(() => setPos((p) => (p + 1) % (BOARDS.length + 1)), overview ? WALL_MS : BOARD_MS)
     return () => window.clearTimeout(id)
-  }, [inView, hover, reducedMotion, pos, overview])
+  }, [inView, hover, reducedMotion, narrow, pos, overview])
+
+  useEffect(() => {
+    if (narrow && pos === 0) setPos(1)
+  }, [narrow, pos])
 
   // En el teléfono también se pasa deslizando el dedo de lado.
   useSwipe(rootRef, {
-    onNext: () => setPos((p) => (p + 1) % (BOARDS.length + 1)),
-    onPrev: () => setPos((p) => (p - 1 + BOARDS.length + 1) % (BOARDS.length + 1)),
+    onNext: () => setPos((p) => (narrow ? (p % BOARDS.length) + 1 : (p + 1) % (BOARDS.length + 1))),
+    onPrev: () => setPos((p) => (narrow ? ((p + BOARDS.length - 2) % BOARDS.length) + 1 : (p - 1 + BOARDS.length + 1) % (BOARDS.length + 1))),
   })
 
   // Mide el ancho de la vista y el tablero más alto: con eso se arma el muro.
@@ -148,11 +156,18 @@ export function ClipperSketches() {
           </span>
         </p>
 
+        {narrow && (
+          <div className="w-full">
+            <ClipperFlowCard key={active} i={active} />
+          </div>
+        )}
+
         <div
           ref={viewRef}
+          aria-hidden={narrow || undefined}
           onPointerEnter={() => setHover(true)}
           onPointerLeave={() => setHover(false)}
-          className="relative w-full overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(ellipse_at_50%_40%,rgba(240,206,134,0.1),transparent_70%)]"
+          className="relative w-full overflow-hidden rounded-[28px] max-md:hidden border border-white/10 bg-[radial-gradient(ellipse_at_50%_40%,rgba(240,206,134,0.1),transparent_70%)]"
           style={{ height: size.h ? size.h : undefined }}
         >
           <div ref={canvasRef} data-reveal-off className="absolute left-0 top-0 origin-top-left" style={{ width: wall.w || '100%', height: wall.h || undefined }}>
@@ -188,7 +203,7 @@ export function ClipperSketches() {
 
         {/* El recorrido: un nodo por tablero, y el muro entero */}
         <div className="mt-6 flex items-center gap-5">
-          <ol className="relative flex items-center gap-8">
+          <ol className="relative flex items-center gap-8 max-md:gap-6">
             <span className="absolute inset-x-1 top-1/2 h-px -translate-y-1/2 bg-white/12" aria-hidden="true" />
             {BOARDS.map((b, i) => {
               const current = i === active && !overview
@@ -211,7 +226,7 @@ export function ClipperSketches() {
             type="button"
             onClick={() => setPos(0)}
             aria-pressed={overview}
-            className="mono-label rounded-full border border-white/12 px-3 py-1 text-paper/60 transition-colors hover:border-white/35 hover:text-paper aria-pressed:border-[#f0ce86] aria-pressed:text-paper"
+            className="mono-label rounded-full border border-white/12 px-3 py-1 max-md:hidden text-paper/60 transition-colors hover:border-white/35 hover:text-paper aria-pressed:border-[#f0ce86] aria-pressed:text-paper"
           >
             {t({ es: 'El muro', en: 'The wall' })}
           </button>

@@ -81,7 +81,7 @@ export function ClipperStack() {
                     {hot && !reducedMotion && i !== MODEL && <span className="clp-ping absolute h-6 w-6 rounded-full border border-white" />}
                   </span>
                   <span className={`mt-3 text-[14px] leading-tight transition-colors ${hot ? 'text-paper' : lit ? 'text-paper/85' : 'text-paper/45'}`}>{t(s.name)}</span>
-                  <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.08em]" style={{ color: lit ? color : 'rgb(var(--paper) / 0.35)' }}>{tech(s.tech, t)}</span>
+                  <span className="mt-1 font-mono text-[11px] uppercase sm:text-[10px] tracking-[0.08em]" style={{ color: lit ? color : 'rgb(var(--paper) / 0.35)' }}>{tech(s.tech, t)}</span>
                 </button>
               </li>
             </Fragment>
@@ -97,7 +97,7 @@ export function ClipperStack() {
           {EVALS.total} {t({ es: 'preguntas reales en 3 idiomas', en: 'real questions in 3 languages' })} · {t({ es: 'meta 90 %', en: '90% target' })}
         </span>
       </div>
-      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] uppercase tracking-[0.12em] text-paper/40">
+      <p className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[11px] uppercase sm:text-[10px] tracking-[0.12em] text-paper/40">
         {CLIPPER_CASE.tools.map((x) => <span key={x}>{x}</span>)}
       </p>
     </div>
