@@ -6,6 +6,7 @@ import { PhoneBody } from '@/components/case/kit/device'
 import { useLocale, type L } from '@/lib/i18n'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
+import { usePhone } from './use-phone'
 
 const IMG = '/cases/barberlytics'
 
@@ -54,9 +55,61 @@ export function CoverRouter() {
     return () => window.clearTimeout(id)
   }, [inView, reducedMotion, decided, typed])
 
+  const phone = usePhone()
+  const lede = <BookingLede tag={t({ es: 'Del boceto a la app', en: 'From sketch to app' })} title={t({ es: 'La portada decide: un número, dos caminos.', en: 'The cover decides: one number, two paths.' })} sub={t({ es: 'Se escribe un celular y cada quien va por el suyo. Capturas reales con datos de prueba.', en: 'A phone number is typed and each person takes their own path. Real screens with test data.' })} />
+
+  if (phone) {
+    // En el teléfono: una sola pantalla. Se escribe el número en la portada y la
+    // pantalla misma pasa al camino que le toca; debajo, la bifurcación se enciende.
+    return (
+      <div ref={ref} className="flex flex-col items-center">
+        {lede}
+        <figure className="relative mt-8 w-[62%] max-w-[240px]">
+          <PhoneBody className="w-full">
+            <Image src={`${IMG}/booking-app-cover.webp`} width={780} height={1688} alt={t({ es: 'Portada: «Reserva tu cita» con solo el celular.', en: 'Cover: “Book your appointment” with just a phone.' })} sizes="62vw" className="block h-auto w-full" />
+            <span
+              aria-hidden="true"
+              className="absolute flex items-center overflow-hidden rounded-[4px] border bg-[#16130f] px-[4%] font-mono text-[11px] tabular-nums text-paper transition-[opacity,border-color] duration-300"
+              style={{ left: `${FIELD.left - 4}%`, top: `${FIELD.top - 0.6}%`, width: `${FIELD.width + 6}%`, height: `${FIELD.height + 1.2}%`, borderColor: decided ? 'rgb(var(--bk))' : 'rgb(var(--bk) / 0.5)', opacity: decided ? 0 : 1 }}
+            >
+              {route.phone.slice(0, typed)}
+              {!decided && <span className="bk-caret ml-px inline-block h-[1.1em] w-px bg-paper" />}
+            </span>
+            {SIDES.map((s, side) => (
+              <Image key={s.src} src={`${IMG}/${s.src}.webp`} fill sizes="62vw" alt={t(s.alt)} className="object-cover object-top transition-[opacity,transform] duration-500 ease-expo" style={{ opacity: decided && route.side === side ? 1 : 0, transform: `translateX(${decided && route.side === side ? 0 : side ? 12 : -12}%)` }} />
+            ))}
+          </PhoneBody>
+        </figure>
+
+        {/* La bifurcación: del número a cada camino; se enciende el que toma */}
+        <div className="mt-7 grid w-full max-w-[340px] grid-cols-[1fr_auto_1fr] items-center">
+          {[0, 1].map((side) => {
+            const on = decided && route.side === side
+            const chip = (
+              <span key={`chip-${side}`} className={`rounded-full border px-3 py-1.5 text-center text-[13px] transition-colors duration-300 ${side ? 'order-3' : 'order-1'} ${on ? 'border-[rgb(var(--bk))] bg-[rgb(var(--bk)/0.12)] text-paper' : 'border-white/12 text-paper/50'}`}>
+                {t(SIDES[side].name)}
+              </span>
+            )
+            return chip
+          })}
+          <span className="relative order-2 mx-3 grid h-10 w-24 place-items-center" aria-hidden="true">
+            {[0, 1].map((side) => {
+              const on = decided && route.side === side
+              return <span key={side} className={`absolute top-1/2 h-[2px] w-1/2 rounded-full transition-[opacity,box-shadow] duration-500 ${side ? 'right-0' : 'left-0'}`} style={{ background: on ? 'rgb(var(--bk))' : 'rgb(255 255 255 / 0.12)', boxShadow: on ? '0 0 8px rgb(var(--bk) / 0.8)' : 'none' }} />
+            })}
+            <span className="relative h-3.5 w-3.5 rounded-full border border-white bg-[rgb(var(--bk))] shadow-[0_0_0_6px_rgb(var(--bk)/0.18),0_0_12px_rgb(var(--bk)/0.7)]" />
+          </span>
+        </div>
+        <p key={`${round}-${decided}`} className="bk-fade mt-4 min-h-[2.6em] max-w-[30ch] text-balance text-center text-[14px] leading-snug text-paper/70">
+          {decided ? t(route.label) : `${t({ es: 'Solo el celular', en: 'Just the phone' })}: ${route.phone.slice(0, typed)}`}
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div ref={ref} className="flex flex-col items-center">
-      <BookingLede tag={t({ es: 'Del boceto a la app', en: 'From sketch to app' })} title={t({ es: 'La portada decide: un número, dos caminos.', en: 'The cover decides: one number, two paths.' })} sub={t({ es: 'Se escribe un celular y cada quien va por el suyo. Capturas reales con datos de prueba.', en: 'A phone number is typed and each person takes their own path. Real screens with test data.' })} />
+      {lede}
 
       <div className="relative mt-10 grid w-full max-w-[860px] grid-cols-[1fr_1.15fr_1fr] items-center gap-[clamp(0.75rem,4vw,3.5rem)]">
         {/* Las dos fibras: de la portada a cada camino; se enciende la que toma el número */}

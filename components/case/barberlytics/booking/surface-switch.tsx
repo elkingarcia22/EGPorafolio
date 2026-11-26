@@ -7,11 +7,14 @@ import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps, useCycle } from './use-auto-steps'
 import { useSwipe } from '@/components/case/kit/use-swipe'
+import { usePhone } from './use-phone'
 
 /** Tiempo en cada superficie mientras pasan solas (ms) */
 const SURFACE_MS = 2800
 /** Ancho del marco de cada aparato (fracción del escenario): al cambiar, un marco se va y entra el otro */
 const FRAME_W: Record<string, string> = { phone: '30%', tablet: '46%', monitor: '100%', widget: '100%' }
+/** En el teléfono el escenario es vertical: cada marco toma el ancho que le deja verse entero */
+const PHONE_FRAME_W: Record<string, string> = { phone: '52%', tablet: '80%', monitor: '100%', widget: '100%' }
 const FRAME_R: Record<string, string> = { phone: '34px', tablet: '24px', monitor: '12px', widget: '10px' }
 
 /**
@@ -27,6 +30,7 @@ export function SurfaceSwitch() {
   const [picked, setPicked] = useState(false)
   const [active, setActive] = useCycle(devices.length, SURFACE_MS, inView && !picked && !reducedMotion)
   const current = devices[active]
+  const phone = usePhone()
   // En el teléfono también se pasa deslizando el dedo de lado.
   useSwipe(ref, {
     onNext: () => {
@@ -49,15 +53,19 @@ export function SurfaceSwitch() {
       />
 
       {/* El escenario: un solo marco que cambia de forma; adentro, la captura de esa superficie */}
-      <div className="relative mt-10 flex aspect-[2000/1440] w-full max-w-[820px] items-center justify-center">
+      <div className={`relative mt-10 flex w-full items-center justify-center ${phone ? 'aspect-[4/5] max-w-[400px]' : 'aspect-[2000/1440] max-w-[820px]'}`}>
         {devices.map((d, i) => {
           const on = i === active
           return (
             <div
               key={d.kind}
               aria-hidden={!on}
-              className="absolute inset-y-0 left-1/2 overflow-hidden bg-[#0b0c0e] shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9),inset_0_0_0_1.5px_rgb(255_255_255/0.12)] transition-[opacity,transform] duration-700 ease-expo"
-              style={{ width: FRAME_W[d.kind], borderRadius: FRAME_R[d.kind], padding: 8, opacity: on ? 1 : 0, transform: `translateX(-50%) scale(${on ? 1 : 0.92})` }}
+              className={`absolute left-1/2 ${phone ? 'top-1/2' : 'inset-y-0'} overflow-hidden bg-[#0b0c0e] shadow-[0_40px_90px_-40px_rgb(0_0_0/0.9),inset_0_0_0_1.5px_rgb(255_255_255/0.12)] transition-[opacity,transform] duration-700 ease-expo`}
+              style={
+                phone
+                  ? { width: PHONE_FRAME_W[d.kind], aspectRatio: `${d.image.width} / ${d.image.height}`, borderRadius: FRAME_R[d.kind], padding: 6, opacity: on ? 1 : 0, transform: `translate(-50%, -50%) scale(${on ? 1 : 0.92})` }
+                  : { width: FRAME_W[d.kind], borderRadius: FRAME_R[d.kind], padding: 8, opacity: on ? 1 : 0, transform: `translateX(-50%) scale(${on ? 1 : 0.92})` }
+              }
             >
               <Image src={d.image.src} width={d.image.width} height={d.image.height} alt={t(d.image.alt)} sizes="(min-width: 820px) 820px, 100vw" className="h-full w-full object-cover object-top" style={{ borderRadius: `calc(${FRAME_R[d.kind]} - 8px)` }} />
             </div>

@@ -5,7 +5,8 @@ import { useLocale, type L } from '@/lib/i18n'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { BookingLede } from './booking-lede'
 import { useAutoSteps } from './use-auto-steps'
-import { useNarrow } from '../use-narrow'
+import { RhythmPhone } from './phone/rhythm-phone'
+import { usePhone } from './use-phone'
 
 /** Lienzo: doce semanas de izquierda a derecha y tres filas, una por hallazgo */
 const W = 900
@@ -51,29 +52,23 @@ export function RhythmScene() {
       ? { tag: `0${picked + 1} · ${t(ROWS[picked])}`, title: t(dots.seen[picked].title), sub: t(dots.seen[picked].body) }
       : { tag: t({ es: 'Lo que vi', en: 'What I saw' }), title: t(dots.kicker), sub: t({ es: 'La reserva no habla con la barbería: habla con su cliente. Y ese cliente quiere lo de siempre, o la primera hora libre.', en: 'Booking doesn’t talk to the shop: it talks to its client. And that client wants the usual, or the first free slot.' }) }
 
-  const narrow = useNarrow()
-  const notes: readonly { row: number; text: L; on: boolean }[] = [
-    { row: 0, text: { es: 'mismo corte · mismo barbero', en: 'same cut · same barber' }, on: visitsOn > 1 },
-    { row: 1, text: { es: 'la primera hora libre', en: 'the first free slot' }, on: newOn },
-    { row: 2, text: { es: '0 enviados', en: '0 sent' }, on: remindersOn },
-  ]
   const toggle = (i: number) => setPicked((p) => (p === i ? null : i))
+  const phone = usePhone()
 
   return (
     <div ref={ref} className="flex flex-col items-center">
       <BookingLede tag={caption.tag} title={caption.title} sub={caption.sub} swapKey={picked ?? 'all'} />
 
+      {phone ? (
+        <RhythmPhone rows={ROWS} visits={VISITS} visitsOn={visitsOn} newOn={newOn} remindersOn={remindersOn} stepMs={AUTO.step} picked={picked} onPick={toggle} />
+      ) : (
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-8 block h-auto max-h-[46vh] w-full max-w-[900px] overflow-visible" role="group" aria-label={t({ es: 'Doce semanas de una barbería', en: 'Twelve weeks at a barbershop' })}>
         {/* Las semanas: marcas tenues */}
         {Array.from({ length: WEEKS }, (_, w) => (
           <line key={w} x1={wx(w)} x2={wx(w)} y1={24} y2={H - 16} stroke="white" strokeOpacity={0.05} />
         ))}
-        {!narrow && (
-          <>
         <text x={X0} y={H + 8} className="bk-t-axis fill-current font-mono uppercase opacity-40" letterSpacing="0.14em">{t({ es: 'Hoy', en: 'Today' })}</text>
         <text x={X1} y={H + 8} textAnchor="end" className="bk-t-axis fill-current font-mono uppercase opacity-40" letterSpacing="0.14em">{t({ es: '12 semanas', en: '12 weeks' })}</text>
-          </>
-        )}
 
         {/* Las filas: tocarlas muestra el hallazgo */}
         {ROWS.map((row, i) => {
@@ -114,7 +109,7 @@ export function RhythmScene() {
             </g>
           )
         })}
-        {visitsOn > 1 && !narrow && (
+        {visitsOn > 1 && (
           <text x={(wx(0) + wx(3)) / 2} y={ROW_Y[0] - 32} textAnchor="middle" className="bk-t-note bk-fade pointer-events-none fill-current font-mono uppercase opacity-55" letterSpacing="0.12em">
             {t({ es: 'mismo corte · mismo barbero', en: 'same cut · same barber' })}
           </text>
@@ -124,11 +119,9 @@ export function RhythmScene() {
         <g className="pointer-events-none" style={{ opacity: newOn ? 1 : 0, transform: `translateX(${newOn ? 0 : 60}px)`, transition: 'opacity .5s, transform .6s cubic-bezier(.16,1,.3,1)' }}>
           <circle cx={wx(0)} cy={ROW_Y[1]} r={18} fill="rgb(var(--signal))" opacity={0.16} />
           <circle cx={wx(0)} cy={ROW_Y[1]} r={7} fill="rgb(var(--signal))" stroke="white" strokeWidth={1.4} />
-          {!narrow && (
-            <text x={wx(0) + 22} y={ROW_Y[1]} dy="0.35em" className="bk-t-note fill-current font-mono uppercase opacity-55" letterSpacing="0.12em">
-              {t({ es: '← la primera hora libre', en: '← the first free slot' })}
-            </text>
-          )}
+          <text x={wx(0) + 22} y={ROW_Y[1]} dy="0.35em" className="bk-t-note fill-current font-mono uppercase opacity-55" letterSpacing="0.12em">
+            {t({ es: '← la primera hora libre', en: '← the first free slot' })}
+          </text>
         </g>
 
         {/* Recordatorios: uno por visita, y ninguno salía de verdad */}
@@ -138,7 +131,7 @@ export function RhythmScene() {
             <circle cx={wx(v)} cy={ROW_Y[2]} r={7} fill="rgb(var(--void))" stroke="rgb(255 255 255 / 0.45)" strokeWidth={1.4} strokeDasharray="3 3" />
           </g>
         ))}
-        {remindersOn && !narrow && (
+        {remindersOn && (
           <text x={wx(VISITS[VISITS.length - 1]) + 24} y={ROW_Y[2]} dy="0.35em" className="bk-t-note bk-fade pointer-events-none fill-current font-mono uppercase opacity-55" letterSpacing="0.12em">
             {t({ es: '0 enviados', en: '0 sent' })}
           </text>
@@ -146,23 +139,6 @@ export function RhythmScene() {
         {/* De aquí, el final del ritmo, sale la fibra hacia «Patrones» */}
         <circle cx={X1} cy={ROW_Y[2]} r={1} fill="none" data-fiber-from="bk-patrones" />
       </svg>
-
-      {/* En el teléfono, el eje y las notas salen del dibujo y se leen a tamaño real */}
-      {narrow && (
-        <div className="mt-3 w-full">
-          <p className="flex justify-between pl-[23%] font-mono text-[11px] uppercase tracking-[0.1em] text-paper/45">
-            <span>{t({ es: 'Hoy', en: 'Today' })}</span>
-            <span>{t({ es: '12 semanas', en: '12 weeks' })}</span>
-          </p>
-          <ul className="mt-5 space-y-2">
-            {notes.map((n) => (
-              <li key={n.row} className="flex items-baseline gap-3 text-[13px] transition-opacity duration-500" style={{ opacity: n.on ? 1 : 0.15 }}>
-                <span className="w-28 shrink-0 text-paper/55">{t(ROWS[n.row])}</span>
-                <span className="font-mono text-[12px] uppercase tracking-[0.06em] text-[rgb(var(--bk))]">{t(n.text)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
 
       {/* Ya armado: las cifras del punto de partida */}

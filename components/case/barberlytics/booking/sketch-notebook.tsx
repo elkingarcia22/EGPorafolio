@@ -7,7 +7,7 @@ import { BookingLede } from './booking-lede'
 import { NOTEBOOK_PAGES } from './notebook-pages'
 import { NOTEBOOK_PAGES_NARROW } from './notebook-pages-narrow'
 import { useAutoSteps } from './use-auto-steps'
-import { useNarrow } from '../use-narrow'
+import { usePhone } from './use-phone'
 import { useSwipe } from '@/components/case/kit/use-swipe'
 
 /** Tiempo en cada página mientras pasan solas (ms) */
@@ -30,7 +30,7 @@ export function SketchNotebook() {
   const [page, setPage] = useState(0)
   const [hold, setHold] = useState(false)
   const current = NOTEBOOK_PAGES[page]
-  const narrow = useNarrow()
+  const narrow = usePhone()
   const swipeRef = useRef<HTMLDivElement>(null)
   useSwipe(swipeRef, { onNext: () => setPage((p) => (p + 1) % N), onPrev: () => setPage((p) => (p - 1 + N) % N), disabled: !narrow })
 
