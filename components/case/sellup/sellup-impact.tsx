@@ -110,7 +110,7 @@ export function SellUpImpact() {
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[960px]">
-      <p className="case-tag text-center">{t({ es: 'Escenario de referencia · un vendedor, una semana', en: 'Reference scenario · one rep, one week' })}</p>
+      <p className="case-tag text-center">{t({ es: 'Un vendedor, una semana', en: 'One rep, one week' })}</p>
 
       {/* Antes / Con SellUp: cambia solo; tocar uno lo fija un rato */}
       <div role="tablist" aria-label={t({ es: 'Escenario', en: 'Scenario' })} className="mx-auto mt-6 flex w-fit gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">

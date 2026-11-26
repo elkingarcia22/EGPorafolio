@@ -136,7 +136,7 @@ export function EncImpact() {
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[920px]">
-      <p className="case-tag mt-6 text-center">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t({ es: 'punto de partida → meta', en: 'starting point → target' })}</p>
+      <p className="case-tag mt-6 text-center">{t({ es: 'Antes → ahora', en: 'Before → now' })}</p>
 
       <ol className="mt-10 grid grid-cols-4 items-end gap-3 sm:gap-8">
         {METRICS.map((m, i) => {

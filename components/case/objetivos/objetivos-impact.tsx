@@ -157,10 +157,10 @@ export function ObjetivosImpact() {
 
       {/* La métrica en lectura: de dónde parte, a dónde llega y cuánto cambia */}
       <div key={`band-${active}`} className="obj-fade relative mx-auto mt-12 max-w-[880px] overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(ellipse_at_70%_0%,rgb(var(--signal)/0.18),transparent_60%)] px-6 py-8 md:px-10">
-        <p className="case-tag text-center">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t(current.unit)}</p>
+        <p className="case-tag text-center">{t(current.unit)}</p>
         <div className="mt-6 grid grid-cols-1 items-center justify-items-center gap-4 md:grid-cols-[1fr_auto_1fr] md:justify-items-stretch md:gap-8">
           <div className="text-center md:text-right">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/60">{t({ es: 'Punto de partida', en: 'Starting point' })}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-paper/60">{t({ es: 'Antes', en: 'Before' })}</p>
             <p className="mt-2 text-[clamp(2rem,1.2rem+2.6vw,3.8rem)] font-light leading-none text-paper/45 tabular-nums">{current.from}</p>
           </div>
           {/* La fibra entre el antes y la meta, con la señal que la recorre */}
@@ -173,7 +173,7 @@ export function ObjetivosImpact() {
             </span>
           </div>
           <div className="text-center md:text-left">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Meta', en: 'Target' })}</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Ahora', en: 'Now' })}</p>
             <p className="mt-2 text-[clamp(2.4rem,1.4rem+3.2vw,4.6rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 22px rgb(var(--signal) / 0.45))' }}>{current.to}</p>
           </div>
         </div>

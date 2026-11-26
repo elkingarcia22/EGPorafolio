@@ -90,7 +90,6 @@ export function ImpactFigures() {
             </li>
           ))}
         </ol>
-        <p className="mt-4 text-center font-mono text-[12px] text-paper/55">{t({ es: 'Cifras de referencia del caso', en: 'Reference figures for the case' })}</p>
       </div>
     )
   }
@@ -106,7 +105,6 @@ export function ImpactFigures() {
           </li>
         ))}
       </ol>
-      <p className="mt-6 text-center font-mono text-[12px] text-paper/55">{t({ es: 'Cifras de referencia del caso', en: 'Reference figures for the case' })}</p>
     </div>
   )
 }

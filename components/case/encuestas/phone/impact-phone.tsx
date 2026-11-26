@@ -38,7 +38,7 @@ export function ImpactPhone({ metrics, active, risen, onPick, reducedMotion }: I
 
   return (
     <div className="mx-auto mt-6 max-w-[360px]">
-      <p className="case-tag">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t({ es: 'partida → meta', en: 'start → target' })}</p>
+      <p className="case-tag">{t({ es: 'Antes → ahora', en: 'Before → now' })}</p>
 
       <div className="mt-6 flex items-stretch gap-6">
         {/* La columna grande: el nivel sube del punto de partida a la meta */}

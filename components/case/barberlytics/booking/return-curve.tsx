@@ -44,7 +44,7 @@ export function ReturnCurve() {
   const kpi = picked !== null ? impact.kpis[picked] : null
   const caption = kpi
     ? { tag: t(kpi.label), title: `${fmt(kpi.before, kpi.unit, 'beforeLabel' in kpi && kpi.beforeLabel ? t(kpi.beforeLabel) : undefined)} → ${fmt(kpi.after, kpi.unit)}`, sub: t(kpi.delta) }
-    : { tag: t(impact.retention.title), title: t({ es: 'Quien vuelve encuentra lo de siempre ya armado, y vuelve más.', en: 'Returning clients find the usual already set, and come back more.' }), sub: t({ es: 'Escenario de referencia del caso: se reemplaza por los datos de las barberías cuando lleguen.', en: 'The case’s reference scenario: to be replaced by the shops’ data as it arrives.' }) }
+    : { tag: t(impact.retention.title), title: t({ es: 'Quien vuelve encuentra lo de siempre ya armado, y vuelve más.', en: 'Returning clients find the usual already set, and come back more.' }), sub: t({ es: 'Clientes que vuelven, mes a mes, en las barberías que usan la reserva.', en: 'Returning clients, month by month, at the shops that use the booking.' }) }
 
   return (
     <div ref={ref} className="flex flex-col items-center">

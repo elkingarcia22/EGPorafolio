@@ -111,7 +111,6 @@ export function ThemaImpact() {
                   <span className="flex flex-col">
                     <span className="text-[17px] leading-snug text-paper/90 md:text-base md:text-paper/85">{t(row.title)}</span>
                     <span className="mt-2 max-w-[42ch] text-pretty text-[14px] leading-relaxed text-paper/60 md:text-sm md:text-paper/55">{t(row.plain)}</span>
-                    {row.reference && <span className="case-tag mt-2 md:mt-1">{t({ es: 'cifra de referencia del equipo', en: 'team reference figure' })}</span>}
                   </span>
                 </span>
 
