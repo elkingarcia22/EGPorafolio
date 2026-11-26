@@ -112,7 +112,8 @@ export function CardStudio() {
 
   return (
     <div ref={rootRef} className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-      <div className="relative">
+      {/* En teléfono, la rejilla entera no se lee: queda la tarjeta en grande, que muestra lo mismo */}
+      <div className="relative hidden md:block">
         <span aria-hidden="true" className="pointer-events-none absolute -inset-x-8 -inset-y-6 rounded-[50%] bg-[radial-gradient(closest-side,rgba(217,179,106,0.12),transparent)]" />
         <LiveCalendar now={now} columns={3} colorBy={look.colorBy} style={look.style} density={look.density} fields={look.fields} highlight={FEATURED.client} className="relative shadow-[0_50px_100px_-40px_rgba(0,0,0,0.95)]" />
       </div>
