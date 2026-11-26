@@ -196,7 +196,7 @@ export function NeedsTree() {
                         <span key={beat % 4} className="pl-fade inline-block">{t(VIEWS[beat % 4])}</span>
                       </span>
                     )}
-                    {!focus && i === 0 && picked === null && on && <span className="mt-1 font-mono text-[11px] text-paper/40">{t({ es: 'Toca para ver qué se ajusta', en: 'Tap to see what adjusts' })}</span>}
+                    {!focus && i === 0 && picked === null && on && <span className="mt-1 text-[13px] text-paper/60">{t({ es: 'Toca para ver qué se ajusta', en: 'Tap to see what adjusts' })}</span>}
                   </span>
                 </button>
                 {/* Lo que se ajusta, bajo su rama */}
@@ -275,7 +275,7 @@ export function NeedsTree() {
       <p key={picked ?? 'hint'} aria-live="polite" className="pl-fade mx-auto mt-10 min-h-[3rem] max-w-[60ch] text-balance text-center text-sm leading-relaxed">
         {detail
           ? <span className="text-paper/75">{detail.map((d) => t(d)).join(' · ')}</span>
-          : <span className="font-mono text-[11px] text-paper/40">{t({ es: 'Toca una rama para ver qué se ajusta', en: 'Tap a branch to see what adjusts' })}</span>}
+          : <span className="text-[14px] text-paper/60">{t({ es: 'Toca una rama para ver qué se ajusta', en: 'Tap a branch to see what adjusts' })}</span>}
       </p>
 
       {/* De aquí baja la fibra hasta «Forma» */}

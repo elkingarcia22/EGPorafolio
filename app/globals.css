@@ -343,3 +343,18 @@ main button img[src*='cases'],
 main a img[src*='cases'] {
   cursor: inherit;
 }
+
+/* Notas de los casos (bajo un gráfico, una aclaración, una pista): se leen sin esfuerzo,
+   en letra de lectura, con contraste suficiente y en líneas parejas. */
+.case-note {
+  max-width: 46ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgb(241 240 236 / 0.64);
+  text-wrap: balance;
+}
+@media (min-width: 768px) {
+  .case-note {
+    font-size: 16px;
+  }
+}

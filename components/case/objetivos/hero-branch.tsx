@@ -119,7 +119,7 @@ export function HeroBranch({ running, reducedMotion }: HeroBranchProps) {
           )
         })}
       </svg>
-      <figcaption className="mt-4 text-center font-mono text-[11px] text-white/45">
+      <figcaption className="case-note mx-auto mt-5 text-center">
         {t({ es: 'Ciclo de ejemplo · cada reporte sube de la persona al área y a la empresa', en: 'Sample cycle · each report climbs from the person to the area and the company' })}
       </figcaption>
     </figure>
@@ -194,7 +194,7 @@ function BranchColumn({ values, step, reducedMotion }: BranchColumnProps) {
           )
         })}
       </ol>
-      <figcaption className="mt-4 text-left font-mono text-[11px] leading-relaxed text-white/45">
+      <figcaption className="case-note mt-4 text-left">
         {t({ es: 'Ciclo de ejemplo · cada reporte sube de la persona al área y a la empresa', en: 'Sample cycle · each report climbs from the person to the area and the company' })}
       </figcaption>
     </figure>

@@ -186,7 +186,7 @@ export function EncImpact() {
           <span className="ml-3 text-sm text-paper/55">{t(current.unit)}</span>
         </p>
         <p className="mx-auto mt-4 max-w-[60ch] text-balance text-sm leading-relaxed text-paper/75 md:text-base">{t(current.moves)}</p>
-        <p className="mt-3 font-mono text-[11px] text-paper/45">
+        <p className="case-note mt-3">
           {t({ es: 'Qué es', en: 'What it is' })}: {t(current.what)} · {t({ es: 'Cómo se mide', en: 'How it’s measured' })}: {t(current.how)}
         </p>
       </div>

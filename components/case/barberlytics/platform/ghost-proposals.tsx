@@ -138,7 +138,7 @@ export function GhostProposals() {
         {f ? (
           <p className="text-balance text-base leading-relaxed text-paper/75 md:text-lg">{t(f.how)}</p>
         ) : (
-          <p className="text-balance text-sm leading-relaxed text-paper/50">
+          <p className="case-note">
             {t({ es: 'Casi todo lo «inteligente» son reglas y una estimación, no un modelo: por eso se llama «Sugerencia» y no lleva la marca de IA.', en: 'Almost everything “smart” is rules and an estimate, not a model: that’s why it’s called “Suggestion” and doesn’t carry the AI mark.' })}
           </p>
         )}

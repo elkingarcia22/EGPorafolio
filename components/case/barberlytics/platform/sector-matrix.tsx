@@ -128,7 +128,7 @@ export function SectorMatrix() {
           ) : (
             <>
               <span className="mono-label text-signal">{t(voices.title)}</span>
-              <span className="mt-2 text-sm text-paper/45">{t({ es: 'Pasan solas; toca un punto para quedarte en una.', en: 'They play on their own; tap a dot to stay on one.' })}</span>
+              <span className="case-note mt-2 block">{t({ es: 'Pasan solas; toca un punto para quedarte en una.', en: 'They play on their own; tap a dot to stay on one.' })}</span>
             </>
           )}
         </div>
@@ -160,7 +160,7 @@ export function SectorMatrix() {
             )
           })}
         </ol>
-        <p className="mx-auto mt-6 max-w-[52ch] text-center font-mono text-[10.5px] leading-relaxed text-paper/35">{t(voices.note)}</p>
+        <p className="case-note mx-auto mt-6 text-center">{t(voices.note)}</p>
       </div>
     </div>
   )

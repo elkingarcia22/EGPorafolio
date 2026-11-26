@@ -108,7 +108,7 @@ export function PhraseParse() {
             <p className="mt-1.5 text-sm leading-snug text-paper/65">{t(ai.product.result)}</p>
           </div>
         </div>
-        <p className="mt-5 text-center text-xs text-paper/45">{t({ es: 'Funciona con reglas, sin modelo de lenguaje: rápido, predecible y sin costo por mensaje.', en: 'Runs on rules, no language model: fast, predictable and no per-message cost.' })}</p>
+        <p className="case-note mx-auto mt-5 text-center">{t({ es: 'Funciona con reglas, sin modelo de lenguaje: rápido, predecible y sin costo por mensaje.', en: 'Runs on rules, no language model: fast, predictable and no per-message cost.' })}</p>
       </div>
 
       {/* 2 · En cómo lo construí: los pasos, con su detalle a la vista */}

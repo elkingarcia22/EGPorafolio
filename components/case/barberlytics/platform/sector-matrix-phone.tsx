@@ -83,7 +83,7 @@ export function SectorMatrixPhone() {
           </li>
         ))}
       </ol>
-      <p className="mt-3 text-center font-mono text-[11px] text-paper/40">{t({ es: 'Lleno: sí · Medio: a medias · Anillo: no · Punteado: sin verificar', en: 'Full: yes · Half: partly · Ring: no · Dashed: unverified' })}</p>
+      <p className="case-note mx-auto mt-3 text-center">{t({ es: 'Lleno: sí · Medio: a medias · Anillo: no · Punteado: sin verificar', en: 'Full: yes · Half: partly · Ring: no · Dashed: unverified' })}</p>
     </div>
   )
 }

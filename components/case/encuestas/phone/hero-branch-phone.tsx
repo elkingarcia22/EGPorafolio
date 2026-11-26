@@ -73,7 +73,7 @@ export function HeroBranchPhone({ stages, pulseKey, stopsHalfway, reducedMotion 
           </li>
         ))}
       </ol>
-      <figcaption className="mt-7 text-center font-mono text-[11px] leading-relaxed text-white/45">
+      <figcaption className="case-note mx-auto mt-7 text-center">
         {t({ es: 'Mapa de calor real · «Propósito y estrategia»', en: 'Real heatmap · “Purpose and strategy”' })}
       </figcaption>
     </figure>

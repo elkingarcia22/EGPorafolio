@@ -100,7 +100,7 @@ export function CoverTap({ running, reducedMotion }: CoverTapProps) {
           )
         })}
       </svg>
-      <figcaption className="mt-4 text-center font-mono text-[11px] text-white/45">
+      <figcaption className="case-note mx-auto mt-5 text-center">
         {t({ es: 'Quien vuelve · de su celular a la cita, sin volver a decidir nada', en: 'Returning client · from phone to booking, deciding nothing again' })}
       </figcaption>
     </figure>

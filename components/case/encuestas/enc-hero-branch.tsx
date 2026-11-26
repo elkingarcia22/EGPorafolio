@@ -115,7 +115,7 @@ export function EncHeroBranch({ running, reducedMotion }: EncHeroBranchProps) {
           )
         })}
       </svg>
-      <figcaption className="mt-4 text-center font-mono text-[11px] text-white/45">
+      <figcaption className="case-note mx-auto mt-5 text-center">
         {t({ es: 'Mapa de calor real · «Propósito y estrategia», área por área', en: 'Real heatmap · “Purpose and strategy”, area by area' })}
       </figcaption>
     </figure>

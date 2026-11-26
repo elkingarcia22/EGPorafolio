@@ -80,7 +80,7 @@ export function FanScene({ u, onChannel }: { u: number; onChannel?: (c: Channel)
             </span>
           ))}
         </p>
-        <p className="mt-4 text-[12px] text-white/45">Cada frase sale de un hecho citado. Ahora se adapta a cada canal…</p>
+        <p className="mt-4 text-[14px] leading-snug text-white/65">Cada frase sale de un hecho citado. Ahora se adapta a cada canal…</p>
       </div>
 
       {/* El abanico de canales */}

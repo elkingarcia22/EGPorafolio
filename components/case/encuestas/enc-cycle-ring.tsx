@@ -96,7 +96,7 @@ export function EncCycleRing() {
         {picked !== null && st ? (
           <>
             <p className="mono-label text-signal">0{picked + 1} · {t(st.name)} · {t(st.who)}</p>
-            <p className="mt-3 text-sm leading-relaxed text-paper/50 md:text-base"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.14em]">{t({ es: 'Antes', en: 'Before' })}</span>{t(st.before)}</p>
+            <p className="mt-3 text-[15px] leading-relaxed text-paper/65 md:text-base"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.14em]">{t({ es: 'Antes', en: 'Before' })}</span>{t(st.before)}</p>
             <p className="mt-1.5 text-balance text-[clamp(1.05rem,0.95rem+0.5vw,1.35rem)] font-light leading-snug"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.14em] text-signal">{t({ es: 'Ahora', en: 'Now' })}</span>{t(st.after)}</p>
           </>
         ) : (

@@ -205,7 +205,7 @@ export function Agent1Map() {
             })}
           </ul>
         )}
-        <p className={`mt-5 text-[12px] leading-relaxed ${phone ? "text-paper/55" : "text-paper/45"}`}>{t({ es: 'Total real en Producción, del 11 al 25 de nov. de 2026.', en: 'Real total in Production, Nov 11–25, 2026.' })}</p>
+        <p className="case-note mt-5">{t({ es: 'Total real en Producción, del 11 al 25 de nov. de 2026.', en: 'Real total in Production, Nov 11–25, 2026.' })}</p>
       </div>
     </div>
   )

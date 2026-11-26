@@ -157,7 +157,7 @@ export function MagnetScene({ time }: { time: number }) {
             </li>
           ))}
         </ul>
-        <p className="mt-auto text-[11px] leading-snug text-white/45">Un verificador sin IA compara cada cita con su fuente. Lo que no está, no entra al mensaje.</p>
+        <p className="mt-auto text-[13px] leading-snug text-white/65">Un verificador sin IA compara cada cita con su fuente. Lo que no está, no entra al mensaje.</p>
       </div>
     </div>
   )

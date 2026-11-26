@@ -306,7 +306,7 @@ export function ClipperVoice() {
               </button>
             ))}
           </div>
-          <p className="mt-4 max-w-[46ch] text-[12px] leading-snug text-paper/40">
+          <p className="case-note mt-4">
             {t({ es: 'Una simulación de la llamada, con una voz de ElevenLabs. En la reserva real, Clipper habla con la voz «Achird» de Gemini.', en: 'A simulation of the call, with an ElevenLabs voice. In real booking, Clipper speaks with Gemini’s “Achird” voice.' })}
           </p>
         </div>

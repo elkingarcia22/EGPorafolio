@@ -84,7 +84,7 @@ export function BehaviorPhone({ items }: { items: readonly PhoneBehavior[] }) {
               </span>
             </span>
           </span>
-          {!open && <span className="mt-4 block text-[12px] text-paper/40">{t({ es: 'Toca para ver lo que se vio', en: 'Tap to see what we saw' })}</span>}
+          {!open && <span className="mt-4 block text-[14px] text-paper/60">{t({ es: 'Toca para ver lo que se vio', en: 'Tap to see what we saw' })}</span>}
         </button>
         {/* De la tarjeta sale la fibra hacia «La idea» */}
         <span data-fiber-from="bk-idea" className="absolute bottom-0 left-1/2 h-px w-px" />

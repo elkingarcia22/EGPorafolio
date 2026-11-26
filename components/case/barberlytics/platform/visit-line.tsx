@@ -57,7 +57,7 @@ export function VisitLine({ running, reducedMotion }: VisitLineProps) {
     return (
       <div>
         <VisitColumn stages={STAGES} at={at} visit={visit} />
-        <p className="mt-6 text-center font-mono text-[11px] leading-relaxed text-white/45">
+        <p className="case-note mx-auto mt-6 text-center">
           {t({ es: 'Día de ejemplo · cada cita, de agendada a cobrada sin salir de la rejilla', en: 'Sample day · every visit, from booked to paid without leaving the grid' })}
         </p>
       </div>
@@ -132,7 +132,7 @@ export function VisitLine({ running, reducedMotion }: VisitLineProps) {
         })}
 
       </svg>
-      <figcaption className="mt-2 text-center font-mono text-[11px] text-white/45">
+      <figcaption className="case-note mx-auto mt-3 text-center">
         {t({ es: 'Día de ejemplo · cada cita, de agendada a cobrada sin salir de la rejilla', en: 'Sample day · every visit, from booked to paid without leaving the grid' })}
       </figcaption>
     </figure>

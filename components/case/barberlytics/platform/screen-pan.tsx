@@ -114,7 +114,7 @@ export function ScreenPan({ image, callouts, name }: ScreenPanProps) {
         ) : (
           <span className="flex flex-col">
             <span className="text-[16px] leading-snug">{name}</span>
-            <span className="mt-1 font-mono text-[11px] text-paper/45">{t({ es: `${callouts.length} partes · pasan solas, o desliza`, en: `${callouts.length} parts · they play on their own, or swipe` })}</span>
+            <span className="mt-1 text-[14px] text-paper/60">{t({ es: `${callouts.length} partes · pasan solas, o desliza`, en: `${callouts.length} parts · they play on their own, or swipe` })}</span>
           </span>
         )}
       </div>

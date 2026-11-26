@@ -137,7 +137,7 @@ export function HeroChain({ running, reducedMotion }: HeroChainProps) {
           )
         })}
       </svg>
-      <figcaption className="mt-4 text-center font-mono text-[11px] text-white/45">
+      <figcaption className="case-note mx-auto mt-5 text-center">
         {t({ es: 'Nada pasa al siguiente agente sin que una persona lo apruebe', en: 'Nothing moves to the next agent until a person approves it' })}
       </figcaption>
     </figure>
