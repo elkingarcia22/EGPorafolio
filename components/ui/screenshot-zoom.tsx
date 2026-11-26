@@ -63,6 +63,14 @@ function isThumbnail(img: HTMLImageElement): boolean {
   return img.getBoundingClientRect().width < THUMB_MAX_WIDTH && !!img.closest('button, [role="tab"], [role="button"]')
 }
 
+/** ¿Es la lámina que está al frente en un carrusel? (marcada como actual, elegida o activa) */
+function isFrontControl(control: Element | null): boolean {
+  return !!control && ['aria-current', 'aria-selected', 'aria-pressed'].some((k) => {
+    const v = control.getAttribute(k)
+    return v !== null && v !== 'false'
+  })
+}
+
 /** Lo que se puede tocar encima de una pantalla (flechas, botones): esos toques no la abren */
 const INTERACTIVE = 'button, a, input, select, textarea, [role="tab"], [role="button"]'
 
@@ -83,7 +91,10 @@ function screenshotAt(e: MouseEvent, narrow: boolean): HTMLImageElement | null {
   const control = target.closest(INTERACTIVE)
   // Un botón o enlace que no la contiene se queda con el clic. Uno que la contiene (una lámina
   // que se elige, por ejemplo) solo cede el toque en el teléfono.
-  if (control && (!control.contains(img) || !narrow || isThumbnail(img))) return null
+  // La lámina que ya está al frente (aria-current / -selected / -pressed) se amplía al tocarla, también
+  // en escritorio; las de los lados se eligen.
+  const isFront = isFrontControl(control)
+  if (control && (!control.contains(img) || isThumbnail(img) || (!narrow && !isFront))) return null
   return img
 }
 
@@ -156,7 +167,7 @@ export function ScreenshotZoom() {
       last = now
       if (e.target instanceof Element && e.target.closest('[data-zoom-hint]')) return
       const img = document.elementsFromPoint(e.clientX, e.clientY).find((el): el is HTMLImageElement => el instanceof HTMLImageElement && isScreenshot(el))
-      if (!img || !img.closest(INTERACTIVE) || isThumbnail(img)) {
+      if (!img || !img.closest(INTERACTIVE) || isThumbnail(img) || isFrontControl(img.closest(INTERACTIVE))) {
         setHovered(null)
         return
       }
