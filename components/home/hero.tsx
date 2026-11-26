@@ -39,6 +39,25 @@ const WARP_S = 0.7
 
 /** Elementos que arrancan ocultos y aparecen en el arranque del hero. */
 const BOOT_HIDDEN = 'opacity-0'
+/**
+ * Conexión lenta: si el código del hero llega después de esto (ms desde que se pidió la página),
+ * la entrada no se repite: el titular ya se está viendo (ver BOOT_FALLBACK_CSS) y se queda.
+ */
+const LATE_BOOT_MS = 2500
+/**
+ * Sin esperar al código: si a los 1,5 s de pintarse la página el arranque no tomó el control, el
+ * titular, la escena y la invitación aparecen solos. Así nadie ve una pantalla vacía en una red
+ * lenta. Cuando el código llega, quita esta regla (clase `boot-js`) y sigue desde ahí.
+ */
+const BOOT_FALLBACK_CSS =
+  '@keyframes boot-fallback{to{opacity:1}}html:not(.boot-js) [data-boot]{animation:boot-fallback .8s ease 1.5s forwards}html:not(.boot-js) [data-boot-counter]{animation:boot-fallback-out .6s ease 1.5s forwards}@keyframes boot-fallback-out{to{opacity:0;visibility:hidden}}'
+
+/** ¿Red lenta o modo de ahorro de datos? (cuando el navegador lo informa) */
+function isSlowConnection(): boolean {
+  const connection = (navigator as Navigator & { connection?: { effectiveType?: string; saveData?: boolean } }).connection
+  if (!connection) return false
+  return !!connection.saveData || /(^|-)2g$|^3g$/.test(connection.effectiveType ?? '')
+}
 
 /** Al volver al inicio: espera a que la cortina se retire y baja hasta el EG. */
 const AUTO_SCROLL_DELAY_MS = 900
@@ -114,8 +133,12 @@ function useBoot(
     const q = gsap.utils.selector(el)
     const header = document.querySelector<HTMLElement>('[data-site-header]')
     const targets = [...q('[data-boot]'), ...(header ? [header] : [])]
+    // Desde aquí manda el código: la aparición de respaldo por CSS ya no corre.
+    const late = performance.now() > LATE_BOOT_MS
+    document.documentElement.classList.add('boot-js')
 
-    if (reducedMotion || skipLoading) {
+    // Red lenta o código que llegó tarde: el titular se queda a la vista, sin repetir la carga.
+    if (reducedMotion || skipLoading || late || isSlowConnection()) {
       hasBooted = true
       gsap.set(targets, { opacity: 1 })
       gsap.set(q('[data-boot-counter]'), { autoAlpha: 0 })
@@ -391,6 +414,7 @@ export function Hero() {
       <noscript>
         <style>{'[data-boot]{opacity:1!important}'}</style>
       </noscript>
+      <style>{BOOT_FALLBACK_CSS}</style>
       <div ref={sectionRef} data-header-clear data-hero-root className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
