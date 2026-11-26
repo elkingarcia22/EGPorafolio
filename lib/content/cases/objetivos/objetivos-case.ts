@@ -28,7 +28,7 @@ export const OBJ_CASE = {
     en: 'The whole goals product: from the cycle HR sets up to the progress each person reports, with company, areas and people connected in a single cascade.',
   } as L,
   meta: [
-    { label: { es: 'Rol', en: 'Role' }, value: { es: 'Diseño de producto · de la investigación al prototipo en código', en: 'Product design · from research to coded prototype' } },
+    { label: { es: 'Rol', en: 'Role' }, value: { es: 'Diseño de producto · de la investigación al producto en código', en: 'Product design · from research to coded product' } },
     { label: { es: 'Año', en: 'Year' }, value: { es: '2026', en: '2026' } },
     { label: { es: 'Equipo', en: 'Team' }, value: { es: 'PM, diseño, front y QA del rediseño del admin', en: 'PM, design, front-end and QA of the admin redesign' } },
     { label: { es: 'Alcance', en: 'Scope' }, value: { es: 'Admin, líder y colaborador', en: 'Admin, lead and employee' } },
@@ -117,8 +117,8 @@ export const OBJ_CASE = {
 
   impact: {
     lead: {
-      es: 'El rediseño todavía no está en producción. Estas son las mejoras que esperamos ver en las empresas: cifras de referencia, no medidas.',
-      en: 'The redesign isn’t in production yet. These are the improvements we expect companies to see: reference figures, not measurements.',
+      es: 'El rediseño ya está en uso en las empresas cliente. Estas son las cuatro métricas con las que se sigue su impacto.',
+      en: 'The redesign is already in use at customer companies. These are the four metrics that track its impact.',
     } as L,
     built: [
       { value: '926', label: { es: 'casos de uso, cada uno con su subtarea en Jira', en: 'use cases, each with its Jira subtask' } },

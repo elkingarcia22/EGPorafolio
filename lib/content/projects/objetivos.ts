@@ -3,7 +3,7 @@ import type { Project } from './types'
 /**
  * Ficha de Objetivos (UBITS) para la lista de trabajo y «siguiente proyecto».
  * El caso completo vive en lib/content/cases/objetivos y se muestra con ObjetivosCase.
- * Las cifras de resultados son de referencia: el rediseño aún no está en producción.
+ * Las cifras de resultados son de referencia hasta tener las medidas: el rediseño ya está en uso.
  */
 export const objetivos: Project = {
   slug: 'objetivos',
@@ -17,7 +17,7 @@ export const objetivos: Project = {
     es: 'El producto completo de objetivos de UBITS: configurar, crear, alinear en cascada, aprobar, reportar avance y leer resultados, para admin, líder y colaborador.',
     en: 'UBITS’ whole goals product: set up, create, cascade alignment, approve, report progress and read results, for admin, lead and employee.',
   },
-  role: { es: 'Diseño de producto · de la investigación al prototipo en código', en: 'Product design · from research to coded prototype' },
+  role: { es: 'Diseño de producto · de la investigación al producto en código', en: 'Product design · from research to coded product' },
   team: { es: 'PM, diseño, front y QA del rediseño del admin', en: 'PM, design, front-end and QA of the admin redesign' },
   duration: { es: 'Sep–nov 2026, en curso', en: 'Sep–Nov 2026, ongoing' },
   tools: ['Figma', 'React + Vite', 'Claude', 'Jira', 'Playwright'],

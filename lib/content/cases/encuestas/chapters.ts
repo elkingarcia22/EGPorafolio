@@ -26,6 +26,6 @@ export const ENC = {
     bocetos: { es: 'Cuatro iteraciones en siete meses: del chat al sistema de diseño de la empresa.', en: 'Four iterations in seven months: from chat to the company design system.' },
     forma: { es: 'Seis superficies y una sola encuesta por debajo: ninguna pantalla puede contradecir a otra.', en: 'Six surfaces and a single survey underneath: no screen can contradict another.' },
     ia: { es: 'Cuentas qué quieres medir y Orbit, el agente de UBITS, arma la encuesta. Pregunta solo lo que falta.', en: 'You say what you want to measure and Orbit, UBITS’s agent, builds the survey. It only asks what’s missing.' },
-    impacto: { es: 'Cómo se mide el rediseño en el uso del producto. Aún no corre con clientes: las cifras son un escenario de referencia.', en: 'How the redesign is measured in product usage. It doesn’t run with customers yet: the numbers are a reference scenario.' },
+    impacto: { es: 'Cómo se mide el rediseño en el uso del producto, empresa por empresa.', en: 'How the redesign is measured in product usage, company by company.' },
   } satisfies Record<string, L>,
 } as const

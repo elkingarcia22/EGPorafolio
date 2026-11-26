@@ -93,7 +93,7 @@ export function ClipperImpact() {
   const caption =
     picked !== null
       ? { id: `m${picked}`, tag: METRICS[picked].value, title: t(METRICS[picked].label) }
-      : { id: 'all', tag: t({ es: 'En las barberías piloto', en: 'In the pilot shops' }), title: t({ es: 'Donde más se nota: en las preguntas de todos los días.', en: 'Where it shows most: in everyday questions.' }) }
+      : { id: 'all', tag: t({ es: 'En las barberías que lo usan', en: 'In the shops that use it' }), title: t({ es: 'Donde más se nota: en las preguntas de todos los días.', en: 'Where it shows most: in everyday questions.' }) }
 
   return (
     <div ref={rootRef}>

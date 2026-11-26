@@ -328,8 +328,8 @@ export const CLIPPER_CASE = {
    */
   impact: {
     lead: {
-      es: 'Clipper ya acompaña a las barberías piloto. Donde más se nota es en las preguntas de todos los días: ya no hay que abrir tres pantallas para saber cuánto se lleva cobrado o cuándo vuelve un cliente.',
-      en: 'Clipper already works with the pilot shops. It shows most in everyday questions: no need to open three screens to know what’s been collected or when a client is due back.',
+      es: 'Clipper ya acompaña a las barberías que usan Barberlytics. Donde más se nota es en las preguntas de todos los días: ya no hay que abrir tres pantallas para saber cuánto se lleva cobrado o cuándo vuelve un cliente.',
+      en: 'Clipper already works with the shops that use Barberlytics. It shows most in everyday questions: no need to open three screens to know what’s been collected or when a client is due back.',
     },
     metrics: [
       { value: '−35%', label: { es: 'consultas a soporte de «¿cómo hago…?»', en: '“how do I…?” support requests' } },

@@ -221,8 +221,8 @@ export const PLATFORM_CASE = {
    */
   impact: {
     lead: {
-      es: 'El calendario ya está en uso en las barberías piloto. Lo que más se nota es en recepción: menos pasos por cita, menos citas perdidas y menos cuentas abiertas al cerrar el día.',
-      en: 'The calendar is already in use at the pilot shops. Where it shows most is the front desk: fewer steps per visit, fewer lost visits and fewer open tabs at closing time.',
+      es: 'El calendario ya está en uso en las barberías. Lo que más se nota es en recepción: menos pasos por cita, menos citas perdidas y menos cuentas abiertas al cerrar el día.',
+      en: 'The calendar is already in use at the shops. Where it shows most is the front desk: fewer steps per visit, fewer lost visits and fewer open tabs at closing time.',
     },
     metrics: [
       { value: '3', label: { es: 'toques de «llegó» a «cobrada» (antes, 9 pasos entre abrir, editar y guardar)', en: 'taps from “arrived” to “paid” (before, 9 steps of open, edit and save)' } },

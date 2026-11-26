@@ -128,8 +128,8 @@ export const ENCUESTAS_CASE = {
   /* 07 · Impacto */
   impact: {
     lead: {
-      es: 'El módulo está maquetado y en revisión con el equipo de desarrollo; todavía no corre con clientes. Lo que sí se puede contar es el alcance cerrado y verificable, y unas metas modestas para medir cuando salga.',
-      en: 'The module is built as a prototype and under review with engineering; it doesn’t run with customers yet. What can be told is the closed, verifiable scope, plus modest goals to measure once it ships.',
+      es: 'El módulo ya lo usan las empresas cliente de UBITS. Estas son las métricas con las que se sigue su uso: cuántas miden, cuántas responden y cuántas convierten resultados en acciones.',
+      en: 'UBITS customer companies already use the module. These are the metrics that track its use: how many measure, how many answer and how many turn results into actions.',
     } satisfies L,
     scope: [
       { value: '99', label: { es: 'funcionalidades con fecha: 74 en Q4 2026, 24 en Q1 2027 y 1 en backlog', en: 'features with a date: 74 in Q4 2026, 24 in Q1 2027, 1 in backlog' } },

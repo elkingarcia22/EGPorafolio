@@ -70,7 +70,7 @@ export const CLOSING = {
     },
   ] satisfies L[],
   next: {
-    es: 'Pendiente: backend real con varias barberías, pasarela de pago, envío real de WhatsApp y el piloto.',
-    en: 'Still to do: a real multi-shop backend, a payment gateway, real WhatsApp delivery and the pilot.',
+    es: 'Lo que sigue: más barberías en la misma plataforma, pagos en línea y recordatorios por WhatsApp.',
+    en: 'What’s next: more shops on the same platform, online payments and WhatsApp reminders.',
   },
 }

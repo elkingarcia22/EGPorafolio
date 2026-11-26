@@ -16,7 +16,7 @@ export const encuestas: Project = {
     es: 'Rediseño del producto completo de encuestas: crear, ordenar en secciones, traer el histórico, responder y convertir los resultados en acciones, sin romper la promesa de anonimato.',
     en: 'Redesign of the whole survey product: create, organize in sections, bring in history, answer and turn results into actions, without breaking the anonymity promise.',
   },
-  role: { es: 'Diseño de producto end-to-end · investigación, prototipo y especificación', en: 'End-to-end product design · research, prototype and spec' },
+  role: { es: 'Diseño de producto end-to-end · investigación, diseño y especificación', en: 'End-to-end product design · research, design and spec' },
   team: { es: 'Diseño, producto y desarrollo de UBITS', en: 'UBITS design, product and engineering' },
   duration: { es: '7 meses, en cuatro iteraciones', en: '7 months, in four iterations' },
   tools: ['React', 'Flux UI', 'Claude Code', 'Vite', 'Figma'],
