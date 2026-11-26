@@ -23,6 +23,8 @@ interface ImpactMetric {
   delta: string
   /** Qué se cuenta en `from` y `to`, en pocas palabras */
   unit: L
+  /** Altura de la columna en el punto de partida y en la meta (0–1) */
+  level: readonly [number, number]
   north?: boolean
 }
 
@@ -36,6 +38,7 @@ const METRICS: readonly ImpactMetric[] = [
     to: '55 %',
     delta: '+25 pp',
     unit: { es: 'de las empresas miden cada trimestre', en: 'of companies measure every quarter' },
+    level: [0.3, 0.55],
     north: true,
   },
   {
@@ -47,6 +50,7 @@ const METRICS: readonly ImpactMetric[] = [
     to: '60 %',
     delta: '+25 pp',
     unit: { es: 'de las empresas cliente lo usan', en: 'of client companies use it' },
+    level: [0.35, 0.6],
   },
   {
     name: { es: 'Retención', en: 'Retention' },
@@ -57,6 +61,7 @@ const METRICS: readonly ImpactMetric[] = [
     to: '80 %',
     delta: '+20 pp',
     unit: { es: 'de las empresas con Encuestas renuevan', en: 'of companies with Surveys renew' },
+    level: [0.6, 0.8],
   },
   {
     name: { es: 'ARR', en: 'ARR' },
@@ -67,26 +72,26 @@ const METRICS: readonly ImpactMetric[] = [
     to: 'USD 1 M',
     delta: '+25 %',
     unit: { es: 'ARR del módulo de Encuestas', en: 'Surveys module ARR' },
+    level: [0.64, 0.8],
   },
 ]
 
 /** Cada cuánto se enciende la siguiente métrica mientras pasan solas (ms) */
 const STEP_MS = 4200
-/** Al entrar, la fibra se tiende de una métrica a la siguiente (ms por tramo) */
-const DRAW_MS = 380
+/** Cuánto tarda en subir el nivel de una columna (ms) */
+const RISE_MS = 1400
 
 /**
- * 07 · Impacto (con la misma forma que en Objetivos): las cuatro métricas del rediseño sobre una sola fibra, con la
- * métrica norte primero. Al entrar se encienden una tras otra; después se lee
- * una a la vez: qué la mueve en el producto y cómo se mide. Tocar una la
- * elige. De la última sale la fibra hacia «Demo».
+ * 06 · Impacto: cuatro columnas que se llenan. Cada métrica parte de su nivel
+ * estimado (la línea punteada) y sube hasta la meta; arriba flota cuánto
+ * cambia. Se encienden una tras otra; tocar una dice qué es, qué la mueve y
+ * cómo se mide. De la última sale la fibra hacia «Demo».
  */
 export function EncImpact() {
   const { t } = useLocale()
   const { reducedMotion } = useA11y()
   const rootRef = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
-  const [lit, setLit] = useState(reducedMotion ? METRICS.length : 0)
   const [active, setActive] = useState(0)
   const [hold, setHold] = useState(false)
 
@@ -100,95 +105,68 @@ export function EncImpact() {
 
   useEffect(() => {
     if (!inView || reducedMotion || hold) return
-    const id = window.setTimeout(
-      () => (lit < METRICS.length ? setLit((n) => n + 1) : setActive((a) => (a + 1) % METRICS.length)),
-      lit < METRICS.length ? (lit === 0 ? 250 : DRAW_MS) : STEP_MS,
-    )
+    const id = window.setTimeout(() => setActive((a) => (a + 1) % METRICS.length), STEP_MS)
     return () => window.clearTimeout(id)
-  }, [inView, reducedMotion, hold, lit, active])
+  }, [inView, reducedMotion, hold, active])
 
-  const fill = Math.max(0, lit - 1) / (METRICS.length - 1)
+  const risen = reducedMotion || inView
   const current = METRICS[active]
 
   return (
-    <div ref={rootRef} className="mx-auto max-w-[1000px]">
-      <ol className="relative grid grid-cols-2 gap-y-10 md:grid-cols-4">
-        {/* La fibra que une las cuatro métricas: se tiende al entrar */}
-        <span aria-hidden="true" className="absolute inset-x-[12.5%] top-[7px] hidden h-px bg-white/12 md:block" />
-        <span
-          aria-hidden="true"
-          className="absolute left-[12.5%] top-[7px] hidden h-px w-3/4 origin-left bg-gradient-to-r from-signal via-[rgb(var(--glow))] to-[rgb(var(--spark))] shadow-[0_0_10px_rgb(var(--signal)/0.7)] transition-transform ease-out md:block"
-          style={{ transform: `scaleX(${fill})`, transitionDuration: `${DRAW_MS}ms` }}
-        />
+    <div ref={rootRef} className="mx-auto max-w-[920px]">
+      <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t({ es: 'punto de partida → meta', en: 'starting point → target' })}</p>
+
+      <ol className="mt-10 grid grid-cols-4 items-end gap-3 sm:gap-8">
         {METRICS.map((m, i) => {
-          const on = i < lit
-          const isActive = i === active && lit > 0
+          const on = i === active
+          const [from, to] = m.level
+          const level = !risen ? 0 : on ? to : from
           return (
-            <li key={m.name.es} className="relative flex flex-col items-center">
+            <li key={m.name.es} className="flex flex-col items-center">
               <button
                 type="button"
                 onClick={() => {
                   setHold(true)
-                  setLit(METRICS.length)
                   setActive(i)
                 }}
-                aria-pressed={isActive}
-                className="group flex flex-col items-center outline-none"
+                aria-pressed={on}
+                aria-label={`${t(m.name)}: ${m.from} → ${m.to}`}
+                className="group flex w-full flex-col items-center outline-none"
               >
-                <span className="relative grid h-3.5 w-3.5 place-items-center" aria-hidden="true">
-                  <span className={`absolute inset-0 rounded-full border transition-all duration-500 ${isActive ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_4px_rgb(var(--signal)/0.7)]' : on ? 'border-white/60 bg-signal' : 'border-white/35 bg-void'}`} />
-                  {isActive && <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.2s_cubic-bezier(0,0,.2,1)_infinite]" />}
-                  {i === METRICS.length - 1 && <span data-fiber-from="enc-demo" className="absolute left-1/2 top-1/2 h-px w-px" />}
+                {/* La columna: el nivel sube del punto de partida a la meta */}
+                <span className={`relative block h-[clamp(11rem,8rem+12vw,17rem)] w-full max-w-[7rem] overflow-hidden rounded-[999px_999px_18px_18px] border transition-colors duration-500 ${on ? 'border-white/40' : 'border-white/12 group-hover:border-white/25'}`}>
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-x-0 bottom-0 origin-bottom bg-gradient-to-t from-signal/25 to-signal/90 transition-transform ease-expo"
+                    style={{ height: '100%', transform: `scaleY(${level})`, transitionDuration: `${RISE_MS}ms`, transitionDelay: `${i * 140}ms`, opacity: on ? 1 : 0.4 }}
+                  />
+                  {/* La superficie del líquido, que brilla en la métrica elegida */}
+                  <span aria-hidden="true" className="absolute inset-x-0 h-px bg-white transition-[bottom] ease-expo" style={{ bottom: `${level * 100}%`, transitionDuration: `${RISE_MS}ms`, transitionDelay: `${i * 140}ms`, boxShadow: on ? '0 0 14px 3px rgb(var(--signal) / 0.8)' : 'none', opacity: on ? 1 : 0.5 }} />
+                  {/* El punto de partida */}
+                  <span aria-hidden="true" className="absolute inset-x-2 border-t border-dashed border-white/60" style={{ bottom: `${from * 100}%` }} />
+                  {i === METRICS.length - 1 && <span data-fiber-from="enc-demo" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
-                {m.north && <span className="mt-4 font-mono text-[9px] uppercase tracking-[0.18em] text-signal">{t({ es: 'Métrica norte', en: 'North star' })}</span>}
-                <span className={`mt-3 bg-gradient-to-b from-white to-white/60 bg-clip-text text-[clamp(1.9rem,1.2rem+2.2vw,3.4rem)] font-light leading-none text-transparent tabular-nums transition-opacity duration-500 ${isActive ? 'opacity-100' : on ? 'opacity-60 group-hover:opacity-90' : 'opacity-20'}`} style={{ filter: isActive ? 'drop-shadow(0 0 18px rgb(var(--signal) / 0.55))' : 'none' }}>
-                  {m.delta}
-                </span>
-                <span
-                  className={`${m.north ? 'mt-1.5' : 'mt-4'} text-balance text-center text-[clamp(1.05rem,0.9rem+0.6vw,1.45rem)] font-light leading-tight tracking-tight transition-opacity duration-500 ${isActive ? 'opacity-100' : on ? 'opacity-55 group-hover:opacity-85' : 'opacity-25'}`}
-                >
-                  {t(m.name)}
-                </span>
+                <span className={`mt-3 rounded-full px-2 py-0.5 text-[12px] tabular-nums transition-colors sm:text-sm ${on ? 'bg-signal text-on-signal' : 'text-paper/55'}`}>{m.delta}</span>
+                {m.north && <span className="mt-2 font-mono text-[9px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Norte', en: 'North star' })}</span>}
+                <span className={`mt-1.5 text-balance text-center text-[13px] leading-tight transition-opacity sm:text-base ${on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(m.name)}</span>
               </button>
             </li>
           )
         })}
       </ol>
 
-      {/* La métrica en lectura: de dónde parte, a dónde llega y cuánto cambia */}
-      <div key={`band-${active}`} className="obj-fade relative mx-auto mt-12 max-w-[880px] overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(ellipse_at_70%_0%,rgb(var(--signal)/0.18),transparent_60%)] px-6 py-8 md:px-10">
-        <p className="text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t(current.unit)}</p>
-        <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-8">
-          <div className="text-right">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/45">{t({ es: 'Punto de partida', en: 'Starting point' })}</p>
-            <p className="mt-2 text-[clamp(2rem,1.2rem+2.6vw,3.8rem)] font-light leading-none text-paper/45 tabular-nums">{current.from}</p>
-          </div>
-          {/* La fibra entre el antes y la meta, con la señal que la recorre */}
-          <div className="relative flex w-[clamp(4rem,10vw,9rem)] flex-col items-center">
-            <span className="rounded-full bg-signal px-3 py-1 text-sm font-medium text-on-signal shadow-[0_0_24px_-4px_rgb(var(--signal)/0.9)] tabular-nums">{current.delta}</span>
-            <span className="relative mt-3 h-px w-full overflow-hidden bg-white/15">
-              <span className="absolute inset-y-0 left-0 w-1/3 animate-[impact-flow_1.6s_cubic-bezier(.65,0,.35,1)_infinite] bg-gradient-to-r from-transparent via-white to-transparent" />
-            </span>
-          </div>
-          <div className="text-left">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Meta', en: 'Target' })}</p>
-            <p className="mt-2 text-[clamp(2.4rem,1.4rem+3.2vw,4.6rem)] font-light leading-none tabular-nums" style={{ filter: 'drop-shadow(0 0 22px rgb(var(--signal) / 0.45))' }}>{current.to}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Qué es, qué la mueve y cómo se mide */}
-      <div key={active} aria-live="polite" className="obj-fade mx-auto mt-8 grid max-w-[880px] gap-6 text-left md:grid-cols-3">
-        {[
-          { tag: t({ es: 'Qué es', en: 'What it is' }), text: t(current.what) },
-          { tag: t({ es: 'Qué la mueve', en: 'What moves it' }), text: t(current.moves) },
-          { tag: t({ es: 'Cómo se mide', en: 'How it’s measured' }), text: t(current.how) },
-        ].map((col) => (
-          <div key={col.tag} className="border-l border-white/12 pl-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">{col.tag}</p>
-            <p className="mt-2 text-sm leading-relaxed text-paper/75">{col.text}</p>
-          </div>
-        ))}
+      {/* La métrica elegida: de dónde parte, a dónde llega, qué la mueve */}
+      <div key={active} aria-live="polite" className="obj-fade mx-auto mt-12 max-w-[760px] text-center">
+        <p className="text-[clamp(1.3rem,1rem+1.2vw,2rem)] font-light tabular-nums">
+          <span className="text-paper/45">{current.from}</span>
+          <span className="mx-3 text-signal">→</span>
+          <span>{current.to}</span>
+          <span className="ml-3 text-sm text-paper/55">{t(current.unit)}</span>
+        </p>
+        <p className="mx-auto mt-4 max-w-[60ch] text-balance text-sm leading-relaxed text-paper/75 md:text-base">{t(current.moves)}</p>
+        <p className="mt-3 font-mono text-[11px] text-paper/45">
+          {t({ es: 'Qué es', en: 'What it is' })}: {t(current.what)} · {t({ es: 'Cómo se mide', en: 'How it’s measured' })}: {t(current.how)}
+        </p>
       </div>
     </div>
   )

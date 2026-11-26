@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useA11y } from '@/lib/a11y'
 import { useLocale, type L } from '@/lib/i18n'
 import { SHOTS, type ShotKey } from '@/lib/content/cases/encuestas/case'
@@ -17,10 +17,16 @@ const SURFACES: readonly { id: string; name: L; shot: ShotKey; line: L }[] = [
   { id: 'resultados', name: { es: 'Resultados', en: 'Results' }, shot: 'heatmap', line: { es: 'El grupo bajo el mínimo se ve con candado, nunca con un número.', en: 'A group below the minimum shows a lock, never a number.' } },
 ]
 const STEP_MS = 3800
+/** Grados entre una pantalla y la siguiente en el anillo */
+const STEP_DEG = 360 / SURFACES.length
+/** Ancho de cada pantalla respecto del escenario, y proporción de las capturas */
+const PANEL = 0.62
+const SHOT_RATIO = 1403 / 900
 
 /**
- * 05 · Forma: el producto real, superficie por superficie, sobre una sola
- * fibra. La captura cambia sola; tocar un nodo lleva a esa superficie.
+ * Forma: el producto real como un anillo 3D de seis pantallas que gira para
+ * traer cada superficie al frente. Gira solo; tocar un nodo (o una pantalla)
+ * lleva a esa superficie.
  */
 export function EncSurfaces() {
   const { t } = useLocale()
@@ -29,28 +35,73 @@ export function EncSurfaces() {
   const [hold, setHold] = useState(false)
   const { index, go } = useAutoplay(rootRef, { count: SURFACES.length, ms: STEP_MS, loop: true, disabled: reducedMotion, hold })
   const fill = index / (SURFACES.length - 1)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const [stageW, setStageW] = useState(0)
+  /** Vueltas acumuladas: el anillo siempre gira por el camino corto */
+  const [turn, setTurn] = useState(0)
+  const panelW = stageW * PANEL
+  const panelH = panelW / SHOT_RATIO
+  /** Distancia del centro del anillo a cada pantalla (apotema del hexágono) */
+  const radius = panelW / 2 / Math.tan(Math.PI / SURFACES.length)
+
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([e]) => setStageW(e.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  useEffect(() => {
+    setTurn((prev) => {
+      const n = SURFACES.length
+      const cur = ((prev % n) + n) % n
+      let d = index - cur
+      if (d > n / 2) d -= n
+      if (d < -n / 2) d += n
+      return prev + d
+    })
+  }, [index])
 
   return (
     <div ref={rootRef} className="relative mt-6" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
-      {/* Las capturas, una encima de otra: cambia la que se ve */}
-      <div className="relative mx-auto w-full max-w-[min(880px,calc((100svh-16rem)*1.56))]" style={{ aspectRatio: '1403 / 900' }}>
-        {SURFACES.map((s, i) => {
-          const shot = SHOTS[s.shot]
-          const on = i === index
-          return (
-            <Image
-              key={s.id}
-              src={shot.src}
-              width={shot.width}
-              height={shot.height}
-              alt={t(shot.alt)}
-              sizes="(min-width: 1024px) 880px, 100vw"
-              aria-hidden={!on}
-              className="absolute inset-0 h-full w-full rounded-xl bg-white object-cover object-left-top shadow-[0_40px_100px_-40px_rgb(var(--signal)/0.55)] transition-[opacity,transform] duration-700 ease-expo"
-              style={{ opacity: on ? 1 : 0, transform: on ? 'none' : 'translateY(10px) scale(0.99)' }}
-            />
-          )
-        })}
+      {/* Las capturas en un anillo 3D: gira para traer cada superficie al frente */}
+      <div ref={stageRef} className="relative mx-auto w-full max-w-[1100px] overflow-hidden" style={{ height: panelH * 1.3 || undefined, aspectRatio: panelH ? undefined : '16 / 8', perspective: '2200px', maskImage: 'linear-gradient(90deg, transparent, black 14%, black 86%, transparent)', WebkitMaskImage: 'linear-gradient(90deg, transparent, black 14%, black 86%, transparent)' }}>
+        <div
+          className="absolute left-1/2 top-[8%]"
+          style={{
+            width: panelW,
+            height: panelH,
+            marginLeft: -panelW / 2,
+            transformStyle: 'preserve-3d',
+            transform: `translateZ(${-radius}px) rotateX(-4deg) rotateY(${-turn * STEP_DEG}deg)`,
+            transition: reducedMotion ? 'none' : 'transform 1200ms cubic-bezier(.65,0,.35,1)',
+          }}
+        >
+          {SURFACES.map((sf, i) => {
+            const shot = SHOTS[sf.shot]
+            const on = i === index
+            return (
+              <button
+                type="button"
+                key={sf.id}
+                onClick={() => go(i)}
+                aria-label={t(sf.name)}
+                aria-pressed={on}
+                tabIndex={-1}
+                className="absolute inset-0 overflow-hidden rounded-xl bg-white outline-none transition-[opacity,filter] duration-700"
+                style={{
+                  transform: `rotateY(${i * STEP_DEG}deg) translateZ(${radius}px)`,
+                  opacity: on ? 1 : 0.38,
+                  filter: on ? 'none' : 'saturate(0.6)',
+                  boxShadow: on ? '0 50px 120px -40px rgb(var(--signal) / 0.7)' : 'none',
+                }}
+              >
+                <Image src={shot.src} width={shot.width} height={shot.height} alt={t(shot.alt)} sizes="(min-width: 1024px) 700px, 70vw" className="h-full w-full object-cover object-left-top" />
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       <p key={index} className="obj-fade mx-auto mt-8 min-h-[3.5rem] max-w-[56ch] text-balance text-center text-[clamp(1.05rem,0.95rem+0.5vw,1.35rem)] font-light leading-snug" aria-live="polite">
