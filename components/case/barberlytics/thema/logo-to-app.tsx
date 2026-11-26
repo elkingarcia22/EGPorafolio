@@ -249,7 +249,7 @@ export function LogoToApp() {
           {t({ es: 'Prueba tu color', en: 'Try your color' })}
         </label>
       </div>
-      <p className="relative mt-4 text-center text-[13px] leading-snug text-white/45 md:text-xs md:text-white/40">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
+      <p className="relative mx-auto mt-6 max-w-[46ch] text-balance text-center text-[15px] leading-relaxed text-white/60 md:text-base">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
     </div>
   )
 }
@@ -338,7 +338,7 @@ function LogoToAppTall({ shop, primary, palette, custom, onPick, onCustom }: Log
           </ul>
         </div>
       </div>
-      <p className="relative mt-6 text-center text-[13px] leading-snug text-white/45">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
+      <p className="relative mx-auto mt-6 max-w-[32ch] text-balance text-center text-[15px] leading-relaxed text-white/60">{t({ es: 'Barberías de ejemplo. En el producto, el tema «Personalizado» saca los colores del logo que sube la barbería.', en: 'Sample shops. In the product, the “Custom” theme pulls colors from the logo the shop uploads.' })}</p>
     </div>
   )
 }
