@@ -5,6 +5,8 @@ import { useA11y } from '@/lib/a11y'
 import { useLocale } from '@/lib/i18n'
 import { PLATFORM_CASE, type Mark } from '@/lib/content/cases/barberlytics/platform-case'
 import { useAutoSteps, useInView } from './use-auto-steps'
+import { useNarrow } from '../use-narrow'
+import { SectorMatrixPhone } from './sector-matrix-phone'
 
 const GOLD = '#d9b36a'
 const PAIN = '#ff6b72'
@@ -73,9 +75,11 @@ export function SectorMatrix() {
       : t({ es: `${yes} de ${r.marks.length} lo tienen completo.`, en: `${yes} of ${r.marks.length} have it in full.` })
   })()
   const v = voice === null ? null : voices.items[voice]
+  const narrow = useNarrow('(max-width: 767px)')
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[860px]">
+      {narrow ? <SectorMatrixPhone /> : (<>
       <div role="table" aria-label={t(matrix.title)}>
         {/* Los productos, en vertical sobre su columna */}
         <div role="row" className={`grid items-end gap-x-1.5 sm:gap-x-3 ${COLS}`}>
@@ -110,6 +114,8 @@ export function SectorMatrix() {
       <p className="mt-4 min-h-[1.5rem] text-center text-sm" aria-live="polite">
         {rowCaption ? <span key={row} className="pl-fade inline-block text-paper/85">{rowCaption}</span> : <span className="font-mono text-[11px] text-paper/40">{t({ es: 'Lleno: sí · Medio: a medias · Anillo: no · ?: sin verificar', en: 'Full: yes · Half: partly · Ring: no · ?: unverified' })}</span>}
       </p>
+
+      </>)}
 
       {/* La voz de quien los usa: una fibra con un punto por frase */}
       <div ref={voicesRef} className="mt-20">

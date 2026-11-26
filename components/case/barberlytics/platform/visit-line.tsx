@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useLocale } from '@/lib/i18n'
 import { APPTS, SERVICE, STAGE, type Stage } from './calendar-model'
+import { useNarrow } from '../use-narrow'
+import { VisitColumn } from './visit-column'
 
 /** Las etapas por las que pasa una cita en la rejilla, en orden (la plataforma real) */
 const STAGES: readonly Stage[] = ['upcoming', 'waiting', 'seated', 'toCollect', 'paid']
@@ -49,6 +51,18 @@ export function VisitLine({ running, reducedMotion }: VisitLineProps) {
   const visit = VISITS[Math.floor(tick / lap) % VISITS.length]
   const stage = STAGES[at]
   const s = STAGE[stage]
+  const narrow = useNarrow('(max-width: 767px)')
+
+  if (narrow) {
+    return (
+      <div>
+        <VisitColumn stages={STAGES} at={at} visit={visit} />
+        <p className="mt-6 text-center font-mono text-[11px] leading-relaxed text-white/45">
+          {t({ es: 'Día de ejemplo · cada cita, de agendada a cobrada sin salir de la rejilla', en: 'Sample day · every visit, from booked to paid without leaving the grid' })}
+        </p>
+      </div>
+    )
+  }
 
   return (
     <figure className="relative mx-auto w-full max-w-[980px] pt-[68px]">
@@ -62,10 +76,10 @@ export function VisitLine({ running, reducedMotion }: VisitLineProps) {
           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: SERVICE[visit.services[0]].hue }} />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[12px] font-medium leading-tight">{visit.client}</span>
-            <span className="block truncate text-[11.5px] leading-tight text-white/55 sm:text-[10.5px]">{SERVICE[visit.services[0]].name} · US$ {visit.price}</span>
+            <span className="block truncate text-[10.5px] leading-tight text-white/55">{SERVICE[visit.services[0]].name} · US$ {visit.price}</span>
           </span>
           {s.next ? (
-            <span key={s.next} className="pl-pop shrink-0 rounded-md bg-[#d9b36a] px-2 py-1 text-[11.5px] sm:text-[10.5px] font-semibold text-[#16130f]">{s.next}</span>
+            <span key={s.next} className="pl-pop shrink-0 rounded-md bg-[#d9b36a] px-2 py-1 text-[10.5px] font-semibold text-[#16130f]">{s.next}</span>
           ) : (
             <span className="pl-pop shrink-0 text-[12px] text-[#4cc98d]">✓</span>
           )}
@@ -110,7 +124,7 @@ export function VisitLine({ running, reducedMotion }: VisitLineProps) {
                 style={{ transition: 'r .4s, fill .4s, stroke .4s', filter: here ? `drop-shadow(0 0 10px ${hue})` : undefined }}
                 data-fiber-from={i === STAGES.length - 1 ? 'pl-puntos' : undefined}
               />
-              <text y={52} textAnchor="middle" data-here={here} className="pl-hero-stage fill-paper font-mono uppercase tracking-[0.12em]" style={{ opacity: here ? 1 : done ? 0.6 : 0.35, transition: 'opacity .4s' }}>
+              <text y={52} textAnchor="middle" className="pl-hero-stage fill-paper font-mono uppercase tracking-[0.12em]" style={{ opacity: here ? 1 : done ? 0.6 : 0.35, transition: 'opacity .4s' }}>
                 {STAGE[id].label}
               </text>
             </g>
