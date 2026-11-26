@@ -1,21 +1,60 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { useLocale, type L } from '@/lib/i18n'
-import { Arrows, Bar, Board, Btn, Hand, Pin, Sketchy, SketchPhone, Sticky, type StickyColor } from '@/components/case/kit/sketch'
+import { Arrows, Bar, Board, Hand, Pin, Sketchy, SketchPhone, Sticky, type StickyColor } from '@/components/case/kit/sketch'
 import { BOOKING_CASE } from '@/lib/content/cases/barberlytics/booking-case'
 import { SKETCH_STEPS } from './sketch-steps'
 
 const { form, idea, impact } = BOOKING_CASE
 const BOARD = { w: 1200, h: 700 }
 
+/** Cuánto crece la letra dentro de los celulares dibujados (en el teléfono, la página es angosta) */
+export const SketchScale = createContext(1)
+
+/** Relleno de una caja dibujada, en proporción a la escala de la letra */
+function Pad({ x, y, className = '', children }: { x: number; y: number; className?: string; children: React.ReactNode }) {
+  const k = useContext(SketchScale)
+  return (
+    <div className={className} style={{ padding: `${y * k}cqw ${x * k}cqw` }}>
+      {children}
+    </div>
+  )
+}
+
+/** Texto a mano dentro del celular, crece con la escala */
+function H({ size, className, children }: { size: number; className?: string; children: React.ReactNode }) {
+  const k = useContext(SketchScale)
+  return (
+    <Hand size={size * k} className={className}>
+      {children}
+    </Hand>
+  )
+}
+
+/** Botón dibujado, con la letra a escala */
+function Btn({ children, accent = false }: { children: React.ReactNode; accent?: boolean }) {
+  return (
+    <Sketchy fill={accent ? '#ffd2a8' : 'transparent'} className="text-center">
+      <Pad x={0.5} y={0.35}>
+        <H size={1.15}>{children}</H>
+      </Pad>
+    </Sketchy>
+  )
+}
+
 /** La tira de días que reemplaza al calendario */
 function DayStrip() {
+  const k = useContext(SketchScale)
   return (
     <div className="flex gap-[0.3cqw]">
       {[0, 1, 2, 3, 4].map((d) => (
-        <Sketchy key={d} fill={d === 1 ? '#ffd2a8' : 'transparent'} className="h-[1.6cqw] flex-1" />
+        <div key={d} className="flex-1">
+          <Sketchy fill={d === 1 ? '#ffd2a8' : 'transparent'}>
+            <div style={{ height: `${1.6 * k}cqw` }} />
+          </Sketchy>
+        </div>
       ))}
     </div>
   )
@@ -25,12 +64,12 @@ function DayStrip() {
 function CoverSketch() {
   return (
     <>
-      <Hand size={1.25} className="mt-[1cqw] font-bold">Reserva tu cita</Hand>
+      <H size={1.25} className="mt-[1cqw] font-bold">Reserva tu cita</H>
       <Bar w={70} />
       <div className="mt-[1.5cqw]">
-        <Sketchy fill="#fffdf6" className="px-[0.5cqw] py-[0.4cqw]">
-          <Hand size={1}>📱 320 217 …</Hand>
-        </Sketchy>
+        <Sketchy fill="#fffdf6"><Pad x={0.5} y={0.4}>
+          <H size={1}>📱 320 217 …</H>
+        </Pad></Sketchy>
       </div>
       <Btn accent>Continuar</Btn>
       <div className="mt-auto flex flex-col gap-[0.4cqw]">
@@ -44,11 +83,11 @@ function CoverSketch() {
 function ReturnSketch() {
   return (
     <>
-      <Hand size={1.25} className="font-bold">Arma tu cita</Hand>
+      <H size={1.25} className="font-bold">Arma tu cita</H>
       {['sede ✓', 'servicio ✓', 'barbero ✓'].map((s) => (
-        <Sketchy key={s} fill="#c9efc0" className="px-[0.5cqw] py-[0.3cqw]">
-          <Hand size={0.95}>{s}</Hand>
-        </Sketchy>
+        <Sketchy key={s} fill="#c9efc0"><Pad x={0.5} y={0.3}>
+          <H size={0.95}>{s}</H>
+        </Pad></Sketchy>
       ))}
       <DayStrip />
       <div className="grid grid-cols-2 gap-[0.3cqw]">
@@ -62,14 +101,14 @@ function ReturnSketch() {
 function NewSketch() {
   return (
     <>
-      <Hand size={1.25} className="font-bold">Conozcámonos</Hand>
+      <H size={1.25} className="font-bold">Conozcámonos</H>
       <Bar w={85} />
       {['nombre', 'apellido', 'correo'].map((s) => (
-        <Sketchy key={s} className="px-[0.5cqw] py-[0.3cqw]">
-          <Hand size={0.95} className="opacity-60">{s}</Hand>
-        </Sketchy>
+        <Sketchy key={s}><Pad x={0.5} y={0.3}>
+          <H size={0.95} className="opacity-60">{s}</H>
+        </Pad></Sketchy>
       ))}
-      <Hand size={0.95}>☐ promociones</Hand>
+      <H size={0.95}>☐ promociones</H>
       <div className="mt-auto">
         <Btn accent>Seguir</Btn>
       </div>
@@ -80,30 +119,30 @@ function NewSketch() {
 function ClipperSketch() {
   return (
     <>
-      <Hand size={1.25} className="font-bold">Clipper</Hand>
+      <H size={1.25} className="font-bold">Clipper</H>
       <div className="ml-auto w-[85%]">
-        <Sketchy fill="#bfe0ff" className="px-[0.5cqw] py-[0.3cqw]">
-          <Hand size={0.95}>corte mañana a las 5</Hand>
-        </Sketchy>
+        <Sketchy fill="#bfe0ff"><Pad x={0.5} y={0.3}>
+          <H size={0.95}>corte mañana a las 5</H>
+        </Pad></Sketchy>
       </div>
       <div className="w-[85%]">
-        <Sketchy className="flex flex-col gap-[0.3cqw] px-[0.5cqw] py-[0.4cqw]">
+        <Sketchy><Pad x={0.5} y={0.4} className="flex flex-col gap-[0.3cqw]">
           <Bar w={80} />
-          <Hand size={0.95}>1 · 5:30</Hand>
-          <Hand size={0.95}>2 · 6:00</Hand>
-        </Sketchy>
+          <H size={0.95}>1 · 5:30</H>
+          <H size={0.95}>2 · 6:00</H>
+        </Pad></Sketchy>
       </div>
       <div className="mt-auto">
-        <Sketchy className="px-[0.5cqw] py-[0.3cqw]">
-          <Hand size={0.95} className="opacity-60">escribe o habla 🎙</Hand>
-        </Sketchy>
+        <Sketchy><Pad x={0.5} y={0.3}>
+          <H size={0.95} className="opacity-60">escribe o habla 🎙</H>
+        </Pad></Sketchy>
       </div>
     </>
   )
 }
 
-const SKETCHES = [CoverSketch, ReturnSketch, NewSketch, ClipperSketch]
-const STICKY: readonly StickyColor[] = ['yellow', 'green', 'pink', 'blue']
+export const SKETCHES = [CoverSketch, ReturnSketch, NewSketch, ClipperSketch]
+export const STICKY: readonly StickyColor[] = ['yellow', 'green', 'pink', 'blue']
 
 /** Página 1: la portada se parte en dos caminos; tocar un celular lo vuelve la pantalla real */
 function CoverPage() {
