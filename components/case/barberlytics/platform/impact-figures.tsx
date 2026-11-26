@@ -164,11 +164,11 @@ export function CalendarMetrics() {
   return (
     <div ref={rootRef} className="mx-auto mt-[clamp(4rem,3rem+3vw,6rem)] max-w-[1040px]">
       <p className="mono-label mb-10 text-center text-signal">{t({ es: 'Y todo lo que el calendario mide', en: 'And everything the calendar measures' })}</p>
-      <ol className="grid grid-cols-2 gap-x-6 gap-y-10 max-md:gap-3 sm:grid-cols-4">
+      <ol className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:gap-4">
         {METRICS.map((m, i) => {
           const on = i < shown
           return (
-            <li key={m.name.es} className={`relative flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo max-md:rounded-2xl max-md:border max-md:border-white/[0.07] max-md:bg-white/[0.025] max-md:px-3 max-md:py-5 ${on ? 'opacity-100' : 'translate-y-3 opacity-0'}`}>
+            <li key={m.name.es} className={`relative flex flex-col items-center text-center transition-[opacity,transform] duration-700 ease-expo rounded-2xl border border-white/[0.07] bg-white/[0.025] px-3 py-5 md:px-5 md:py-7 ${on ? 'opacity-100' : 'translate-y-3 opacity-0'}`}>
               <svg viewBox="0 0 60 44" className="w-20" aria-hidden="true"><Glyph kind={m.glyph} on={on} /></svg>
               <span className="mt-3 max-w-[16ch] text-balance text-[15px] leading-snug text-paper/85">{t(m.name)}</span>
               {i === METRICS.length - 1 && <span data-fiber-from="pl-demo" className="absolute -bottom-6 left-1/2 h-px w-px" />}
