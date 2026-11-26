@@ -192,6 +192,8 @@ export function createDepthComposer() {
 
   const blurred = (frame: LayerTarget, layer: 'far' | 'near', px: number, paint: (ctx: CanvasRenderingContext2D) => void) => {
     const main = frame.ctx.canvas
+    // Un lienzo sin tamaño (oculto o aún sin medir) no se puede copiar: esa capa se salta.
+    if (!main.width || !main.height) return
     const b = buffer(layer, main, frame.dpr)
     if (!b) return
     paint(b.ctx)
