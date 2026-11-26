@@ -138,7 +138,7 @@ export function EncBuilderFan() {
       <ol className="mx-auto mt-14 grid max-w-[980px] gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
         {ENCUESTAS_CASE.idea.principles.map((p, i) => (
           <li key={p.title.es} data-reveal className="flex items-start gap-3">
-            <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/25 font-mono text-[10px]">{i + 1}</span>
+            <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-white/25 font-mono text-[11px] md:text-[10px]">{i + 1}</span>
             <span className="text-[15px] leading-snug text-paper/85">{t(p.title)}</span>
           </li>
         ))}

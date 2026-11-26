@@ -63,7 +63,7 @@ export function EncOrbitChain() {
           <Image src={ORB} alt={t({ es: 'Orbit, el agente de UBITS', en: 'Orbit, UBITS’s agent' })} width={176} height={176} className="relative h-full w-full rounded-full object-cover" style={{ animation: reducedMotion ? 'none' : `${thinking ? 'orb-think 1.2s' : 'orb-breathe 4s'} ease-in-out infinite` }} />
           {/* Del centro del orbe baja la fibra hacia «Impacto» */}
           <span data-fiber-from="enc-impacto" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />
-          <span className="absolute -bottom-8 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.14em] text-paper/50">{thinking ? BUILDER.reasoned : 'Orbit'}</span>
+          <span className="absolute -bottom-8 whitespace-nowrap font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-paper/50">{thinking ? BUILDER.reasoned : 'Orbit'}</span>
         </div>
 
         {/* La encuesta que crece */}
@@ -74,7 +74,7 @@ export function EncOrbitChain() {
               <ul className="mt-1.5 space-y-1.5 border-l border-white/12 pl-4">
                 {s.subs.map((sub, k) => (
                   <li key={sub.n} className="flex items-center gap-3 text-[13px] text-paper/70">
-                    <span className="w-8 font-mono text-[10px] opacity-60">{sub.n}</span>
+                    <span className="w-8 font-mono text-[11px] md:text-[10px] opacity-60">{sub.n}</span>
                     <span className="min-w-0 flex-1 truncate">{sub.title}</span>
                     <span className="flex gap-1" aria-label={`${PER_SUB} ${t({ es: 'preguntas', en: 'questions' })}`}>
                       {Array.from({ length: PER_SUB }, (_, q) => (
@@ -86,7 +86,7 @@ export function EncOrbitChain() {
               </ul>
             </div>
           ))}
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-paper/45 transition-opacity duration-500" style={{ opacity: step >= 4 ? 1 : 0 }}>
+          <p className="font-mono text-[11px] md:text-[10px] uppercase tracking-[0.14em] text-paper/45 transition-opacity duration-500" style={{ opacity: step >= 4 ? 1 : 0 }}>
             {t({ es: 'Editable desde el primer segundo', en: 'Editable from the first second' })}
           </p>
         </div>

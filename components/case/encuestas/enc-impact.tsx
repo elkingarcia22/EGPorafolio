@@ -114,7 +114,7 @@ export function EncImpact() {
 
   return (
     <div ref={rootRef} className="mx-auto max-w-[920px]">
-      <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t({ es: 'punto de partida → meta', en: 'starting point → target' })}</p>
+      <p className="mt-6 text-center font-mono text-[11px] md:text-[10px] uppercase tracking-[0.18em] text-paper/45">{t({ es: 'Escenario de referencia', en: 'Reference scenario' })} · {t({ es: 'punto de partida → meta', en: 'starting point → target' })}</p>
 
       <ol className="mt-10 grid grid-cols-4 items-end gap-3 sm:gap-8">
         {METRICS.map((m, i) => {
@@ -147,7 +147,7 @@ export function EncImpact() {
                   {i === METRICS.length - 1 && <span data-fiber-from="enc-demo" aria-hidden="true" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
                 <span className={`mt-3 rounded-full px-2 py-0.5 text-[12px] tabular-nums transition-colors sm:text-sm ${on ? 'bg-signal text-on-signal' : 'text-paper/55'}`}>{m.delta}</span>
-                {m.north && <span className="mt-2 font-mono text-[9px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Norte', en: 'North star' })}</span>}
+                {m.north && <span className="mt-2 font-mono text-[11px] md:text-[9px] uppercase tracking-[0.16em] text-signal">{t({ es: 'Norte', en: 'North star' })}</span>}
                 <span className={`mt-1.5 text-balance text-center text-[13px] leading-tight transition-opacity sm:text-base ${on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(m.name)}</span>
               </button>
             </li>
