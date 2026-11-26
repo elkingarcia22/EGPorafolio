@@ -109,7 +109,7 @@ export function HeroChain({ running, reducedMotion }: HeroChainProps) {
               {ok && step === i * 2 + 1 && <circle r={9} fill="none" stroke="#34d399" strokeWidth={1.5} className="su-ping" />}
               <circle r={9} fill={ok ? '#34d399' : 'rgb(var(--void))'} stroke={ok ? 'white' : 'rgb(255 255 255 / 0.4)'} strokeWidth={1.3} style={{ transition: 'fill .5s, stroke .5s' }} />
               <path d="M-3.6 0.2 L-1 2.8 L3.8 -2.4" fill="none" stroke="#06281c" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{ opacity: ok ? 1 : 0, transition: 'opacity .4s' }} />
-              <text x={v ? 22 : 0} y={v ? 4 : i === 0 ? 32 : -24} textAnchor={v ? 'start' : 'middle'} className={`fill-paper font-mono uppercase tracking-[0.14em] ${v ? '' : 'su-t-sm'}`} fontSize={v ? 10 : undefined} style={{ opacity: ok ? 0.75 : 0.35, transition: 'opacity .5s' }}>
+              <text x={v ? 22 : 0} y={v ? 5 : i === 0 ? 32 : -24} textAnchor={v ? 'start' : 'middle'} className={`fill-paper font-mono uppercase tracking-[0.14em] ${v ? '' : 'su-t-sm'}`} fontSize={v ? 12.5 : undefined} style={{ opacity: ok ? 0.85 : 0.5, transition: 'opacity .5s' }}>
                 {ok ? `✓ ${t({ es: 'Persona aprueba', en: 'Person approves' })}` : t({ es: 'Persona', en: 'Person' })}
               </text>
             </g>
@@ -126,13 +126,13 @@ export function HeroChain({ running, reducedMotion }: HeroChainProps) {
               <circle r={R} fill="rgb(var(--void))" stroke="white" strokeOpacity={0.14} strokeWidth={3} data-fiber-from={i === AGENTS.length - 1 ? 'su-puntos' : undefined} />
               <circle r={R} fill="none" stroke="url(#su-chain)" strokeWidth={3} style={{ opacity: lit ? 1 : 0, transition: 'opacity .6s' }} />
               <text y={v ? 6 : 9} textAnchor="middle" className={`fill-paper font-light tabular-nums ${v ? '' : 'su-t-lg'}`} fontSize={v ? 16 : undefined} style={{ opacity: lit ? 1 : 0.4, transition: 'opacity .6s' }}>{String(i + 1).padStart(2, '0')}</text>
-              <text x={side.x} y={v ? -2 : -R - 26} textAnchor={side.anchor} className={`fill-paper ${v ? '' : 'su-t-md'}`} fontSize={v ? 19 : undefined} style={{ opacity: lit ? 1 : 0.45, transition: 'opacity .6s' }}>{t(n.q)}</text>
-              <text x={side.x} y={v ? 20 : R + 32} textAnchor={side.anchor} className={`fill-paper font-mono uppercase tracking-[0.14em] ${v ? '' : 'su-t-sm'}`} fontSize={v ? 10 : undefined} style={{ opacity: 0.5 }}>{done ? `✓ ${t(n.out)}` : t(n.agent)}</text>
+              <text x={side.x} y={v ? -2 : -R - 26} textAnchor={side.anchor} className={`fill-paper ${v ? '' : 'su-t-md'}`} fontSize={v ? 20 : undefined} style={{ opacity: lit ? 1 : 0.45, transition: 'opacity .6s' }}>{t(n.q)}</text>
+              <text x={side.x} y={v ? 22 : R + 32} textAnchor={side.anchor} className={`fill-paper font-mono uppercase ${v ? 'tracking-[0.08em]' : 'tracking-[0.14em] su-t-sm'}`} fontSize={v ? 12.5 : undefined} style={{ opacity: v ? 0.65 : 0.5 }}>{done ? `✓ ${t(n.out)}` : t(n.agent)}</text>
             </g>
           )
         })}
       </svg>
-      <figcaption className="mt-4 text-center font-mono text-[11px] text-white/45">
+      <figcaption className="mt-4 text-center font-mono text-[12px] text-white/55 md:text-[11px] md:text-white/45">
         {t({ es: 'Nada pasa al siguiente agente sin que una persona lo apruebe', en: 'Nothing moves to the next agent until a person approves it' })}
       </figcaption>
     </figure>

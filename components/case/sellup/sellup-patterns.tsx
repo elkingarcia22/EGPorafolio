@@ -133,7 +133,7 @@ export function SellUpPatterns() {
           )
         })}
       </div>
-      <p key={`goal-${agentIndex}`} className="su-fade mt-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">{t(cascade.goal)}</p>
+      <p key={`goal-${agentIndex}`} className="su-fade mt-4 text-center font-mono text-[12px] uppercase tracking-[0.14em] text-paper/55 md:text-[11px] md:text-paper/45">{t(cascade.goal)}</p>
 
       <div className="relative mx-auto mt-8 w-full" style={{ maxWidth: L_.w, aspectRatio: `${L_.w} / ${L_.h}` }}>
         <svg viewBox={`0 0 ${L_.w} ${L_.h}`} className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
@@ -176,8 +176,8 @@ export function SellUpPatterns() {
                 />
               </span>
               <span className={compact ? '' : 'mt-3'}>
-                <span className={`block text-balance text-[13px] leading-snug transition-opacity duration-500 ${off ? 'line-through decoration-white/40 opacity-45' : on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(s.name)}</span>
-                <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.16em]" style={{ color, opacity: off ? 0.45 : 0.8 }}>{t(COST[s.cost].label)}</span>
+                <span className={`block text-balance leading-snug transition-opacity ${compact ? 'text-[15px]' : 'text-[13px]'} duration-500 ${off ? 'line-through decoration-white/40 opacity-45' : on ? 'opacity-100' : 'opacity-55 group-hover:opacity-85'}`}>{t(s.name)}</span>
+                <span className={`mt-1 block font-mono uppercase tracking-[0.14em] ${compact ? 'text-[11px]' : 'text-[9px]'}`} style={{ color, opacity: off ? 0.55 : 0.9 }}>{t(COST[s.cost].label)}</span>
               </span>
             </button>
           )

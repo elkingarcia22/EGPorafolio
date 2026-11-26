@@ -127,7 +127,7 @@ function Station({ index, title, lead, fiberFrom, children }: StationProps) {
         <span className="absolute inset-[-7px] rounded-full border border-signal/60 animate-[nav-node-ping_2.6s_cubic-bezier(0,0,.2,1)_infinite]" />
       </span>
       <h3 data-reveal className="mt-5 text-center">
-        <span className="mono-label text-signal">{index}</span>
+        <span className="mono-label max-md:text-[12px] text-signal">{index}</span>
         <span className="mt-2 block text-[clamp(1.4rem,1rem+1.4vw,2.2rem)] font-light leading-tight tracking-tight">{t(title)}</span>
       </h3>
       <CaseLead className="mt-4">{t(lead)}</CaseLead>

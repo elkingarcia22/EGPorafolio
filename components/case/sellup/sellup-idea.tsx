@@ -145,7 +145,7 @@ export function SellUpIdea() {
         ))}
       </svg>
 
-      <p data-reveal className="mono-label mb-5 text-center text-signal">{t({ es: '¿Cómo podríamos…?', en: 'How might we…?' })}</p>
+      <p data-reveal className="mono-label max-md:text-[12px] mb-5 text-center text-signal">{t({ es: '¿Cómo podríamos…?', en: 'How might we…?' })}</p>
       <p ref={questionRef} className="relative mx-auto max-w-[30ch] text-balance text-center text-[clamp(1.5rem,1rem+2vw,2.8rem)] font-light leading-[1.3] tracking-tight">
         {QUESTION.map((q, i) => {
           if (q.p === undefined) return <span key={i} className="text-paper/55">{t(q.text)}</span>
@@ -193,7 +193,7 @@ export function SellUpIdea() {
                   <span className={`h-full w-full rounded-full border transition-all duration-500 ${on ? 'scale-125 border-white bg-[#fffaf0] shadow-[0_0_0_4px_rgb(var(--signal)/0.25),0_0_18px_4px_rgb(var(--signal)/0.7)]' : 'border-white/50 bg-void group-hover:border-white'}`} />
                   {i === ORDER.length - 1 && <span data-fiber-from="su-bocetos" className="absolute left-1/2 top-1/2 h-px w-px" />}
                 </span>
-                <span className="mt-4 font-mono text-[10px] uppercase tracking-[0.14em] text-paper/40">0{i + 1}</span>
+                <span className="mt-4 font-mono text-[12px] md:text-[10px] uppercase tracking-[0.14em] text-paper/40">0{i + 1}</span>
                 <span className={`mt-1.5 text-balance text-[15px] leading-tight transition-opacity duration-500 ${on ? 'opacity-100' : 'opacity-45 group-hover:opacity-80'}`}>{t(SHORT[p])}</span>
               </button>
             </li>

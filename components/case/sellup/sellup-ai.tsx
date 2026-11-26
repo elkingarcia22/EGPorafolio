@@ -105,7 +105,7 @@ export function SellUpAi() {
           )}
           <RumboMark size={84} motion={thinking ? 'thinking' : 'breathing'} />
         </div>
-        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-paper/50">Rumbo · {thinking ? t({ es: 'pensando', en: 'thinking' }) : t({ es: 'listo', en: 'done' })}</p>
+        <p className="mt-3 font-mono text-[12px] md:text-[10px] uppercase tracking-[0.18em] text-paper/50">Rumbo · {thinking ? t({ es: 'pensando', en: 'thinking' }) : t({ es: 'listo', en: 'done' })}</p>
 
         {/* Los tres agentes */}
         <div className="mt-4 flex flex-wrap justify-center gap-2" role="tablist" aria-label={t({ es: 'Agentes', en: 'Agents' })}>
@@ -129,8 +129,8 @@ export function SellUpAi() {
             {!reducedMotion && <span className="su-drip absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-transparent via-white to-transparent" />}
             <span className="absolute inset-x-0 bottom-0 bg-signal transition-[height] duration-700 ease-out" style={{ height: approved ? '100%' : '0%', boxShadow: '0 0 12px rgb(var(--signal))' }} />
           </span>
-          <p className="col-start-1 row-start-1 pb-5 pr-[clamp(1.2rem,5vw,3.5rem)] text-right font-mono text-[10px] uppercase tracking-[0.16em] text-[#c4b5fd]">{t({ es: 'El modelo propone', en: 'The model proposes' })}</p>
-          <p className="col-start-3 row-start-1 pb-5 pl-[clamp(1.2rem,5vw,3.5rem)] font-mono text-[10px] uppercase tracking-[0.16em] text-[#6ee7b7]">{t({ es: 'Las reglas verifican', en: 'Rules verify' })}</p>
+          <p className="col-start-1 row-start-1 pb-5 pr-[clamp(1.2rem,5vw,3.5rem)] text-right font-mono text-[12px] md:text-[10px] uppercase tracking-[0.16em] text-[#c4b5fd]">{t({ es: 'El modelo propone', en: 'The model proposes' })}</p>
+          <p className="col-start-3 row-start-1 pb-5 pl-[clamp(1.2rem,5vw,3.5rem)] font-mono text-[12px] md:text-[10px] uppercase tracking-[0.16em] text-[#6ee7b7]">{t({ es: 'Las reglas verifican', en: 'Rules verify' })}</p>
           <ul className="col-start-1 row-start-2 space-y-4 pb-10">
             {split.model.map((item, i) => <Branch key={item.es} text={item} side="left" shown={shownBeat > i} />)}
           </ul>
