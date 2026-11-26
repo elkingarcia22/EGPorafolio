@@ -13,8 +13,10 @@ import { backdropQuiet } from './backdrop-journey'
 
 /** Tiempo que se queda cada etapa en el avance automático (ms): ágil, se lee de un vistazo */
 const STAGE_MS = 2600
-/** Acercamiento a la neurona activa: la fibra se mueve y cada neurona pasa al centro (más en pantallas angostas) */
-const ZOOM = { wide: 1.8, narrow: 1.6 }
+/** En el teléfono la línea se completa sola y rápido, etapa por etapa, y luego se explora tocando (ms) */
+const SWEEP_MS = 650
+/** Acercamiento a la neurona activa en pantallas anchas: la fibra se mueve y cada neurona pasa al centro */
+const ZOOM = { wide: 1.8 }
 /** Si la persona elige una etapa, el avance automático espera esto antes de seguir (ms) */
 const RESUME_AFTER_MS = 9000
 /** Mientras se ve el proceso, el fondo se calma para que la fibra se lea */
@@ -52,8 +54,14 @@ export function ProcessFlow() {
   const [inView, setInView] = useState(false)
   const [pausedUntil, setPausedUntil] = useState(0)
   const [narrow, setNarrow] = useState(false)
+  /** En el teléfono la línea ya se completó una vez: desde ahí solo cambia al tocar una neurona */
+  const [swept, setSwept] = useState(false)
   const stage = PROCESS_STAGES[active]
-  const autoplay = built && inView && !reducedMotion && pausedUntil === 0 && !ending
+  const last = PROCESS_STAGES.length - 1
+  /** Sección fija con una etapa por tramo de scroll: solo en pantallas anchas */
+  const pinScroll = !reducedMotion && !narrow
+  const autoplay = built && inView && !reducedMotion && pausedUntil === 0 && !ending && !(narrow && swept)
+  const stepMs = narrow ? SWEEP_MS : STAGE_MS
 
   useEffect(() => {
     const query = window.matchMedia('(max-width: 767px)')
@@ -80,7 +88,7 @@ export function ProcessFlow() {
       // así el avance automático y el scroll conviven).
       let fromScroll = -1
       const track = trackRef.current
-      if (track && !reducedMotion) {
+      if (track && pinScroll) {
         ScrollTrigger.create({
           trigger: track,
           start: 'top top',
@@ -110,16 +118,19 @@ export function ProcessFlow() {
       backdropQuiet.set('process', 0)
       ctx.revert()
     }
-  }, [reducedMotion])
+  }, [reducedMotion, pinScroll])
 
   // Avance automático: pasa a la siguiente etapa hasta la última.
   useEffect(() => {
     if (!autoplay) return
     // Se detiene en la última etapa: no vuelve a empezar.
-    if (active >= PROCESS_STAGES.length - 1) return
-    const id = window.setTimeout(() => setActive((i) => Math.min(PROCESS_STAGES.length - 1, i + 1)), STAGE_MS)
+    if (active >= last) {
+      if (narrow) setSwept(true)
+      return
+    }
+    const id = window.setTimeout(() => setActive((i) => Math.min(last, i + 1)), stepMs)
     return () => window.clearTimeout(id)
-  }, [autoplay, active])
+  }, [autoplay, active, last, narrow, stepMs])
 
   // Después de elegir una etapa, el avance automático vuelve a los pocos segundos.
   useEffect(() => {
@@ -132,6 +143,11 @@ export function ProcessFlow() {
   const select = useCallback((index: number) => {
     setActive(index)
     setPausedUntil(Date.now() + RESUME_AFTER_MS)
+    // En el teléfono tocar una neurona solo la muestra: la página no se mueve.
+    if (narrow) {
+      setSwept(true)
+      return
+    }
     const track = trackRef.current
     if (!track || reducedMotion) return
     const top = track.getBoundingClientRect().top + window.scrollY
@@ -140,7 +156,7 @@ export function ProcessFlow() {
     const lenis = getLenis()
     if (lenis) lenis.scrollTo(y, { duration: JUMP_S })
     else window.scrollTo({ top: y, behavior: 'smooth' })
-  }, [reducedMotion])
+  }, [reducedMotion, narrow])
   const onBuilt = useCallback(() => setBuilt(true), [])
 
   // El nombre de la etapa entra enfocándose, rápido.
@@ -159,14 +175,14 @@ export function ProcessFlow() {
       {/* Sin título visible: la etiqueta y la fibra hablan solas (queda para lectores de pantalla) */}
       <h2 className="sr-only">{t(COPY.process.title)}</h2>
       {/* Recorrido de scroll: la parte de adentro queda fija mientras se pasa de etapa en etapa */}
-      <div ref={trackRef} className="relative" style={reducedMotion ? undefined : { height: `calc(100svh + ${PROCESS_STAGES.length * STEP_VH}vh)` }}>
+      <div ref={trackRef} className="relative" style={!pinScroll ? undefined : { height: `calc(100svh + ${PROCESS_STAGES.length * STEP_VH}vh)` }}>
       <div
         ref={rootRef}
         data-sticky-end
-        className={`mx-auto flex max-w-6xl flex-col items-center ${reducedMotion ? '' : 'sticky top-0 h-[100svh] justify-center pb-[4svh]'}`}
+        className={`mx-auto flex max-w-6xl flex-col items-center ${pinScroll ? 'sticky top-0 h-[100svh] justify-center pb-[4svh]' : ''}`}
       >
         {/* La fibra que viene de Proyectos llega a esta etiqueta; queda arriba mientras se recorre */}
-        <div className={`flex justify-center ${reducedMotion ? '' : 'absolute inset-x-0 top-[clamp(5.5rem,11svh,8rem)]'}`}>
+        <div className={`flex justify-center ${!pinScroll ? '' : 'absolute inset-x-0 top-[clamp(5.5rem,11svh,8rem)]'}`}>
           <SectionLabel index="02" thread={false} fiberTo="proyectos" riser={pinned}>{t(COPY.process.label)}</SectionLabel>
         </div>
 
@@ -192,10 +208,10 @@ export function ProcessFlow() {
             onSelect={select}
             build={build}
             onBuilt={onBuilt}
-            autoplayMs={autoplay && active < PROCESS_STAGES.length - 1 ? STAGE_MS : null}
-            zoom={!reducedMotion ? (narrow ? ZOOM.narrow : ZOOM.wide) : 1}
+            autoplayMs={autoplay && !narrow && active < last ? STAGE_MS : null}
+            zoom={pinScroll ? ZOOM.wide : 1}
             fiberFrom="proceso"
-            fiberFromCenter={!reducedMotion}
+            fiberFromCenter={pinScroll}
             reducedMotion={reducedMotion}
           />
         </div>

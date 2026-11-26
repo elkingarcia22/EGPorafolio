@@ -24,8 +24,8 @@ export const PROCESS_STAGES: readonly ProcessStage[] = [
     ai: { es: 'Busca los casos que rompen cada principio.', en: 'Finds the cases that break each principle.' },
   },
   {
-    title: { es: 'Forma', en: 'Form' },
-    body: { es: 'Pantallas reales y sistema de diseño. Pruebo rápido y afino lo que funciona.', en: 'Real screens and a design system. I test fast and refine what works.' },
+    title: { es: 'Bocetos y forma', en: 'Sketches and form' },
+    body: { es: 'Bocetos, pantallas reales y sistema de diseño. Pruebo rápido y afino lo que funciona.', en: 'Sketches, real screens and a design system. I test fast and refine what works.' },
     ai: { es: 'Prototipos en código el mismo día.', en: 'Coded prototypes the same day.' },
   },
   {
