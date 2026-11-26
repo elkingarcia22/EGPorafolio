@@ -47,6 +47,26 @@ function isScreenshot(img: HTMLImageElement): boolean {
   return decodeURIComponent(img.currentSrc || img.src).includes(SCREENS_PATH)
 }
 
+/** Lo que se puede tocar encima de una pantalla (flechas, botones): esos toques no la abren */
+const INTERACTIVE = 'button, a, input, select, textarea, [role="tab"], [role="button"]'
+
+/**
+ * La pantalla que quedó bajo el dedo, aunque encima haya una capa decorativa (un velo, un
+ * marco). Si lo tocado es un botón o un enlace que no la contiene, el toque es de ese control.
+ */
+function screenshotAt(e: MouseEvent): HTMLImageElement | null {
+  const target = e.target instanceof Element ? e.target : null
+  if (!target) return null
+  if (target instanceof HTMLImageElement) return isScreenshot(target) ? target : null
+  const img = document
+    .elementsFromPoint(e.clientX, e.clientY)
+    .find((el): el is HTMLImageElement => el instanceof HTMLImageElement && isScreenshot(el))
+  if (!img) return null
+  const control = target.closest(INTERACTIVE)
+  if (control && !control.contains(img)) return null
+  return img
+}
+
 /**
  * En el teléfono, tocar cualquier pantalla de un producto la abre a pantalla
  * completa: se acerca con dos dedos o con doble toque, y se arrastra para
@@ -60,12 +80,12 @@ export function ScreenshotZoom() {
     const narrow = window.matchMedia(NARROW_QUERY)
     const onClick = (e: MouseEvent) => {
       if (!narrow.matches) return
-      const target = e.target
-      if (!(target instanceof HTMLImageElement) || !isScreenshot(target)) return
+      const img = screenshotAt(e)
+      if (!img) return
       // La pantalla se abre en lugar de lo que haría el toque (pasar de lámina, abrir un enlace).
       e.preventDefault()
       e.stopPropagation()
-      setShot({ src: originalSrc(target), alt: target.alt })
+      setShot({ src: originalSrc(img), alt: img.alt })
     }
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
