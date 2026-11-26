@@ -320,7 +320,7 @@ function SketchWall() {
                 key={title.es}
                 data-wall-board
                 aria-hidden={!on}
-                inert={!on ? true : undefined}
+                inert={!on && !overview ? true : undefined}
                 className="absolute transition-[opacity,filter] duration-700"
                 style={{ left: p.x, top: p.y, width: size.w || '100%', opacity: on || overview ? 1 : 0.35, filter: on || overview ? 'none' : 'blur(2px)', transform: on ? 'none' : `rotate(${TILT[i]}deg)` }}
               >

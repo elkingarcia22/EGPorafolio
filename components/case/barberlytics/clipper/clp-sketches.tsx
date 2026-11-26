@@ -158,7 +158,20 @@ export function ClipperSketches() {
 
         {narrow && (
           <div className="w-full">
-            <ClipperFlowCard key={active} i={active} />
+            {/* Tocar la tarjeta abre en grande el boceto original de ese tablero (ver ScreenshotZoom) */}
+            <div data-zoom-for={`clp-board-${active}`} className="cursor-zoom-in">
+              <ClipperFlowCard key={active} i={active} />
+            </div>
+            <p className="case-hint mt-3 text-center">{t({ es: 'Toca la tarjeta para ver el boceto completo', en: 'Tap the card to see the full sketch' })}</p>
+            {/* El boceto completo, fuera de la vista: es lo que se amplía */}
+            {(() => {
+              const SourceBoard = BOARDS[active].Board
+              return (
+                <div id={`clp-board-${active}`} aria-hidden="true" inert className="pointer-events-none fixed left-[-10000px] top-0 w-[1000px]">
+                  <SourceBoard />
+                </div>
+              )
+            })()}
           </div>
         )}
 
@@ -190,7 +203,7 @@ export function ClipperSketches() {
                   key={title.es}
                   data-wall-board
                   aria-hidden={!on}
-                  inert={!on ? true : undefined}
+                  inert={!on && !overview ? true : undefined}
                   className="absolute transition-[opacity,filter] duration-700"
                   style={{ left: p.x, top: p.y, width: size.w || '100%', opacity: on || overview ? 1 : 0.35, filter: on || overview ? 'none' : 'blur(2px)', transform: on ? 'none' : `rotate(${TILT[i]}deg)` }}
                 >

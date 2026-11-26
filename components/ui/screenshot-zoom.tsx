@@ -108,6 +108,10 @@ function boardCopy(board: HTMLElement): HTMLElement {
 function zoomTarget(e: MouseEvent, narrow: boolean): Shot | null {
   const target = e.target instanceof Element ? e.target : null
   if (!target) return null
+  // Una pieza que, al tocarla, amplía otra (p. ej. la tarjeta del teléfono abre el boceto completo)
+  const proxy = target.closest<HTMLElement>('[data-zoom-for]')
+  const source = proxy ? document.getElementById(proxy.dataset.zoomFor ?? '')?.querySelector<HTMLElement>(ZOOMABLE) : null
+  if (source) return { kind: 'node', node: boardCopy(source), w: source.offsetWidth, h: source.offsetHeight, alt: source.getAttribute('aria-label') ?? '' }
   const board = target.closest<HTMLElement>(ZOOMABLE)
   if (board) {
     const control = target.closest(INTERACTIVE)
