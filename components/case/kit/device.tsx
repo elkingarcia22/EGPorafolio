@@ -120,7 +120,7 @@ export function PhoneMockup({ image, callouts, withLegend = true, className = ''
     <div data-reveal="device" className="relative mx-auto w-full max-w-[300px]">
       <PhoneBody>
         <StatusBar />
-        <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
+        <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="pointer-events-auto block h-auto w-full" />
       </PhoneBody>
       {/* Los destacados van encima del aparato (fuera del recorte de la pantalla), alineados con la captura:
           9 px de bisel a cada lado y 34 px de barra de estado arriba. */}
@@ -146,7 +146,7 @@ export function TabletMockup({ image, className = '', sizes = '(min-width: 1024p
       <div className="relative rounded-[30px] bg-[#0b0c0e] p-[14px] shadow-[0_50px_90px_-35px_rgba(0,0,0,0.75),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
         <span className="absolute left-1/2 top-[5px] h-[5px] w-[5px] -translate-x-1/2 rounded-full bg-[#23252b]" aria-hidden="true" />
         <div className="overflow-hidden rounded-[18px]">
-          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
+          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="pointer-events-auto block h-auto w-full" />
         </div>
       </div>
     </div>
@@ -160,7 +160,7 @@ export function MonitorMockup({ image, className = '', sizes = '(min-width: 1024
     <div data-reveal="device" className={className}>
       <div className="rounded-[14px] bg-[#0b0c0e] p-[10px] pb-[22px] shadow-[0_50px_90px_-35px_rgba(0,0,0,0.75),inset_0_0_0_1.5px_rgba(255,255,255,0.12)]">
         <div className="overflow-hidden rounded-[4px]">
-          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
+          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="pointer-events-auto block h-auto w-full" />
         </div>
       </div>
       <div className="mx-auto h-[38px] w-[16%] bg-gradient-to-b from-[#1b1d22] to-[#2a2d33]" aria-hidden="true" />
@@ -182,7 +182,7 @@ export function BrowserMockup({ image, callouts, withLegend = true, className = 
         <span className="ml-3 h-5 flex-1 rounded-md bg-white/[0.06]" />
       </div>
       <div className="pointer-events-none relative">
-        <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
+        <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="pointer-events-auto block h-auto w-full" />
         <Highlights callouts={callouts} active={active} setActive={setActive} />
       </div>
     </div>
@@ -204,7 +204,7 @@ export function PanelMockup({ image, callouts, className = '', sizes = '(min-wid
     <div className={`grid items-center gap-10 md:grid-cols-[minmax(0,360px)_1fr] md:gap-14 ${className}`}>
       <div data-reveal="device" className="relative mx-auto w-full max-w-[360px] overflow-hidden rounded-2xl bg-[#0b0c0e] shadow-[0_50px_100px_-35px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.1)]">
         <div className="pointer-events-none relative">
-          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="block h-auto w-full" />
+          <Image src={image.src} width={image.width} height={image.height} alt={t(image.alt)} sizes={sizes} className="pointer-events-auto block h-auto w-full" />
           <Highlights callouts={callouts} active={active} setActive={setActive} />
         </div>
       </div>

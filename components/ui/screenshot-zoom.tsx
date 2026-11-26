@@ -55,6 +55,14 @@ function isScreenshot(img: HTMLImageElement): boolean {
   return decodeURIComponent(img.currentSrc || img.src).includes(SCREENS_PATH)
 }
 
+/** Miniaturas dentro de un selector (más angostas que esto, px): su toque elige, no amplía */
+const THUMB_MAX_WIDTH = 220
+
+/** ¿Es la miniatura de un selector? (una imagen pequeña dentro de un botón) */
+function isThumbnail(img: HTMLImageElement): boolean {
+  return img.getBoundingClientRect().width < THUMB_MAX_WIDTH && !!img.closest('button, [role="tab"], [role="button"]')
+}
+
 /** Lo que se puede tocar encima de una pantalla (flechas, botones): esos toques no la abren */
 const INTERACTIVE = 'button, a, input, select, textarea, [role="tab"], [role="button"]'
 
@@ -75,7 +83,7 @@ function screenshotAt(e: MouseEvent, narrow: boolean): HTMLImageElement | null {
   const control = target.closest(INTERACTIVE)
   // Un botón o enlace que no la contiene se queda con el clic. Uno que la contiene (una lámina
   // que se elige, por ejemplo) solo cede el toque en el teléfono.
-  if (control && (!control.contains(img) || !narrow)) return null
+  if (control && (!control.contains(img) || !narrow || isThumbnail(img))) return null
   return img
 }
 
@@ -144,7 +152,7 @@ export function ScreenshotZoom() {
       last = now
       if (e.target instanceof Element && e.target.closest('[data-zoom-hint]')) return
       const img = document.elementsFromPoint(e.clientX, e.clientY).find((el): el is HTMLImageElement => el instanceof HTMLImageElement && isScreenshot(el))
-      if (!img || !img.closest(INTERACTIVE)) {
+      if (!img || !img.closest(INTERACTIVE) || isThumbnail(img)) {
         setHovered(null)
         return
       }
