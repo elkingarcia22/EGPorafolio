@@ -114,7 +114,7 @@ export function ClipperBenefits() {
                 [top ? 'bottom' : 'top']: `${((top ? H - n.y : n.y) / H) * 100 + 8}%`,
               }}
             >
-              <span className="block font-mono text-[10px] uppercase tracking-[0.12em] text-[#f0ce86] sm:text-[11px]">{t(PRINCIPLES[i].role)}</span>
+              <span className="block font-mono text-[11px] uppercase tracking-[0.12em] text-[#f0ce86]">{t(PRINCIPLES[i].role)}</span>
               <span className="mt-1 block">{t(PRINCIPLES[i].gain)}</span>
             </p>
           )

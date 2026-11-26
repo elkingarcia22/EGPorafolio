@@ -30,9 +30,10 @@
 .clp-svg-glyph { font-size: 22px; }
 @media (max-width: 640px) {
   .clp-grow { transform: scale(1.7); }
-  .clp-svg-name { font-size: 30px; }
-  .clp-svg-role { font-size: 20px; letter-spacing: 0.06em; }
-  .clp-svg-glyph { font-size: 30px; }
+  .clp-svg-name { font-size: 34px; }
+  /* Menos etiquetas: los roles (Pregunta, Herramienta…) sobran a este tamaño */
+  .clp-svg-role { display: none; }
+  .clp-svg-glyph { font-size: 36px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
