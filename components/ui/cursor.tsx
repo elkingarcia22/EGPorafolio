@@ -142,7 +142,7 @@ export function Cursor() {
 
   return (
     <>
-      <div aria-hidden="true" data-cursor-layer className="pointer-events-none fixed left-0 top-0 z-[80]">
+      <div aria-hidden="true" data-cursor-layer className="pointer-events-none fixed left-0 top-0 z-[300]">
         {/* Fibra: un píxel de largo que se escala hasta la distancia entre las dos neuronas */}
         <div
           ref={fiberRef}
@@ -165,7 +165,7 @@ export function Cursor() {
           <span className="absolute -left-[3px] -top-[3px] h-1.5 w-1.5 rounded-full bg-[rgb(var(--fg))] shadow-[0_0_6px_1px_rgb(var(--signal)/0.9)]" />
         </div>
       </div>
-      <div ref={badgeRef} aria-hidden="true" data-cursor-layer className="pointer-events-none fixed left-0 top-0 z-[81]">
+      <div ref={badgeRef} aria-hidden="true" data-cursor-layer className="pointer-events-none fixed left-0 top-0 z-[301]">
         <div
           ref={badgeInnerRef}
           className="absolute flex items-center gap-2 whitespace-nowrap rounded-full border border-[rgb(var(--ice)/0.35)] bg-[rgb(10_11_13/0.62)] py-1.5 pl-2 pr-3 text-paper shadow-[0_8px_30px_-8px_rgb(var(--signal)/0.6)] backdrop-blur-md"
