@@ -4,7 +4,8 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { TransitionLink, coverTransition } from '@/components/transition/page-transition'
 import { A11yPanel } from './a11y-panel'
-import { ProjectsMenu, ProjectsSubmenu } from './projects-menu'
+import { ProjectsMenu } from './projects-menu'
+import { MobileMenu } from './mobile-menu'
 import { ContactMenu, ContactQuickActions } from './contact-menu'
 import { ContactIcon } from './contact-channels'
 import { CvViewer, cvModeFromHash, type CvMode } from './cv-viewer'
@@ -297,37 +298,7 @@ export function SiteHeader() {
         </div>
       )}
 
-      {menuOpen && (
-        <nav id="mobile-menu" aria-label="Principal móvil" className="relative max-h-[calc(100svh-4rem)] overflow-y-auto border-t border-white/10 bg-[rgb(var(--void)/0.88)] px-[var(--gutter)] py-6 backdrop-blur-xl lg:hidden">
-          <ul className="space-y-4">
-            {NAV.map((item, i) => (
-              <li key={item.id} className="flex items-baseline gap-4">
-                <span className="mono-label flex items-center gap-2 opacity-50">
-                  <span className="h-1.5 w-1.5 translate-y-[-1px] rounded-full bg-white/70 shadow-[0_0_8px_rgb(255_255_255/0.5)]" aria-hidden="true" />
-                  0{i + 1}
-                </span>
-                {item.id === 'home' ? (
-                  <TransitionLink href="/" transitionLabel="EG" onClick={goHome} className="brand-title text-2xl">
-                    {t(item.label)}
-                  </TransitionLink>
-                ) : item.id === 'cv' ? (
-                  <button type="button" onClick={openCv} aria-haspopup="dialog" className="brand-title text-2xl">
-                    {t(item.label)}
-                  </button>
-                ) : (
-                  <div className="min-w-0 flex-1">
-                    <TransitionLink href={`/#${item.id}`} onClick={goTo(item.id)} className="brand-title text-2xl">
-                      {t(item.label)}
-                    </TransitionLink>
-                    {item.id === 'work' && <ProjectsSubmenu onNavigate={() => setMenuOpen(false)} />}
-                    {item.id === 'contact' && <ContactQuickActions onNavigate={() => setMenuOpen(false)} />}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
+      {menuOpen && <MobileMenu items={NAV} onHome={goHome} onSection={goTo} onCv={openCv} onClose={() => setMenuOpen(false)} />}
 
       <A11yPanel open={a11yOpen} onClose={closeA11y} returnFocusTo={a11yButton} />
       <CvViewer open={cvOpen} onClose={closeCv} initialMode={cvMode} />
