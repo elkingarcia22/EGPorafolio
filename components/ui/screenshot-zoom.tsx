@@ -1,28 +1,27 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { getLenis } from '@/lib/motion'
 import { useLocale } from '@/lib/i18n'
+import { collectGallery, zoomTarget, type GalleryItem, type Shot } from './screenshot-targets'
 
 /** Teléfono: ahí también se abren las pantallas que están dentro de un botón (en escritorio, el clic es del botón) */
 const NARROW_QUERY = '(max-width: 767px)'
-/** Los tableros de bocetos (y otras piezas dibujadas) que se pueden ampliar */
-const ZOOMABLE = '[data-zoomable]'
-/** Margen alrededor de un tablero ampliado (px) */
-const BOARD_MARGIN = { x: 24, y: 160 }
+/** Margen alrededor de un tablero ampliado (px); en escritorio, con flechas, deja sitio a sus lados */
+const BOARD_MARGIN = { x: 24, xWithArrows: 152, y: 160 }
 /** Sensibilidad de la rueda del ratón al acercar */
 const WHEEL_ZOOM = 0.0015
-/** Las pantallas de los productos viven en esta carpeta */
-const SCREENS_PATH = '/cases/'
-/** Imágenes más angostas que esto (px) son íconos o adornos, no pantallas */
-const MIN_WIDTH = 100
 /** Límites del acercamiento */
 const SCALE = { min: 1, max: 5, doubleTap: 2.5 }
 /** Dos toques dentro de este tiempo (ms) y distancia (px) son un doble toque */
 const DOUBLE_TAP = { ms: 300, px: 24 }
 /** Un dedo que se mueve menos que esto (px) es un toque, no un arrastre */
 const TAP_SLOP = 8
+/** Deslizar de lado más que esto (px), sin acercar, pasa a la pantalla vecina */
+const SWIPE_PX = 60
+/** Cuánto sigue la imagen al dedo mientras se desliza para pasar */
+const SWIPE_FOLLOW = 0.6
 
 interface View {
   scale: number
@@ -30,135 +29,35 @@ interface View {
   y: number
 }
 
-/** Lo que se amplía: una imagen (a su resolución original) o una copia de un tablero dibujado */
-type Shot = { kind: 'img'; src: string; alt: string } | { kind: 'node'; node: HTMLElement; w: number; h: number; alt: string }
+/** Hacia dónde se pasa: a la anterior (-1) o a la siguiente (1) */
+type Step = -1 | 1
 
-/** La imagen original (sin el redimensionado de next/image), para verla nítida al acercar. */
-function originalSrc(img: HTMLImageElement): string {
-  const src = img.currentSrc || img.src
-  try {
-    const url = new URL(src, window.location.href)
-    const raw = url.pathname.startsWith('/_next/image') ? url.searchParams.get('url') : null
-    return raw ?? src
-  } catch {
-    return src
+interface Gallery {
+  items: GalleryItem[]
+  index: number
+}
+
+/** Botón redondo del visor (cerrar, anterior, siguiente) */
+const ROUND_BUTTON =
+  'grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-[background-color,border-color,transform] duration-150 hover:border-white/40 hover:bg-white/20 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
+
+/** Precarga las imágenes vecinas para que pasar sea inmediato */
+function preloadAround({ items, index }: Gallery) {
+  for (const step of [-1, 1]) {
+    const src = items[(index + step + items.length) % items.length]?.src
+    if (src) new Image().src = src
   }
-}
-
-/** ¿Es una pantalla de producto? (de la carpeta de casos y de buen tamaño) */
-function isScreenshot(img: HTMLImageElement): boolean {
-  if (img.getBoundingClientRect().width < MIN_WIDTH) return false
-  // Dentro de un enlace (la tarjeta de un proyecto) el toque abre ese proyecto, no el visor.
-  if (img.closest('a')) return false
-  return decodeURIComponent(img.currentSrc || img.src).includes(SCREENS_PATH)
-}
-
-/** Miniaturas dentro de un selector (más angostas que esto, px): su toque elige, no amplía */
-const THUMB_MAX_WIDTH = 220
-
-/** ¿Es la miniatura de un selector? (una imagen pequeña dentro de un botón) */
-function isThumbnail(img: HTMLImageElement): boolean {
-  return img.getBoundingClientRect().width < THUMB_MAX_WIDTH && !!img.closest('button, [role="tab"], [role="button"]')
-}
-
-/** Opacidad mínima para considerar que una pantalla se está viendo */
-const VISIBLE_OPACITY = 0.3
-
-/** ¿Se ve? (ni oculta ni casi transparente, sumando la opacidad de lo que la contiene) */
-function isShown(el: Element): boolean {
-  let opacity = 1
-  for (let node: Element | null = el; node && node !== document.body; node = node.parentElement) {
-    const style = getComputedStyle(node)
-    if (style.visibility === 'hidden' || style.display === 'none') return false
-    opacity *= Number(style.opacity)
-  }
-  return opacity >= VISIBLE_OPACITY
-}
-
-/**
- * Pantallas que no reciben clics (`pointer-events: none`, para no estorbar a la animación que tienen
- * encima): la última visible bajo el punto, que es la que queda al frente.
- */
-function hiddenScreenshotAt(x: number, y: number): HTMLImageElement | null {
-  const found = Array.from(document.querySelectorAll<HTMLImageElement>('main img')).filter((img) => {
-    if (getComputedStyle(img).pointerEvents !== 'none' || !isScreenshot(img)) return false
-    const r = img.getBoundingClientRect()
-    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom && isShown(img)
-  })
-  return found.at(-1) ?? null
-}
-
-/** Lo que se puede tocar encima de una pantalla (flechas, botones): esos toques no la abren */
-const INTERACTIVE = 'button, a, input, select, textarea, [role="tab"], [role="button"]'
-
-/**
- * La pantalla que quedó bajo el dedo, aunque encima haya una capa decorativa (un velo, un
- * marco). Si lo tocado es un botón o un enlace que no la contiene, el toque es de ese control.
- */
-function screenshotAt(e: MouseEvent): HTMLImageElement | null {
-  const target = e.target instanceof Element ? e.target : null
-  if (!target) return null
-  const img =
-    (target instanceof HTMLImageElement && isScreenshot(target) ? target : null) ??
-    document.elementsFromPoint(e.clientX, e.clientY).find((el): el is HTMLImageElement => el instanceof HTMLImageElement && isScreenshot(el)) ??
-    hiddenScreenshotAt(e.clientX, e.clientY)
-  if (!img) return null
-  const control = target.closest(INTERACTIVE)
-  // Un botón que no la contiene se queda con el clic; una lámina que la contiene se amplía (las
-  // miniaturas de un selector, no: esas eligen).
-  if (control && (!control.contains(img) || isThumbnail(img))) return null
-  return img
-}
-
-/** Copia estática de un tablero dibujado, con todo lo animado ya en su sitio */
-function boardCopy(board: HTMLElement): HTMLElement {
-  const copy = board.cloneNode(true) as HTMLElement
-  copy.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
-    el.style.opacity = '1'
-    el.style.visibility = 'visible'
-    el.style.transform = 'none'
-  })
-  copy.querySelectorAll<SVGElement>('[data-draw]').forEach((el) => {
-    el.style.strokeDashoffset = '0'
-  })
-  copy.style.width = `${board.offsetWidth}px`
-  copy.style.minWidth = '0'
-  copy.style.margin = '0'
-  return copy
-}
-
-/** Lo que hay que ampliar bajo el clic: un tablero de bocetos o una pantalla del producto */
-function zoomTarget(e: MouseEvent): Shot | null {
-  const target = e.target instanceof Element ? e.target : null
-  if (!target) return null
-  // Una pieza que, al tocarla, amplía otra (p. ej. la tarjeta del teléfono abre el boceto completo)
-  const proxy = target.closest<HTMLElement>('[data-zoom-for]')
-  const source = proxy ? document.getElementById(proxy.dataset.zoomFor ?? '')?.querySelector<HTMLElement>(ZOOMABLE) : null
-  if (source) return { kind: 'node', node: boardCopy(source), w: source.offsetWidth, h: source.offsetHeight, alt: source.getAttribute('aria-label') ?? '' }
-  const board = target.closest<HTMLElement>(ZOOMABLE)
-  if (board) {
-    const control = target.closest(INTERACTIVE)
-    if (control && board.contains(control)) return null
-    return {
-      kind: 'node',
-      node: boardCopy(board),
-      w: board.offsetWidth,
-      h: board.offsetHeight,
-      alt: board.getAttribute('aria-label') ?? '',
-    }
-  }
-  const img = screenshotAt(e)
-  return img ? { kind: 'img', src: originalSrc(img), alt: img.alt } : null
 }
 
 /**
  * Tocar (o hacer clic en) cualquier pantalla de un producto o tablero de
  * bocetos lo abre a pantalla completa: se acerca con dos dedos, doble toque o
- * la rueda del ratón, y se arrastra para recorrerlo.
+ * la rueda del ratón, y se arrastra para recorrerlo. Con las flechas (de la
+ * pantalla o del teclado) o deslizando de lado se pasa a las demás de la página.
  */
 export function ScreenshotZoom() {
   const { t } = useLocale()
-  const [shot, setShot] = useState<Shot | null>(null)
+  const [gallery, setGallery] = useState<Gallery | null>(null)
   const [narrow, setNarrow] = useState(false)
   useEffect(() => {
     const query = window.matchMedia(NARROW_QUERY)
@@ -169,22 +68,36 @@ export function ScreenshotZoom() {
       e.preventDefault()
       e.stopPropagation()
       setNarrow(query.matches)
-      setShot(next)
+      setGallery(collectGallery(next))
     }
     document.addEventListener('click', onClick, true)
     return () => document.removeEventListener('click', onClick, true)
   }, [])
 
-  const close = useCallback(() => setShot(null), [])
+  const close = useCallback(() => setGallery(null), [])
+  const go = useCallback((step: Step) => {
+    setGallery((g) => (g && g.items.length > 1 ? { ...g, index: (g.index + step + g.items.length) % g.items.length } : g))
+  }, [])
+
+  // Cada pieza se prepara al llegar a ella (un tablero se copia en ese momento).
+  const shot = useMemo<Shot | null>(() => (gallery ? gallery.items[gallery.index].shot() : null), [gallery])
+  const total = gallery?.items.length ?? 0
+  const isOpen = gallery !== null
 
   useEffect(() => {
-    if (!shot) return
+    if (gallery) preloadAround(gallery)
+  }, [gallery])
+
+  useEffect(() => {
+    if (!isOpen) return
     const lenis = getLenis()
     lenis?.stop()
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close()
+      else if (e.key === 'ArrowLeft') go(-1)
+      else if (e.key === 'ArrowRight') go(1)
     }
     window.addEventListener('keydown', onKey)
     return () => {
@@ -192,29 +105,50 @@ export function ScreenshotZoom() {
       document.body.style.overflow = overflow
       lenis?.start()
     }
-  }, [shot, close])
+  }, [isOpen, close, go])
 
-  if (!shot) return null
+  if (!gallery || !shot) return null
+  const canStep = total > 1
   return createPortal(
-    <div role="dialog" aria-modal="true" aria-label={shot.alt || t({ es: 'Pantalla ampliada', en: 'Enlarged screen' })} className="fixed inset-0 z-[220] bg-black/95">
-      <ZoomStage shot={shot} />
-      <p className="pointer-events-none absolute inset-x-0 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] text-center font-mono text-[11px] uppercase tracking-[0.14em] text-white/45">
+    <div
+      data-zoom-viewer
+      role="dialog"
+      aria-modal="true"
+      aria-label={shot.alt || t({ es: 'Pantalla ampliada', en: 'Enlarged screen' })}
+      className="fixed inset-0 z-[220] bg-black/95"
+    >
+      <ZoomStage key={gallery.index} shot={shot} onSwipe={canStep ? go : undefined} />
+      {canStep && (
+        <p aria-live="polite" className="absolute left-4 top-[calc(1rem+env(safe-area-inset-top))] flex h-11 items-center font-mono text-[11px] uppercase tracking-[0.14em] text-white/60">
+          {gallery.index + 1} / {total}
+        </p>
+      )}
+      <p className="pointer-events-none absolute inset-x-0 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] px-4 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-white/45">
         {narrow
-          ? t({
-              es: 'Pellizca o toca dos veces para acercar',
-              en: 'Pinch or double-tap to zoom',
-            })
-          : t({
-              es: 'Rueda o doble clic para acercar · arrastra para recorrer · Esc para cerrar',
-              en: 'Scroll or double-click to zoom · drag to pan · Esc to close',
-            })}
+          ? canStep
+            ? t({ es: 'Desliza para pasar · pellizca o toca dos veces para acercar', en: 'Swipe to browse · pinch or double-tap to zoom' })
+            : t({ es: 'Pellizca o toca dos veces para acercar', en: 'Pinch or double-tap to zoom' })
+          : canStep
+            ? t({
+                es: '← → para pasar · rueda o doble clic para acercar · Esc para cerrar',
+                en: '← → to browse · scroll or double-click to zoom · Esc to close',
+              })
+            : t({
+                es: 'Rueda o doble clic para acercar · arrastra para recorrer · Esc para cerrar',
+                en: 'Scroll or double-click to zoom · drag to pan · Esc to close',
+              })}
       </p>
-      <button
-        type="button"
-        onClick={close}
-        aria-label={t({ es: 'Cerrar', en: 'Close' })}
-        className="absolute right-4 top-[calc(1rem+env(safe-area-inset-top))] grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-xl text-white backdrop-blur"
-      >
+      {canStep && (
+        <>
+          <button type="button" onClick={() => go(-1)} aria-label={t({ es: 'Anterior', en: 'Previous' })} className={`absolute left-3 top-1/2 -translate-y-1/2 md:left-6 ${ROUND_BUTTON}`}>
+            <Chevron dir={-1} />
+          </button>
+          <button type="button" onClick={() => go(1)} aria-label={t({ es: 'Siguiente', en: 'Next' })} className={`absolute right-3 top-1/2 -translate-y-1/2 md:right-6 ${ROUND_BUTTON}`}>
+            <Chevron dir={1} />
+          </button>
+        </>
+      )}
+      <button type="button" onClick={close} aria-label={t({ es: 'Cerrar', en: 'Close' })} className={`absolute right-4 top-[calc(1rem+env(safe-area-inset-top))] text-xl ${ROUND_BUTTON}`}>
         ×
       </button>
     </div>,
@@ -222,13 +156,28 @@ export function ScreenshotZoom() {
   )
 }
 
+function Chevron({ dir }: { dir: Step }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d={dir === -1 ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+interface ZoomStageProps {
+  shot: Shot
+  /** Deslizar de lado sin acercar pasa a la vecina (solo si hay más de una) */
+  onSwipe?: (step: Step) => void
+}
+
 /** La imagen o el tablero, con acercamiento por pellizco, doble toque, rueda y arrastre. */
-function ZoomStage({ shot }: { shot: Shot }) {
+function ZoomStage({ shot, onSwipe }: ZoomStageProps) {
   const stageRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLElement | null>(null)
   const hostRef = useRef<HTMLDivElement>(null)
   /** Un tablero se muestra a su tamaño de diseño, encogido para caber en la pantalla */
-  const fit = shot.kind === 'node' ? Math.min((window.innerWidth - BOARD_MARGIN.x) / shot.w, (window.innerHeight - BOARD_MARGIN.y) / shot.h, 1.4) : 1
+  const sideRoom = onSwipe && !window.matchMedia(NARROW_QUERY).matches ? BOARD_MARGIN.xWithArrows : BOARD_MARGIN.x
+  const fit = shot.kind === 'node' ? Math.min((window.innerWidth - sideRoom) / shot.w, (window.innerHeight - BOARD_MARGIN.y) / shot.h, 1.4) : 1
 
   useEffect(() => {
     const host = hostRef.current
@@ -238,7 +187,7 @@ function ZoomStage({ shot }: { shot: Shot }) {
   }, [shot])
   const view = useRef<View>({ scale: 1, x: 0, y: 0 })
   const pointers = useRef(new Map<number, { x: number; y: number }>())
-  const gesture = useRef({ moved: 0, lastTap: { at: 0, x: 0, y: 0 } })
+  const gesture = useRef({ moved: 0, pinched: false, start: { x: 0, y: 0 }, lastTap: { at: 0, x: 0, y: 0 } })
 
   /** Aplica la vista sin pasar por React (fluido mientras el dedo se mueve) */
   const apply = useCallback((next: View, animate = false) => {
@@ -289,7 +238,25 @@ function ZoomStage({ shot }: { shot: Shot }) {
   const onPointerDown = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
-    if (pointers.current.size === 1) gesture.current.moved = 0
+    if (pointers.current.size === 1) gesture.current = { ...gesture.current, moved: 0, pinched: false, start: { x: e.clientX, y: e.clientY } }
+  }
+
+  /** Sin acercar, la imagen sigue al dedo de lado para anunciar que se puede pasar */
+  const follow = (e: { clientX: number }) => {
+    const img = imgRef.current
+    if (!img || !onSwipe) return
+    img.style.transition = 'none'
+    img.style.transform = `translate3d(${(e.clientX - gesture.current.start.x) * SWIPE_FOLLOW}px, 0, 0)`
+  }
+
+  /** ¿Fue un deslizamiento de lado (sin acercar ni pellizcar)? Entonces pasa a la vecina. */
+  const swiped = (e: { clientX: number; clientY: number }): boolean => {
+    if (!onSwipe || gesture.current.pinched || view.current.scale > SCALE.min) return false
+    const dx = e.clientX - gesture.current.start.x
+    const dy = e.clientY - gesture.current.start.y
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(dy)) return false
+    onSwipe(dx < 0 ? 1 : -1)
+    return true
   }
 
   const onWheel = (e: React.WheelEvent) => {
@@ -311,6 +278,7 @@ function ZoomStage({ shot }: { shot: Shot }) {
       })
       if (before > 0) zoomAt(view.current.scale * (after / before), mid)
       gesture.current.moved += TAP_SLOP
+      gesture.current.pinched = true
     } else if (all.length === 1) {
       const dx = e.clientX - prev.x
       const dy = e.clientY - prev.y
@@ -321,6 +289,7 @@ function ZoomStage({ shot }: { shot: Shot }) {
           x: view.current.x + dx,
           y: view.current.y + dy,
         })
+      else if (!gesture.current.pinched) follow(e)
     }
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
   }
@@ -328,6 +297,7 @@ function ZoomStage({ shot }: { shot: Shot }) {
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId)
     if (pointers.current.size > 0) return
+    if (gesture.current.moved > TAP_SLOP && swiped(e)) return
     if (view.current.scale < SCALE.min + 0.02) apply({ scale: SCALE.min, x: 0, y: 0 }, true)
     if (gesture.current.moved > TAP_SLOP) return
     // Doble toque: acerca donde se tocó, o vuelve a la vista completa.
@@ -347,7 +317,7 @@ function ZoomStage({ shot }: { shot: Shot }) {
   return (
     <div
       ref={stageRef}
-      className="absolute inset-0 grid touch-none select-none place-items-center overflow-hidden px-3 py-20"
+      className={`absolute inset-0 isolate grid touch-none select-none place-items-center overflow-hidden px-3 py-20 ${onSwipe ? 'md:px-20' : ''}`}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
