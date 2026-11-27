@@ -76,7 +76,7 @@ export function Manifesto() {
   return (
     <ToneSection
       tone="dark"
-      className="relative px-[var(--gutter)] pb-[clamp(6rem,4rem+8vw,12rem)] pt-[clamp(12rem,8rem+12vw,20rem)]"
+      className="relative overflow-x-clip px-[var(--gutter)] pb-[clamp(6rem,4rem+8vw,12rem)] pt-[clamp(12rem,8rem+12vw,20rem)]"
     >
       {/* Composición centrada: el viaje llega por el centro, como en el inicio */}
       <div ref={sectionRef} className="relative mx-auto flex max-w-5xl flex-col items-center text-center">

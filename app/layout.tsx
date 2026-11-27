@@ -60,7 +60,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </a>
             <SmoothScroll />
             <SiteHeader />
-            <main id="main">{children}</main>
+            {/* overflow-x: clip (no hidden): recorta adornos que sobresalgan de lado sin crear un
+                contenedor de scroll, así los paneles sticky siguen funcionando y en el teléfono la
+                página no se puede arrastrar hacia los lados. */}
+            <main id="main" className="overflow-x-clip">
+              {children}
+            </main>
             <TransitionOverlay />
             <Cursor />
             <PaletteRoute />

@@ -33,12 +33,14 @@ export function useHeroSnap(snap: React.MutableRefObject<HeroSnap>, enabled: boo
     let lastY = window.scrollY
     let forward = true
     let timer = 0
+    /** Dedo apoyado en la pantalla: mientras tanto el scroll es suyo, no se acomoda nada */
+    let touching = false
 
     const settle = () => {
       const { trigger, rests } = snap.current
       const lenis = getLenis()
-      // Sin scroll suave, o con un visor abierto que lo detiene, no se toca nada.
-      if (!trigger || !lenis || lenis.isStopped || !trigger.isActive) return
+      // Sin scroll suave, con un visor abierto que lo detiene o con el dedo encima, no se toca nada.
+      if (touching || !trigger || !lenis || lenis.isStopped || !trigger.isActive) return
       const target = nextRest(trigger.progress, rests, forward)
       if (target === null) return
       const y = trigger.start + (trigger.end - trigger.start) * target
@@ -53,10 +55,30 @@ export function useHeroSnap(snap: React.MutableRefObject<HeroSnap>, enabled: boo
       timer = window.setTimeout(settle, IDLE_MS)
     }
 
+    const onTouchStart = () => {
+      touching = true
+      window.clearTimeout(timer)
+      // Si un acomodo iba en curso, el dedo lo detiene en seco (si no, los dos tiran del scroll y tiembla).
+      const lenis = getLenis()
+      if (lenis?.isScrolling) lenis.scrollTo(window.scrollY, { immediate: true, force: true })
+    }
+    const onTouchEnd = () => {
+      touching = false
+      // La inercia sigue moviendo la página: el acomodo espera a que se detenga (ver onScroll).
+      window.clearTimeout(timer)
+      timer = window.setTimeout(settle, IDLE_MS)
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchend', onTouchEnd, { passive: true })
+    window.addEventListener('touchcancel', onTouchEnd, { passive: true })
     return () => {
       window.clearTimeout(timer)
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('touchcancel', onTouchEnd)
     }
   }, [snap, enabled])
 }
