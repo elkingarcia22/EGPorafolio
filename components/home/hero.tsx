@@ -64,6 +64,10 @@ const AUTO_SCROLL_DELAY_MS = 900
 const AUTO_SCROLL_S = 2.4
 /** Si al arrancar la página ya está deslizada más que esto, la carga se salta. */
 const SCROLLED_PX = 80
+/** Al irse el hero, la firma sube esto (px) mientras se desvanece… */
+const NAME_EXIT_LIFT_PX = 40
+/** …y termina de irse cuando el final del hero llega a esta altura (antes de alcanzar el menú) */
+const NAME_EXIT_END = 'bottom 58%'
 
 /** Encuadre del EG en el lienzo */
 const EG_FIT = { width: 0.62, height: 0.42, centerY: 0.38 }
@@ -396,6 +400,18 @@ export function Hero() {
         }
       })
 
+      // Al irse el hero, la firma sube y se desvanece antes de llegar al menú (no se cruza con él).
+      gsap.fromTo(
+        q('[data-name-exit]'),
+        { autoAlpha: 1, y: 0 },
+        {
+          autoAlpha: 0,
+          y: -NAME_EXIT_LIFT_PX,
+          ease: 'power1.in',
+          scrollTrigger: { trigger: section, start: 'bottom bottom', end: NAME_EXIT_END, scrub: true },
+        },
+      )
+
       snap.current = {
         trigger: tl.scrollTrigger ?? null,
         rests: [0, SIGNAL_REST_AT / tl.duration(), HERO_SIGNATURE_AT, 1],
@@ -415,7 +431,7 @@ export function Hero() {
         <style>{'[data-boot]{opacity:1!important}'}</style>
       </noscript>
       <style>{BOOT_FALLBACK_CSS}</style>
-      <div ref={sectionRef} data-header-clear data-hero-root className="relative h-[320vh]">
+      <div ref={sectionRef} data-header-clear="pinned" data-hero-root className="relative h-[320vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-boot="field" className={`absolute inset-0 ${BOOT_HIDDEN}`}>
             {/* Nebulosa del EG armado: los mismos colores que la del viaje, que se apaga en el relevo.
@@ -493,20 +509,23 @@ export function Hero() {
 
           {/* 3 · Firma (lockup de la hoja de vida) */}
           <div data-phase="name" className="invisible absolute inset-x-0 bottom-0 px-[var(--gutter)] pb-10">
-            <div className="flex items-end gap-5">
-              <span data-bar className="brand-bar h-[clamp(6rem,14vw,12rem)] origin-bottom" aria-hidden="true" />
-              <h1 className="leading-[0.85]">
-                <span className="sr-only">{PROFILE.firstName} {PROFILE.lastName}</span>
-                <SplitLine text={PROFILE.firstName} className="text-[clamp(2rem,1rem+4vw,4.5rem)] font-light lowercase" />
-                <SplitLine text={PROFILE.lastName} className="text-[clamp(3rem,1rem+9vw,10rem)] font-medium tracking-[0.12em]" />
-              </h1>
-            </div>
-            <div className="mt-6 flex flex-col gap-4 md:ml-[calc(6px+1.25rem)] md:flex-row md:items-end md:justify-between">
-              <p data-read-meta className="flex items-center gap-3 text-lg">
-                <span data-bar className="h-6 w-px origin-bottom bg-current" aria-hidden="true" />
-                {t(PROFILE.role)}
-              </p>
-              <p data-read-meta className="max-w-md text-sm leading-relaxed opacity-70">{t(COPY.hero.tagline)}</p>
+            {/* Envoltura propia para la salida (la fase la anima la línea de tiempo del scroll) */}
+            <div data-name-exit>
+              <div className="flex items-end gap-5">
+                <span data-bar className="brand-bar h-[clamp(6rem,14vw,12rem)] origin-bottom" aria-hidden="true" />
+                <h1 className="leading-[0.85]">
+                  <span className="sr-only">{PROFILE.firstName} {PROFILE.lastName}</span>
+                  <SplitLine text={PROFILE.firstName} className="text-[clamp(2rem,1rem+4vw,4.5rem)] font-light lowercase" />
+                  <SplitLine text={PROFILE.lastName} className="text-[clamp(3rem,1rem+9vw,10rem)] font-medium tracking-[0.12em]" />
+                </h1>
+              </div>
+              <div className="mt-6 flex flex-col gap-4 md:ml-[calc(6px+1.25rem)] md:flex-row md:items-end md:justify-between">
+                <p data-read-meta className="flex items-center gap-3 text-lg">
+                  <span data-bar className="h-6 w-px origin-bottom bg-current" aria-hidden="true" />
+                  {t(PROFILE.role)}
+                </p>
+                <p data-read-meta className="max-w-md text-sm leading-relaxed opacity-70">{t(COPY.hero.tagline)}</p>
+              </div>
             </div>
           </div>
 

@@ -34,11 +34,17 @@ const SOLID_AFTER_PX = 40
 /** Línea (px desde arriba) donde se mira qué sección queda bajo el header */
 const HEADER_PROBE_PX = 64
 
-/** ¿Hay bajo el header una sección que pide header transparente (el hero)? */
+/**
+ * ¿Hay bajo el header una sección que pide header transparente (el hero)? Con
+ * `data-header-clear="pinned"`, solo mientras su panel fijo cubre toda la pantalla: en cuanto
+ * empieza a irse, lo que sube (la firma) pasa por debajo de un header con fondo, no mezclado con el menú.
+ */
 function isOverClearSection(): boolean {
   return Array.from(document.querySelectorAll<HTMLElement>('[data-header-clear]')).some((el) => {
     const rect = el.getBoundingClientRect()
-    return rect.top <= HEADER_PROBE_PX && rect.bottom > HEADER_PROBE_PX
+    const isUnder = rect.top <= HEADER_PROBE_PX && rect.bottom > HEADER_PROBE_PX
+    const isPinned = rect.bottom >= window.innerHeight - 1
+    return isUnder && (el.dataset.headerClear !== 'pinned' || isPinned)
   })
 }
 
