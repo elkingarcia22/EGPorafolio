@@ -29,8 +29,8 @@ export const COPY = {
     label: { es: 'Enfoque', en: 'Approach' },
     // [[x]] marca un chip con ícono dentro de la frase
     text: {
-      es: 'Escucho a las personas [[research]] hasta encontrar los puntos que importan. Los conecto en sistemas [[system]] que escalan. Y uso la IA [[ai]] para pasar de la idea al producto en días, no en meses.',
-      en: 'I listen to people [[research]] until I find the dots that matter. I connect them into systems [[system]] that scale. And I use AI [[ai]] to go from idea to product in days, not months.',
+      es: 'Cruzo usuarios, datos y métricas de negocio [[research]] hasta encontrar los puntos que importan. Los conecto en sistemas [[system]] que escalan. Y uso la IA [[ai]] para pasar de la idea al producto en días, no en meses.',
+      en: 'I cross users, data and business metrics [[research]] until I find the dots that matter. I connect them into systems [[system]] that scale. And I use AI [[ai]] to go from idea to product in days, not months.',
     },
   },
   backToTop: {
