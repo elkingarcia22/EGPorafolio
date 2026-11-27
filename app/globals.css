@@ -344,6 +344,20 @@ main a img[src*='cases'] {
   cursor: inherit;
 }
 
+/* El visor de pantallas ampliadas: aparece con un fundido y cada lámina nueva entra creciendo un poco */
+@keyframes zoom-viewer-in {
+  from { opacity: 0; }
+}
+@keyframes zoom-slide-in {
+  from { opacity: 0; transform: scale(0.94); }
+}
+.zoom-viewer-in { animation: zoom-viewer-in 240ms ease-out both; }
+.zoom-slide-in { animation: zoom-slide-in 480ms var(--ease-out-expo) both; }
+@media (prefers-reduced-motion: reduce) {
+  .zoom-viewer-in,
+  .zoom-slide-in { animation: none; }
+}
+
 /* Notas de los casos (bajo un gráfico, una aclaración, una pista): se leen sin esfuerzo,
    en letra de lectura, con contraste suficiente y en líneas parejas. */
 .case-note {

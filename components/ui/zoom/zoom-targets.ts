@@ -24,8 +24,8 @@ export type Shot = { kind: 'img'; src: string; alt: string } | { kind: 'node'; n
 /** Una pieza de la galería: `key` la identifica (la ruta de la imagen o el tablero) y `shot` la prepara al mostrarla */
 export interface GalleryItem {
   key: string | HTMLElement
-  /** Ruta de la imagen, para precargarla antes de llegar a ella */
-  src?: string
+  /** Cómo se nombra al mostrarla (el texto alternativo de la imagen o el nombre del tablero) */
+  alt: string
   shot: () => Shot
 }
 
@@ -117,11 +117,13 @@ function boardCopy(board: HTMLElement): HTMLElement {
 function imageItem(img: HTMLImageElement): GalleryItem {
   const src = originalSrc(img)
   const alt = img.alt
-  return { key: src, src, shot: () => ({ kind: 'img', src, alt }) }
+  return { key: src, alt, shot: () => ({ kind: 'img', src, alt }) }
 }
 
 function boardItem(board: HTMLElement): GalleryItem {
+  const alt = board.getAttribute('aria-label') ?? ''
   return {
+    alt,
     // Un mismo boceto puede salir dos veces (en grande y en la miniatura de su selector): se reconoce por su nombre.
     key: board.getAttribute('aria-label') || board,
     shot: () => ({
@@ -129,7 +131,7 @@ function boardItem(board: HTMLElement): GalleryItem {
       node: boardCopy(board),
       w: board.offsetWidth,
       h: board.offsetHeight,
-      alt: board.getAttribute('aria-label') ?? '',
+      alt,
     }),
   }
 }
